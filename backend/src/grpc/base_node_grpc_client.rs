@@ -20,41 +20,29 @@
 //  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4};
 
-use bollard::container::Stats;
+
+
 use futures::{
-    channel::mpsc::{self, Sender},
-    stream,
+    channel::mpsc::{self},
     Stream,
-    StreamExt,
-    TryStreamExt,
 };
 use log::*;
 use tari_app_grpc::tari_rpc::{
     base_node_client::BaseNodeClient,
-    wallet_client::WalletClient,
     Empty,
-    GetBalanceRequest,
-    GetBalanceResponse,
-    GetIdentityRequest,
-    GetIdentityResponse,
     NodeIdentity,
-    TransactionEvent,
-    TransactionEventRequest,
-    TransactionEventResponse,
 };
-use tauri::{async_runtime::block_on, http::status};
+
 use tokio::{
     task,
     time::{sleep, Duration},
 };
-use tonic::transport::Channel;
 
-use super::{error::GrpcError, BlockStateInfo};
+
+use super::{error::GrpcError};
 use crate::{
-    docker::{DockerWrapperError, LaunchpadConfig, BASE_NODE_GRPC_ADDRESS_URL},
-    error::LauncherError,
+    docker::{BASE_NODE_GRPC_ADDRESS_URL},
     grpc::{SyncProgress, SyncProgressInfo},
 };
 

@@ -23,10 +23,10 @@
 
 use std::{collections::HashMap, path::PathBuf, time::Duration};
 
-use bollard::models::{Mount, MountTypeEnum, PortBinding, PortMap};
+use bollard::models::{Mount, PortBinding, PortMap};
 use config::ConfigError;
 use derivative::Derivative;
-use log::info;
+
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tor_hash_passwd::EncryptedKey;

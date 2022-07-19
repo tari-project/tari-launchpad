@@ -30,9 +30,7 @@ use serde::Serialize;
 use tauri::{AppHandle, Manager, Wry};
 
 use crate::{
-    commands::AppState,
-    docker::{DockerWrapper, DockerWrapperError, ImageType, TariWorkspace, DOCKER_INSTANCE},
-    error::LauncherError,
+    docker::{ImageType, TariWorkspace, DOCKER_INSTANCE},
     rest::DockerImageError,
 };
 

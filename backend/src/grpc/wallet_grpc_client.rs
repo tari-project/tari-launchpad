@@ -20,14 +20,11 @@
 //  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::{
-    net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4},
-    time::Duration,
-};
 
-use bollard::container::Stats;
-use futures::{stream, Stream, StreamExt, TryStreamExt};
-use log::info;
+
+
+use futures::{Stream, StreamExt};
+
 use tari_app_grpc::tari_rpc::{
     wallet_client::WalletClient,
     Empty,
@@ -36,17 +33,15 @@ use tari_app_grpc::tari_rpc::{
     GetIdentityRequest,
     GetIdentityResponse,
     PaymentRecipient,
-    TransactionEvent,
     TransactionEventRequest,
     TransactionEventResponse,
     TransferRequest,
 };
-use tonic::{transport::Channel, Request};
+
 
 use super::{error::GrpcError, TransferFunds, TransferFundsResult};
 use crate::{
-    docker::{DockerWrapperError, LaunchpadConfig, WALLET_GRPC_ADDRESS_URL},
-    error::LauncherError,
+    docker::{WALLET_GRPC_ADDRESS_URL},
 };
 
 type Inner = WalletClient<tonic::transport::Channel>;

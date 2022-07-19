@@ -25,18 +25,17 @@ pub mod quay_io;
 use std::collections::HashMap;
 
 use bollard::{
-    image::{CreateImageOptions, ListImagesOptions, SearchImagesOptions},
-    models::{CreateImageInfo, ImageSummary},
+    image::{ListImagesOptions},
+    models::{ImageSummary},
 };
-use futures::{Stream, StreamExt, TryStreamExt};
-use log::{debug, error};
-use serde::{Deserialize, Serialize};
+use futures::{TryStreamExt};
+use log::{error};
+
 use thiserror::Error;
 
-use self::quay_io::QUAY_IO_REPO_NAME;
+
 use crate::{
-    docker::{DockerWrapperError, ImageType, TariWorkspace, DOCKER_INSTANCE},
-    rest::quay_io::TARILABS_REPO_NAME,
+    docker::{DOCKER_INSTANCE},
 };
 
 #[derive(Debug, Error)]

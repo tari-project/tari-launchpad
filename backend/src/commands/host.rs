@@ -22,17 +22,14 @@
 //
 
 use std::{
-    convert::TryFrom,
-    path::PathBuf,
-    process::{Command, Stdio},
-    time::Duration,
+    process::{Command},
 };
 
-use bollard::{system::Version, Docker};
+use bollard::{system::Version};
 use log::*;
 use tauri::{api::path::home_dir, AppHandle, Wry};
 
-use crate::{commands::AppState, docker::DOCKER_INSTANCE};
+use crate::{docker::DOCKER_INSTANCE};
 
 const LOG_TARGET: &str = "tari_launchpad::host";
 
@@ -78,7 +75,7 @@ pub async fn open_terminal(_app: AppHandle<Wry>, platform: String) -> Result<(),
             .spawn()
             .map_err(|e| {
                 error!("Failed to start powershell Error: {}", e);
-                format!("Terminal cannot be opened. cmd: powershell -command start powershell")
+                "Terminal cannot be opened. cmd: powershell -command start powershell".to_string()
             })?;
     } else if platform.to_lowercase().trim() == "linux" {
         Command::new("gnome-terminal")

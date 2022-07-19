@@ -21,11 +21,11 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use bollard::models::ContainerCreateResponse;
+
 use log::debug;
 
-use super::{ContainerId, ContainerState, ContainerStatus, DockerWrapperError, CONTAINERS};
-use crate::error::LauncherError;
+use super::{ContainerState, ContainerStatus, DockerWrapperError, CONTAINERS};
+
 
 /// Add the container info to the list of containers the wrapper is managing
 pub fn add_container(id: &str, state: ContainerState) {

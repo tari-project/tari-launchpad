@@ -21,26 +21,17 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::collections::HashMap;
+
 
 use bollard::{
-    container::{InspectContainerOptions, ListContainersOptions, StatsOptions, TopOptions},
-    models::{ContainerStateStatusEnum, ContainerSummary, ContainerTopResponse},
     Docker,
 };
-use futures::{
-    stream::{self, FuturesUnordered},
-    StreamExt,
-    TryFutureExt,
-};
+
 
 use crate::docker::{
     container_state,
-    filter,
-    ContainerStatus,
     DockerWrapperError,
     ImageType,
-    CONTAINERS,
     DOCKER_INSTANCE,
 };
 

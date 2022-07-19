@@ -21,12 +21,10 @@
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use std::{
-    cell::RefCell,
-    sync::{Arc, Mutex, RwLock},
-    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+    time::{Duration, Instant},
 };
 
-use log::{debug, warn};
+
 use serde::Serialize;
 use tari_app_grpc::tari_rpc::{SyncProgressResponse, SyncState};
 
@@ -210,9 +208,9 @@ impl SyncProgress {
 
 #[cfg(test)]
 mod test {
-    use std::{ops::Sub, time::Duration};
+    use std::{time::Duration};
 
-    use tari_app_grpc::tari_rpc::{SyncProgressResponse, SyncState};
+    use tari_app_grpc::tari_rpc::{SyncProgressResponse};
 
     use crate::grpc::{
         model::BLOCK,

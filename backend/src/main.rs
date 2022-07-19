@@ -15,19 +15,17 @@ mod docker;
 mod error;
 mod grpc;
 mod rest;
-use docker::{shutdown_all_containers, DockerWrapper, ImageType, Workspaces, DOCKER_INSTANCE};
-use tari_app_grpc::tari_rpc::wallet_client;
+use docker::{shutdown_all_containers, DockerWrapper, Workspaces, DOCKER_INSTANCE};
+
 use tauri::{
     api::cli::get_matches,
     async_runtime::block_on,
     utils::config::CliConfig,
-    CustomMenuItem,
     GlobalWindowEvent,
     Manager,
     Menu,
     MenuItem,
     PackageInfo,
-    RunEvent,
     Submenu,
     WindowEvent,
 };
@@ -59,12 +57,10 @@ use crate::{
         pull_images,
         shutdown,
         start_service,
-        status,
         stop_service,
         AppState,
     },
     docker::DEFAULT_WORKSPACE_NAME,
-    grpc::WalletTransaction,
 };
 
 #[warn(clippy::too_many_lines)]

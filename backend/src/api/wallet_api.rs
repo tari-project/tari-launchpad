@@ -22,15 +22,15 @@
 //
 use std::{convert::TryFrom};
 
-use config::Config;
+
 use futures::StreamExt;
 use log::{debug, error, info, warn};
-use tari_app_grpc::tari_rpc::wallet_client;
-use tauri::{http::status, AppHandle, Manager, Wry};
+
+use tauri::{AppHandle, Manager, Wry};
 
 use crate::{
-    commands::{status, AppState, DEFAULT_IMAGES},
-    docker::{ContainerState, ImageType, TariNetwork},
+    commands::{status},
+    docker::{ImageType},
     grpc::{GrpcWalletClient, TransferFunds, TransferFundsResult, WalletBalance, WalletIdentity, WalletTransaction},
 };
 

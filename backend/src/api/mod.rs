@@ -21,15 +21,15 @@
 //
 mod base_node_api;
 mod wallet_api;
-use std::{convert::TryFrom, fmt::format};
+use std::{convert::TryFrom};
 
 pub use base_node_api::{base_node_sync_progress, node_identity};
-use config::Config;
+
 use futures::StreamExt;
-use log::{debug, error, info, warn};
+
 use serde::Serialize;
-use tari_app_grpc::tari_rpc::wallet_client;
-use tauri::{http::status, AppHandle, Manager, Wry};
+
+
 pub use wallet_api::{
     delete_seed_words,
     get_seed_words,
@@ -41,9 +41,8 @@ pub use wallet_api::{
 };
 
 use crate::{
-    commands::{status, AppState, ServiceSettings, DEFAULT_IMAGES},
-    docker::{ContainerState, ImageType, TariNetwork, TariWorkspace},
-    grpc::{GrpcWalletClient, Payment, TransferFunds, WalletIdentity, WalletTransaction},
+    commands::{status, ServiceSettings, DEFAULT_IMAGES},
+    docker::{ImageType, TariNetwork, TariWorkspace},
     rest::quay_io::get_tag_info,
 };
 
@@ -116,7 +115,7 @@ pub fn network_list() -> Vec<String> {
 /// Provide information about docker images and service recipes in Tari "ecosystem"
 #[tauri::command]
 pub async fn image_info(settings: ServiceSettings) -> ImageListDto {
-    let registry = settings.docker_registry.as_ref().map(String::as_str);
+    let registry = settings.docker_registry.as_deref();
     let mut images: Vec<ImageInfo> = vec![];
     for image in DEFAULT_IMAGES {
         images.push(from_image_type(image, registry).await);

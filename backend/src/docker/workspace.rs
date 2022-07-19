@@ -25,17 +25,12 @@ use std::collections::HashMap;
 
 use bollard::{
     container::{
-        Config,
-        CreateContainerOptions,
-        ListContainersOptions,
         LogsOptions,
-        NetworkingConfig,
-        RemoveContainerOptions,
         Stats,
         StatsOptions,
         StopContainerOptions,
     },
-    models::{ContainerCreateResponse, EndpointSettings, HostConfig, Network},
+    models::{ContainerCreateResponse, EndpointSettings, Network},
     network::{ConnectNetworkOptions, CreateNetworkOptions, InspectNetworkOptions},
     volume::CreateVolumeOptions,
     Docker,

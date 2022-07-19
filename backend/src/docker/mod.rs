@@ -35,14 +35,13 @@ use std::{collections::HashMap, sync::RwLock};
 
 use bollard::{
     container::{Config, CreateContainerOptions, ListContainersOptions, NetworkingConfig, RemoveContainerOptions},
-    image,
     models::{ContainerCreateResponse, EndpointSettings, HostConfig},
     Docker,
 };
 pub use container::{add_container, change_container_status, container_state, filter, remove_container};
 pub use error::DockerWrapperError;
 pub use filesystem::create_workspace_folders;
-use futures::StreamExt;
+
 use log::{debug, info};
 pub use models::{ContainerId, ContainerState, ContainerStatus, ImageType, LogMessage, TariNetwork};
 pub use settings::{
@@ -62,7 +61,6 @@ pub use wrapper::DockerWrapper;
 
 use crate::{
     commands::DEFAULT_IMAGES,
-    grpc::{GrpcBaseNodeClient, SyncProgress, SyncProgressInfo, SyncType},
 };
 
 lazy_static! {
