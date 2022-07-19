@@ -1,0 +1,31 @@
+name: Launchpad v2 CI
+
+on:
+  push:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+env:
+  CARGO_HTTP_MULTIPLEXING: false
+  CARGO_TERM_COLOR: always
+  PROTOC: protoc
+
+jobs:
+  check-debug:
+    uses:
+      ./.github/workflows/reusable-ci-jobs.yml
+    with:
+      lints: true
+      toolchain: "nightly-2022-05-01"
+      build-tari: true
+      build-launchpad-fe: true
+      check-ffi: false
+      build-collectibles: false
+      build-explorer: false
+
+  licenses:
+    uses:
+      ./.github/workflows/reusable-licenses.yml

@@ -1,0 +1,22 @@
+# Runs daily
+name: Security audit
+on:
+  schedule:
+    - cron: "27 04 * * *"
+jobs:
+  security_audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: check environment
+        run: |
+          node -v
+          npm -v
+          yarn -v
+      - name: npm audit gui-react
+        run: |
+          cd gui-react
+          yarn audit
