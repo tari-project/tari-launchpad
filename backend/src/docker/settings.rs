@@ -25,7 +25,6 @@ use std::{collections::HashMap, path::PathBuf, time::Duration};
 
 use bollard::models::{Mount, PortBinding, PortMap};
 use derivative::Derivative;
-
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tor_hash_passwd::EncryptedKey;

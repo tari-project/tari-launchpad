@@ -20,10 +20,7 @@
 //  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::{
-    time::{Duration, Instant},
-};
-
+use std::time::{Duration, Instant};
 
 use serde::Serialize;
 use tari_app_grpc::tari_rpc::{SyncProgressResponse, SyncState};
@@ -207,16 +204,16 @@ impl SyncProgress {
             total_blocks: self.blocks_sync.total_items,
             estimated_time_sec: self.estimated_time_remaining().as_secs(),
             done: self.is_done(),
-            sync_time_sec: self.total_sync_time().as_secs()
+            sync_time_sec: self.total_sync_time().as_secs(),
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::{time::Duration};
+    use std::time::Duration;
 
-    use tari_app_grpc::tari_rpc::{SyncProgressResponse};
+    use tari_app_grpc::tari_rpc::SyncProgressResponse;
 
     use crate::grpc::{
         model::BLOCK,

@@ -21,15 +21,13 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::{
-    process::{Command},
-};
+use std::process::Command;
 
-use bollard::{system::Version};
+use bollard::system::Version;
 use log::*;
 use tauri::{api::path::home_dir, AppHandle, Wry};
 
-use crate::{docker::DOCKER_INSTANCE};
+use crate::docker::DOCKER_INSTANCE;
 
 const LOG_TARGET: &str = "tari_launchpad::host";
 
@@ -64,7 +62,10 @@ pub async fn open_terminal(_app: AppHandle<Wry>, platform: String) -> Result<(),
             .arg(&terminal_path)
             .spawn()
             .map_err(|e| {
-                error!(target: LOG_TARGET, "Failed to open terminal with path {}. Error: {}", terminal_path, e);
+                error!(
+                    target: LOG_TARGET,
+                    "Failed to open terminal with path {}. Error: {}", terminal_path, e
+                );
                 format!("Terminal cannot be opened. cmd: open -a Terminal {}", terminal_path)
             })?;
     } else if platform.to_lowercase().trim() == "windows_nt" {

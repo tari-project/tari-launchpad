@@ -20,29 +20,20 @@
 //  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-
-
 use futures::{
     channel::mpsc::{self},
     Stream,
 };
 use log::*;
-use tari_app_grpc::tari_rpc::{
-    base_node_client::BaseNodeClient,
-    Empty,
-    NodeIdentity,
-};
-
+use tari_app_grpc::tari_rpc::{base_node_client::BaseNodeClient, Empty, NodeIdentity};
 use tokio::{
     task,
     time::{sleep, Duration},
 };
 
-
-use super::{error::GrpcError};
+use super::error::GrpcError;
 use crate::{
-    docker::{BASE_NODE_GRPC_ADDRESS_URL},
+    docker::BASE_NODE_GRPC_ADDRESS_URL,
     grpc::{SyncProgress, SyncProgressInfo},
 };
 

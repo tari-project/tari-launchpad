@@ -24,12 +24,7 @@
 use std::collections::HashMap;
 
 use bollard::{
-    container::{
-        LogsOptions,
-        Stats,
-        StatsOptions,
-        StopContainerOptions,
-    },
+    container::{LogsOptions, Stats, StatsOptions, StopContainerOptions},
     models::{ContainerCreateResponse, Network},
     network::{CreateNetworkOptions, InspectNetworkOptions},
     Docker,
@@ -510,5 +505,4 @@ impl TariWorkspace {
         }
         Ok(())
     }
-
 }

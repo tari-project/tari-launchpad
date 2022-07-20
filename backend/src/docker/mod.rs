@@ -41,7 +41,6 @@ use bollard::{
 pub use container::{add_container, change_container_status, container_state};
 pub use error::DockerWrapperError;
 pub use filesystem::create_workspace_folders;
-
 use log::{debug, info};
 pub use models::{ContainerId, ContainerState, ContainerStatus, ImageType, LogMessage, TariNetwork};
 pub use settings::{
@@ -59,9 +58,7 @@ pub use settings::{
 pub use workspace::{TariWorkspace, Workspaces};
 pub use wrapper::DockerWrapper;
 
-use crate::{
-    commands::DEFAULT_IMAGES,
-};
+use crate::commands::DEFAULT_IMAGES;
 
 lazy_static! {
     pub static ref DOCKER_INSTANCE: Docker = Docker::connect_with_local_defaults().unwrap();

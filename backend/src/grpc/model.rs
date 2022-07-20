@@ -20,10 +20,9 @@
 //  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use std::{convert::TryFrom};
+use std::convert::TryFrom;
 
 use derivative::Derivative;
-
 use serde::{Deserialize, Serialize};
 use tari_app_grpc::tari_rpc::{
     GetBalanceResponse,
@@ -33,7 +32,7 @@ use tari_app_grpc::tari_rpc::{
     TransactionEvent,
     TransferResponse,
 };
-use tari_common_types::{emoji::EmojiId};
+use tari_common_types::emoji::EmojiId;
 
 pub const HEADER: i32 = 2;
 pub const BLOCK: i32 = 4;

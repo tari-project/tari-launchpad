@@ -5,9 +5,7 @@
 #[macro_use]
 extern crate lazy_static;
 
-use std::{
-    thread::{self},
-};
+use std::thread::{self};
 
 use log::*;
 
@@ -19,7 +17,6 @@ mod grpc;
 mod rest;
 
 use docker::{shutdown_all_containers, DockerWrapper, Workspaces, DOCKER_INSTANCE};
-
 use tauri::{
     api::cli::get_matches,
     async_runtime::block_on,
@@ -38,8 +35,8 @@ use crate::{
         base_node_sync_progress,
         delete_seed_words,
         get_seed_words,
-        image_info,
         health_check,
+        image_info,
         network_list,
         node_identity,
         transaction_fee,
@@ -80,7 +77,7 @@ fn main() {
         Err(err) => {
             error!("Could not launch docker backend. {}", err.chained_message());
             std::process::exit(-1);
-        }
+        },
     };
     thread::spawn(|| {
         block_on(shutdown_all_containers(
@@ -105,8 +102,9 @@ fn main() {
 }
 
 #[macro_export]
-macro_rules! create_handler { () => {
-    tauri::generate_handler![
+macro_rules! create_handler {
+    () => {
+        tauri::generate_handler![
             base_node_sync_progress,
             create_new_workspace,
             create_default_workspace,
@@ -132,7 +130,8 @@ macro_rules! create_handler { () => {
             wallet_balance,
             wallet_identity,
         ]
-}}
+    };
+}
 
 fn do_migrations() -> Vec<Migration> {
     let migrations = vec![
@@ -204,10 +203,10 @@ fn handle_cli_options(cli_config: &CliConfig, pkg_info: &PackageInfo) {
                 debug!("{}", arg_data.value.as_str().unwrap_or("No version data available"));
                 std::process::exit(0);
             }
-        }
+        },
         Err(e) => {
             error!("{}", e.to_string());
             std::process::exit(1);
-        }
+        },
     }
 }

@@ -21,13 +21,10 @@
 //
 mod base_node_api;
 mod wallet_api;
-use std::{convert::TryFrom};
+use std::convert::TryFrom;
 
 pub use base_node_api::{base_node_sync_progress, node_identity};
-
 use serde::Serialize;
-
-
 pub use wallet_api::{
     delete_seed_words,
     get_seed_words,

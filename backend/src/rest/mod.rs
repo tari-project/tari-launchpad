@@ -24,18 +24,11 @@
 pub mod quay_io;
 use std::collections::HashMap;
 
-use bollard::{
-    image::{ListImagesOptions},
-    models::{ImageSummary},
-};
-use log::{error};
-
+use bollard::{image::ListImagesOptions, models::ImageSummary};
+use log::error;
 use thiserror::Error;
 
-
-use crate::{
-    docker::{DOCKER_INSTANCE},
-};
+use crate::docker::DOCKER_INSTANCE;
 
 #[derive(Error, Debug)]
 pub enum DockerImageError {

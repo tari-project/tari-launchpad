@@ -20,17 +20,15 @@
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-use std::{convert::TryFrom};
-
+use std::convert::TryFrom;
 
 use futures::StreamExt;
 use log::{debug, error, info, warn};
-
 use tauri::{AppHandle, Manager, Wry};
 
 use crate::{
-    commands::{status},
-    docker::{ImageType},
+    commands::status,
+    docker::ImageType,
     grpc::{GrpcWalletClient, TransferFunds, TransferFundsResult, WalletBalance, WalletIdentity, WalletTransaction},
 };
 

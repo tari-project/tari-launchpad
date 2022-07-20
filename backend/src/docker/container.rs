@@ -21,11 +21,9 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-
 use log::debug;
 
 use super::{ContainerState, ContainerStatus, DockerWrapperError, CONTAINERS};
-
 
 /// Add the container info to the list of containers the wrapper is managing
 pub fn add_container(id: &str, state: ContainerState) {
@@ -56,4 +54,3 @@ pub fn change_container_status(id: &str, status: ContainerStatus) -> Result<(), 
 pub fn container_state(id: &str) -> Option<ContainerState> {
     CONTAINERS.read().unwrap().get(id).cloned()
 }
-

@@ -20,11 +20,7 @@
 //  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-
-
 use futures::{Stream, StreamExt};
-
 use tari_app_grpc::tari_rpc::{
     wallet_client::WalletClient,
     Empty,
@@ -38,11 +34,8 @@ use tari_app_grpc::tari_rpc::{
     TransferRequest,
 };
 
-
 use super::{error::GrpcError, TransferFunds, TransferFundsResult};
-use crate::{
-    docker::{WALLET_GRPC_ADDRESS_URL},
-};
+use crate::docker::WALLET_GRPC_ADDRESS_URL;
 
 type Inner = WalletClient<tonic::transport::Channel>;
 

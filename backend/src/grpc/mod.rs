@@ -7,14 +7,7 @@ mod model;
 mod progress;
 mod wallet_grpc_client;
 
-
 pub use base_node_grpc_client::*;
-
-
 pub use model::*;
 pub use progress::*;
-
-
-
-
 pub use wallet_grpc_client::*;

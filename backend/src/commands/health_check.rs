@@ -21,19 +21,9 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+use bollard::Docker;
 
-
-use bollard::{
-    Docker,
-};
-
-
-use crate::docker::{
-    container_state,
-    DockerWrapperError,
-    ImageType,
-    DOCKER_INSTANCE,
-};
+use crate::docker::{container_state, DockerWrapperError, ImageType, DOCKER_INSTANCE};
 
 pub const NOT_FOUND: &str = "not found";
 
@@ -58,9 +48,12 @@ pub async fn status(image: ImageType) -> String {
 
 async fn docker_info(docker: &Docker, container_id: &str) -> Result<String, DockerWrapperError> {
     let status = docker
-        .inspect_container(container_id, None).await?
-        .state.unwrap()
-        .status.unwrap()
+        .inspect_container(container_id, None)
+        .await?
+        .state
+        .unwrap()
+        .status
+        .unwrap()
         .to_string();
     Ok(status)
 }

@@ -23,11 +23,7 @@
 
 use std::collections::HashMap;
 
-use bollard::{
-    models::{SystemEventsResponse},
-    system::EventsOptions,
-    Docker,
-};
+use bollard::{models::SystemEventsResponse, system::EventsOptions, Docker};
 use futures::{Stream, TryStreamExt};
 
 use crate::docker::DockerWrapperError;
