@@ -45,4 +45,3 @@ buildtools/Output/
 
 # Keep the front-end build folder (empty) otherwise tauri complains
 gui-react/build/**
-!gui-react/build/.gitkeep
