@@ -24,8 +24,7 @@
 use std::collections::HashMap;
 
 use bollard::{
-    image::CreateImageOptions,
-    models::{CreateImageInfo, SystemEventsResponse},
+    models::{SystemEventsResponse},
     system::EventsOptions,
     Docker,
 };
@@ -53,23 +52,6 @@ impl DockerWrapper {
     /// Create a (cheap) clone of the [`Docker`] instance, suitable for passing to threads and futures.
     pub fn handle(&self) -> Docker {
         self.handle.clone()
-    }
-
-    /// Pull an image from a repository.
-    ///
-    /// image_name: The fully qualified name of the image, {registry}/{name}:{tag}
-    /// To use the default registry and tag, you can call `Self::fully_qualified_image(image, registry, tag)`
-    /// to build a default full-qualified image name.
-    pub async fn pull_image(
-        &self,
-        image_name: String,
-    ) -> impl Stream<Item = Result<CreateImageInfo, DockerWrapperError>> {
-        let opts = Some(CreateImageOptions {
-            from_image: image_name,
-            ..Default::default()
-        });
-        let stream = self.handle.create_image(opts, None, None);
-        stream.map_err(DockerWrapperError::from)
     }
 
     /// Returns a stream of relevant events. We're opinionated here, so we filter the stream to only return

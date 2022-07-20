@@ -38,7 +38,7 @@ use bollard::{
     models::{ContainerCreateResponse, EndpointSettings, HostConfig},
     Docker,
 };
-pub use container::{add_container, change_container_status, container_state, filter, remove_container};
+pub use container::{add_container, change_container_status, container_state};
 pub use error::DockerWrapperError;
 pub use filesystem::create_workspace_folders;
 

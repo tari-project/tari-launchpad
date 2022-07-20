@@ -39,9 +39,6 @@ pub const HEADER: i32 = 2;
 pub const BLOCK: i32 = 4;
 pub const DONE: i32 = 5;
 
-pub const STANDARD_MIMBLEWIMBLE: i32 = 0;
-pub const ONE_SIDED: i32 = 1;
-
 #[derive(Debug, Clone, Serialize)]
 pub struct WalletTransaction {
     pub event: String,

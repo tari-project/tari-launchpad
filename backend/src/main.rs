@@ -4,17 +4,20 @@
 #![cfg_attr(all(not(debug_assertions), target_os = "windows"), windows_subsystem = "windows")]
 #[macro_use]
 extern crate lazy_static;
+
 use std::{
     thread::{self},
 };
 
 use log::*;
+
 mod api;
 mod commands;
 mod docker;
 mod error;
 mod grpc;
 mod rest;
+
 use docker::{shutdown_all_containers, DockerWrapper, Workspaces, DOCKER_INSTANCE};
 
 use tauri::{
@@ -63,7 +66,6 @@ use crate::{
     docker::DEFAULT_WORKSPACE_NAME,
 };
 
-#[warn(clippy::too_many_lines)]
 fn main() {
     env_logger::init();
     let context = tauri::generate_context!();
@@ -78,7 +80,7 @@ fn main() {
         Err(err) => {
             error!("Could not launch docker backend. {}", err.chained_message());
             std::process::exit(-1);
-        },
+        }
     };
     thread::spawn(|| {
         block_on(shutdown_all_containers(
@@ -172,11 +174,10 @@ fn create_menus() -> Menu {
 
     let view_menu = Submenu::new("View", Menu::new().add_native_item(MenuItem::EnterFullScreen));
 
-    let menu = Menu::new()
+    Menu::new()
         .add_submenu(about_menu)
         .add_submenu(edit_menu)
-        .add_submenu(view_menu);
-    menu
+        .add_submenu(view_menu)
 }
 
 fn on_event(evt: GlobalWindowEvent) {
@@ -203,10 +204,10 @@ fn handle_cli_options(cli_config: &CliConfig, pkg_info: &PackageInfo) {
                 debug!("{}", arg_data.value.as_str().unwrap_or("No version data available"));
                 std::process::exit(0);
             }
-        },
+        }
         Err(e) => {
             error!("{}", e.to_string());
             std::process::exit(1);
-        },
+        }
     }
 }

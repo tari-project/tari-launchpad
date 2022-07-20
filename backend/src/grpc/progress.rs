@@ -42,6 +42,7 @@ pub struct SyncProgressInfo {
     pub total_blocks: u64,
     pub estimated_time_sec: u64,
     pub done: bool,
+    pub sync_time_sec: u64,
 }
 
 pub struct SyncProgress {
@@ -105,8 +106,8 @@ impl ItemCount {
         self.current.saturating_sub(self.start_item) as f64 / total_items_to_sync as f64
     }
 
-    pub fn total_sync_time(&self) -> Option<Duration> {
-        self.completed
+    pub fn total_sync_time(&self) -> Duration {
+        self.completed.unwrap_or(Duration::from_secs(0))
     }
 }
 
@@ -194,6 +195,10 @@ impl SyncProgress {
         self.blocks_sync.estimate_remaining_time() + self.header_sync.estimate_remaining_time()
     }
 
+    pub fn total_sync_time(&self) -> Duration {
+        self.header_sync.total_sync_time() + self.blocks_sync.total_sync_time()
+    }
+
     pub fn progress_info(&self) -> SyncProgressInfo {
         SyncProgressInfo {
             sync_type: self.sync_type.clone(),
@@ -202,6 +207,7 @@ impl SyncProgress {
             total_blocks: self.blocks_sync.total_items,
             estimated_time_sec: self.estimated_time_remaining().as_secs(),
             done: self.is_done(),
+            sync_time_sec: self.total_sync_time().as_secs()
         }
     }
 }

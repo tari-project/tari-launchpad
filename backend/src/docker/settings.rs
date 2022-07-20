@@ -24,7 +24,6 @@
 use std::{collections::HashMap, path::PathBuf, time::Duration};
 
 use bollard::models::{Mount, PortBinding, PortMap};
-use config::ConfigError;
 use derivative::Derivative;
 
 use serde::{Deserialize, Serialize};
@@ -148,10 +147,6 @@ pub struct LaunchpadConfig {
 }
 
 impl LaunchpadConfig {
-    pub fn load() -> Result<Self, ConfigError> {
-        unimplemented!()
-    }
-
     /// Returns a list of environment variables that need to be set in the running container. For Tari containers, we
     /// use this to override settings in the `config.yml` file that are generated on the fly here (the tor control
     /// port password for example).

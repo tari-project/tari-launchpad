@@ -30,9 +30,8 @@ use bollard::{
         StatsOptions,
         StopContainerOptions,
     },
-    models::{ContainerCreateResponse, EndpointSettings, Network},
-    network::{ConnectNetworkOptions, CreateNetworkOptions, InspectNetworkOptions},
-    volume::CreateVolumeOptions,
+    models::{ContainerCreateResponse, Network},
+    network::{CreateNetworkOptions, InspectNetworkOptions},
     Docker,
 };
 use futures::{Stream, StreamExt, TryStreamExt};
@@ -56,7 +55,6 @@ use crate::docker::{
 
 static DEFAULT_REGISTRY: &str = "quay.io/tarilabs";
 static GRAFANA_REGISTRY: &str = "grafana";
-static DEFAULT_TAG: &str = "latest";
 
 /// `Workspaces` allows us to spin up multiple [TariWorkspace] recipes or configurations at once. Most users will only
 /// ever need one at a time, and the default one at that, but developers and testers will likely find this useful.
@@ -82,11 +80,6 @@ impl Workspaces {
     /// Returns a mutable reference to the `name`d workspace. For an immutable reference, see [workspace_mut].
     pub fn get_workspace_mut(&mut self, name: &str) -> Option<&mut TariWorkspace> {
         self.workspaces.get_mut(name)
-    }
-
-    /// Returns an immtable reference to the `name`d workspace. For a mutable reference, see [get_workspace_mut].
-    pub fn get_workspace(&self, name: &str) -> Option<&TariWorkspace> {
-        self.workspaces.get(name)
     }
 
     /// Checks if a workspace with the given name exists.
@@ -195,11 +188,6 @@ impl TariWorkspace {
         }
     }
 
-    /// Return a reference to the immutable configuration object for this workspace.
-    pub fn config(&self) -> &LaunchpadConfig {
-        &self.config
-    }
-
     /// Returns the name of this system, which is generally used as the workspace name when running multiple Tari
     /// systems
     pub fn name(&self) -> &str {
@@ -223,18 +211,6 @@ impl TariWorkspace {
             ImageType::Loki | ImageType::Promtail | ImageType::Grafana => GRAFANA_REGISTRY,
         };
         format!("{}/{}:{}", reg, image.image_name(), "latest")
-    }
-
-    /// Returns an architecture-specific tag based on the current CPU and the given label. e.g.
-    ///  `arch_specific_tag(Some("v1.0"))` returns `"v1.0-arm64"` on M1 chips, and `v1.0-amd64` on Intel and AMD chips.
-    pub fn arch_specific_tag(label: Option<&str>) -> String {
-        let label = label.unwrap_or(DEFAULT_TAG);
-        let platform = match std::env::consts::ARCH {
-            "x86_64" => "amd64",
-            "aarch64" => "arm64",
-            _ => "unsupported",
-        };
-        format!("{}-{}", label, platform)
     }
 
     /// Starts the Tari workspace recipe.
@@ -487,12 +463,6 @@ impl TariWorkspace {
         format!("{}_network", self.name)
     }
 
-    /// Returns the name of the volume holding blockchain data. Currently this is namespaced to the workspace. We might
-    /// want to change this to be shareable across networks, i.e. only namespace across the network type.
-    pub fn tari_blockchain_volume_name(&self) -> String {
-        format!("{}_{}_volume", self.name, self.config.tari_network.lower_case())
-    }
-
     /// Checks if the network for this docker configuration exists
     pub async fn network_exists(&self, docker: &Docker) -> Result<bool, DockerWrapperError> {
         let name = self.network_name();
@@ -541,56 +511,4 @@ impl TariWorkspace {
         Ok(())
     }
 
-    /// Checks whether the blockchain data volume exists
-    pub async fn volume_exists(&self, docker: &Docker) -> Result<bool, DockerWrapperError> {
-        let name = self.tari_blockchain_volume_name();
-        let volume = docker.inspect_volume(name.as_str()).await?;
-        trace!("Volume {} exists at {}", name, volume.mountpoint);
-        Ok(true)
-    }
-
-    /// Tries to create a new blockchain data volume for this workspace.
-    pub async fn create_volume(&self, docker: &Docker) -> Result<(), DockerWrapperError> {
-        let name = self.tari_blockchain_volume_name();
-        let config = CreateVolumeOptions {
-            name,
-            driver: "local".to_string(),
-            ..Default::default()
-        };
-        let volume = docker.create_volume(config).await?;
-        info!("Docker volume {} created at {}", volume.name, volume.mountpoint);
-        Ok(())
-    }
-
-    /// Connects a container to the workspace network. This is not typically needed, since the container will
-    /// automatically be connected to the network when it is created in [`start_service`].
-    pub async fn connect_to_network(
-        &self,
-        id: &ContainerId,
-        image: ImageType,
-        docker: &Docker,
-    ) -> Result<(), DockerWrapperError> {
-        let network = self.network_name();
-        let options = ConnectNetworkOptions {
-            container: id.as_str(),
-            endpoint_config: EndpointSettings {
-                aliases: Some(vec![image.container_name().to_string()]),
-                ..Default::default()
-            },
-        };
-        info!(
-            "Connecting container {} ({}) to network {}...",
-            image.image_name(),
-            id,
-            network
-        );
-        docker.connect_network(network.as_str(), options).await?;
-        info!(
-            "Docker container {} ({}) connected to network {}",
-            image.image_name(),
-            id,
-            network
-        );
-        Ok(())
-    }
 }

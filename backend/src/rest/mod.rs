@@ -37,7 +37,7 @@ use crate::{
     docker::{DOCKER_INSTANCE},
 };
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug)]
 pub enum DockerImageError {
     #[error("The image {0} is not found")]
     ImageNotFound(String),
@@ -63,11 +63,4 @@ pub async fn list_image(fully_qualified_image_name: String) -> Result<Vec<ImageS
             DockerImageError::ImageNotFound(fully_qualified_image_name)
         })?;
     Ok(result)
-}
-
-#[tokio::test]
-#[ignore]
-async fn find_image_test() {
-    let result = list_image("quay.io/tarilabs/tari_base_node:latest-amd64".to_string()).await;
-    println!("result {:?}", result);
 }

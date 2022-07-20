@@ -59,6 +59,7 @@ impl GrpcBaseNodeClient {
         Self { inner: None }
     }
 
+    /// Tries to make a gRPC connection to the base node, or returns immediately with an error.
     pub async fn try_connect(&mut self) -> Result<&mut Inner, GrpcError> {
         if self.inner.is_none() {
             let inner = Inner::connect(BASE_NODE_GRPC_ADDRESS_URL).await?;
@@ -69,6 +70,7 @@ impl GrpcBaseNodeClient {
             .ok_or_else(|| GrpcError::FatalError("no connection".into()))
     }
 
+    /// Will continuously retry for a connection every 3 seconds. Forever.
     pub async fn wait_for_connection(&mut self) {
         loop {
             match self.try_connect().await {
@@ -86,6 +88,7 @@ impl GrpcBaseNodeClient {
 
     pub async fn stream(&mut self) -> Result<impl Stream<Item = SyncProgressInfo>, GrpcError> {
         let (mut sender, receiver) = mpsc::channel(100);
+        self.wait_for_connection().await;
         let connection = self.try_connect().await?.clone();
         task::spawn(async move {
             let mut progress = SyncProgress::new(0, 100);

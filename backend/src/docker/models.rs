@@ -108,10 +108,6 @@ impl ContainerState {
         self.name.as_str()
     }
 
-    pub fn info(&self) -> &ContainerCreateResponse {
-        &self.info
-    }
-
     pub fn id(&self) -> &ContainerId {
         &self.id
     }
