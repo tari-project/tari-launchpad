@@ -36,7 +36,7 @@ const LOG_TARGET: &str = "tari_launchpad::host";
 #[tauri::command]
 pub async fn check_docker() -> Result<Version, String> {
     let version: Version = DOCKER_INSTANCE.clone().version().await.map_err(|e| {
-        error!("Failed check docker version: {}", e);
+        error!(target: LOG_TARGET, "Failed check docker version: {}", e);
         "The docker version cannot be run"
     })?;
 
@@ -49,7 +49,7 @@ pub async fn open_terminal(_app: AppHandle<Wry>, platform: String) -> Result<(),
         match home_dir_path.into_os_string().into_string() {
             Ok(path) => path,
             Err(_oss_err) => {
-                error!("Failed to convert home directory path to string");
+                error!(target: LOG_TARGET, "Failed to convert home directory path to string");
                 return Err("Failed to convert home directory path to string".to_string());
             },
         }
@@ -64,7 +64,7 @@ pub async fn open_terminal(_app: AppHandle<Wry>, platform: String) -> Result<(),
             .arg(&terminal_path)
             .spawn()
             .map_err(|e| {
-                error!("Failed to open terminal with path {}. Error: {}", terminal_path, e);
+                error!(target: LOG_TARGET, "Failed to open terminal with path {}. Error: {}", terminal_path, e);
                 format!("Terminal cannot be opened. cmd: open -a Terminal {}", terminal_path)
             })?;
     } else if platform.to_lowercase().trim() == "windows_nt" {

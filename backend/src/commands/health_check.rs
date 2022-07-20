@@ -58,26 +58,9 @@ pub async fn status(image: ImageType) -> String {
 
 async fn docker_info(docker: &Docker, container_id: &str) -> Result<String, DockerWrapperError> {
     let status = docker
-        .inspect_container(container_id, None)
-        .await?
-        .state
-        .unwrap()
-        .status
-        .unwrap()
+        .inspect_container(container_id, None).await?
+        .state.unwrap()
+        .status.unwrap()
         .to_string();
     Ok(status)
-}
-
-// TODO:  We should add a "requires-docker" flag,
-// #[tokio::test]
-
-async fn test_health_check() {
-    let status = container_status("ca53c4a003cd").await;
-    assert_eq!("running".to_string(), status);
-
-    let status = container_status("xxx_unknown").await;
-    assert_eq!(NOT_FOUND.to_string(), status);
-
-    let status = container_status("default_tor").await;
-    assert_eq!("running".to_string(), status);
 }

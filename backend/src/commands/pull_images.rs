@@ -99,7 +99,7 @@ fn from(image_name: String, source: CreateImageInfo) -> PullProgressInfo {
 /// Pulls all the images concurrently using the docker API.
 #[tauri::command]
 pub async fn pull_images(app: AppHandle<Wry>) -> Result<(), String> {
-    debug!("Command pull_images invoked");
+    debug!(target: LOG_TARGET, "Command pull_images invoked");
     let futures = DEFAULT_IMAGES
         .iter()
         .map(|image| pull_image(app.clone(), image.image_name()).map_err(|e| format!("error pulling image: {}", e)));
@@ -110,7 +110,7 @@ pub async fn pull_images(app: AppHandle<Wry>) -> Result<(), String> {
         .map(|e| e.unwrap_err())
         .collect::<Vec<String>>();
     if !errors.is_empty() {
-        error!("Error pulling images:{}", errors.join("\n"));
+        error!(target: LOG_TARGET, "Error pulling images:{}", errors.join("\n"));
         return Err(errors.join("\n"));
     }
     Ok(())
@@ -128,9 +128,9 @@ pub async fn pull_image(app: AppHandle<Wry>, image_name: &str) -> Result<(), Str
         match update {
             Ok(source) => {
                 let progress = from(full_image_name.clone(), source);
-                debug!("Image pull progress:{:?}", progress);
+                debug!(target: LOG_TARGET, "Image pull progress:{:?}", progress);
                 if let Err(err) = app.emit_all("tari://image_pull_progress", progress) {
-                    warn!("Could not emit event to front-end, {:?}", err);
+                    warn!(target: LOG_TARGET, "Could not emit event to front-end, {:?}", err);
                 }
             },
             Err(err) => return Err(format!("Error reading docker progress: {}", err)),

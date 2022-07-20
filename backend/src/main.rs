@@ -22,7 +22,6 @@ use tauri::{
     async_runtime::block_on,
     utils::config::CliConfig,
     GlobalWindowEvent,
-    Manager,
     Menu,
     MenuItem,
     PackageInfo,
@@ -37,6 +36,7 @@ use crate::{
         delete_seed_words,
         get_seed_words,
         image_info,
+        health_check,
         network_list,
         node_identity,
         transaction_fee,
@@ -86,6 +86,71 @@ fn main() {
             &DOCKER_INSTANCE,
         ))
     });
+
+    let menu = create_menus();
+    // TODO - Load workspace definitions from persistent storage here
+    let workspaces = Workspaces::default();
+    info!("Using Docker version: {}", docker.version());
+    let migrations = do_migrations();
+    tauri::Builder::default()
+        .plugin(TauriSql::default().add_migrations("sqlite:launchpad.db", migrations))
+        .manage(AppState::new(docker, workspaces, package_info))
+        .menu(menu)
+        .invoke_handler(create_handler!())
+        .on_window_event(on_event)
+        .run(context)
+        .expect("error starting");
+}
+
+#[macro_export]
+macro_rules! create_handler { () => {
+    tauri::generate_handler![
+            base_node_sync_progress,
+            create_new_workspace,
+            create_default_workspace,
+            delete_seed_words,
+            events,
+            get_seed_words,
+            health_check,
+            image_info,
+            network_list,
+            pull_image,
+            pull_images,
+            check_docker,
+            launch_docker,
+            check_internet_connection,
+            open_terminal,
+            node_identity,
+            start_service,
+            stop_service,
+            shutdown,
+            transaction_fee,
+            transfer,
+            wallet_events,
+            wallet_balance,
+            wallet_identity,
+        ]
+}}
+
+fn do_migrations() -> Vec<Migration> {
+    let migrations = vec![
+        Migration {
+            version: 1,
+            description: "create stats table",
+            sql: include_str!("../migrations/2022-06-13.create-stats-table.sql"),
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 2,
+            description: "create transactions table",
+            sql: include_str!("../migrations/2022-06-14.create-transactions-table.sql"),
+            kind: MigrationKind::Up,
+        },
+    ];
+    migrations
+}
+
+fn create_menus() -> Menu {
     let about_menu = Submenu::new(
         "App",
         Menu::new()
@@ -111,58 +176,7 @@ fn main() {
         .add_submenu(about_menu)
         .add_submenu(edit_menu)
         .add_submenu(view_menu);
-
-    // TODO - Load workspace definitions from persistent storage here
-    let workspaces = Workspaces::default();
-    info!("Using Docker version: {}", docker.version());
-
-    let migrations = vec![
-        Migration {
-            version: 1,
-            description: "create stats table",
-            sql: include_str!("../migrations/2022-06-13.create-stats-table.sql"),
-            kind: MigrationKind::Up,
-        },
-        Migration {
-            version: 2,
-            description: "create transactions table",
-            sql: include_str!("../migrations/2022-06-14.create-transactions-table.sql"),
-            kind: MigrationKind::Up,
-        },
-    ];
-
-    tauri::Builder::default()
-        .plugin(TauriSql::default().add_migrations("sqlite:launchpad.db", migrations))
-        .manage(AppState::new(docker, workspaces, package_info))
-        .menu(menu)
-        .invoke_handler(tauri::generate_handler![
-            image_info,
-            network_list,
-            pull_image,
-            pull_images,
-            create_new_workspace,
-            create_default_workspace,
-            delete_seed_words,
-            events,
-            get_seed_words,
-            check_docker,
-            launch_docker,
-            check_internet_connection,
-            open_terminal,
-            node_identity,
-            start_service,
-            stop_service,
-            shutdown,
-            transaction_fee,
-            transfer,
-            wallet_events,
-            wallet_balance,
-            wallet_identity,
-            base_node_sync_progress
-        ])
-        .on_window_event(on_event)
-        .run(context)
-        .expect("error starting");
+    menu
 }
 
 fn on_event(evt: GlobalWindowEvent) {

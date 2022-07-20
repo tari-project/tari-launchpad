@@ -28,7 +28,6 @@ use bollard::{
     image::{ListImagesOptions},
     models::{ImageSummary},
 };
-use futures::{TryStreamExt};
 use log::{error};
 
 use thiserror::Error;

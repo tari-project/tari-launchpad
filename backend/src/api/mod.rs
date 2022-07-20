@@ -25,8 +25,6 @@ use std::{convert::TryFrom};
 
 pub use base_node_api::{base_node_sync_progress, node_identity};
 
-use futures::StreamExt;
-
 use serde::Serialize;
 
 
@@ -46,18 +44,9 @@ use crate::{
     rest::quay_io::get_tag_info,
 };
 
-pub const RECEIVED: &str = "received";
-pub const SENT: &str = "sent";
-pub const QUEUED: &str = "queued";
-pub const CONFIRMATION: &str = "confirmation";
-pub const MINED: &str = "mined";
-pub const CANCELLED: &str = "cancelled";
-pub const NEW_BLOCK_MINED: &str = "new_block_mined";
-pub static TRANSACTION_EVENTS: [&str; 7] = [RECEIVED, SENT, QUEUED, CONFIRMATION, MINED, CANCELLED, NEW_BLOCK_MINED];
-
 pub static TARI_NETWORKS: [TariNetwork; 3] = [TariNetwork::Dibbler, TariNetwork::Igor, TariNetwork::Mainnet];
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ImageInfo {
     image_name: String,
@@ -81,19 +70,6 @@ async fn from_image_type(image: ImageType, registry: Option<&str>) -> ImageInfo 
         info.created_on = Some(tag.created_on);
     }
     info
-}
-
-impl Default for ImageInfo {
-    fn default() -> Self {
-        ImageInfo {
-            image_name: String::default(),
-            display_name: String::default(),
-            container_name: String::default(),
-            docker_image: String::default(),
-            updated: false,
-            created_on: None,
-        }
-    }
 }
 
 #[derive(Debug, Serialize)]
@@ -158,38 +134,10 @@ pub async fn image_info(settings: ServiceSettings) -> ImageListDto {
     }
 }
 
-pub fn event_list() -> Vec<String> {
-    TRANSACTION_EVENTS.iter().map(|&s| s.into()).collect()
-}
-
 #[tauri::command]
-pub async fn health_check(image: &str) -> String {
-    match ImageType::try_from(image) {
+pub async fn health_check(image: String) -> String {
+    match ImageType::try_from(image.as_str()) {
         Ok(img) => status(img).await,
         Err(_err) => format!("image {} not found", image),
     }
-}
-
-#[tokio::test]
-#[ignore = "The test requires running wallet instance (docker or local)"]
-async fn make_transfer() {
-    let pk = "f09993a0e472f630fde1624eef8ef0f709073f1047457f80595ee2b7cf653616";
-    let payments = vec![Payment {
-        amount: 1000,
-        address: pk.to_string(),
-        fee_per_gram: 5,
-        message: "Hopefully it works and now you are rich.".to_string(),
-        payment_type: 0,
-    }];
-    let transfer = TransferFunds { payments };
-    let mut wallet_client = GrpcWalletClient::new();
-    let response = match wallet_client.transfer_funds(transfer).await {
-        Ok(response) => response,
-        Err(e) => {
-            println!("{}", e);
-            std::process::exit(1);
-        },
-    };
-    println!("{:?}", response);
-    println!("TRANSFER is successful: {:?}", response);
 }
