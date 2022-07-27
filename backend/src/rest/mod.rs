@@ -37,6 +37,7 @@ pub enum DockerImageError {
     #[error("Something went wrong with the Docker API")]
     DockerError(#[from] bollard::errors::Error),
     #[error("Could not create an identity file")]
+    #[allow(dead_code)]
     InvalidImageType,
 }
 
