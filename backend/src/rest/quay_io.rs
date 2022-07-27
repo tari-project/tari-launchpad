@@ -108,6 +108,7 @@ pub async fn get_tag_info(image: ImageType) -> Result<TagInfo, String> {
     }
 }
 
+#[allow(dead_code)]
 pub async fn is_up_to_date(image: ImageType, manifest_digest: String) -> Result<bool, DockerImageError> {
     let docker = DOCKER_INSTANCE.clone();
     let registry = format!("{}/{}", QUAY_IO_REPO_NAME, TARILABS_REPO_NAME);
