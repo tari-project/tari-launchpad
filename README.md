@@ -64,16 +64,16 @@ picked up on the fly and take effect within 30s.
 
 ##  Miscellaneous notes
 
-* The blockchain data is stores in docker volumes, and not on the host machine directly. This is due to crippling performance
+* The blockchain data is stored in docker volumes, and not on the host machine directly. This is due to crippling performance
 limitations one suffers when mounting host file system from Windows or MacOS into docker containers.
-This isn't a big drawback, since you seldom want or need to access the raw blockchain database files anyway. Are they're
+This isn't a big drawback, since you seldom want or need to access the raw blockchain database files anyway. And they're
 [still accessible](#accessing-blockchain-data). But **ensure that you reserve enough space to store the Tari, and optionally,
 Monero blockchains inside the Docker VM**.
 
 ### Accessing blockchain data
 
 The blockchain data is stored in a docker volume for performance reasons. If you need to back up or access the LMDB
-a blockchain data, you can use something like this to extract it to the host filesystem:
+of blockchain data, you can use something like this to extract it to the host filesystem:
 
 `docker run --rm -v $(pwd):/backup -v blockchain:/blockchain ubuntu tar czvf /backup/backup.tar.gz /blockchain`
 
