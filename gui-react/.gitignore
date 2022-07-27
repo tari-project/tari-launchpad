@@ -9,6 +9,10 @@ node_modules
 /coverage/
 .jest/
 
+# production
+build/**
+!build/.gitkeep
+
 # misc
 .DS_Store
 .env.local
