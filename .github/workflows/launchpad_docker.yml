@@ -66,7 +66,7 @@ jobs:
             # Pull App version from file
             VAPP=$(awk -F ' = ' \
               '$1 ~ /version/ { gsub(/["]/, "", $2); printf("%s",$2) }' \
-              "${GITHUB_WORKSPACE}/applications/tari_base_node/Cargo.toml")
+              "${GITHUB_WORKSPACE}/tari/applications/tari_base_node/Cargo.toml")
 
             VBRANCH=$(echo ${GITHUB_REF#refs/heads/})
             VSHA_SHORT=$(git rev-parse --short HEAD)
@@ -98,7 +98,7 @@ jobs:
             echo ::set-output name=dockercontext::./
           else
             DOCKERFILE=${IMAGE}.Dockerfile
-            DOCKERCONTEXT=./applications/launchpad/docker_rig/
+            DOCKERCONTEXT=./docker_rig/
 
             # Pull the docker image version TAG from service dockerfile
             SUBTAG=$(awk -v search="^ARG ${IMAGE^^}?_VERSION=" -F '=' '$0 ~ search \
@@ -138,7 +138,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ${{ steps.environments.outputs.dockercontext }}
-          file: ./applications/launchpad/docker_rig/${{ steps.environments.outputs.dockerfile }}
+          file: ./docker_rig/${{ steps.environments.outputs.dockerfile }}
           platforms: linux/arm64, linux/amd64
           push: true
           cache-from: type=gha

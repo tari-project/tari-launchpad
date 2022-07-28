@@ -92,7 +92,7 @@ build_tari_image_json() {
   export $(jq --arg jsonVar "$1" -r '. [] | select(."image_name"==$jsonVar)
     | to_entries[] | .key + "=" + .value' tarisuite.json)
   build_tari_image $image_name \
-    "$TL_VERSION_LONG" ./../.. \
+    "$TL_VERSION_LONG" ./ \
     $app_name $app_exec
 }
 
@@ -139,7 +139,7 @@ fi
 # Version refers to the base_node, wallet, etc.
 #  applications/tari_app_utilities/Cargo.toml
 TL_VERSION=${TL_VERSION:-$(awk -F ' = ' '$1 ~ /version/ \
-  { gsub(/["]/, "", $2); printf("%s",$2) }' "../tari_base_node/Cargo.toml")}
+  { gsub(/["]/, "", $2); printf("%s",$2) }' "./tari/applications/tari_base_node/Cargo.toml")}
 
 # Default build options - general x86-64 / AMD64
 TBN_ARCH=${TBN_ARCH:-x86-64}

@@ -62,18 +62,18 @@ RUN if [ -n "${RUST_TOOLCHAIN}" ]; then \
 
 WORKDIR /tari
 
-ADD Cargo.toml .
-ADD Cargo.lock .
-ADD rust-toolchain.toml .
-ADD applications applications
-ADD base_layer base_layer
-ADD clients clients
-ADD common common
-ADD common_sqlite common_sqlite
-ADD comms comms
-ADD infrastructure infrastructure
-ADD dan_layer dan_layer
-ADD meta meta
+ADD tari/Cargo.toml .
+ADD tari/Cargo.lock .
+ADD tari/rust-toolchain.toml .
+ADD tari/applications applications
+ADD tari/base_layer base_layer
+ADD tari/clients clients
+ADD tari/common common
+ADD tari/common_sqlite common_sqlite
+ADD tari/comms comms
+ADD tari/infrastructure infrastructure
+ADD tari/dan_layer dan_layer
+ADD tari/meta meta
 
 RUN --mount=type=cache,id=rust-git-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/home/rust/.cargo/git \
     --mount=type=cache,id=rust-home-registry-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/home/rust/.cargo/registry \
@@ -158,7 +158,7 @@ RUN if [ "${APP_NAME}" = "base_node" ] ; then \
 USER tari
 
 COPY --from=builder /tari/$APP_EXEC /usr/bin/
-COPY applications/launchpad/docker_rig/start_tari_app.sh /usr/bin/start_tari_app.sh
+ADD docker_rig/start_tari_app.sh /usr/bin/start_tari_app.sh
 
 ENTRYPOINT [ "start_tari_app.sh", "-c", "/var/tari/config/config.toml", "-b", "/var/tari/${APP_NAME}" ]
 # CMD [ "--non-interactive-mode" ]
