@@ -10,8 +10,7 @@ a.k.a. _Tari one-click miner_.
 4. [Docker](https://docs.docker.com/get-docker/) is not _strictly_ a pre-requisite, since the launchpad on-boarding 
    flow will install it for you, but you will need docker eventually, so putting it here.
 5. Install the front-end dependencies
-   ```text
-   $ cd applications/launchpad  
+   ```text  
    $ yarn
    $ cd gui-react
    $ yarn
@@ -25,7 +24,6 @@ These commands
 * launch the application
 
 ```
-$ cd applications/launchpad
 $ yarn run tauri dev
 ```
 
