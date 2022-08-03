@@ -37,6 +37,8 @@ tokio = { version = "1.9", features = ["sync"] }
 futures = "0.3"
 regex = "1.5.4"
 derivative = "2.2.0"
+# Forcing this version due to conflicts in dependencies
+sqlx-core = { version = "=0.5.7" }
 tauri-plugin-sql = { git = "https://github.com/tauri-apps/tauri-plugin-sql", features = ["sqlite"], branch = "release" }
 tonic = "0.6.2"
 # need to force this version to avoid circular dependency in tauri-plugin-sql deps
