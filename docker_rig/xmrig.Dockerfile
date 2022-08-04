@@ -5,7 +5,7 @@ FROM alpine:latest as builder
 ARG BUILDPLATFORM
 
 # https://github.com/xmrig/xmrig/releases
-ARG XMRIG_VERSION="v6.17.0"
+ARG XMRIG_VERSION="v6.18.0"
 
 RUN apk add \
     git \
@@ -38,10 +38,15 @@ ARG VERSION=1.0.1
 COPY --from=builder /xmrig/build/xmrig /usr/bin/
 
 # Create a user & group
-RUN addgroup -g 1000 tari && adduser -u 1000 -g 1000 -S tari -G tari
-RUN mkdir -p /home/tari && chown tari.tari /home/tari
+RUN addgroup -g 1000 tari && \
+    adduser -u 1000 -g 1000 -S tari -G tari
+
 # Chown all the files to the app user.
+RUN mkdir -p /home/tari && \
+    chown tari.tari /home/tari
+
 USER tari
+
 ENV dockerfile_version=$VERSION
 ENV dockerfile_build_arch=$BUILDPLATFORM
 ENV xmrig_version=$XMRIG_VERSION
