@@ -8,7 +8,7 @@
 # Binary build
 
 # https://github.com/monero-project/monero/releases
-ARG MONERO_VERSION=0.17.3.2
+ARG MONERO_VERSION=0.18.0.0
 
 # Declare stage using linux/amd64 base image
 FROM --platform=linux/amd64 bitnami/minideb:bullseye AS build-stage-amd64
@@ -18,7 +18,7 @@ ARG MONERO_ARCH=x64
 ARG MONERO_TAR=x86_64
 
 # https://github.com/monero-project/monero/releases
-ARG MONERO_AMD64_SHA256=1e54acd749265d9439d3733441c645d9b058316283c8f21cca2a333c1238cd16
+ARG MONERO_AMD64_SHA256=74c440aa1e38a41ded0c4844b50f094146170ef83f1bd79d7e23d0d69b589faf
 ARG MONERO_VERSION
 
 # Declare stage using linux/arm64 base image
@@ -29,7 +29,7 @@ ARG MONERO_ARCH=armv8
 ARG MONERO_TAR=aarch64
 
 # https://github.com/monero-project/monero/releases
-ARG MONERO_ARM64_SHA256=8e311714e97f2ac87bfd818abd5c4c605ca19ebda84a1edea93ec00a89d07e2e
+ARG MONERO_ARM64_SHA256=15cf4db8810d39104dbc230a985c7819ee96f9a7264d3f65e012b4bc36dc9f40
 ARG MONERO_VERSION
 
 # Declare TARGETARCH to make it available
