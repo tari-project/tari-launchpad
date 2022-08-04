@@ -138,12 +138,12 @@ if [ -f ".env.local" ]; then
 fi
 
 # Location of Tari source code
-TARI_SOURCE_ROOT=${TARI_SOURCE_ROOT:-"../tari/"}
+TARI_SOURCE_ROOT=${TARI_SOURCE_ROOT:-"../tari"}
 
 if [ ! -f "${TARI_SOURCE_ROOT}/applications/tari_base_node/Cargo.toml" ]; then
   echo "!! Can't find Tari source code at ${TARI_SOURCE_ROOT} !!"
   echo "searching for ${TARI_SOURCE_ROOT}/applications/tari_base_node/Cargo.toml "
-  exit -1
+  exit 2
 fi
 
 # Version refers to the base_node, wallet, etc.
@@ -189,6 +189,14 @@ check_for() {
   fi
 }
 
+if [ -n "$BASH_VERSION" ]; then
+  if [ "${BASH_VERSION:0:1}" -lt 4 ]; then
+    echo "!! Needs bash v4.x or above - current bash version $BASH_VERSION !!"
+  fi
+else
+  echo "Should be run with bash v4.x or above"
+fi
+
 # toLower
 #commandEnv="${1,,}"
 commandEnv=$(echo "${1}" | tr "[:upper:]" "[:lower:]")
@@ -217,7 +225,7 @@ case $commandEnv in
       echo "Image not found for $1"
       build_help_info
       build_help_images
-      exit 2
+      exit 3
     fi
     ;;
   -l | ls )
@@ -239,7 +247,7 @@ case $commandEnv in
     ;;
   *) echo "Unrecognised option: $1"
     build_help_info
-    exit 1
+    exit 4
     ;;
 esac
 
