@@ -4,6 +4,8 @@
 # Prerequisites:
 # Run `./build_images.sh -r`
 #
+# local/default envs - .env.local
+#
 
 set -e
 
@@ -56,7 +58,6 @@ build_tari_image() {
   echo "* Image will be tagged as ${TL_TAG_URL}/$1:$2"
   echo "* and: ${TL_TAG_CMD}"
   echo "* Build options: ${TL_TAG_BUILD_OPTS}"
-  echo "* Toolchain: ${RUST_TOOLCHAIN}"
   echo "* Architecture: ${TBN_ARCH}"
   echo "* Features: ${TBN_FEATURES}"
   echo "* TL_TAG_BUILD_Extra: ${TL_TAG_BUILD_Extra}"
@@ -65,7 +66,6 @@ build_tari_image() {
     -f docker_rig/tarilabs.Dockerfile \
     --build-arg ARCH=${TBN_ARCH} \
     --build-arg FEATURES=${TBN_FEATURES} \
-    --build-arg RUST_TOOLCHAIN="${RUST_TOOLCHAIN}" \
     --build-arg VERSION=$2 \
     --build-arg APP_NAME=$4 \
     --build-arg APP_EXEC=$5 \
@@ -87,12 +87,10 @@ build_all_3dparty_images() {
 build_tari_image_json() {
 # $1 json image_name
 
-#  export $(jq --arg jsonVar "$1" -r '. [] | select(."image_name"==$jsonVar)
-#    | to_entries[] | .key + "=" + (.value | @sh)' tarisuite.json)
   export $(jq --arg jsonVar "$1" -r '. [] | select(."image_name"==$jsonVar)
     | to_entries[] | .key + "=" + .value' tarisuite.json)
   build_tari_image $image_name \
-    "$TL_VERSION_LONG" ./../.. \
+    "$TL_VERSION_LONG" ${TARI_SOURCE_ROOT} \
     $app_name $app_exec
 }
 
@@ -122,6 +120,9 @@ OPTIONS:
   -r, requirements  list and check for pre-requisite software needed by this script
   -b image_name     build an image
   -h                this help info
+
+Default envs can loaded from .env.local
+
 EOF
 }
 
@@ -136,10 +137,20 @@ if [ -f ".env.local" ]; then
   source ".env.local"
 fi
 
+# Location of Tari source code
+TARI_SOURCE_ROOT=${TARI_SOURCE_ROOT:-"../tari/"}
+
+if [ ! -f "${TARI_SOURCE_ROOT}/applications/tari_base_node/Cargo.toml" ]; then
+  echo "!! Can't find Tari source code at ${TARI_SOURCE_ROOT} !!"
+  echo "searching for ${TARI_SOURCE_ROOT}/applications/tari_base_node/Cargo.toml "
+  exit -1
+fi
+
 # Version refers to the base_node, wallet, etc.
 #  applications/tari_app_utilities/Cargo.toml
 TL_VERSION=${TL_VERSION:-$(awk -F ' = ' '$1 ~ /version/ \
-  { gsub(/["]/, "", $2); printf("%s",$2) }' "../tari_base_node/Cargo.toml")}
+  { gsub(/["]/, "", $2); printf("%s",$2) }' \
+  "${TARI_SOURCE_ROOT}/applications/tari_base_node/Cargo.toml")}
 
 # Default build options - general x86-64 / AMD64
 TBN_ARCH=${TBN_ARCH:-x86-64}
@@ -163,6 +174,9 @@ TL_VERSION_LONG=${TL_VERSION_LONG:-"${TL_VERSION}${TL_TAG_BUILD_PF}"}
 # Docker tag alias
 #TL_TAG_ALIAS=latest
 
+# Docker Build extra commands
+#TL_TAG_BUILD_Extra=" --build-arg RUST_TOOLCHAIN=nightly-2022-05-01 "
+
 arrAllTools=(  $(jq -r '.[].image_name' tarisuite.json 3rdparty.json) )
 arrTariSuite=( $(jq -r '.[].image_name' tarisuite.json) )
 arr3rdParty=(  $(jq -r '.[].image_name' 3rdparty.json) )
@@ -176,7 +190,8 @@ check_for() {
 }
 
 # toLower
-commandEnv="${1,,}"
+#commandEnv="${1,,}"
+commandEnv=$(echo "${1}" | tr "[:upper:]" "[:lower:]")
 
 case $commandEnv in
   -3 | 3rdparty )
@@ -215,6 +230,8 @@ case $commandEnv in
     check_for docker
     echo "$result"
     check_for awk
+    echo "$result"
+    check_for bash
     echo "$result"
     ;;
   -h | -? | --help | help )
