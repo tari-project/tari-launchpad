@@ -146,6 +146,12 @@ if [ ! -f "${TARI_SOURCE_ROOT}/applications/tari_base_node/Cargo.toml" ]; then
   exit 2
 fi
 
+if [ ! -f "${TARI_SOURCE_ROOT}/buildtools/docker_rig/start_tari_app.sh" ]; then
+  echo "Put start_tari_app.sh into tari source"
+  mkdir -p ${TARI_SOURCE_ROOT}/buildtools/docker_rig
+  cp -v docker_rig/start_tari_app.sh ${TARI_SOURCE_ROOT}/buildtools/docker_rig/start_tari_app.sh
+fi
+
 # Version refers to the base_node, wallet, etc.
 #  applications/tari_app_utilities/Cargo.toml
 TL_VERSION=${TL_VERSION:-$(awk -F ' = ' '$1 ~ /version/ \
