@@ -1,5 +1,6 @@
 # syntax = docker/dockerfile:1.3
-FROM --platform=$BUILDPLATFORM rust:1.60-bullseye as builder
+# rust source compile with cross platform build support
+FROM --platform=$BUILDPLATFORM rust:1.62.1-bullseye as builder
 
 # Declare to make available
 ARG BUILDPLATFORM
@@ -43,16 +44,19 @@ ENV CARGO_HTTP_MULTIPLEXING=false
 ARG APP_NAME=wallet
 ARG APP_EXEC=tari_console_wallet
 
-# GNU C compiler for the arm64 architecture and GNU C++ compiler
-#RUN if [[ "${TARGETPLATFORM}" == "linux/arm64" ]] ; then \
-RUN if [ "${TARGETARCH}" = "arm64" ] ; then \
-      echo "Setup ARM64" && \
-      apt-get update && \
-      apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu && \
+RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ] && [ "${ARCH}" = "native" ] ; then \
+      echo "!! Corss-compile and native ARCH not good !! " ; \
+    fi
+
+# Cross-compile check for ARM64 on AMD64 and prepare build environment
+RUN if [ "${TARGETARCH}" = "arm64" ] && [ "${BUILDARCH}" != "${TARGETARCH}" ] ; then \
+      # Cross-compile ARM64 - compiler and toolchain
+      # GNU C compiler for the arm64 architecture and GNU C++ compiler
+      echo "Setup corss-compile for AMR64" && \
+      apt-get update && apt-get install -y \
+        gcc-aarch64-linux-gnu g++-aarch64-linux-gnu && \
       rustup target add aarch64-unknown-linux-gnu && \
       rustup toolchain install stable-aarch64-unknown-linux-gnu ; \
-    else \
-      echo "Setup x86-64" ; \
     fi
 
 # Install a non-standard toolchain if it has been requested. By default we use the toolchain specified in rust-toolchain.toml
@@ -80,7 +84,8 @@ RUN --mount=type=cache,id=rust-git-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sha
     --mount=type=cache,id=rust-local-registry-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/usr/local/cargo/registry \
     --mount=type=cache,id=rust-src-target-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/home/rust/src/target \
     --mount=type=cache,id=rust-target-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/tari/target \
-    if [ "${TARGETARCH}" = "arm64" ] ; then \
+    if [ "${TARGETARCH}" = "arm64" ] && [ "${BUILDARCH}" != "${TARGETARCH}" ] ; then \
+      # Hardcoded ARM64 envs for cross-compiling - FixMe soon
       export BUILD_TARGET="aarch64-unknown-linux-gnu/" && \
       export RUST_TARGET="--target=aarch64-unknown-linux-gnu" && \
       export ARCH=generic && \
@@ -90,14 +95,19 @@ RUN --mount=type=cache,id=rust-git-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sha
       export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++ && \
       export BINDGEN_EXTRA_CLANG_ARGS="--sysroot /usr/aarch64-linux-gnu/include/" && \
       export RUSTFLAGS="-C target_cpu=generic" && \
-      export ROARING_ARCH=generic ; \
+      export ROARING_ARCH=generic && \
+      # Cross-compile ARM64 - compiler and toolchain
+      # GNU C compiler for the arm64 architecture and GNU C++ compiler
+      echo "Setup cross-compile for AMR64" && \
+      apt-get update && apt-get install -y \
+        gcc-aarch64-linux-gnu g++-aarch64-linux-gnu && \
+      rustup target add aarch64-unknown-linux-gnu && \
+      rustup toolchain install stable-aarch64-unknown-linux-gnu ; \
     fi && \
-    if [ -n "${RUST_TOOLCHAIN}" ]; then \
-      export toolchain=+${RUST_TOOLCHAIN}; \
-    fi && \
-    cargo update && \
-    cargo ${toolchain} build ${RUST_TARGET} \
-      --bin ${APP_EXEC} --release --features ${FEATURES} --locked && \
+    rustup target list --installed && \
+    rustup toolchain list && \
+    cargo build ${RUST_TARGET} \
+      --bin ${APP_EXEC} --release --features ${FEATURES} && \
     # Copy executable out of the cache so it is available in the runtime image.
     cp -v /tari/target/${BUILD_TARGET}release/${APP_EXEC} /tari/${APP_EXEC}
 
