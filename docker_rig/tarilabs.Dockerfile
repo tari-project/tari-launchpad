@@ -45,14 +45,14 @@ ARG APP_NAME=wallet
 ARG APP_EXEC=tari_console_wallet
 
 RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ] && [ "${ARCH}" = "native" ] ; then \
-      echo "!! Corss-compile and native ARCH not good !! " ; \
+      echo "!! Cross-compile and native ARCH not a good idea !! " ; \
     fi
 
 # Cross-compile check for ARM64 on AMD64 and prepare build environment
 RUN if [ "${TARGETARCH}" = "arm64" ] && [ "${BUILDARCH}" != "${TARGETARCH}" ] ; then \
       # Cross-compile ARM64 - compiler and toolchain
       # GNU C compiler for the arm64 architecture and GNU C++ compiler
-      echo "Setup corss-compile for AMR64" && \
+      echo "Setup cross-compile for AMR64" && \
       apt-get update && apt-get install -y \
         gcc-aarch64-linux-gnu g++-aarch64-linux-gnu && \
       rustup target add aarch64-unknown-linux-gnu && \
@@ -107,7 +107,7 @@ RUN --mount=type=cache,id=rust-git-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sha
     rustup target list --installed && \
     rustup toolchain list && \
     cargo build ${RUST_TARGET} \
-      --bin ${APP_EXEC} --release --features ${FEATURES} && \
+      --bin ${APP_EXEC} --release --features ${FEATURES} --locked && \
     # Copy executable out of the cache so it is available in the runtime image.
     cp -v /tari/target/${BUILD_TARGET}release/${APP_EXEC} /tari/${APP_EXEC}
 
