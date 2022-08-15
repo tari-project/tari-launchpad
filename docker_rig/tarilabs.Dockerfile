@@ -63,6 +63,7 @@ ADD common_sqlite common_sqlite
 ADD comms comms
 ADD infrastructure infrastructure
 ADD meta meta
+ADD buildtools/deps_only buildtools/deps_only
 
 RUN --mount=type=cache,id=rust-git-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/home/rust/.cargo/git \
     --mount=type=cache,id=rust-home-registry-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/home/rust/.cargo/registry \
