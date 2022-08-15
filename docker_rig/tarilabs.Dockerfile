@@ -62,7 +62,6 @@ ADD common common
 ADD common_sqlite common_sqlite
 ADD comms comms
 ADD infrastructure infrastructure
-ADD dan_layer dan_layer
 ADD meta meta
 
 RUN --mount=type=cache,id=rust-git-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/home/rust/.cargo/git \
