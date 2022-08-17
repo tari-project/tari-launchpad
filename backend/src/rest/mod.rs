@@ -22,6 +22,7 @@
 //
 
 pub mod quay_io;
+pub mod docker_hub;
 use std::collections::HashMap;
 
 use bollard::{image::ListImagesOptions, models::ImageSummary};
