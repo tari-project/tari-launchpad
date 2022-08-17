@@ -38,10 +38,7 @@ pub use wallet_api::{
 use crate::{
     commands::{status, ServiceSettings, DEFAULT_IMAGES},
     docker::{ImageType, TariNetwork, TariWorkspace},
-    rest::{
-        quay_io::QuayIoRegistry,
-        service_registry::ServiceRegistry
-    },
+    rest::service_registry::get_registry,
 };
 
 pub static TARI_NETWORKS: [TariNetwork; 3] = [TariNetwork::Dibbler, TariNetwork::Igor, TariNetwork::Mainnet];
@@ -65,10 +62,15 @@ async fn from_image_type(image: ImageType, registry: Option<&str>) -> ImageInfo 
         docker_image: TariWorkspace::fully_qualified_image(image, registry),
         ..Default::default()
     };
-    if let Ok(tag) = QuayIoRegistry::get_tag_info(image).await {
-        info.updated = tag.latest;
-        info.created_on = Some(tag.created_on);
+
+    let registry = get_registry(image);
+    let tag = registry.get_tag_info(image);
+
+    if let Ok(taginfo) = tag.await {
+        info.updated = taginfo.latest;
+        info.created_on = Some(taginfo.created_on);
     }
+
     info
 }
 

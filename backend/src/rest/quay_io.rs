@@ -68,7 +68,7 @@ pub struct QuayIoRegistry;
 
 #[async_trait]
 impl ServiceRegistry for QuayIoRegistry {
-    async fn get_tag_info(image: ImageType) -> Result<TagInfo, String> {
+    async fn get_tag_info(&self, image: ImageType) -> Result<TagInfo, String> {
         let image_tag = get_image_tags(image).await?;
         let tags = image_tag.tags;
         let mut filtered: Vec<QuayImageTag> = tags

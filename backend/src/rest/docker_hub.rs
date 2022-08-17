@@ -80,7 +80,7 @@ pub struct DockerHubRegistry;
 
 #[async_trait]
 impl ServiceRegistry for DockerHubRegistry {
-    async fn get_tag_info(image: ImageType) -> Result<TagInfo, String> {
+    async fn get_tag_info(&self, image: ImageType) -> Result<TagInfo, String> {
         let image_tag = get_tag(image).await?;
 
         Ok(TagInfo::from(image_tag))

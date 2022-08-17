@@ -22,10 +22,25 @@
 //
 
 use crate::docker::ImageType;
-use crate::rest::TagInfo;
+use crate::rest::{TagInfo, quay_io::QuayIoRegistry, docker_hub::DockerHubRegistry};
 use tari_comms::async_trait;
 
 #[async_trait]
-pub trait ServiceRegistry {
-    async fn get_tag_info(image: ImageType) -> Result<TagInfo, String>;
+pub trait ServiceRegistry: Send {
+    async fn get_tag_info(&self, image: ImageType) -> Result<TagInfo, String>;
+}
+
+pub fn get_registry(image: ImageType) -> Box<dyn ServiceRegistry> {
+    match image {
+        ImageType::Tor |
+        ImageType::BaseNode |
+        ImageType::Wallet |
+        ImageType::XmRig |
+        ImageType::Sha3Miner |
+        ImageType::MmProxy |
+        ImageType::Monerod => Box::new(QuayIoRegistry),
+        ImageType::Loki |
+        ImageType::Promtail |
+        ImageType::Grafana => Box::new(DockerHubRegistry)
+    }
 }
