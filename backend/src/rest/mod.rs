@@ -23,13 +23,22 @@
 
 pub mod quay_io;
 pub mod docker_hub;
-use std::collections::HashMap;
+pub mod service_registry;
 
 use bollard::{image::ListImagesOptions, models::ImageSummary};
 use log::error;
 use thiserror::Error;
+use std::collections::HashMap;
+use serde::{Deserialize, Serialize};
 
 use crate::docker::DOCKER_INSTANCE;
+
+#[derive(Serialize, Debug, Clone, Deserialize)]
+pub struct TagInfo {
+    pub latest: bool,
+    pub created_on: String,
+    pub digest: String,
+}
 
 #[derive(Error, Debug)]
 pub enum DockerImageError {

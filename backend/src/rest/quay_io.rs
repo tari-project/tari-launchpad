@@ -26,6 +26,9 @@ use serde::{Deserialize, Serialize};
 
 use super::{list_image, DockerImageError};
 use crate::docker::{ImageType, TariWorkspace, DOCKER_INSTANCE};
+use crate::rest::service_registry::ServiceRegistry;
+use crate::rest::TagInfo;
+use tari_comms::async_trait;
 
 pub const QUAY_IO_REPO_NAME: &str = "quay.io";
 pub const QUAY_IO_URL: &str = "https://quay.io/api/v1/repository";
@@ -51,19 +54,35 @@ struct QuayTags {
     page: i32,
 }
 
-#[derive(Serialize, Debug, Clone, Deserialize)]
-pub struct TagInfo {
-    pub latest: bool,
-    pub created_on: String,
-    pub digest: String,
-}
-
 impl From<QuayImageTag> for TagInfo {
     fn from(source: QuayImageTag) -> Self {
         TagInfo {
             latest: true,
             created_on: source.last_modified,
             digest: source.manifest_digest,
+        }
+    }
+}
+
+pub struct QuayIoRegistry;
+
+#[async_trait]
+impl ServiceRegistry for QuayIoRegistry {
+    async fn get_tag_info(image: ImageType) -> Result<TagInfo, String> {
+        let image_tag = get_image_tags(image).await?;
+        let tags = image_tag.tags;
+        let mut filtered: Vec<QuayImageTag> = tags
+            .iter()
+            .filter(|t| t.name.contains("latest") && t.expiration.is_none())
+            .cloned()
+            .collect();
+        if filtered.is_empty() {
+            Err("No tags found for tag [latest]".to_string())
+        } else {
+            if filtered.len() > 1 {
+                filtered.sort_by(|t1, t2| t1.start_ts.cmp(&t2.start_ts));
+            }
+            Ok(TagInfo::from(filtered.pop().unwrap()))
         }
     }
 }
@@ -90,23 +109,7 @@ async fn get_image_tags(image: ImageType) -> Result<QuayTags, String> {
     Ok(tag)
 }
 
-pub async fn get_tag_info(image: ImageType) -> Result<TagInfo, String> {
-    let image_tag = get_image_tags(image).await?;
-    let tags = image_tag.tags;
-    let mut filtered: Vec<QuayImageTag> = tags
-        .iter()
-        .filter(|t| t.name.contains("latest") && t.expiration.is_none())
-        .cloned()
-        .collect();
-    if filtered.is_empty() {
-        Err("No tags found for tag [latest]".to_string())
-    } else {
-        if filtered.len() > 1 {
-            filtered.sort_by(|t1, t2| t1.start_ts.cmp(&t2.start_ts));
-        }
-        Ok(TagInfo::from(filtered.pop().unwrap()))
-    }
-}
+
 
 #[allow(dead_code)]
 pub async fn is_up_to_date(image: ImageType, manifest_digest: String) -> Result<bool, DockerImageError> {

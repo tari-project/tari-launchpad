@@ -24,6 +24,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::docker::{ImageType};
+use crate::rest::service_registry::ServiceRegistry;
+use crate::rest::TagInfo;
+use tari_comms::async_trait;
 
 pub const REGISTRY_URL: &str = "https://registry.hub.docker.com/v2/repositories/";
 pub const GRAFANA_REPO_NAME: &str = "grafana";
@@ -62,13 +65,6 @@ struct Tag {
     digest: String,
 }
 
-#[derive(Serialize, Debug, Clone, Deserialize)]
-pub struct TagInfo {
-    pub latest: bool,
-    pub created_on: String,
-    pub digest: String,
-}
-
 impl From<Tag> for TagInfo {
     fn from(source: Tag) -> Self {
         TagInfo {
@@ -76,6 +72,18 @@ impl From<Tag> for TagInfo {
             created_on: source.last_updated,
             digest: source.digest,
         }
+    }
+}
+
+
+pub struct DockerHubRegistry;
+
+#[async_trait]
+impl ServiceRegistry for DockerHubRegistry {
+    async fn get_tag_info(image: ImageType) -> Result<TagInfo, String> {
+        let image_tag = get_tag(image).await?;
+
+        Ok(TagInfo::from(image_tag))
     }
 }
 
@@ -93,10 +101,4 @@ async fn get_tag(image: ImageType) -> Result<Tag, String> {
         .await
         .map_err(|_| format!("Can't read data from: {}", &url))?;
     Ok(tag)
-}
-
-pub async fn get_tag_info(image: ImageType) -> Result<TagInfo, String> {
-    let image_tag = get_tag(image).await?;
-
-    Ok(TagInfo::from(image_tag))
 }
