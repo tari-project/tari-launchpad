@@ -21,11 +21,8 @@ export const getDockerImageList = createAsyncThunk<
       settings,
     })
 
-    /**
-     *  @TODO remove `updated: false` after the backend starts returning correct value
-     */
     return {
-      images: result.imageInfo.map(img => ({ ...img, updated: false })),
+      images: result.imageInfo,
       recipes: result.serviceRecipes,
     }
   } catch (e) {
