@@ -121,12 +121,12 @@ pub async fn is_up_to_date(image: ImageType, manifest_digest: String) -> Result<
 
     for image_id in image_ids {
         let local_image = docker.inspect_image(&image_id).await?;
-        let signagure = match local_image.repo_digests {
+        let signature = match local_image.repo_digests {
             Some(digests) => digests,
             None => return Ok(false),
         };
-        debug!("signature: {:?}", signagure);
-        if signagure.iter().any(|s| s.contains(&manifest_digest)) {
+        debug!("signature: {:?}", signature);
+        if signature.iter().any(|s| s.contains(&manifest_digest)) {
             return Ok(true);
         }
     }
