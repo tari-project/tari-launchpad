@@ -28,7 +28,7 @@ use crate::rest::service_registry::ServiceRegistry;
 use crate::rest::TagInfo;
 use tari_comms::async_trait;
 
-pub const REGISTRY_URL: &str = "https://registry.hub.docker.com/v2/repositories/";
+pub const REGISTRY_URL: &str = "https://registry.hub.docker.com/v2/repositories";
 pub const GRAFANA_REPO_NAME: &str = "grafana";
 
 #[derive(Serialize, Debug, Clone, Deserialize)]
@@ -53,16 +53,11 @@ struct Tag {
     id: i32,
     last_updated: String,
     last_updater: i32,
-    last_updater_username: String,
     name: String,
     repository: i32,
     full_size: i32,
-    v2: bool,
-    tag_status: String,
-    tag_last_pulled: String,
     tag_last_pushed: String,
-    media_type: String,
-    digest: String,
+    digest: Option<String>,
 }
 
 impl From<Tag> for TagInfo {
@@ -70,7 +65,7 @@ impl From<Tag> for TagInfo {
         TagInfo {
             latest: true,
             created_on: source.last_updated,
-            digest: source.digest,
+            digest: source.digest.unwrap_or("".to_string()),
         }
     }
 }
