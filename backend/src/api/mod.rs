@@ -38,7 +38,7 @@ pub use wallet_api::{
 use crate::{
     commands::{status, ServiceSettings, DEFAULT_IMAGES},
     docker::{ImageType, TariNetwork, TariWorkspace},
-    rest::service_registry::get_registry,
+    rest::{is_up_to_date, service_registry::get_registry},
 };
 
 pub static TARI_NETWORKS: [TariNetwork; 3] = [TariNetwork::Dibbler, TariNetwork::Igor, TariNetwork::Mainnet];
@@ -63,16 +63,20 @@ async fn from_image_type(image: ImageType, registry: Option<&str>) -> ImageInfo 
         ..Default::default()
     };
 
+    // Check for a newer version of the image. This is naive and simply checks if any new image
+    // has been pushed with a newer created_on date than our current one.
     let registry = get_registry(image);
     let tag = registry.get_tag_info(image);
 
     if let Ok(taginfo) = tag.await {
-        info.updated = taginfo.latest;
+        info.updated = is_up_to_date(image, &taginfo).await.unwrap_or(true);
         info.created_on = Some(taginfo.created_on);
     }
 
     info
 }
+
+
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

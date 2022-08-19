@@ -21,16 +21,13 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use log::debug;
 use serde::{Deserialize, Serialize};
 
-use super::{list_image, DockerImageError};
-use crate::docker::{ImageType, TariWorkspace, DOCKER_INSTANCE};
+use crate::docker::ImageType;
 use crate::rest::service_registry::ServiceRegistry;
 use crate::rest::TagInfo;
 use tari_comms::async_trait;
 
-pub const QUAY_IO_REPO_NAME: &str = "quay.io";
 pub const QUAY_IO_URL: &str = "https://quay.io/api/v1/repository";
 pub const TARILABS_REPO_NAME: &str = "tarilabs";
 
@@ -107,31 +104,4 @@ async fn get_image_tags(image: ImageType) -> Result<QuayTags, String> {
         .await
         .map_err(|_| format!("Can't read data from: {}", &quay_io_url))?;
     Ok(tag)
-}
-
-
-
-#[allow(dead_code)]
-pub async fn is_up_to_date(image: ImageType, manifest_digest: String) -> Result<bool, DockerImageError> {
-    let docker = DOCKER_INSTANCE.clone();
-    let registry = format!("{}/{}", QUAY_IO_REPO_NAME, TARILABS_REPO_NAME);
-    let fully_qualified_image_name = TariWorkspace::fully_qualified_image(image, Some(&registry));
-    let image_ids: Vec<String> = list_image(fully_qualified_image_name.clone())
-        .await?
-        .iter()
-        .map(|img| img.id.clone())
-        .collect();
-
-    for image_id in image_ids {
-        let local_image = docker.inspect_image(&image_id).await?;
-        let signature = match local_image.repo_digests {
-            Some(digests) => digests,
-            None => return Ok(false),
-        };
-        debug!("signature: {:?}", signature);
-        if signature.iter().any(|s| s.contains(&manifest_digest)) {
-            return Ok(true);
-        }
-    }
-    Ok(false)
 }

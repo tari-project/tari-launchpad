@@ -63,13 +63,12 @@ struct Tag {
 impl From<Tag> for TagInfo {
     fn from(source: Tag) -> Self {
         TagInfo {
-            latest: true,
+            latest: false,
             created_on: source.last_updated,
-            digest: source.digest.unwrap_or("".to_string()),
+            digest: source.digest.unwrap_or_else(|| "".to_string()),
         }
     }
 }
-
 
 pub struct DockerHubRegistry;
 

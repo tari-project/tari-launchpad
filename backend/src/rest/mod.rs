@@ -29,9 +29,10 @@ use bollard::{image::ListImagesOptions, models::ImageSummary};
 use log::error;
 use thiserror::Error;
 use std::collections::HashMap;
+use chrono::DateTime;
 use serde::{Deserialize, Serialize};
 
-use crate::docker::DOCKER_INSTANCE;
+use crate::docker::{DOCKER_INSTANCE, ImageType, TariWorkspace};
 
 #[derive(Serialize, Debug, Clone, Deserialize)]
 pub struct TagInfo {
@@ -67,4 +68,41 @@ pub async fn list_image(fully_qualified_image_name: String) -> Result<Vec<ImageS
             DockerImageError::ImageNotFound(fully_qualified_image_name)
         })?;
     Ok(result)
+}
+
+pub async fn is_up_to_date(image: ImageType, tag: &TagInfo) -> Result<bool, DockerImageError> {
+    let docker = DOCKER_INSTANCE.clone();
+    let fully_qualified_image_name = TariWorkspace::fully_qualified_image(image, None);
+    let image_ids: Vec<String> = list_image(fully_qualified_image_name.clone())
+        .await?
+        .iter()
+        .map(|img| img.id.clone())
+        .collect();
+
+    // No local image found, tell them to fetch a new one
+    if image_ids.is_empty() {
+        return Ok(false)
+    }
+
+    for image_id in image_ids {
+        let local_image = docker.inspect_image(&image_id).await?;
+
+        println!("local date: {:?} - tag date: {:?}", local_image.created, tag.created_on);
+
+        println!("{:?} Trying ", image.display_name().to_string());
+
+        if let Ok(local_time) = DateTime::parse_from_rfc3339(&local_image.created) {
+            println!("{:?} one", image.display_name().to_string());
+
+            if let Ok(tag_time) = DateTime::parse_from_rfc2822(&tag.created_on) {
+                println!("{:?} two", image.display_name().to_string());
+
+                if local_time < tag_time {
+                    return Ok(false);
+                }
+            }
+        }
+    }
+
+    Ok(true)
 }
