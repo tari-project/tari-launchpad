@@ -28,10 +28,10 @@ const checkImages = async (serviceSettings: any, dispatch: AppDispatch) => {
       settings: serviceSettings,
     })
 
-    const outdated = result.imageInfo.filter(i => !i.updated)
+    /* const outdated = result.imageInfo.filter(i => !i.updated)
     outdated.map(i => {
       dispatch(dockerImagesActions.pushToTBotQueue(i))
-    })
+    }) */
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(err)

@@ -116,7 +116,7 @@ const DockerImagesList = ({
             )}
             {!dockerImage.updated && !dockerImage.pending && (
               <DockerStatusWrapper>
-                {dockerImage.error ? (
+                {dockerImage.error && (
                   <ErrorWrapper
                     onClick={() => setErrorInAlert(dockerImage.error)}
                   >
@@ -127,9 +127,10 @@ const DockerImagesList = ({
                       {dockerImage.error}
                     </Text>
                   </ErrorWrapper>
-                ) : (
-                  <Tag type='warning'>{t.docker.newerVersion}</Tag>
                 )}
+                {/*
+                  <Tag type='warning'>{t.docker.newerVersion}</Tag>
+                */}
                 <Button
                   variant='button-in-text'
                   type='link'
