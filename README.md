@@ -53,11 +53,11 @@ You can use the bundled Grafana environment that is packaged with launchpad to v
 favorite text editor instead.
 
 Logs and configuration files are stored in 
-* MacOs: `~/Library/Caches/tari/tmp/dibbler/{app}/log`,
-* Linux: `~/.cache/tari/tmp/dibbler/{app}/log`,
+* MacOs: `~/Library/Caches/tari/tmp/{network}/{app}/log`,
+* Linux: `~/.cache/tari/tmp/{network}/{app}/log`,
 * Windows: `???`
 
-You can edit the log configuration, `dibbler/config/log4rs.yml` to change the log level, output etc. Changes are 
+You can edit the log configuration, `{network}/config/log4rs.yml` to change the log level, output etc. Changes are 
 picked up on the fly and take effect within 30s.
 
 ##  Miscellaneous notes
