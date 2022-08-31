@@ -15,7 +15,7 @@ import { InitialSettings } from './types'
 
 const getSettings = async (): Promise<InitialSettings> => {
   const newCacheDir = await cacheDir()
-  const network = 'dibbler'
+  const network = 'esmeralda'
   return {
     parole: '',
     moneroMiningAddress: 'test1',

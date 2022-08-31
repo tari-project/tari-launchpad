@@ -142,6 +142,8 @@ impl From<LogOutput> for LogMessage {
 #[derive(Serialize, Debug, Deserialize, Clone, Copy)]
 pub enum TariNetwork {
     Dibbler,
+    Esme,
+    Esmeralda,
     Igor,
     Mainnet,
 }
@@ -150,6 +152,8 @@ impl TariNetwork {
     pub fn lower_case(self) -> &'static str {
         match self {
             Self::Dibbler => "dibbler",
+            Self::Esme => "esmeralda",
+            Self::Esmeralda => "esmeralda",
             Self::Igor => "igor",
             Self::Mainnet => "mainnet",
         }
@@ -158,16 +162,18 @@ impl TariNetwork {
     pub fn upper_case(self) -> &'static str {
         match self {
             Self::Dibbler => "DIBBLER",
+            Self::Esme => "ESMERALDA",
+            Self::Esmeralda => "ESMERALDA",
             Self::Igor => "IGOR",
             Self::Mainnet => "MAINNET",
         }
     }
 }
 
-/// Default network is Dibbler. This will change after mainnet launch
+/// Default network is Esme. This will change after mainnet launch
 impl Default for TariNetwork {
     fn default() -> Self {
-        Self::Dibbler
+        Self::Esmeralda
     }
 }
 
@@ -177,6 +183,8 @@ impl TryFrom<&str> for TariNetwork {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "dibbler" => Ok(TariNetwork::Dibbler),
+            "esme" => Ok(TariNetwork::Esmeralda),
+            "esmeralda" => Ok(TariNetwork::Esmeralda),
             "igor" => Ok(TariNetwork::Igor),
             "mainnet" => Ok(TariNetwork::Mainnet),
             _ => Err(DockerWrapperError::UnsupportedNetwork),
