@@ -277,7 +277,11 @@ impl LaunchpadConfig {
     }
 
     fn base_node_cmd(&self) -> Vec<String> {
-        let args = vec!["--log-config=/var/tari/config/log4rs.yml"];
+        let args = vec![
+            "--log-config=/var/tari/config/log4rs.yml",
+            "-n",
+            "--watch=status"
+        ];
         args.into_iter().map(String::from).collect()
     }
 
@@ -285,6 +289,8 @@ impl LaunchpadConfig {
         let args = vec![
             "--log-config=/var/tari/config/log4rs.yml",
             "--seed-words-file=/var/tari/config/seed_words.txt",
+            "--enable-grpc",
+            "-n"
         ];
         args.into_iter().map(String::from).collect()
     }

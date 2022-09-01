@@ -5612,6 +5612,7 @@ dependencies = [
  "tari_common",
  "tari_common_types",
  "tari_comms",
+ "tari_utilities",
  "tauri",
  "tauri-build",
  "tauri-plugin-sql",

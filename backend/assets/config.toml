@@ -12,10 +12,10 @@ identity_file = "/var/tari/base_node/config/dibbler/tari_base_node_id.json"
 
 [igor.base_node]
 network = "igor"
-base_node_identity_file = "/var/tari/base_node/config/igor/base_node_id.json"
+base_node_identity_file = "/var/tari/base_node/config/igor/tar_base_node_id.json"
 
 [esmeralda.base_node]
-identity_file = "/var/tari/base_node/config/esme/base_node_id.json"
+identity_file = "/var/tari/base_node/config/esmeralda/tari_base_node_id.json"
 
 [base_node.p2p]
 auxiliary_tcp_listener_address = "/dns4/base_node/tcp/18189"

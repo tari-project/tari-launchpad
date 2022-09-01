@@ -57,8 +57,8 @@ network = "igor"
 data_dir = "/blockchain/igor"
 
 [esmeralda.base_node]
-network = "igor"
-data_dir = "/blockchain/esme"
+network = "esmeralda"
+data_dir = "/blockchain/esmeralda"
 
 [base_node.p2p.transport]
 tor.control_auth = "password=tari"
@@ -82,7 +82,7 @@ db_file = "wallet/igor/wallet.dat"
 
 [esmeralda.wallet]
 network = "esmeralda"
-db_file = "wallet/igor/wallet.dat"
+db_file = "wallet/esme/wallet.dat"
 
 [miner]
 base_node_grpc_address = "/dns4/base_node/tcp/18142"
