@@ -37,7 +37,7 @@ const translations = {
     },
     message4: {
       part1: '🆘 I almost forgot! If you have any problems or doubts',
-      part2: 'contact our awsome Tari community on Discord.',
+      part2: 'contact our awesome Tari community on Discord.',
     },
     message5: {
       link: 'Take me to installation page',
