@@ -21,8 +21,7 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::collections::HashMap;
-use std::fs;
+use std::{collections::HashMap, fs};
 
 use bollard::{
     container::{LogsOptions, Stats, StatsOptions, StopContainerOptions},
@@ -268,9 +267,7 @@ impl TariWorkspace {
 
     /// Loads the seed words file
     /// The canonical path is defined as `{root_path}/{network}/{config}/seed_words.txt`
-    pub fn get_seed_words(
-        &self,
-    ) -> Result<Option<Vec<String>>, DockerWrapperError> {
+    pub fn get_seed_words(&self) -> Result<Option<Vec<String>>, DockerWrapperError> {
         let root_path = self.config.data_directory.to_string_lossy().to_string();
 
         if let Some(file_path) = self.config.seed_words_path(&root_path, ImageType::Wallet) {
@@ -289,13 +286,11 @@ impl TariWorkspace {
         }
     }
 
-    pub fn delete_seed_words(
-        &self,
-    ) -> Result<(), DockerWrapperError> {
+    pub fn delete_seed_words(&self) -> Result<(), DockerWrapperError> {
         let root_path = self.config.data_directory.to_string_lossy().to_string();
 
         if let Some(file_path) = self.config.seed_words_path(&root_path, ImageType::Wallet) {
-            return fs::remove_file(file_path).map_err(|_| DockerWrapperError::SeedFileRemovalError)
+            return fs::remove_file(file_path).map_err(|_| DockerWrapperError::SeedFileRemovalError);
         }
 
         Err(DockerWrapperError::SeedFileRemovalError)

@@ -32,8 +32,7 @@ use tari_app_grpc::tari_rpc::{
     TransactionEvent,
     TransferResponse,
 };
-use tari_common_types::emoji::EmojiId;
-use tari_common_types::types::PublicKey;
+use tari_common_types::{emoji::EmojiId, types::PublicKey};
 use tari_utilities::byte_array::ByteArray;
 
 pub const HEADER: i32 = 2;

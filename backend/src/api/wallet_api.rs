@@ -27,9 +27,10 @@ use log::{debug, error, info, warn};
 use tauri::{AppHandle, Manager, Wry};
 
 use crate::{
-    AppState, commands::status,
+    commands::status,
     docker::{ImageType, TariWorkspace},
-    grpc::{GrpcWalletClient, TransferFunds, TransferFundsResult, WalletBalance, WalletIdentity, WalletTransaction}
+    grpc::{GrpcWalletClient, TransferFunds, TransferFundsResult, WalletBalance, WalletIdentity, WalletTransaction},
+    AppState,
 };
 
 #[tauri::command]
@@ -124,9 +125,7 @@ pub async fn get_seed_words(app: AppHandle<Wry>) -> Result<Vec<String>, String> 
         let state = app.state::<AppState>();
         let mut wrapper = state.workspaces.write().await;
 
-        let workspace: &mut TariWorkspace = wrapper
-            .get_workspace_mut("default")
-            .expect("This should be fine");
+        let workspace: &mut TariWorkspace = wrapper.get_workspace_mut("default").expect("This should be fine");
 
         let seed_words = workspace.get_seed_words().unwrap().unwrap();
 
@@ -145,9 +144,7 @@ pub async fn delete_seed_words(app: AppHandle<Wry>) -> Result<(), String> {
         let state = app.state::<AppState>();
         let mut wrapper = state.workspaces.write().await;
 
-        let workspace: &mut TariWorkspace = wrapper
-            .get_workspace_mut("default")
-            .expect("This should be fine");
+        let workspace: &mut TariWorkspace = wrapper.get_workspace_mut("default").expect("This should be fine");
 
         workspace.delete_seed_words().map_err(|e| e.to_string())
     } else {

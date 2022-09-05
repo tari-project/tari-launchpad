@@ -41,7 +41,12 @@ use crate::{
     rest::quay_io::get_tag_info,
 };
 
-pub static TARI_NETWORKS: [TariNetwork; 4] = [TariNetwork::Esmeralda, TariNetwork::Dibbler, TariNetwork::Igor, TariNetwork::Mainnet];
+pub static TARI_NETWORKS: [TariNetwork; 4] = [
+    TariNetwork::Esmeralda,
+    TariNetwork::Dibbler,
+    TariNetwork::Igor,
+    TariNetwork::Mainnet,
+];
 
 #[derive(Debug, Serialize, Default)]
 #[serde(rename_all = "camelCase")]
