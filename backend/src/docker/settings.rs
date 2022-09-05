@@ -276,6 +276,17 @@ impl LaunchpadConfig {
         }
     }
 
+    pub fn seed_words_path(&self, root_path: &str, image_type: ImageType) -> Option<PathBuf> {
+        match image_type {
+            ImageType::Wallet => Some(
+                PathBuf::from(root_path)
+                    .join("config")
+                    .join("seed_words.txt")
+            ),
+            _ => None,
+        }
+    }
+
     fn base_node_cmd(&self) -> Vec<String> {
         let args = vec![
             "--log-config=/var/tari/config/log4rs.yml",

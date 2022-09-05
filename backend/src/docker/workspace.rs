@@ -22,6 +22,7 @@
 //
 
 use std::collections::HashMap;
+use std::fs;
 
 use bollard::{
     container::{LogsOptions, Stats, StatsOptions, StopContainerOptions},
@@ -263,6 +264,41 @@ impl TariWorkspace {
             }
         }
         Ok(ids)
+    }
+
+    /// Loads the seed words file
+    /// The canonical path is defined as `{root_path}/{network}/{config}/seed_words.txt`
+    pub fn get_seed_words(
+        &self,
+    ) -> Result<Option<Vec<String>>, DockerWrapperError> {
+        let root_path = self.config.data_directory.to_string_lossy().to_string();
+
+        if let Some(file_path) = self.config.seed_words_path(&root_path, ImageType::Wallet) {
+            debug!("Loading seed words {}", file_path.to_string_lossy());
+
+            let seed_words = fs::read_to_string(file_path)
+                .map_err(|_| DockerWrapperError::SeedFileReadError)
+                .expect("Could not read the seed file.")
+                .split_whitespace()
+                .map(String::from)
+                .collect();
+
+            Ok(Some(seed_words))
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub fn delete_seed_words(
+        &self,
+    ) -> Result<(), DockerWrapperError> {
+        let root_path = self.config.data_directory.to_string_lossy().to_string();
+
+        if let Some(file_path) = self.config.seed_words_path(&root_path, ImageType::Wallet) {
+            return fs::remove_file(file_path).map_err(|_| DockerWrapperError::SeedFileRemovalError)
+        }
+
+        Err(DockerWrapperError::SeedFileRemovalError)
     }
 
     /// Create and return a [`Stream`] of [`LogMessage`] instances for the `name`d container in the workspace.

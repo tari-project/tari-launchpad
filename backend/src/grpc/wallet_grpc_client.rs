@@ -23,7 +23,6 @@
 use futures::{Stream, StreamExt};
 use tari_app_grpc::tari_rpc::{
     wallet_client::WalletClient,
-    Empty,
     GetBalanceRequest,
     GetBalanceResponse,
     GetIdentityRequest,
@@ -96,19 +95,5 @@ impl GrpcWalletClient {
         let request = TransferRequest { recipients };
         let response = inner.transfer(request).await?.into_inner();
         Ok(TransferFundsResult::from(response))
-    }
-
-    pub async fn seed_words(&mut self) -> Result<Vec<String>, GrpcError> {
-        let inner = self.connection().await?;
-        let request = Empty {};
-        let response = inner.seed_words(request).await?;
-        Ok(response.into_inner().words)
-    }
-
-    pub async fn delete_seed_words(&mut self) -> Result<(), GrpcError> {
-        let inner = self.connection().await?;
-        let request = Empty {};
-        let _accepted = inner.delete_seed_words_file(request).await?;
-        Ok(())
     }
 }
