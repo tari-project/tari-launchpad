@@ -301,7 +301,7 @@ const TBotPrompt = ({
         </MessageBox>
       )
     })
-  }, [messages, count]) as ReactNode
+  }, [messages, count, onDarkBg]) as ReactNode
 
   if (!open) {
     return null
