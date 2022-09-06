@@ -153,5 +153,5 @@ USER tari
 COPY --from=builder /tari/$APP_EXEC /usr/bin/
 COPY buildtools/docker_rig/start_tari_app.sh /usr/bin/start_tari_app.sh
 
-ENTRYPOINT [ "start_tari_app.sh", "-c", "/var/tari/config/config.toml", "-b", "/var/tari/${APP_NAME}" ]
+ENTRYPOINT [ "start_tari_app.sh", "-c", "/var/tari/config/config.toml", "-b", "/var/tari/$APP_NAME" ]
 # CMD [ "--non-interactive-mode" ]
