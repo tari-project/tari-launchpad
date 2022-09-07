@@ -33,7 +33,6 @@ import { ChatDotsLight, ChatDotsDark } from '../DotsComponent'
 import MessageBox from './MessageBox'
 import ProgressIndicator from '../../Onboarding/ProgressIndicator'
 import { selectTheme } from '../../../store/app/selectors'
-import { convertToObject } from 'typescript'
 
 // The default time between rendering messages
 const WAIT_TIME = 2800
