@@ -14,11 +14,12 @@ build = "src/build.rs"
 tauri-build = { version = "1.0.1", features = [] }
 
 [dependencies]
-tari_common_types = { git = "https://github.com/tari-project/tari", branch = "testnet-dibbler" }
-tari_app_utilities = { git = "https://github.com/tari-project/tari", branch = "testnet-dibbler" }
-tari_comms = { git = "https://github.com/tari-project/tari", branch = "testnet-dibbler" }
-tari_app_grpc = { git = "https://github.com/tari-project/tari", branch = "testnet-dibbler" }
-tari_common = { git = "https://github.com/tari-project/tari", branch = "testnet-dibbler" }
+tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v0.38.0" }
+tari_app_utilities = { git = "https://github.com/tari-project/tari", tag = "v0.38.0" }
+tari_comms = { git = "https://github.com/tari-project/tari", tag = "v0.38.0" }
+tari_app_grpc = { git = "https://github.com/tari-project/tari", tag = "v0.38.0" }
+tari_common = { git = "https://github.com/tari-project/tari", tag = "v0.38.0" }
+tari_utilities = { git = "https://github.com/tari-project/tari_utilities.git", tag = "v0.4.5" }
 
 bollard = "0.13.0"
 config = "0.13.2"

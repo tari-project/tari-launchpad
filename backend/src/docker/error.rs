@@ -46,6 +46,10 @@ pub enum DockerWrapperError {
     IdentityError(#[from] ExitError),
     #[error("The specified image type is not supported")]
     InvalidImageType,
+    #[error("Could not remove the seed file")]
+    SeedFileRemovalError,
+    #[error("Could not read the seed file")]
+    SeedFileReadError,
 }
 
 impl DockerWrapperError {

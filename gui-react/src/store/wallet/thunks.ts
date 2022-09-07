@@ -6,7 +6,7 @@ import { actions as containersActions } from '../containers'
 
 import * as walletService from './walletService'
 import { temporaryActions } from '../temporary'
-import { convertU8ToString } from '../../utils/Format'
+import { bytesToHex } from '../../utils/Format'
 
 const getWalletDataWithPolling = async (): Promise<
   [walletService.WalletIdentityDto, walletService.WalletBalance]
@@ -66,7 +66,7 @@ export const unlockWallet = createAsyncThunk<
       address: {
         uri: walletIdentity.publicAddress,
         emoji: walletIdentity.emojiId,
-        publicKey: convertU8ToString(walletIdentity.publicKey.toString()),
+        publicKey: bytesToHex(walletIdentity.publicKey),
       },
       tari: {
         balance:
