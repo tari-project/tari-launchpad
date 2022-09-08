@@ -9,6 +9,9 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks'
 import { tbotactions } from '../../../store/tbot'
 import { TBotMessage, TBotPromptProps } from './types'
 
+import { selectDockerTBotQueue } from '../../../store/dockerImages/selectors'
+import { actions as dockerImagesActions } from '../../../store/dockerImages'
+
 import {
   ContentRow,
   PromptContainer,
@@ -112,8 +115,19 @@ const TBotPrompt = ({
     }
   }
 
+  const dockerImagesQueue = useAppSelector(selectDockerTBotQueue)
+  const dockerImage = useMemo(() => dockerImagesQueue[0], [dockerImagesQueue])
+
   const close = () => {
-    return dispatch(tbotactions.close())
+    dispatch(tbotactions.close())
+    if (dockerImage) {
+      dispatch(
+        dockerImagesActions.removeFromTBotQueue({
+          image: dockerImage,
+          dismiss: true,
+        }),
+      )
+    }
   }
 
   const needToShowFadeOutSection = async () => {
