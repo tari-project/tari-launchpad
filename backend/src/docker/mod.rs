@@ -82,7 +82,7 @@ pub async fn try_create_container(
     docker: Docker,
 ) -> Result<ContainerCreateResponse, DockerWrapperError> {
     debug!("{} has configuration object: {:#?}", fully_qualified_image_name, config);
-    let args = config.command(image);
+    let args = config.command(image).await;
     let envars = config.environment(image);
     let volumes = config.volumes(image);
     let ports = config.ports(image);

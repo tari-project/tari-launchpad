@@ -246,10 +246,10 @@ impl LaunchpadConfig {
     }
 
     /// Return the command line arguments we want for the given container execution.
-    pub fn command(&self, image_type: ImageType) -> Vec<String> {
+    pub async fn command(&self, image_type: ImageType) -> Vec<String> {
         match image_type {
             ImageType::BaseNode => self.base_node_cmd(),
-            ImageType::Wallet => self.wallet_cmd(),
+            ImageType::Wallet => self.wallet_cmd().await,
             ImageType::XmRig => self.xmrig_cmd(),
             ImageType::Sha3Miner => self.miner_cmd(),
             ImageType::MmProxy => self.mm_proxy_cmd(),
@@ -288,7 +288,7 @@ impl LaunchpadConfig {
         args.into_iter().map(String::from).collect()
     }
 
-    fn wallet_cmd(&self) -> Vec<String> {
+    async fn wallet_cmd(&self) -> Vec<String> {
         let args = vec![
             "--log-config=/var/tari/config/log4rs.yml",
             "--seed-words-file=/var/tari/config/seed_words.txt",
