@@ -12,6 +12,8 @@ import { SettingsInputs } from '../../containers/SettingsContainer/types'
 
 import MiningConfig from '../../config/mining'
 import { InitialSettings } from './types'
+import { invoke } from '@tauri-apps/api'
+import { relaunch } from '@tauri-apps/api/process'
 
 const getSettings = async (): Promise<InitialSettings> => {
   const newCacheDir = await cacheDir()
@@ -44,6 +46,14 @@ export const loadDefaultServiceSettings = createAsyncThunk<
   }
   return settings
 })
+
+export const resetSettingsAndRelaunch = createAsyncThunk<void, void>(
+  'settings/reset',
+  async (_, thunkApi) => {
+    await invoke('reset_settings')
+    await relaunch()
+  },
+)
 
 export const saveSettings = createAsyncThunk<
   void,

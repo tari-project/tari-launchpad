@@ -12,6 +12,7 @@ const translations: { [key: string]: { [key: string]: string } } = {
     save: 'Save',
     submit: 'Submit',
     pause: 'Pause',
+    reset: 'Reset',
     continue: 'Continue',
     close: 'Close',
     connect: 'Connect',

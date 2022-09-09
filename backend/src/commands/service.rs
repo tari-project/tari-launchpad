@@ -373,3 +373,16 @@ async fn stop_service_impl(state: State<'_, AppState>, service_name: String) -> 
     workspace.stop_container(service_name.as_str(), true, &docker).await;
     Ok(())
 }
+
+#[tauri::command]
+pub async fn reset_settings(app: AppHandle<Wry>, settings: ServiceSettings) -> Result<(), String> {
+    reset_settings_impl(app, settings)
+        .await
+        .map_err(LauncherError::into_string)
+}
+
+async fn reset_settings_impl(app: AppHandle<Wry>, settings: ServiceSettings) -> Result<(), LauncherError> {
+    let config = LaunchpadConfig::try_from(settings)?;
+    debug!("RESET AND EXIT");
+    Ok(())
+}

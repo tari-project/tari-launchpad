@@ -1,7 +1,11 @@
 export default {
   discardChanges: 'Discard changes?',
   discardChangesDesc: 'Closing this window will cancel any unsaved changes',
+  resetChanges: 'Reset changes?',
+  resetChangesDesc:
+    'Clean all settings and start from scratch (requires restarting)',
   closeAndDiscard: 'Close & Discard',
+  resetAndExit: 'Reset & Exit',
   selectTheme: 'Select theme',
   security: {
     title: 'Security Settings',

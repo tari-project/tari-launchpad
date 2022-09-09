@@ -32,6 +32,7 @@ const SettingsContainer = () => {
   const [openMiningAuthForm, setOpenMiningAuthForm] = useState(false)
   const [openBaseNodeConnect, setOpenBaseNodeConnect] = useState(false)
   const [confirmCancel, setConfirmCancel] = useState(false)
+  const [confirmReset, setConfirmReset] = useState(false)
 
   const defaultValues = useMemo(
     () => ({
@@ -86,6 +87,10 @@ const SettingsContainer = () => {
     setConfirmCancel(true)
   }
 
+  const tryToReset = () => {
+    setConfirmReset(true)
+  }
+
   const changeTheme = (theme: ThemeType) => {
     dispatch(setTheme(theme))
   }
@@ -98,10 +103,16 @@ const SettingsContainer = () => {
     dispatch(actions.close())
   }
 
+  const resetSettings = () => {
+    setConfirmReset(false)
+    dispatch(actions.resetSettingsAndRelaunch())
+  }
+
   return (
     <SettingsComponent
       open={settingsOpen}
       onClose={tryToClose}
+      onReset={tryToReset}
       activeSettings={activeSettings}
       goToSettings={settingsPage => dispatch(actions.goTo(settingsPage))}
       formState={formState}
@@ -111,8 +122,11 @@ const SettingsContainer = () => {
       control={control}
       defaultMiningMergedValues={getValues().mining.merged}
       confirmCancel={confirmCancel}
+      confirmReset={confirmReset}
       cancelDiscard={() => setConfirmCancel(false)}
+      resetDiscard={() => setConfirmReset(false)}
       discardChanges={closeAndDiscard}
+      resetSettings={resetSettings}
       openMiningAuthForm={openMiningAuthForm}
       setOpenMiningAuthForm={setOpenMiningAuthForm}
       openBaseNodeConnect={openBaseNodeConnect}

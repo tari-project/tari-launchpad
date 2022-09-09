@@ -21,6 +21,7 @@ import {
   DiscardWarning,
   SidebarTabs,
   SidebarSelectTheme,
+  Spacer,
   SwitchBg,
 } from './styles'
 import BaseNodeSettings from './BaseNodeSettings'
@@ -82,6 +83,7 @@ const renderSettings = (
 const SettingsComponent = ({
   open,
   onClose,
+  onReset,
   activeSettings,
   goToSettings,
   formState,
@@ -91,8 +93,11 @@ const SettingsComponent = ({
   defaultMiningMergedValues,
   onSubmit,
   confirmCancel,
+  confirmReset,
   cancelDiscard,
+  resetDiscard,
   discardChanges,
+  resetSettings,
   openMiningAuthForm,
   setOpenMiningAuthForm,
   openBaseNodeConnect,
@@ -210,8 +215,26 @@ const SettingsComponent = ({
             </Button>
           </Footer>
         )}
-        {!confirmCancel && (
+        {confirmReset && (
           <Footer>
+            <DiscardWarning>
+              <Text type='smallHeavy'>{t.settings.resetChanges}</Text>
+              <Text type='smallMedium'>{t.settings.resetChangesDesc}.</Text>
+            </DiscardWarning>
+            <Button variant='secondary' onClick={resetDiscard} size='small'>
+              {t.common.phrases.keepEditing}
+            </Button>
+            <Button onClick={resetSettings} variant='warning' size='small'>
+              {t.settings.resetAndExit}
+            </Button>
+          </Footer>
+        )}
+        {!confirmCancel && !confirmReset && (
+          <Footer>
+            <Button variant='secondary' onClick={onReset}>
+              {t.common.verbs.reset}
+            </Button>
+            <Spacer />
             <Button variant='secondary' onClick={onClose}>
               {t.common.verbs.cancel}
             </Button>

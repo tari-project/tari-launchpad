@@ -53,4 +53,8 @@ impl LauncherError {
         }
         messages.join(" caused by:\n")
     }
+
+    pub fn into_string(self) -> String {
+        self.chained_message()
+    }
 }
