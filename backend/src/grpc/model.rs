@@ -112,8 +112,8 @@ pub enum SyncType {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BaseNodeIdentity {
-    public_key: Vec<u8>,
-    public_address: String,
+    pub public_key: Vec<u8>,
+    pub public_address: String,
     node_id: Vec<u8>,
     emoji_id: String,
 }

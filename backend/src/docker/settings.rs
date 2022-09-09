@@ -26,10 +26,15 @@ use std::{collections::HashMap, path::PathBuf, time::Duration};
 use bollard::models::{Mount, PortBinding, PortMap};
 use derivative::Derivative;
 use serde::{Deserialize, Serialize};
+use tari_common_types::types::PublicKey;
+use tari_utilities::{hex::Hex, ByteArray};
 use thiserror::Error;
 use tor_hash_passwd::EncryptedKey;
 
-use crate::docker::{models::ImageType, mounts::Mounts, TariNetwork};
+use crate::{
+    api::node_identity,
+    docker::{models::ImageType, mounts::Mounts, TariNetwork},
+};
 
 // TODO get a proper mining address for each network
 pub const DEFAULT_MINING_ADDRESS: &str =
@@ -289,11 +294,20 @@ impl LaunchpadConfig {
     }
 
     async fn wallet_cmd(&self) -> Vec<String> {
+        let base_node_id = node_identity().await.expect("Couldn't get the node identity");
+        let pub_key = PublicKey::from_bytes(&base_node_id.public_key).expect("Couldn't convert the pubkey");
+        let base_node_cmd = format!(
+            "-p wallet.custom_base_node={}::{}",
+            pub_key.to_hex(),
+            base_node_id.public_address
+        );
+
         let args = vec![
             "--log-config=/var/tari/config/log4rs.yml",
             "--seed-words-file=/var/tari/config/seed_words.txt",
             "--enable-grpc",
             "-n",
+            &base_node_cmd,
         ];
         args.into_iter().map(String::from).collect()
     }
