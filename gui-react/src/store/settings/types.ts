@@ -3,7 +3,7 @@ export enum Settings {
   Wallet = 'wallet',
   BaseNode = 'baseNode',
   Docker = 'docker',
-  Logs = 'logs',
+  // Logs = 'logs',
   Security = 'security',
 }
 
