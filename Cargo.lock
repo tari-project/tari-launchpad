@@ -95,9 +95,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.60"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c794e162a5eff65c72ef524dfe393eb923c354e350bb78b9c7383df13f3bc142"
+checksum = "b9a8f622bcf6ff3df478e9deba3e03e4e04b300f8e6a139e192c05fa3490afc7"
 
 [[package]]
 name = "arc-swap"
@@ -5592,6 +5592,7 @@ dependencies = [
 name = "tari_launchpad"
 version = "0.32.5"
 dependencies = [
+ "anyhow",
  "bollard",
  "config",
  "derivative",
@@ -5618,6 +5619,7 @@ dependencies = [
  "tauri-plugin-sql",
  "thiserror",
  "tokio",
+ "toml",
  "tonic",
  "tor-hash-passwd",
 ]

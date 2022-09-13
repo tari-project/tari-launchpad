@@ -69,6 +69,10 @@ fn main() {
     let context = tauri::generate_context!();
     let cli_config = context.config().tauri.cli.clone().unwrap();
 
+    if let Err(err) = commands::try_cleanup(context.config()) {
+        error!("Cleanup failed: {}", err);
+    }
+
     // We're going to attach this to the AppState because Tauri does not expose it for some reason
     let package_info = context.package_info().clone();
     // Handle --help and --version. Exits after printing
@@ -100,6 +104,7 @@ fn main() {
         .on_window_event(on_event)
         .run(context)
         .expect("error starting");
+    info!("At exit here!");
 }
 
 #[macro_export]
