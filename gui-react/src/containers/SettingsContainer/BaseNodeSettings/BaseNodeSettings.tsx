@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Controller, Control, UseFormSetValue } from 'react-hook-form'
 import { open } from '@tauri-apps/api/dialog'
 import { appDir } from '@tauri-apps/api/path'
@@ -33,6 +33,7 @@ const BaseNodeSettings = ({
 }) => {
   const theme = useTheme()
   const dispatch = useAppDispatch()
+  const [rerender, setRerender] = useState(false)
   const selectDirectory = useCallback(async (lastPath?: string) => {
     const selectedFolder = await open({
       directory: true,
@@ -46,6 +47,7 @@ const BaseNodeSettings = ({
         shouldDirty: true,
       })
     }
+    setRerender(!rerender)
   }, [])
 
   return (
