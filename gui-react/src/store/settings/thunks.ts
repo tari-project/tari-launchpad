@@ -24,7 +24,7 @@ const getSettings = async (): Promise<InitialSettings> => {
     tariNetwork: network,
     cacheDir: newCacheDir,
     dockerRegistry: 'quay.io/tarilabs',
-    dockerTag: '0.38.0',
+    dockerTag: '0.38.3',
     monerodUrl: MiningConfig.defaultMoneroUrls?.join(',') || '',
     moneroUseAuth: false,
     moneroUsername: '',

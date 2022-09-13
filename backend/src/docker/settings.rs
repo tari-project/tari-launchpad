@@ -27,7 +27,7 @@ use bollard::models::{Mount, PortBinding, PortMap};
 use derivative::Derivative;
 use serde::{Deserialize, Serialize};
 use tari_common_types::types::PublicKey;
-use tari_utilities::{hex::Hex, ByteArray};
+use tari_utilities::{byte_array::ByteArray, hex::Hex};
 use thiserror::Error;
 use tor_hash_passwd::EncryptedKey;
 
