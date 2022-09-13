@@ -202,6 +202,30 @@ async fn create_default_workspace_impl(app: AppHandle<Wry>, settings: ServiceSet
         create_workspace_folders(&config.data_directory)?;
         copy_config_file(&config.data_directory, app_config.as_ref(), package_info, "log4rs.yml")?;
         copy_config_file(&config.data_directory, app_config.as_ref(), package_info, "config.toml")?;
+        copy_config_file(
+            &config.data_directory,
+            app_config.as_ref(),
+            package_info,
+            "promtail.config.yml",
+        )?;
+        copy_config_file(
+            &config.data_directory,
+            app_config.as_ref(),
+            package_info,
+            "sources_provision.yml",
+        )?;
+        copy_config_file(
+            &config.data_directory,
+            app_config.as_ref(),
+            package_info,
+            "defaults.ini",
+        )?;
+        copy_config_file(
+            &config.data_directory,
+            app_config.as_ref(),
+            package_info,
+            "loki_config.yml",
+        )?;
         // Only get a write-lock if we need one
         let mut wrapper = state.workspaces.write().await;
         wrapper.create_workspace(DEFAULT_WORKSPACE_NAME, config)?;
