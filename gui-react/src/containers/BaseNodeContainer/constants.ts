@@ -1,4 +1,4 @@
-export const networks = ['esme', 'dibbler', 'testnet']
+export const networks = ['esmeralda', 'dibbler', 'testnet']
 
 export const networkOptions = networks.map(network => ({
   label: network,

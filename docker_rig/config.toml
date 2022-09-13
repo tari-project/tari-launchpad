@@ -82,7 +82,7 @@ db_file = "wallet/igor/wallet.dat"
 
 [esmeralda.wallet]
 network = "esmeralda"
-db_file = "wallet/esme/wallet.dat"
+db_file = "wallet/esmeralda/wallet.dat"
 
 [miner]
 base_node_grpc_address = "/dns4/base_node/tcp/18142"
