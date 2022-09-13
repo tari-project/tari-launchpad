@@ -179,17 +179,6 @@ const OnboardingContainer = () => {
 
   return (
     <StyledOnboardingContainer>
-      <Button
-        variant='secondary'
-        onClick={() => dispatch(setOnboardingComplete(true))}
-        style={{
-          position: 'absolute',
-          bottom: 40,
-          left: 40,
-        }}
-      >
-        <Text type='smallHeavy'>{t.onboarding.actions.skipOnboarding}</Text>
-      </Button>
       <TBotPrompt
         open={true}
         messages={messages}
