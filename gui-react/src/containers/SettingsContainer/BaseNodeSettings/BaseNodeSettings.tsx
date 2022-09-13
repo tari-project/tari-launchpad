@@ -33,8 +33,8 @@ const BaseNodeSettings = ({
 }) => {
   const theme = useTheme()
   const dispatch = useAppDispatch()
-  const [rerender, setRerender] = useState(false)
-  const selectDirectory = useCallback(async (lastPath?: string) => {
+  const selectDirectory = useCallback(async (field: any) => {
+    const lastPath = field.value
     const selectedFolder = await open({
       directory: true,
       defaultPath: lastPath || (await appDir()),
@@ -43,11 +43,8 @@ const BaseNodeSettings = ({
     if (selectedFolder === null) {
       return
     } else if (typeof selectedFolder === 'string') {
-      setValue('baseNode.rootFolder', selectedFolder, {
-        shouldDirty: true,
-      })
+      field.onChange(selectedFolder)
     }
-    setRerender(!rerender)
   }, [])
 
   return (
@@ -87,7 +84,7 @@ const BaseNodeSettings = ({
           <InputRow>
             <Label $noMargin>{t.baseNode.settings.rootFolder}</Label>
             <Input
-              onClick={() => selectDirectory(field.value)}
+              onClick={() => selectDirectory(field)}
               onChange={field.onChange}
               value={field?.value?.toString() || ''}
               containerStyle={{ width: '50%' }}
