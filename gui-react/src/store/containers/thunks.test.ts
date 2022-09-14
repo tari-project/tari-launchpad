@@ -92,7 +92,7 @@ describe('containers/thunks', () => {
       const getState = () =>
         ({
           baseNode: {
-            network: 'esme',
+            network: 'esmeralda',
           },
           containers: {
             statsHistory: [],
