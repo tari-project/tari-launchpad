@@ -8,10 +8,13 @@ import { actions as containersActions } from '../containers'
 import { actions as dockerImagesActions } from '../dockerImages'
 import { actions as credentialsActions } from '../credentials'
 
+import { selectServiceSettings } from '../settings/selectors'
 import { SettingsInputs } from '../../containers/SettingsContainer/types'
 
 import MiningConfig from '../../config/mining'
 import { InitialSettings } from './types'
+import { invoke } from '@tauri-apps/api'
+import { exit } from '@tauri-apps/api/process'
 
 const getSettings = async (): Promise<InitialSettings> => {
   const newCacheDir = await cacheDir()
@@ -43,6 +46,17 @@ export const loadDefaultServiceSettings = createAsyncThunk<
     thunkApi.dispatch(baseNodeActions.setRootFolder(settings.rootFolder))
   }
   return settings
+})
+
+export const resetSettingsAndRelaunch = createAsyncThunk<
+  void,
+  void,
+  { state: RootState }
+>('settings/reset', async (_, thunkApi) => {
+  const rootState = thunkApi.getState()
+  const settings = selectServiceSettings(rootState)
+  await invoke('reset_settings', { settings })
+  await exit()
 })
 
 export const saveSettings = createAsyncThunk<

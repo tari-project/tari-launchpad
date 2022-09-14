@@ -55,6 +55,7 @@ use crate::{
         open_terminal,
         pull_image,
         pull_images,
+        reset_settings,
         shutdown,
         start_service,
         stop_service,
@@ -67,6 +68,10 @@ fn main() {
     env_logger::init();
     let context = tauri::generate_context!();
     let cli_config = context.config().tauri.cli.clone().unwrap();
+
+    if let Err(err) = commands::try_cleanup(context.config()) {
+        error!("Cleanup failed: {}", err);
+    }
 
     // We're going to attach this to the AppState because Tauri does not expose it for some reason
     let package_info = context.package_info().clone();
@@ -99,6 +104,7 @@ fn main() {
         .on_window_event(on_event)
         .run(context)
         .expect("error starting");
+    info!("At exit here!");
 }
 
 #[macro_export]
@@ -121,6 +127,7 @@ macro_rules! create_handler {
             check_internet_connection,
             open_terminal,
             node_identity,
+            reset_settings,
             start_service,
             stop_service,
             shutdown,

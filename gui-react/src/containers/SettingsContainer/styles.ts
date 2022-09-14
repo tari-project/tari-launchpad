@@ -97,6 +97,10 @@ export const Footer = styled.footer`
   border-top: 1px solid ${({ theme }) => theme.selectBorderColor};
 `
 
+export const Spacer = styled.div`
+  flex-grow: 1;
+`
+
 export const DiscardWarning = styled.div`
   display: flex;
   flex: 1;

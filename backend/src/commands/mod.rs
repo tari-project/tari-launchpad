@@ -27,6 +27,7 @@
 /// ! - handle input parameters
 /// ! - call the the underlying function
 /// ! - Map results to JSON and errors to String.
+mod cleanup;
 mod create_workspace;
 mod events;
 mod health_check;
@@ -37,6 +38,7 @@ mod service;
 mod shutdown;
 mod state;
 
+pub use cleanup::{reset_settings, try_cleanup};
 pub use create_workspace::create_new_workspace;
 pub use events::events;
 pub use health_check::status;
