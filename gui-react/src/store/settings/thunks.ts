@@ -15,6 +15,7 @@ import MiningConfig from '../../config/mining'
 import { InitialSettings } from './types'
 import { invoke } from '@tauri-apps/api'
 import { exit } from '@tauri-apps/api/process'
+import { Persistor } from 'redux-persist'
 
 const getSettings = async (): Promise<InitialSettings> => {
   const newCacheDir = await cacheDir()
@@ -50,12 +51,14 @@ export const loadDefaultServiceSettings = createAsyncThunk<
 
 export const resetSettingsAndRelaunch = createAsyncThunk<
   void,
-  void,
+  { persistor: Persistor },
   { state: RootState }
->('settings/reset', async (_, thunkApi) => {
+>('settings/reset', async ({ persistor }, thunkApi) => {
   const rootState = thunkApi.getState()
   const settings = selectServiceSettings(rootState)
   await invoke('reset_settings', { settings })
+  await persistor.purge()
+  await persistor.flush()
   await exit()
 })
 

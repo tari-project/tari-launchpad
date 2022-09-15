@@ -17,6 +17,7 @@ import { ThemeType } from '../../styles/themes/types'
 
 import SettingsComponent from './SettingsComponent'
 import { SettingsInputs } from './types'
+import { persistor } from '../../store'
 
 const SettingsContainer = () => {
   const dispatch = useAppDispatch()
@@ -105,7 +106,7 @@ const SettingsContainer = () => {
 
   const resetSettings = () => {
     setConfirmReset(false)
-    dispatch(actions.resetSettingsAndRelaunch())
+    dispatch(actions.resetSettingsAndRelaunch({ persistor: persistor }))
   }
 
   return (
