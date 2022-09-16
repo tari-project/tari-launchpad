@@ -30,7 +30,7 @@ use serde::Serialize;
 use tauri::{AppHandle, Manager, Wry};
 
 use crate::{
-    docker::{ImageType, TariWorkspace, DOCKER_INSTANCE},
+    docker::{ImageType, DOCKER_INSTANCE},
     rest::DockerImageError,
 };
 
@@ -119,10 +119,7 @@ pub async fn pull_images(app: AppHandle<Wry>) -> Result<(), String> {
 #[tauri::command]
 pub async fn pull_image(app: AppHandle<Wry>, image_name: &str) -> Result<(), String> {
     let image = ImageType::try_from(image_name).map_err(|_err| format!("invalid image name: {}", image_name))?;
-    let full_image_name = match image {
-        ImageType::Loki | ImageType::Promtail | ImageType::Grafana => format!("grafana/{}:latest", image.image_name()),
-        _ => TariWorkspace::fully_qualified_image(image, None),
-    };
+    let full_image_name = image.pull_name();
     let mut stream = pull_latest_image(full_image_name.clone()).await;
     while let Some(update) = stream.next().await {
         match update {
@@ -142,6 +139,7 @@ pub async fn pull_image(app: AppHandle<Wry>, image_name: &str) -> Result<(), Str
 #[tokio::test]
 #[ignore]
 async fn pull_image_test() {
+    use crate::docker::TariWorkspace;
     let fully_qualified_image = TariWorkspace::fully_qualified_image(ImageType::BaseNode, None);
     let mut stream = pull_latest_image(fully_qualified_image.clone()).await;
     while let Some(update) = stream.next().await {

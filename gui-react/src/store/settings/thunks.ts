@@ -14,9 +14,9 @@ import { SettingsInputs } from '../../containers/SettingsContainer/types'
 import MiningConfig from '../../config/mining'
 import { InitialSettings } from './types'
 import { invoke } from '@tauri-apps/api'
-import { exit } from '@tauri-apps/api/process'
+import getDb from '../../persistence/db'
 
-const getSettings = async (): Promise<InitialSettings> => {
+export const getSettings = async (): Promise<InitialSettings> => {
   const newCacheDir = await cacheDir()
   const network = 'esmeralda'
   return {
@@ -55,8 +55,18 @@ export const resetSettingsAndRelaunch = createAsyncThunk<
 >('settings/reset', async (_, thunkApi) => {
   const rootState = thunkApi.getState()
   const settings = selectServiceSettings(rootState)
-  await invoke('reset_settings', { settings })
-  await exit()
+
+  // Clean tables
+  const db = await getDb()
+  await db.execute('DELETE FROM transactions')
+  await db.execute('DELETE FROM stats')
+
+  // Drop images and volumes
+  await invoke('clean_docker', { settings })
+
+  // Reset browser's cache
+  window.localStorage.clear()
+  location.reload()
 })
 
 export const saveSettings = createAsyncThunk<

@@ -95,9 +95,9 @@ impl Workspaces {
     /// Gracefully shut down the docker images and delete them
     /// The volumes are kept, since if we restart, we don't want to re-sync the entire blockchain again
     pub async fn shutdown(&mut self, docker: &Docker) -> Result<(), DockerWrapperError> {
-        for (name, system) in &mut self.workspaces {
+        for (name, workspace) in &mut self.workspaces {
             info!("Shutting down {}", name);
-            system.stop_containers(true, docker).await;
+            workspace.shutdown(docker).await.ok();
         }
         Ok(())
     }
@@ -534,6 +534,11 @@ impl TariWorkspace {
         if let Some(warn) = res.warning {
             warn!("Creating {} network had warnings: {}", name, warn);
         }
+        Ok(())
+    }
+
+    pub async fn shutdown(&mut self, docker: &Docker) -> Result<(), DockerWrapperError> {
+        self.stop_containers(true, docker).await;
         Ok(())
     }
 }
