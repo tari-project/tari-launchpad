@@ -104,7 +104,7 @@ const MainLayout = ({
         {/* Background overlay: */}
         <ExpertViewBackgroundOverlay
           style={{
-            borderRadius: expertViewSize === '100%' ? 10 : 0,
+            borderRadius: expertViewSize === '100%' ? '10px' : '0 10px 10px 0',
             ...drawerContainerStyle,
           }}
         />
@@ -112,7 +112,7 @@ const MainLayout = ({
         {/* Actual content: */}
         <ExpertViewDrawer
           style={{
-            borderRadius: expertViewSize === '100%' ? 10 : 0,
+            borderRadius: expertViewSize === '100%' ? '10px' : '0 10px 10px 0',
             ...drawerContentStyle,
           }}
         >
