@@ -46,13 +46,11 @@ jobs:
             wget \
             libappindicator3-dev \
             patchelf \
-            librsvg2-dev \
+            librsvg2-dev
+
       - name: install grcov
         run: |
           cargo install grcov
-      - name: create gui build directory
-        run: |
-          mkdir ./gui-react/build
       - name: cargo test compile
         uses: actions-rs/cargo@v1
         with:
