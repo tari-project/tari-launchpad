@@ -103,7 +103,6 @@ const MiningSettings = ({
           name='mining.merged.address'
           control={control}
           rules={{
-            required: true,
             minLength: {
               value: 12,
               message: t.mining.settings.moneroAddressError,
