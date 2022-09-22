@@ -1,4 +1,4 @@
-// Copyright 2021. The Tari Project
+// Copyright 2022. The Tari Project
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 // following conditions are met:
@@ -21,30 +21,24 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-/// ! This module defines all the Tauri commands we expose to the front-end.
-/// ! These are generally constructed as wrappers around the lower-level methods in the `docker` module.
-/// ! All the commands follow roughly the same pattern:
-/// ! - handle input parameters
-/// ! - call the the underlying function
-/// ! - Map results to JSON and errors to String.
-mod cleanup;
-mod create_workspace;
-mod events;
-mod health_check;
-mod host;
-mod launch_docker;
-mod pull_images;
-mod service;
-mod shutdown;
-mod state;
+use bollard::Docker;
 
-pub use cleanup::clean_docker;
-pub use create_workspace::create_new_workspace;
-pub use events::events;
-pub use health_check::status;
-pub use host::{check_docker, check_internet_connection, open_terminal};
-pub use launch_docker::launch_docker;
-pub use pull_images::{pull_image, pull_images, DEFAULT_IMAGES};
-pub use service::{create_default_workspace, start_service, stop_service, ServiceSettings};
-pub use shutdown::shutdown;
-pub use state::AppState;
+use super::{DockerWrapperError, TariNetwork, DEFAULT_IMAGES};
+
+pub async fn remove_all_containers(_workspace_name: &str, docker: &Docker) -> Result<(), DockerWrapperError> {
+    for image in DEFAULT_IMAGES {
+        let full_image_name = image.pull_name();
+        docker.remove_image(&full_image_name, None, None).await.ok();
+    }
+    Ok(())
+}
+
+pub async fn remove_all_volumes(
+    workspace_name: &str,
+    network: TariNetwork,
+    docker: &Docker,
+) -> Result<(), DockerWrapperError> {
+    let name = super::tari_blockchain_volume_name(workspace_name, network);
+    docker.remove_volume(&name, None).await?;
+    Ok(())
+}

@@ -31,6 +31,7 @@ use bollard::{container::LogOutput, models::ContainerCreateResponse};
 use serde::{Deserialize, Serialize};
 use strum::EnumIter;
 
+use super::TariWorkspace;
 use crate::docker::DockerWrapperError;
 
 //-------------------------------------------     ContainerId      ----------------------------------------------
@@ -262,6 +263,13 @@ impl ImageType {
             Self::Loki => "grafana",
             Self::Promtail => "grafana",
             Self::Grafana => "grafana",
+        }
+    }
+
+    pub fn pull_name(self) -> String {
+        match self {
+            Self::Loki | Self::Promtail | Self::Grafana => format!("grafana/{}:latest", self.image_name()),
+            _ => TariWorkspace::fully_qualified_image(self, None),
         }
     }
 }
