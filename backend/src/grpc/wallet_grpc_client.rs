@@ -20,7 +20,7 @@
 //  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use futures::{Stream, StreamExt};
+use futures::Stream;
 use tari_app_grpc::tari_rpc::{
     wallet_client::WalletClient,
     GetBalanceRequest,
@@ -32,6 +32,7 @@ use tari_app_grpc::tari_rpc::{
     TransactionEventResponse,
     TransferRequest,
 };
+use tonic::Status;
 
 use super::{error::GrpcError, TransferFunds, TransferFundsResult};
 use crate::docker::WALLET_GRPC_ADDRESS_URL;
@@ -57,11 +58,11 @@ impl GrpcWalletClient {
             .ok_or_else(|| GrpcError::FatalError("no connection".into()))
     }
 
-    pub async fn stream(&mut self) -> Result<impl Stream<Item = TransactionEventResponse>, GrpcError> {
+    pub async fn stream(&mut self) -> Result<impl Stream<Item = Result<TransactionEventResponse, Status>>, GrpcError> {
         let inner = self.connection().await?;
         let request = TransactionEventRequest {};
-        let response = inner.stream_transaction_events(request).await.unwrap().into_inner();
-        Ok(response.map(|e| e.unwrap()))
+        let response = inner.stream_transaction_events(request).await?.into_inner();
+        Ok(response)
     }
 
     pub async fn identity(&mut self) -> Result<GetIdentityResponse, GrpcError> {

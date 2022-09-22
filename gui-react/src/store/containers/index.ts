@@ -15,6 +15,7 @@ import {
   stopByType,
   restart,
 } from './thunks'
+import { invoke } from '@tauri-apps/api'
 
 const getInitialServiceStatus = (
   lastAction: SystemEventAction,
@@ -101,8 +102,13 @@ const containersSlice = createSlice({
       state.errors[meta.arg.container] = undefined
     })
     builder.addCase(start.fulfilled, (state, action) => {
+      console.log('STARTED!', state, action)
       if (!state.containers[action.payload.id]) {
         return
+      }
+
+      if (action.meta.arg.container == 'wallet') {
+        setTimeout(() => invoke('wallet_events'), 5000)
       }
 
       state.pending = state.pending.filter(p => p !== action.meta.arg.container)

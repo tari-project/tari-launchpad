@@ -94,7 +94,7 @@ export const useWalletEvents = ({
 
     listenToEvents()
 
-    invoke('wallet_events')
+    //invoke('wallet_events')
 
     return unsubscribe
   }, [])

@@ -64,28 +64,45 @@ pub async fn wallet_balance() -> Result<WalletBalance, String> {
 
 #[tauri::command]
 pub async fn wallet_events(app: AppHandle<Wry>) -> Result<(), String> {
+    println!("WALLET EVENTS PRE 1/3");
     info!("Setting up event stream");
     let mut wallet_client = GrpcWalletClient::new();
-    let mut stream = wallet_client.stream().await.map_err(|e| e.chained_message())?;
+    println!("WALLET EVENTS PRE 2/3");
+    let mut stream = wallet_client.stream().await.map_err(|e| {
+        println!("WALLET EVENTS ERROR: {:?}", e);
+        e.chained_message()
+    })?;
+    println!("WALLET EVENTS PRE 3/3");
     let app_clone = app.clone();
     tauri::async_runtime::spawn(async move {
+        println!("WALLET EVENTS:");
         while let Some(response) = stream.next().await {
-            if let Some(value) = response.transaction {
-                let wt = WalletTransaction {
-                    event: value.event,
-                    tx_id: value.tx_id,
-                    source_pk: value.source_pk,
-                    dest_pk: value.dest_pk,
-                    status: value.status,
-                    direction: value.direction,
-                    amount: value.amount,
-                    message: value.message,
-                    is_coinbase: value.is_coinbase,
-                };
+            println!("Event received: {:?}", response);
+            match response {
+                Ok(response) => {
+                    if let Some(value) = response.transaction {
+                        let wt = WalletTransaction {
+                            event: value.event,
+                            tx_id: value.tx_id,
+                            source_pk: value.source_pk,
+                            dest_pk: value.dest_pk,
+                            status: value.status,
+                            direction: value.direction,
+                            amount: value.amount,
+                            message: value.message,
+                            is_coinbase: value.is_coinbase,
+                        };
 
-                if let Err(err) = app_clone.emit_all("tari://wallet_event", wt) {
-                    warn!("Could not emit event to front-end, {:?}", err);
-                }
+                        if let Err(err) = app_clone.emit_all("tari://wallet_event", wt) {
+                            warn!("Could not emit event to front-end, {:?}", err);
+                        }
+                    }
+                },
+                Err(err) => {
+                    println!("WALLET EVENTS STATUS: {:?}", err);
+                    warn!("Wallet events error: {:?}", err);
+                    break;
+                },
             }
         }
         info!("Event stream has closed.");

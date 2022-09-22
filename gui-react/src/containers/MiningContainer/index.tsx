@@ -11,6 +11,8 @@ import MiningBoxTari from './MiningBoxTari'
 import MiningBoxMerged from './MiningBoxMerged'
 import Scheduling from './Scheduling'
 import Statistics from './Statistics'
+import useTransactionsRepository from '../../persistence/transactionsRepository'
+import { useWalletEvents } from '../../useWalletEvents'
 
 /**
  * The Mining dashboard
@@ -20,6 +22,9 @@ const MiningContainer = () => {
   const [schedulingOpen, setSchedulingOpen] = useState(false)
   const [statisticsOpen, setStatisticsOpen] = useState(false)
   const anchorElRef = useRef<HTMLAnchorElement>(null)
+
+  const transactionsRepository = useTransactionsRepository()
+  useWalletEvents({ dispatch, transactionsRepository })
 
   return (
     <div>

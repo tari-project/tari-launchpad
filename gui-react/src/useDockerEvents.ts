@@ -37,7 +37,8 @@ export const useDockerEvents = ({ dispatch }: { dispatch: AppDispatch }) => {
 
     listenToEvents()
 
-    invoke('wallet_events')
+    // TODO: add the method
+    //invoke('docker_events')
 
     return unsubscribe
   }, [])
