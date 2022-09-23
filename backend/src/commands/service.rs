@@ -240,7 +240,7 @@ async fn start_service_impl(
 ) -> Result<StartServiceResult, LauncherError> {
     debug!("Starting {} service", service_name);
     let state = app.state::<AppState>();
-    let docker = state.docker_handle().await;
+    let docker = &state.docker;
     let _ = create_default_workspace_impl(app.clone(), settings).await?;
     let mut wrapper = state.workspaces.write().await;
     // We've just checked this, so it should never fail:
@@ -253,12 +253,12 @@ async fn start_service_impl(
         debug!("Identity loaded: {}", id);
     }
     // Check network requirements for the service
-    if !workspace.network_exists(&docker).await? {
-        workspace.create_network(&docker).await?;
+    if !workspace.network_exists(docker).await? {
+        workspace.create_network(docker).await?;
     }
     // Launch the container
     let image = ImageType::try_from(service_name.as_str())?;
-    let container_name = workspace.start_service(image, docker.clone()).await?;
+    let container_name = workspace.start_service(image, docker).await?;
     let state = container_state(container_name.as_str()).ok_or(DockerWrapperError::UnexpectedError)?;
     let id = state.id().to_string();
     let stats_events_name = stats_event_name(state.id());
@@ -268,14 +268,14 @@ async fn start_service_impl(
         app.clone(),
         log_events_name.as_str(),
         container_name.as_str(),
-        &docker,
+        docker,
         workspace,
     );
     container_stats(
         app.clone(),
         stats_events_name.as_str(),
         container_name.as_str(),
-        &docker,
+        docker,
         workspace,
     );
     // Collect data for the return object
@@ -363,13 +363,14 @@ fn container_stats(
 }
 
 async fn stop_service_impl(state: State<'_, AppState>, service_name: String) -> Result<(), LauncherError> {
-    let docker = state.docker_handle().await;
     let mut wrapper = state.workspaces.write().await;
     debug!("Stopping {} service", service_name);
     // We've just checked this, so it should never fail:
     let workspace: &mut TariWorkspace = wrapper
         .get_workspace_mut("default")
         .ok_or_else(|| DockerWrapperError::WorkspaceDoesNotExist("default".into()))?;
-    workspace.stop_container(service_name.as_str(), true, &docker).await;
+    workspace
+        .stop_container(service_name.as_str(), true, &state.docker)
+        .await;
     Ok(())
 }

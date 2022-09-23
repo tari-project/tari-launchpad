@@ -5233,6 +5233,7 @@ dependencies = [
  "chrono",
  "config",
  "derivative",
+ "derive_more",
  "env_logger",
  "futures",
  "hex",

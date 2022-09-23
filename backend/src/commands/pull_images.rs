@@ -23,16 +23,13 @@
 
 use std::convert::TryFrom;
 
-use bollard::{image::CreateImageOptions, models::CreateImageInfo};
-use futures::{future::join_all, stream::StreamExt, Stream, TryFutureExt, TryStreamExt};
+use bollard::models::CreateImageInfo;
+use futures::{future::join_all, stream::StreamExt, TryFutureExt};
 use log::{debug, error, warn};
 use serde::Serialize;
 use tauri::{AppHandle, Manager, Wry};
 
-use crate::{
-    docker::{ImageType, DOCKER_INSTANCE},
-    rest::DockerImageError,
-};
+use crate::{docker::ImageType, AppState};
 
 const LOG_TARGET: &str = "tari::launchpad::commands::pull_images";
 
@@ -66,16 +63,6 @@ pub struct PullProgressInfo {
     total: Option<i64>,
 }
 
-pub async fn pull_latest_image(
-    full_image_name: String,
-) -> impl Stream<Item = Result<CreateImageInfo, DockerImageError>> {
-    let docker = DOCKER_INSTANCE.clone();
-    let opts = Some(CreateImageOptions {
-        from_image: full_image_name,
-        ..Default::default()
-    });
-    docker.create_image(opts, None, None).map_err(DockerImageError::from)
-}
 fn from(image_name: String, source: CreateImageInfo) -> PullProgressInfo {
     PullProgressInfo {
         image_name: Some(image_name),
@@ -120,7 +107,8 @@ pub async fn pull_images(app: AppHandle<Wry>) -> Result<(), String> {
 pub async fn pull_image(app: AppHandle<Wry>, image_name: &str) -> Result<(), String> {
     let image = ImageType::try_from(image_name).map_err(|_err| format!("invalid image name: {}", image_name))?;
     let full_image_name = image.pull_name();
-    let mut stream = pull_latest_image(full_image_name.clone()).await;
+    let state = app.state::<AppState>();
+    let mut stream = state.docker.pull_latest_image(full_image_name.clone()).await;
     while let Some(update) = stream.next().await {
         match update {
             Ok(source) => {
@@ -139,9 +127,10 @@ pub async fn pull_image(app: AppHandle<Wry>, image_name: &str) -> Result<(), Str
 #[tokio::test]
 #[ignore]
 async fn pull_image_test() {
-    use crate::docker::TariWorkspace;
+    use crate::docker::{DockerWrapper, TariWorkspace};
     let fully_qualified_image = TariWorkspace::fully_qualified_image(ImageType::BaseNode, None);
-    let mut stream = pull_latest_image(fully_qualified_image.clone()).await;
+    let docker = DockerWrapper::connect().unwrap();
+    let mut stream = docker.pull_latest_image(fully_qualified_image.clone()).await;
     while let Some(update) = stream.next().await {
         match update {
             Ok(source) => println!("Image pull progress:{:?}", from(fully_qualified_image.clone(), source)),

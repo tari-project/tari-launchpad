@@ -42,6 +42,7 @@ use crate::docker::{
     try_create_container,
     try_destroy_container,
     ContainerStatus,
+    DockerWrapper,
     DockerWrapperError,
     ImageType,
     LaunchpadConfig,
@@ -94,7 +95,7 @@ impl Workspaces {
 
     /// Gracefully shut down the docker images and delete them
     /// The volumes are kept, since if we restart, we don't want to re-sync the entire blockchain again
-    pub async fn shutdown(&mut self, docker: &Docker) -> Result<(), DockerWrapperError> {
+    pub async fn shutdown(&mut self, docker: &DockerWrapper) -> Result<(), DockerWrapperError> {
         for (name, workspace) in &mut self.workspaces {
             info!("Shutting down {}", name);
             workspace.shutdown(docker).await.ok();
@@ -212,18 +213,18 @@ impl TariWorkspace {
     ///
     /// This is an MVP / PoC version that starts everything in one go, but TODO, should really take some sort of recipe
     /// object to allow us to build up different recipes (wallet only, full miner, SHA3-mining only etc)
-    pub async fn start_recipe(&mut self, docker: Docker) -> Result<(), DockerWrapperError> {
+    pub async fn start_recipe(&mut self, docker: &DockerWrapper) -> Result<(), DockerWrapperError> {
         // Create or load identities
         let _ids = self.create_or_load_identities()?;
         // Set up the local network
-        if !self.network_exists(&docker).await? {
-            self.create_network(&docker).await?;
+        if !self.network_exists(docker).await? {
+            self.create_network(docker).await?;
         }
         // Create or restart the volume
 
         for image in self.images_to_start() {
             // Start each container
-            let name = self.start_service(image, docker.clone()).await?;
+            let name = self.start_service(image, docker).await?;
             info!(
                 "Docker container {} ({}) successfully started",
                 image.image_name(),
@@ -351,23 +352,27 @@ impl TariWorkspace {
     /// success.
     ///
     /// `start_service` creates a new docker container and runs it. As part of this process,
-    /// * it pulls configuration data from the [`LaunchConfig`] instance attached to this [`DockerWRapper`] to construct
+    /// * it pulls configuration data from the [`LaunchConfig`] instance attached to this [`DockerWrapper`] to construct
     ///   the Environment, Volume configuration, and exposed Port configuration.
     /// * creates a new container
     /// * starts the container
     /// * adds the container reference to the current list of containers being managed
     /// * Returns the container name
-    pub async fn start_service(&mut self, image: ImageType, docker: Docker) -> Result<String, DockerWrapperError> {
+    pub async fn start_service(
+        &mut self,
+        image: ImageType,
+        docker: &DockerWrapper,
+    ) -> Result<String, DockerWrapperError> {
         let fully_qualified_image_name = TariWorkspace::fully_qualified_image(image, self.config.registry.as_deref());
         info!("Creating {}", &fully_qualified_image_name);
         let workspace_image_name = format!("{}_{}", self.name, image.image_name());
-        let _unused = try_destroy_container(workspace_image_name.as_str(), docker.clone()).await;
+        let _unused = try_destroy_container(workspace_image_name.as_str(), docker).await;
         let container = try_create_container(
             image,
             fully_qualified_image_name.clone(),
             self.name().to_string(),
             &self.config,
-            docker.clone(),
+            docker,
         )
         .await?;
         let name = image.container_name();
@@ -425,7 +430,7 @@ impl TariWorkspace {
     }
 
     /// Stop the container with the given `name` and optionally delete it
-    pub async fn stop_container(&mut self, name: &str, delete: bool, docker: &Docker) {
+    pub async fn stop_container(&mut self, name: &str, delete: bool, docker: &DockerWrapper) {
         let container = match container_state(name) {
             Some(c) => c,
             None => {
@@ -476,7 +481,7 @@ impl TariWorkspace {
     }
 
     /// Stop all running containers and optionally delete them
-    pub async fn stop_containers(&mut self, delete: bool, docker: &Docker) {
+    pub async fn stop_containers(&mut self, delete: bool, docker: &DockerWrapper) {
         let names = CONTAINERS.write().unwrap().keys().cloned().collect::<Vec<String>>();
         for name in names {
             // Stop the container immediately
@@ -490,7 +495,7 @@ impl TariWorkspace {
     }
 
     /// Checks if the network for this docker configuration exists
-    pub async fn network_exists(&self, docker: &Docker) -> Result<bool, DockerWrapperError> {
+    pub async fn network_exists(&self, docker: &DockerWrapper) -> Result<bool, DockerWrapperError> {
         let name = self.network_name();
         let options = InspectNetworkOptions {
             verbose: false,
@@ -513,7 +518,7 @@ impl TariWorkspace {
     }
 
     /// Create a network in docker to allow the containers in this workspace to communicate with each other.
-    pub async fn create_network(&self, docker: &Docker) -> Result<(), DockerWrapperError> {
+    pub async fn create_network(&self, docker: &DockerWrapper) -> Result<(), DockerWrapperError> {
         let name = self.network_name();
         let options = CreateNetworkOptions {
             name: name.as_str(),
@@ -537,7 +542,7 @@ impl TariWorkspace {
         Ok(())
     }
 
-    pub async fn shutdown(&mut self, docker: &Docker) -> Result<(), DockerWrapperError> {
+    pub async fn shutdown(&mut self, docker: &DockerWrapper) -> Result<(), DockerWrapperError> {
         self.stop_containers(true, docker).await;
         Ok(())
     }

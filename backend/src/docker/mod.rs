@@ -81,7 +81,7 @@ pub async fn try_create_container(
     fully_qualified_image_name: String,
     tari_workspace: String,
     config: &LaunchpadConfig,
-    docker: Docker,
+    docker: &DockerWrapper,
 ) -> Result<ContainerCreateResponse, DockerWrapperError> {
     debug!("{} has configuration object: {:#?}", fully_qualified_image_name, config);
     let args = config.command(image).await;
@@ -127,7 +127,7 @@ pub async fn try_create_container(
     Ok(docker.create_container(options, config).await?)
 }
 
-pub async fn try_destroy_container(image_name: &str, docker: Docker) -> Result<(), DockerWrapperError> {
+pub async fn try_destroy_container(image_name: &str, docker: &DockerWrapper) -> Result<(), DockerWrapperError> {
     let mut list_container_filters = HashMap::new();
     list_container_filters.insert("name".to_string(), vec![image_name.to_string()]);
     debug!("Searching for container {}", image_name);
@@ -156,10 +156,10 @@ pub async fn try_destroy_container(image_name: &str, docker: Docker) -> Result<(
     Ok(())
 }
 
-pub async fn shutdown_all_containers(workspace_name: &str, docker: &Docker) -> Result<(), DockerWrapperError> {
+pub async fn shutdown_all_containers(workspace_name: &str, docker: &DockerWrapper) -> Result<(), DockerWrapperError> {
     for image in DEFAULT_IMAGES {
         let image_name = format!("{}_{}", workspace_name, image.image_name());
-        match try_destroy_container(image_name.as_str(), docker.clone()).await {
+        match try_destroy_container(image_name.as_str(), docker).await {
             Ok(_) => info!("Docker image {} is being stopped.", image_name),
             Err(_) => debug!("Docker image {} has not been found", image_name),
         }

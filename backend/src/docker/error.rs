@@ -50,6 +50,10 @@ pub enum DockerWrapperError {
     SeedFileRemovalError,
     #[error("Could not read the seed file")]
     SeedFileReadError,
+    #[error("State is empty")]
+    StateIsEmpty,
+    #[error("Status is empty")]
+    StatusIsEmpty,
 }
 
 impl DockerWrapperError {

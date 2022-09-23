@@ -170,7 +170,6 @@ async fn launch_docker_impl(
 ) -> Result<(), LauncherError> {
     debug!("Starting docker launch sequence");
     let state = app.state::<AppState>();
-    let docker = state.docker_handle().await;
     let should_create_workspace = {
         let wrapper = state.workspaces.read().await;
         !wrapper.workspace_exists(name.as_str())
@@ -191,7 +190,7 @@ async fn launch_docker_impl(
             .get_workspace_mut(name.as_str())
             .ok_or(DockerWrapperError::UnexpectedError)?;
         // Pipe docker container logs to Tauri using namespaced events
-        workspace.start_recipe(docker.clone()).await?;
+        workspace.start_recipe(&state.docker).await?;
     } // Drop write lock
     info!("Tari system, {} has launched", name);
     Ok(())
