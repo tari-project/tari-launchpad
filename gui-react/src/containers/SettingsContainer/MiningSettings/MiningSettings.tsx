@@ -60,12 +60,49 @@ const MiningSettings = ({
         </Text>
       </SettingsHeader>
 
+      <SettingsSectionHeader noBottomMargin noTopMargin>
+        {t.common.nouns.shaMining}
+      </SettingsSectionHeader>
+
+      <NarrowInlineInput>
+        <Label>{t.mining.settings.threadsLabel}</Label>
+        <Controller
+          name='mining.merged.threads'
+          control={control}
+          rules={{ required: true, minLength: 1 }}
+          render={({ field }) => (
+            <Input
+              testId='mining-merged-threads-input'
+              onChange={value => {
+                // convert string into number
+                const stripped = value.replace(/\D/g, '')
+                let val = !stripped
+                  ? ''
+                  : Math.abs(Math.round(parseInt(stripped)))
+
+                // limit the number of threads to maxThreads
+                if (val > MiningConfig.maxThreads) {
+                  val = MiningConfig.maxThreads
+                }
+                field.onChange(val)
+              }}
+              value={field?.value?.toString() || ''}
+              containerStyle={{ maxWidth: 96 }}
+              withError={false}
+            />
+          )}
+        />
+      </NarrowInlineInput>
+
+      <SettingsSectionHeader noBottomMargin noTopMargin>
+        {t.common.nouns.mergeMining}
+      </SettingsSectionHeader>
+
       <div style={{ width: '70%' }}>
         <Controller
           name='mining.merged.address'
           control={control}
           rules={{
-            required: true,
             minLength: {
               value: 12,
               message: t.mining.settings.moneroAddressError,
@@ -104,36 +141,6 @@ const MiningSettings = ({
       <SettingsSectionHeader noBottomMargin>
         {t.common.nouns.expert}
       </SettingsSectionHeader>
-
-      <NarrowInlineInput>
-        <Label>{t.mining.settings.threadsLabel}</Label>
-        <Controller
-          name='mining.merged.threads'
-          control={control}
-          rules={{ required: true, minLength: 1 }}
-          render={({ field }) => (
-            <Input
-              testId='mining-merged-threads-input'
-              onChange={value => {
-                // convert string into number
-                const stripped = value.replace(/\D/g, '')
-                let val = !stripped
-                  ? ''
-                  : Math.abs(Math.round(parseInt(stripped)))
-
-                // limit the number of threads to maxThreads
-                if (val > MiningConfig.maxThreads) {
-                  val = MiningConfig.maxThreads
-                }
-                field.onChange(val)
-              }}
-              value={field?.value?.toString() || ''}
-              containerStyle={{ maxWidth: 96 }}
-              withError={false}
-            />
-          )}
-        />
-      </NarrowInlineInput>
 
       {isAuthApplied ? (
         <RowSpacedBetween>

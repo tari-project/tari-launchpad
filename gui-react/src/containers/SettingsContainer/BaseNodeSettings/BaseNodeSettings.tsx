@@ -1,5 +1,10 @@
 import { useCallback } from 'react'
-import { Controller, Control, UseFormSetValue } from 'react-hook-form'
+import {
+  Controller,
+  Control,
+  UseFormSetValue,
+  ControllerRenderProps,
+} from 'react-hook-form'
 import { open } from '@tauri-apps/api/dialog'
 import { appDir } from '@tauri-apps/api/path'
 
@@ -25,7 +30,6 @@ import MessagesConfig from '../../../config/helpMessagesConfig'
 const BaseNodeSettings = ({
   control,
   onBaseNodeConnectClick,
-  setValue,
 }: {
   control: Control<SettingsInputs>
   onBaseNodeConnectClick: () => void
@@ -33,20 +37,23 @@ const BaseNodeSettings = ({
 }) => {
   const theme = useTheme()
   const dispatch = useAppDispatch()
-  const selectDirectory = useCallback(async (lastPath?: string) => {
-    const selectedFolder = await open({
-      directory: true,
-      defaultPath: lastPath || (await appDir()),
-    })
-
-    if (selectedFolder === null) {
-      return
-    } else if (typeof selectedFolder === 'string') {
-      setValue('baseNode.rootFolder', selectedFolder, {
-        shouldDirty: true,
+  const selectDirectory = useCallback(
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
+    async (field: ControllerRenderProps<SettingsInputs, any>) => {
+      const lastPath = field.value
+      const selectedFolder = await open({
+        directory: true,
+        defaultPath: lastPath || (await appDir()),
       })
-    }
-  }, [])
+
+      if (selectedFolder === null) {
+        return
+      } else if (typeof selectedFolder === 'string') {
+        field.onChange(selectedFolder)
+      }
+    },
+    [],
+  )
 
   return (
     <>
@@ -85,7 +92,7 @@ const BaseNodeSettings = ({
           <InputRow>
             <Label $noMargin>{t.baseNode.settings.rootFolder}</Label>
             <Input
-              onClick={() => selectDirectory(field.value)}
+              onClick={() => selectDirectory(field)}
               onChange={field.onChange}
               value={field?.value?.toString() || ''}
               containerStyle={{ width: '50%' }}

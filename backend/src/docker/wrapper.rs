@@ -23,7 +23,7 @@
 
 use std::collections::HashMap;
 
-use bollard::{models::SystemEventsResponse, system::EventsOptions, Docker};
+use bollard::{models::EventMessage, system::EventsOptions, Docker};
 use futures::{Stream, TryStreamExt};
 
 use crate::docker::DockerWrapperError;
@@ -52,7 +52,7 @@ impl DockerWrapper {
 
     /// Returns a stream of relevant events. We're opinionated here, so we filter the stream to only return
     /// container, image, network and volume events.
-    pub async fn events(&self) -> impl Stream<Item = Result<SystemEventsResponse, DockerWrapperError>> {
+    pub async fn events(&self) -> impl Stream<Item = Result<EventMessage, DockerWrapperError>> {
         let docker = self.handle.clone();
         let mut type_filter = HashMap::new();
         type_filter.insert("type".to_string(), vec![

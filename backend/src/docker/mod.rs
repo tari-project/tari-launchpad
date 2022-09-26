@@ -21,6 +21,7 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+mod cleanup;
 mod container;
 mod error;
 mod filesystem;
@@ -38,6 +39,7 @@ use bollard::{
     models::{ContainerCreateResponse, EndpointSettings, HostConfig},
     Docker,
 };
+pub use cleanup::{remove_all_containers, remove_all_volumes};
 pub use container::{add_container, change_container_status, container_state};
 pub use error::DockerWrapperError;
 pub use filesystem::create_workspace_folders;
@@ -70,7 +72,7 @@ lazy_static! {
 
 pub static DEFAULT_WORKSPACE_NAME: &str = "default";
 
-fn tari_blockchain_volume_name(tari_workspace: String, tari_network: TariNetwork) -> String {
+fn tari_blockchain_volume_name(tari_workspace: &str, tari_network: TariNetwork) -> String {
     format!("{}_{}_volume", tari_workspace, tari_network.lower_case())
 }
 
@@ -82,15 +84,12 @@ pub async fn try_create_container(
     docker: Docker,
 ) -> Result<ContainerCreateResponse, DockerWrapperError> {
     debug!("{} has configuration object: {:#?}", fully_qualified_image_name, config);
-    let args = config.command(image);
+    let args = config.command(image).await;
     let envars = config.environment(image);
     let volumes = config.volumes(image);
     let ports = config.ports(image);
     let port_map = config.port_map(image);
-    let mounts = config.mounts(
-        image,
-        tari_blockchain_volume_name(tari_workspace.clone(), config.tari_network),
-    );
+    let mounts = config.mounts(image, tari_blockchain_volume_name(&tari_workspace, config.tari_network));
     let mut endpoints = HashMap::new();
     let endpoint = EndpointSettings {
         aliases: Some(vec![image.container_name().to_string()]),
@@ -157,7 +156,7 @@ pub async fn try_destroy_container(image_name: &str, docker: Docker) -> Result<(
     Ok(())
 }
 
-pub async fn shutdown_all_containers(workspace_name: String, docker: &Docker) -> Result<(), DockerWrapperError> {
+pub async fn shutdown_all_containers(workspace_name: &str, docker: &Docker) -> Result<(), DockerWrapperError> {
     for image in DEFAULT_IMAGES {
         let image_name = format!("{}_{}", workspace_name, image.image_name());
         match try_destroy_container(image_name.as_str(), docker.clone()).await {

@@ -48,6 +48,7 @@ use crate::{
     commands::{
         check_docker,
         check_internet_connection,
+        clean_docker,
         create_default_workspace,
         create_new_workspace,
         events,
@@ -79,12 +80,7 @@ fn main() {
             std::process::exit(-1);
         },
     };
-    thread::spawn(|| {
-        block_on(shutdown_all_containers(
-            DEFAULT_WORKSPACE_NAME.to_string(),
-            &DOCKER_INSTANCE,
-        ))
-    });
+    thread::spawn(|| block_on(shutdown_all_containers(DEFAULT_WORKSPACE_NAME, &DOCKER_INSTANCE)));
 
     let menu = create_menus();
     // TODO - Load workspace definitions from persistent storage here
@@ -99,6 +95,7 @@ fn main() {
         .on_window_event(on_event)
         .run(context)
         .expect("error starting");
+    info!("At exit here!");
 }
 
 #[macro_export]
@@ -121,6 +118,7 @@ macro_rules! create_handler {
             check_internet_connection,
             open_terminal,
             node_identity,
+            clean_docker,
             start_service,
             stop_service,
             shutdown,
@@ -184,7 +182,7 @@ fn on_event(evt: GlobalWindowEvent) {
         info!("Stopping and destroying all tari containers");
         let task = thread::spawn(|| {
             block_on(shutdown_all_containers(
-                DEFAULT_WORKSPACE_NAME.to_string(),
+                DEFAULT_WORKSPACE_NAME,
                 &DOCKER_INSTANCE.clone(),
             ))
         });

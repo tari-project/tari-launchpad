@@ -21,7 +21,7 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::collections::HashMap;
+use std::{collections::HashMap, fs};
 
 use bollard::{
     container::{LogsOptions, Stats, StatsOptions, StopContainerOptions},
@@ -95,9 +95,9 @@ impl Workspaces {
     /// Gracefully shut down the docker images and delete them
     /// The volumes are kept, since if we restart, we don't want to re-sync the entire blockchain again
     pub async fn shutdown(&mut self, docker: &Docker) -> Result<(), DockerWrapperError> {
-        for (name, system) in &mut self.workspaces {
+        for (name, workspace) in &mut self.workspaces {
             info!("Shutting down {}", name);
-            system.stop_containers(true, docker).await;
+            workspace.shutdown(docker).await.ok();
         }
         Ok(())
     }
@@ -263,6 +263,37 @@ impl TariWorkspace {
             }
         }
         Ok(ids)
+    }
+
+    /// Loads the seed words file
+    /// The canonical path is defined as `{root_path}/{network}/{config}/seed_words.txt`
+    pub fn get_seed_words(&self) -> Result<Option<Vec<String>>, DockerWrapperError> {
+        let root_path = self.config.data_directory.to_string_lossy().to_string();
+
+        if let Some(file_path) = self.config.seed_words_path(&root_path, ImageType::Wallet) {
+            debug!("Loading seed words {}", file_path.to_string_lossy());
+
+            let seed_words = fs::read_to_string(file_path)
+                .map_err(|_| DockerWrapperError::SeedFileReadError)
+                .expect("Could not read the seed file.")
+                .split_whitespace()
+                .map(String::from)
+                .collect();
+
+            Ok(Some(seed_words))
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub fn delete_seed_words(&self) -> Result<(), DockerWrapperError> {
+        let root_path = self.config.data_directory.to_string_lossy().to_string();
+
+        if let Some(file_path) = self.config.seed_words_path(&root_path, ImageType::Wallet) {
+            return fs::remove_file(file_path).map_err(|_| DockerWrapperError::SeedFileRemovalError);
+        }
+
+        Err(DockerWrapperError::SeedFileRemovalError)
     }
 
     /// Create and return a [`Stream`] of [`LogMessage`] instances for the `name`d container in the workspace.
@@ -503,6 +534,11 @@ impl TariWorkspace {
         if let Some(warn) = res.warning {
             warn!("Creating {} network had warnings: {}", name, warn);
         }
+        Ok(())
+    }
+
+    pub async fn shutdown(&mut self, docker: &Docker) -> Result<(), DockerWrapperError> {
+        self.stop_containers(true, docker).await;
         Ok(())
     }
 }

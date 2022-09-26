@@ -28,8 +28,9 @@ use tauri::{AppHandle, Manager, Wry};
 
 use crate::{
     commands::status,
-    docker::ImageType,
+    docker::{ImageType, TariWorkspace},
     grpc::{GrpcWalletClient, TransferFunds, TransferFundsResult, WalletBalance, WalletIdentity, WalletTransaction},
+    AppState,
 };
 
 #[tauri::command]
@@ -117,12 +118,17 @@ pub async fn transfer(app: AppHandle<Wry>, funds: TransferFunds) -> Result<Trans
 }
 
 #[tauri::command]
-pub async fn get_seed_words() -> Result<Vec<String>, String> {
+pub async fn get_seed_words(app: AppHandle<Wry>) -> Result<Vec<String>, String> {
     // Check if wallet container is running.
     let status = status(ImageType::Wallet).await;
     if "running" == status.to_lowercase() {
-        let mut wallet_client = GrpcWalletClient::new();
-        let seed_words = wallet_client.seed_words().await.map_err(|e| e.to_string())?;
+        let state = app.state::<AppState>();
+        let mut wrapper = state.workspaces.write().await;
+
+        let workspace: &mut TariWorkspace = wrapper.get_workspace_mut("default").expect("This should be fine");
+
+        let seed_words = workspace.get_seed_words().unwrap().unwrap();
+
         Ok(seed_words)
     } else {
         error!("Wallet container[image = {}] is not running", ImageType::Wallet);
@@ -131,13 +137,16 @@ pub async fn get_seed_words() -> Result<Vec<String>, String> {
 }
 
 #[tauri::command]
-pub async fn delete_seed_words() -> Result<(), String> {
+pub async fn delete_seed_words(app: AppHandle<Wry>) -> Result<(), String> {
     // Check if wallet container is running.
     let status = status(ImageType::Wallet).await;
     if "running" == status.to_lowercase() {
-        let mut wallet_client = GrpcWalletClient::new();
-        wallet_client.delete_seed_words().await.map_err(|e| e.to_string())?;
-        Ok(())
+        let state = app.state::<AppState>();
+        let mut wrapper = state.workspaces.write().await;
+
+        let workspace: &mut TariWorkspace = wrapper.get_workspace_mut("default").expect("This should be fine");
+
+        workspace.delete_seed_words().map_err(|e| e.to_string())
     } else {
         error!("Wallet container[image = {}] is not running", ImageType::Wallet);
         Err("Wallet is not running".to_string())

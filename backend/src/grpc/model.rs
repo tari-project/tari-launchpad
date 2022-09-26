@@ -32,7 +32,8 @@ use tari_app_grpc::tari_rpc::{
     TransactionEvent,
     TransferResponse,
 };
-use tari_common_types::emoji::EmojiId;
+use tari_common_types::{emoji::EmojiId, types::PublicKey};
+use tari_utilities::byte_array::ByteArray;
 
 pub const HEADER: i32 = 2;
 pub const BLOCK: i32 = 4;
@@ -111,8 +112,8 @@ pub enum SyncType {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BaseNodeIdentity {
-    public_key: Vec<u8>,
-    public_address: String,
+    pub public_key: Vec<u8>,
+    pub public_address: String,
     node_id: Vec<u8>,
     emoji_id: String,
 }
@@ -157,10 +158,8 @@ impl TryFrom<GetIdentityResponse> for WalletIdentity {
     type Error = String;
 
     fn try_from(value: GetIdentityResponse) -> Result<Self, Self::Error> {
-        let hex_public_key = String::from_utf8(value.public_key.clone()).unwrap();
-        let emoji_id = EmojiId::from_hex(&hex_public_key)
-            .map_err(|e| format!("Failed to create an emoji: {}", e))?
-            .to_string();
+        let public_key = PublicKey::from_bytes(&value.public_key).unwrap();
+        let emoji_id = EmojiId::from_public_key(&public_key).to_string();
         Ok(WalletIdentity {
             public_key: value.public_key,
             public_address: value.public_address,
@@ -174,10 +173,8 @@ impl TryFrom<NodeIdentity> for BaseNodeIdentity {
     type Error = String;
 
     fn try_from(value: NodeIdentity) -> Result<Self, Self::Error> {
-        let hex_public_key = hex::encode(value.public_key.clone());
-        let emoji_id = EmojiId::from_hex(&hex_public_key)
-            .map_err(|e| format!("Failed to create an emoji: {}", e))?
-            .to_string();
+        let public_key = PublicKey::from_bytes(&value.public_key).unwrap();
+        let emoji_id = EmojiId::from_public_key(&public_key).to_string();
         Ok(BaseNodeIdentity {
             public_key: value.public_key,
             public_address: value.public_address,

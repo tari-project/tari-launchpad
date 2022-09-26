@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { SettingsInputs } from '../../containers/SettingsContainer/types'
 
 import { SettingsState, Settings } from './types'
-import { loadDefaultServiceSettings } from './thunks'
+import { loadDefaultServiceSettings, resetSettingsAndRelaunch } from './thunks'
 
 export const initialState: SettingsState = {
   open: false,
@@ -52,6 +52,7 @@ const { actions: syncActions } = settingsSlice
 export const actions = {
   ...syncActions,
   loadDefaultServiceSettings,
+  resetSettingsAndRelaunch,
 }
 
 export default settingsSlice.reducer

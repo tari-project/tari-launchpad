@@ -5,7 +5,7 @@ import { Network } from '../../containers/BaseNodeContainer/types'
 import { BaseNodeState } from './types'
 
 const initialState: BaseNodeState = {
-  network: 'dibbler',
+  network: 'esmeralda',
   rootFolder: '',
   identity: undefined,
 }

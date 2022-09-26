@@ -29,8 +29,9 @@ use std::{
 
 use bollard::{container::LogOutput, models::ContainerCreateResponse};
 use serde::{Deserialize, Serialize};
-use strum_macros::EnumIter;
+use strum::EnumIter;
 
+use super::TariWorkspace;
 use crate::docker::DockerWrapperError;
 
 //-------------------------------------------     ContainerId      ----------------------------------------------
@@ -142,6 +143,7 @@ impl From<LogOutput> for LogMessage {
 #[derive(Serialize, Debug, Deserialize, Clone, Copy)]
 pub enum TariNetwork {
     Dibbler,
+    Esmeralda,
     Igor,
     Mainnet,
 }
@@ -150,6 +152,7 @@ impl TariNetwork {
     pub fn lower_case(self) -> &'static str {
         match self {
             Self::Dibbler => "dibbler",
+            Self::Esmeralda => "esmeralda",
             Self::Igor => "igor",
             Self::Mainnet => "mainnet",
         }
@@ -158,16 +161,17 @@ impl TariNetwork {
     pub fn upper_case(self) -> &'static str {
         match self {
             Self::Dibbler => "DIBBLER",
+            Self::Esmeralda => "ESMERALDA",
             Self::Igor => "IGOR",
             Self::Mainnet => "MAINNET",
         }
     }
 }
 
-/// Default network is Dibbler. This will change after mainnet launch
+/// Default network is Esme. This will change after mainnet launch
 impl Default for TariNetwork {
     fn default() -> Self {
-        Self::Dibbler
+        Self::Esmeralda
     }
 }
 
@@ -177,6 +181,7 @@ impl TryFrom<&str> for TariNetwork {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "dibbler" => Ok(TariNetwork::Dibbler),
+            "esmeralda" => Ok(TariNetwork::Esmeralda),
             "igor" => Ok(TariNetwork::Igor),
             "mainnet" => Ok(TariNetwork::Mainnet),
             _ => Err(DockerWrapperError::UnsupportedNetwork),
@@ -258,6 +263,13 @@ impl ImageType {
             Self::Loki => "grafana",
             Self::Promtail => "grafana",
             Self::Grafana => "grafana",
+        }
+    }
+
+    pub fn pull_name(self) -> String {
+        match self {
+            Self::Loki | Self::Promtail | Self::Grafana => format!("grafana/{}:latest", self.image_name()),
+            _ => TariWorkspace::fully_qualified_image(self, None),
         }
     }
 }

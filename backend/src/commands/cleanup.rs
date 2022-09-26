@@ -1,4 +1,4 @@
-// Copyright 2021. The Tari Project
+// Copyright 2022. The Tari Project
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 // following conditions are met:
@@ -21,30 +21,30 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-/// ! This module defines all the Tauri commands we expose to the front-end.
-/// ! These are generally constructed as wrappers around the lower-level methods in the `docker` module.
-/// ! All the commands follow roughly the same pattern:
-/// ! - handle input parameters
-/// ! - call the the underlying function
-/// ! - Map results to JSON and errors to String.
-mod cleanup;
-mod create_workspace;
-mod events;
-mod health_check;
-mod host;
-mod launch_docker;
-mod pull_images;
-mod service;
-mod shutdown;
-mod state;
+use std::convert::TryFrom;
 
-pub use cleanup::clean_docker;
-pub use create_workspace::create_new_workspace;
-pub use events::events;
-pub use health_check::status;
-pub use host::{check_docker, check_internet_connection, open_terminal};
-pub use launch_docker::launch_docker;
-pub use pull_images::{pull_image, pull_images, DEFAULT_IMAGES};
-pub use service::{create_default_workspace, start_service, stop_service, ServiceSettings};
-pub use shutdown::shutdown;
-pub use state::AppState;
+use anyhow::Error;
+use tauri::{AppHandle, Wry};
+
+use crate::{
+    commands::ServiceSettings,
+    docker::{remove_all_containers, remove_all_volumes, shutdown_all_containers, LaunchpadConfig, DOCKER_INSTANCE},
+    DEFAULT_WORKSPACE_NAME,
+};
+
+#[tauri::command]
+pub async fn clean_docker(app: AppHandle<Wry>, settings: ServiceSettings) -> Result<(), String> {
+    clean_docker_impl(app, settings).await.map_err(|err| err.to_string())
+}
+
+async fn clean_docker_impl(_app: AppHandle<Wry>, settings: ServiceSettings) -> Result<(), Error> {
+    let docker = DOCKER_INSTANCE.clone();
+    // let state = app.state::<AppState>();
+    let config = LaunchpadConfig::try_from(settings)?;
+    shutdown_all_containers(DEFAULT_WORKSPACE_NAME, &docker).await.ok();
+    remove_all_containers(DEFAULT_WORKSPACE_NAME, &docker).await.ok();
+    remove_all_volumes(DEFAULT_WORKSPACE_NAME, config.tari_network, &docker)
+        .await
+        .ok();
+    Ok(())
+}

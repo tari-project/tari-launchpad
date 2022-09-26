@@ -45,6 +45,7 @@ export interface BaseNodeSettingsInputs {
 export type SettingsComponentProps = {
   open?: boolean
   onClose: () => void
+  onReset: () => void
   goToSettings: (s: Settings) => void
   activeSettings: Settings
   formState: FormState<SettingsInputs>
@@ -54,8 +55,11 @@ export type SettingsComponentProps = {
   onSubmit: () => void
   control: Control<SettingsInputs>
   confirmCancel: boolean
+  confirmReset: boolean
   cancelDiscard: () => void
+  resetDiscard: () => void
   discardChanges: () => void
+  resetSettings: () => void
   openMiningAuthForm: boolean
   setOpenMiningAuthForm: (value: boolean) => void
   openBaseNodeConnect: boolean

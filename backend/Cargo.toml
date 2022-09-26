@@ -14,38 +14,38 @@ build = "src/build.rs"
 tauri-build = { version = "1.0.1", features = [] }
 
 [dependencies]
-tari_common_types = { git = "https://github.com/tari-project/tari", branch = "testnet-dibbler" }
-tari_app_utilities = { git = "https://github.com/tari-project/tari", branch = "testnet-dibbler" }
-tari_comms = { git = "https://github.com/tari-project/tari", branch = "testnet-dibbler" }
-tari_app_grpc = { git = "https://github.com/tari-project/tari", branch = "testnet-dibbler" }
-tari_common = { git = "https://github.com/tari-project/tari", branch = "testnet-dibbler" }
+tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v0.38.3" }
+tari_app_utilities = { git = "https://github.com/tari-project/tari", tag = "v0.38.3" }
+tari_comms = { git = "https://github.com/tari-project/tari", tag = "v0.38.3" }
+tari_app_grpc = { git = "https://github.com/tari-project/tari", tag = "v0.38.3" }
+tari_common = { git = "https://github.com/tari-project/tari", tag = "v0.38.3" }
+tari_utilities = { git = "https://github.com/tari-project/tari_utilities.git", tag = "v0.4.5" }
 
-bollard = "0.11.1"
-config = "0.13.0"
+anyhow = "1.0.64"
+bollard = "0.13.0"
+chrono = "0.4.20"
+config = "0.13.2"
 env_logger = "0.9.0"
-lazy_static = "1.3.0"
-log = "0.4.14"
-rand = "0.8.4"
-serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-strum = "0.23.0"
-strum_macros = "0.23.0"
+lazy_static = "1.4.0"
+log = "0.4.17"
+rand = "0.8.5"
+serde_json = "1.0.85"
+serde = { version = "1.0.144", features = ["derive"] }
+strum = { version = "0.24.1", features = ["derive"] }
 tauri = { version = "1.0.1", features = ["api-all", "cli", "macos-private-api"] }
+toml = "0.5.9"
 tor-hash-passwd = "1.0.1"
-thiserror = "1.0.30"
-tokio = { version = "1.9", features = ["sync"] }
-futures = "0.3"
-regex = "1.5.4"
+thiserror = "1.0.34"
+tokio = { version = "1.21.0", features = ["sync"] }
+futures = "0.3.24"
+regex = "1.6.0"
 derivative = "2.2.0"
 # Forcing this version due to conflicts in dependencies
 sqlx-core = { version = "=0.5.7" }
 tauri-plugin-sql = { git = "https://github.com/tauri-apps/tauri-plugin-sql", features = ["sqlite"], branch = "release" }
 tonic = "0.6.2"
-# need to force this version to avoid circular dependency in tauri-plugin-sql deps
-# https://github.com/tkaitchuck/aHash/issues/95#issuecomment-881152315
-indexmap = "~1.6.2"
 hex = "0.4.3"
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "0.11.11", features = ["json"] }
 
 [features]
 # Hack to fix a tauri bug

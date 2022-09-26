@@ -1,4 +1,4 @@
-export type Network = 'dibbler' | 'testnet'
+export type Network = 'esmeralda' | 'dibbler' | 'testnet'
 
 export interface BaseNodeProps {
   startNode: () => void

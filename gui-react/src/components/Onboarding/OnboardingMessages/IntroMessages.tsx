@@ -1,16 +1,9 @@
 /* eslint-disable react/jsx-key */
-import { useEffect } from 'react'
 import Text from '../../Text'
 import t from '../../../locales'
-import { useAppDispatch } from '../../../store/hooks'
-import { setExpertSwitchDisabled } from '../../../store/app'
 
 const messages = [
   () => {
-    const dispatch = useAppDispatch()
-    useEffect(() => {
-      dispatch(setExpertSwitchDisabled(true))
-    })
     return (
       <Text as='span' type='defaultHeavy'>
         {t.onboarding.intro.message1.part1}{' '}

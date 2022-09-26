@@ -1,9 +1,9 @@
 export enum Settings {
   Mining = 'mining',
-  Wallet = 'wallet',
   BaseNode = 'baseNode',
+  Wallet = 'wallet',
   Docker = 'docker',
-  Logs = 'logs',
+  // Logs = 'logs',
   Security = 'security',
 }
 

@@ -51,7 +51,7 @@ services:
       SHELL: "/bin/bash"
       TERM: "linux"
       TARI_WALLET_PASSWORD: ${TARI_WALLET_PASSWORD:-tari}
-      TARI_NETWORK: ${TARI_NETWORK:-dibbler}
+      TARI_NETWORK: ${TARI_NETWORK:-esmeralda}
     command: ["--non-interactive"]
     ports:
       - 18188:18188

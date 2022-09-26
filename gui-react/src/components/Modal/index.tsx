@@ -13,6 +13,7 @@ const Modal = ({ open, children, onClose, size, local, style }: ModalProps) => {
   return (
     <ModalContainer local={local}>
       <Backdrop
+        data-tauri-drag-region
         onClick={onClose}
         data-testid='modal-backdrop'
         $opacity={0.5}

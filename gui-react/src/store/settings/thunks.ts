@@ -8,14 +8,17 @@ import { actions as containersActions } from '../containers'
 import { actions as dockerImagesActions } from '../dockerImages'
 import { actions as credentialsActions } from '../credentials'
 
+import { selectServiceSettings } from '../settings/selectors'
 import { SettingsInputs } from '../../containers/SettingsContainer/types'
 
 import MiningConfig from '../../config/mining'
 import { InitialSettings } from './types'
+import { invoke } from '@tauri-apps/api'
+import getDb from '../../persistence/db'
 
-const getSettings = async (): Promise<InitialSettings> => {
+export const getSettings = async (): Promise<InitialSettings> => {
   const newCacheDir = await cacheDir()
-  const network = 'dibbler'
+  const network = 'esmeralda'
   return {
     parole: '',
     moneroMiningAddress: 'test1',
@@ -24,7 +27,7 @@ const getSettings = async (): Promise<InitialSettings> => {
     tariNetwork: network,
     cacheDir: newCacheDir,
     dockerRegistry: 'quay.io/tarilabs',
-    dockerTag: 'latest',
+    dockerTag: '0.38.3',
     monerodUrl: MiningConfig.defaultMoneroUrls?.join(',') || '',
     moneroUseAuth: false,
     moneroUsername: '',
@@ -43,6 +46,27 @@ export const loadDefaultServiceSettings = createAsyncThunk<
     thunkApi.dispatch(baseNodeActions.setRootFolder(settings.rootFolder))
   }
   return settings
+})
+
+export const resetSettingsAndRelaunch = createAsyncThunk<
+  void,
+  void,
+  { state: RootState }
+>('settings/reset', async (_, thunkApi) => {
+  const rootState = thunkApi.getState()
+  const settings = selectServiceSettings(rootState)
+
+  // Clean tables
+  const db = await getDb()
+  await db.execute('DELETE FROM transactions')
+  await db.execute('DELETE FROM stats')
+
+  // Drop images and volumes
+  await invoke('clean_docker', { settings })
+
+  // Reset browser's cache
+  window.localStorage.clear()
+  location.reload()
 })
 
 export const saveSettings = createAsyncThunk<
