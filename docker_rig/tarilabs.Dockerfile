@@ -48,23 +48,7 @@ ARG APP_NAME=wallet
 ARG APP_EXEC=tari_console_wallet
 
 RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ] && [ "${ARCH}" = "native" ] ; then \
-      echo "!! Cross-compile and native ARCH not a good idea!! " ; \
-    fi
-
-# Cross-compile check for ARM64 on AMD64 and prepare build environment
-RUN if [ "${TARGETARCH}" = "arm64" ] && [ "${BUILDARCH}" != "${TARGETARCH}" ] ; then \
-      # Cross-compile ARM64 - compiler and toolchain
-      # GNU C compiler for the arm64 architecture and GNU C++ compiler
-      echo "Setup cross-compile for AMR64" && \
-      apt-get update && apt-get install -y \
-        gcc-aarch64-linux-gnu g++-aarch64-linux-gnu && \
-      rustup target add aarch64-unknown-linux-gnu && \
-      rustup toolchain install stable-aarch64-unknown-linux-gnu ; \
-    fi
-
-# Install a non-standard toolchain if it has been requested. By default we use the toolchain specified in rust-toolchain.toml
-RUN if [ -n "${RUST_TOOLCHAIN}" ]; then \
-      rustup toolchain install ${RUST_TOOLCHAIN}; \
+      echo "!! Cross-compile and native ARCH not a good idea !! " ; \
     fi
 
 WORKDIR /tari
@@ -144,22 +128,24 @@ RUN apt-get update && apt-get --no-install-recommends install -y \
   openssl \
   telnet
 
+RUN groupadd --gid 1000 tari && \
+    useradd --create-home --no-log-init --shell /bin/bash \
+      --home-dir /var/tari \
+      --uid 1000 --gid 1000 tari
+
 ENV dockerfile_version=$VERSION
 ENV dockerfile_build_arch=$BUILDPLATFORM
 ENV APP_NAME=${APP_NAME:-wallet}
 ENV APP_EXEC=${APP_EXEC:-tari_console_wallet}
 
-RUN groupadd -g 1000 tari && \
-    useradd --home /var/tari --create-home --no-log-init --shell /bin/bash -u 1000 -g 1000 tari
-
 RUN mkdir -p "/var/tari/${APP_NAME}" && \
-    chown -R tari.tari "/var/tari/${APP_NAME}"
+    chown -R tari:tari "/var/tari/${APP_NAME}"
 
 # Setup blockchain path for base_node only
 RUN if [ "${APP_NAME}" = "base_node" ] ; then \
       echo "Base_node bits" && \
       mkdir /blockchain && \
-      chown -R tari.tari /blockchain && \
+      chown -R tari:tari /blockchain && \
       chmod -R 0700 /blockchain ; \
     else \
       echo "Not base_node" ; \
@@ -170,6 +156,5 @@ USER tari
 COPY --from=builder /tari/$APP_EXEC /usr/local/bin/
 COPY buildtools/docker_rig/start_tari_app.sh /usr/local/bin/start_tari_app.sh
 
-# Switch to shell for env substitute
-ENTRYPOINT start_tari_app.sh -c /var/tari/config/config.toml -b /var/tari/${APP_NAME}
+ENTRYPOINT [ "start_tari_app.sh" ]
 CMD [ "--non-interactive-mode" ]
