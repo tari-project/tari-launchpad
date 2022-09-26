@@ -1,8 +1,10 @@
 [workspace]
 
 members = [
+    "libs/*",
     "backend",
 ]
+# default-members = [ "backend" ]
 
 [patch.crates-io]
 # Temporarily lock pgp to commit (master branch at time of writing) because the currently release crate locks zeroize to =1.3

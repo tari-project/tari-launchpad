@@ -1,0 +1,213 @@
+// Copyright 2022. The Tari Project
+//
+// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+// following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+// disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+// following disclaimer in the documentation and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+// products derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+
+use anyhow::Error;
+use tari_launchpad_protocol::{
+    container::{TaskDelta, TaskId},
+    launchpad::{Action, LaunchpadAction, LaunchpadDelta, LaunchpadState, Reaction},
+};
+use tari_sdm::{ids::ManagedTask, Report, ReportEnvelope, SdmScope};
+use tokio::{select, sync::mpsc};
+
+use crate::{
+    resources::{
+        config::{LaunchpadConfig, LaunchpadProtocol, WalletConfig},
+        files::Configurator,
+        images,
+        networks,
+        volumes,
+    },
+    wallet_grpc::WalletGrpc,
+};
+
+pub struct LaunchpadBus {
+    // pub handle: JoinHandle<()>,
+    pub incoming: mpsc::UnboundedSender<Action>,
+    pub outgoing: mpsc::UnboundedReceiver<Reaction>,
+}
+
+impl LaunchpadBus {
+    pub fn start() -> Result<Self, Error> {
+        let (in_tx, in_rx) = mpsc::unbounded_channel();
+        let (out_tx, out_rx) = mpsc::unbounded_channel();
+        std::thread::spawn(move || LaunchpadWorker::create_and_run(in_rx, out_tx));
+        Ok(Self {
+            incoming: in_tx,
+            outgoing: out_rx,
+        })
+    }
+}
+
+pub struct LaunchpadWorker {
+    state: LaunchpadState,
+    scope: SdmScope<LaunchpadProtocol>,
+    in_rx: mpsc::UnboundedReceiver<Action>,
+    // TODO: Share the sender with the wallet
+    out_tx: mpsc::UnboundedSender<Reaction>,
+    wallet_task_id: TaskId,
+    wallet_grpc: Option<WalletGrpc>,
+}
+
+impl LaunchpadWorker {
+    #[tokio::main]
+    async fn create_and_run(
+        in_rx: mpsc::UnboundedReceiver<Action>,
+        out_tx: mpsc::UnboundedSender<Reaction>,
+    ) -> Result<(), Error> {
+        let mut scope = SdmScope::connect("esmeralda")?;
+        scope.add_network(networks::LocalNet::default())?;
+        scope.add_volume(volumes::SharedVolume::default())?;
+        scope.add_volume(volumes::SharedGrafanaVolume::default())?;
+        scope.add_image(images::Tor::default())?;
+        scope.add_image(images::TariBaseNode::default())?;
+        scope.add_image(images::TariWallet::default())?;
+        scope.add_image(images::TariSha3Miner::default())?;
+        scope.add_image(images::Loki::default())?;
+        scope.add_image(images::Promtail::default())?;
+        scope.add_image(images::Grafana::default())?;
+
+        let mut configurator = Configurator::init()?;
+        let data_directory = configurator.base_path().clone();
+        configurator.repair_configuration().await?;
+        let wallet_config = WalletConfig {
+            password: "123".to_string().into(),
+        };
+        let config = LaunchpadConfig {
+            data_directory,
+            with_monitoring: true,
+            tor_control_password: "tari".to_string().into(), // create_password(16).into(),
+            wallet: Some(wallet_config),
+            ..Default::default()
+        };
+
+        let state = LaunchpadState::new(config);
+
+        let worker = LaunchpadWorker {
+            state,
+            scope,
+            in_rx,
+            out_tx,
+            wallet_task_id: images::TariWallet::id(),
+            wallet_grpc: None,
+        };
+        worker.entrypoint().await;
+        Ok(())
+    }
+
+    async fn entrypoint(mut self) {
+        loop {
+            if let Err(err) = self.step().await {
+                log::error!("Bus failed: {}", err);
+            }
+        }
+    }
+
+    async fn step(&mut self) -> Result<(), Error> {
+        select! {
+            action = self.in_rx.recv() => {
+                if let Some(action) = action {
+                    self.process_incoming(action).await?;
+                }
+            }
+            report = self.scope.recv() => {
+                if let Some(report) = report {
+                    self.process_report(report).await?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    async fn process_incoming(&mut self, incoming: Action) -> Result<(), Error> {
+        match incoming {
+            Action::Action(action) => self.process_action(action).await,
+            Action::Start => {
+                println!("START EVENT!");
+                if self.state.active {
+                    self.scope.set_config(None)?;
+                    self.apply_delta(LaunchpadDelta::SetActive(false));
+                } else {
+                    let config = self.state.config.clone();
+                    self.scope.set_config(Some(config))?;
+                    self.apply_delta(LaunchpadDelta::SetActive(true));
+                }
+            },
+        }
+        Ok(())
+    }
+
+    async fn process_action(&mut self, action: LaunchpadAction) {
+        match action {
+            LaunchpadAction::Connect => {
+                // TODO: Load the real config
+                println!("CONNECTED!");
+                let state = self.state.clone();
+                self.apply_delta(LaunchpadDelta::Rewrite(state));
+            },
+        }
+    }
+
+    fn apply_delta(&mut self, delta: LaunchpadDelta) {
+        self.state.apply(delta.clone());
+        self.send(delta);
+    }
+
+    fn send(&mut self, out: Reaction) {
+        if let Err(err) = self.out_tx.send(out) {
+            log::error!("Can't send an outgoing message: {}", err);
+        }
+    }
+
+    async fn process_report(&mut self, report: ReportEnvelope<LaunchpadProtocol>) -> Result<(), Error> {
+        // TODO: Convert to the `LaunchpadDelta` and apply
+        println!("Delta: {:?}", report);
+        match report.details {
+            Report::Delta(delta) => {
+                if report.task_id == self.wallet_task_id {
+                    self.check_wallet_grpc(&delta);
+                }
+                let delta = LaunchpadDelta::TaskDelta(report.task_id, delta);
+                self.apply_delta(delta);
+            },
+            Report::Extras(_) => {},
+        }
+        Ok(())
+    }
+
+    fn check_wallet_grpc(&mut self, delta: &TaskDelta) {
+        if let TaskDelta::UpdateStatus(status) = delta {
+            if status.is_active() {
+                if self.wallet_grpc.is_none() {
+                    let grpc = WalletGrpc::new(self.out_tx.clone());
+                    self.wallet_grpc = Some(grpc);
+                }
+            } else {
+                // Detaches grpc instances that closes a channel
+                if self.wallet_grpc.is_some() {
+                    self.wallet_grpc.take();
+                    // TODO: Send a delta about grpc
+                }
+            }
+        }
+    }
+}
