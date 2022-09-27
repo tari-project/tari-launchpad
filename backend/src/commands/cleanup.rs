@@ -24,11 +24,12 @@
 use std::convert::TryFrom;
 
 use anyhow::Error;
-use tauri::{AppHandle, Wry};
+use tauri::{AppHandle, Manager, Wry};
 
 use crate::{
     commands::ServiceSettings,
-    docker::{remove_all_containers, remove_all_volumes, shutdown_all_containers, LaunchpadConfig, DOCKER_INSTANCE},
+    docker::{remove_all_containers, remove_all_volumes, shutdown_all_containers, LaunchpadConfig},
+    AppState,
     DEFAULT_WORKSPACE_NAME,
 };
 
@@ -37,13 +38,14 @@ pub async fn clean_docker(app: AppHandle<Wry>, settings: ServiceSettings) -> Res
     clean_docker_impl(app, settings).await.map_err(|err| err.to_string())
 }
 
-async fn clean_docker_impl(_app: AppHandle<Wry>, settings: ServiceSettings) -> Result<(), Error> {
-    let docker = DOCKER_INSTANCE.clone();
-    // let state = app.state::<AppState>();
+async fn clean_docker_impl(app: AppHandle<Wry>, settings: ServiceSettings) -> Result<(), Error> {
+    let state = app.state::<AppState>();
     let config = LaunchpadConfig::try_from(settings)?;
-    shutdown_all_containers(DEFAULT_WORKSPACE_NAME, &docker).await.ok();
-    remove_all_containers(DEFAULT_WORKSPACE_NAME, &docker).await.ok();
-    remove_all_volumes(DEFAULT_WORKSPACE_NAME, config.tari_network, &docker)
+    shutdown_all_containers(DEFAULT_WORKSPACE_NAME, &state.docker)
+        .await
+        .ok();
+    remove_all_containers(DEFAULT_WORKSPACE_NAME, &state.docker).await.ok();
+    remove_all_volumes(DEFAULT_WORKSPACE_NAME, config.tari_network, &state.docker)
         .await
         .ok();
     Ok(())

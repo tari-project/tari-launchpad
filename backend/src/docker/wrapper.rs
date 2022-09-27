@@ -23,37 +23,38 @@
 
 use std::collections::HashMap;
 
-use bollard::{models::EventMessage, system::EventsOptions, Docker};
+use bollard::{
+    image::CreateImageOptions,
+    models::{CreateImageInfo, EventMessage},
+    system::EventsOptions,
+    Docker,
+};
+use derive_more::{Deref, DerefMut};
 use futures::{Stream, TryStreamExt};
 
-use crate::docker::DockerWrapperError;
+use crate::{docker::DockerWrapperError, rest::DockerImageError};
 
 /// A wrapper around a [`bollard::Docker`] instance providing some opinionated convenience methods for Tari workspaces.
+#[derive(Clone, Deref, DerefMut)]
 pub struct DockerWrapper {
-    handle: Docker,
+    docker: Docker,
 }
 
 impl DockerWrapper {
     /// Create a new wrapper
-    pub fn new() -> Result<Self, DockerWrapperError> {
-        let handle = Docker::connect_with_local_defaults()?;
-        Ok(Self { handle })
+    pub fn connect() -> Result<Self, DockerWrapperError> {
+        let docker = Docker::connect_with_local_defaults()?;
+        Ok(Self { docker })
     }
 
     /// Returns the version of the _docker client_.
     pub fn version(&self) -> String {
-        self.handle.client_version().to_string()
-    }
-
-    /// Create a (cheap) clone of the [`Docker`] instance, suitable for passing to threads and futures.
-    pub fn handle(&self) -> Docker {
-        self.handle.clone()
+        self.docker.client_version().to_string()
     }
 
     /// Returns a stream of relevant events. We're opinionated here, so we filter the stream to only return
     /// container, image, network and volume events.
     pub async fn events(&self) -> impl Stream<Item = Result<EventMessage, DockerWrapperError>> {
-        let docker = self.handle.clone();
         let mut type_filter = HashMap::new();
         type_filter.insert("type".to_string(), vec![
             "container".to_string(),
@@ -66,6 +67,19 @@ impl DockerWrapper {
             until: None,
             filters: type_filter,
         };
-        docker.events(Some(options)).map_err(DockerWrapperError::from)
+        self.docker.events(Some(options)).map_err(DockerWrapperError::from)
+    }
+
+    pub async fn pull_latest_image(
+        &self,
+        full_image_name: String,
+    ) -> impl Stream<Item = Result<CreateImageInfo, DockerImageError>> {
+        let opts = Some(CreateImageOptions {
+            from_image: full_image_name,
+            ..Default::default()
+        });
+        self.docker
+            .create_image(opts, None, None)
+            .map_err(DockerImageError::from)
     }
 }

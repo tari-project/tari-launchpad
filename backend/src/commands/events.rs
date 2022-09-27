@@ -37,8 +37,7 @@ use crate::commands::AppState;
 pub async fn events(app: AppHandle<Wry>) -> Result<(), ()> {
     info!("Setting up event stream");
     let state = app.state::<AppState>();
-    let docker = state.docker.read().await;
-    let mut stream = docker.events().await;
+    let mut stream = state.docker.events().await;
     let app_clone = app.clone();
     tauri::async_runtime::spawn(async move {
         while let Some(event_result) = stream.next().await {

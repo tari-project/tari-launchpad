@@ -1,7 +1,3 @@
-use bollard::Docker;
-use tauri::PackageInfo;
-use tokio::sync::RwLock as AsyncLock;
-
 // Copyright 2021. The Tari Project
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
@@ -24,6 +20,10 @@ use tokio::sync::RwLock as AsyncLock;
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
+
+use tauri::PackageInfo;
+use tokio::sync::RwLock;
+
 use crate::docker::{DockerWrapper, Workspaces};
 
 /// The state variables that are managed by Tauri. Since the whole app is asynchronous, we need to store
@@ -33,24 +33,19 @@ use crate::docker::{DockerWrapper, Workspaces};
 ///   a cheap, thread-safe clone to the underlying docker API.
 /// * Package info, because Tauri doesn't give us an easy way to get at that in command callbacks for some reason.
 ///
-/// Things that are mutable (docker, workspaces) are behind an [`AsyncLock`] for thread safety.
+/// Things that are mutable (docker, workspaces) are behind an [`RwLock`] for thread safety.
 pub struct AppState {
-    pub docker: AsyncLock<DockerWrapper>,
-    pub workspaces: AsyncLock<Workspaces>,
+    pub docker: DockerWrapper,
+    pub workspaces: RwLock<Workspaces>,
     pub package_info: PackageInfo,
 }
 
 impl AppState {
     pub fn new(docker: DockerWrapper, workspaces: Workspaces, package_info: PackageInfo) -> Self {
         Self {
-            docker: AsyncLock::new(docker),
-            workspaces: AsyncLock::new(workspaces),
+            docker,
+            workspaces: RwLock::new(workspaces),
             package_info,
         }
-    }
-
-    pub async fn docker_handle(&self) -> Docker {
-        let wrapper = self.docker.read().await;
-        wrapper.handle()
     }
 }

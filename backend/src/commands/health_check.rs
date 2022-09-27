@@ -47,13 +47,14 @@ pub async fn status(image: ImageType) -> String {
 }
 
 async fn docker_info(docker: &Docker, container_id: &str) -> Result<String, DockerWrapperError> {
+    use DockerWrapperError::*;
     let status = docker
         .inspect_container(container_id, None)
         .await?
         .state
-        .unwrap()
+        .ok_or(StateIsEmpty)?
         .status
-        .unwrap()
+        .ok_or(StatusIsEmpty)?
         .to_string();
     Ok(status)
 }
