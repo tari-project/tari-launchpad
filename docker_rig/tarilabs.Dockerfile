@@ -43,6 +43,7 @@ ENV RUSTFLAGS="-C target_cpu=$ARCH"
 ENV ROARING_ARCH=$ARCH
 ENV CARGO_HTTP_MULTIPLEXING=false
 
+ARG VERSION=1.0.1
 ARG APP_NAME=wallet
 ARG APP_EXEC=tari_console_wallet
 
@@ -105,7 +106,7 @@ ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
 
-ARG VERSION=1.0.1
+ARG VERSION
 
 ARG APP_NAME
 ARG APP_EXEC
@@ -127,8 +128,10 @@ RUN apt-get update && apt-get --no-install-recommends install -y \
   openssl \
   telnet
 
-RUN groupadd -g 1000 tari && \
-    useradd -s /bin/bash -u 1000 -g 1000 tari
+RUN groupadd --gid 1000 tari && \
+    useradd --create-home --no-log-init --shell /bin/bash \
+      --home-dir /var/tari \
+      --uid 1000 --gid 1000 tari
 
 ENV dockerfile_version=$VERSION
 ENV dockerfile_build_arch=$BUILDPLATFORM
@@ -136,13 +139,13 @@ ENV APP_NAME=${APP_NAME:-wallet}
 ENV APP_EXEC=${APP_EXEC:-tari_console_wallet}
 
 RUN mkdir -p "/var/tari/${APP_NAME}" && \
-    chown -R tari.tari "/var/tari/${APP_NAME}"
+    chown -R tari:tari "/var/tari/${APP_NAME}"
 
 # Setup blockchain path for base_node only
 RUN if [ "${APP_NAME}" = "base_node" ] ; then \
       echo "Base_node bits" && \
       mkdir /blockchain && \
-      chown -R tari.tari /blockchain && \
+      chown -R tari:tari /blockchain && \
       chmod -R 0700 /blockchain ; \
     else \
       echo "Not base_node" ; \
@@ -150,8 +153,8 @@ RUN if [ "${APP_NAME}" = "base_node" ] ; then \
 
 USER tari
 
-COPY --from=builder /tari/$APP_EXEC /usr/bin/
-COPY buildtools/docker_rig/start_tari_app.sh /usr/bin/start_tari_app.sh
+COPY --from=builder /tari/$APP_EXEC /usr/local/bin/
+COPY buildtools/docker_rig/start_tari_app.sh /usr/local/bin/start_tari_app.sh
 
-ENTRYPOINT start_tari_app.sh -c /var/tari/config/config.toml -b /var/tari/$APP_NAME
-# CMD [ "--non-interactive-mode" ]
+ENTRYPOINT [ "start_tari_app.sh" ]
+CMD [ "--non-interactive-mode" ]

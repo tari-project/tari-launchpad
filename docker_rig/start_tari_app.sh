@@ -10,29 +10,30 @@
 APP_NAME=${APP_NAME:-base_node}
 APP_EXEC=${APP_EXEC:-tari_base_node}
 WAIT_FOR_TOR=${WAIT_FOR_TOR:-0}
-TARI_BASE=/var/tari/${APP_NAME}
-CONFIG=/var/tari/config
+TARI_BASE=${TARI_BASE:-/var/tari/$APP_NAME}
+TARI_CONFIG=${TARI_CONFIG:-/var/tari/config/config.toml}
 USER_ID=${USER_ID:-1000}
 GROUP_ID=${GROUP_ID:-1000}
 
-echo "Starting $APP_NAME with following docker environment:"
-echo "executable: $APP_EXEC"
+echo "Starting ${APP_NAME} with following docker environment:"
+echo "executable: ${APP_EXEC}"
 echo "WAIT_FOR_TOR: $WAIT_FOR_TOR"
-echo "base folder (in container): $TARI_BASE"
-echo "config folder (in container): $CONFIG"
+echo "base folder (in container): ${TARI_BASE}"
+echo "config file (in container): ${TARI_CONFIG}"
+echo "arguments (in container): ${@}"
+echo "arguments count (in container): ${#}"
 
 if [[ $WAIT_FOR_TOR != 0 ]]; then
   echo "Waiting $WAIT_FOR_TOR seconds for Tor to start up"
   sleep "$WAIT_FOR_TOR"
 fi
 
-if [[ ! -d  "$TARI_BASE" ]]; then
-  mkdir -p "$TARI_BASE"
+if [[ ! -d "${TARI_BASE}" ]]; then
+  mkdir -p "${TARI_BASE}"
 fi
 
-cd "$TARI_BASE" || exit 1
+cd "${TARI_BASE}" || exit 1
 
-echo "Starting ${APP_NAME}..."
-echo Command: $APP_EXEC "$@"
-$APP_EXEC "$@" || exit 1
-
+echo "Starting ${APP_NAME} ..."
+echo " > command: ${APP_EXEC} --config ${TARI_CONFIG} --base-path ${TARI_BASE} ${@} <"
+exec ${APP_EXEC} --config ${TARI_CONFIG} --base-path ${TARI_BASE} ${@} || exit 1
