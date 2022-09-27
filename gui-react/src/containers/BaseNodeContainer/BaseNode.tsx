@@ -125,6 +125,36 @@ const BaseNode = ({
             {t.common.verbs.stop}
           </Button>
         )}
+        <Text
+          type='smallMedium'
+          style={{ marginTop: theme.spacingVertical(2) }}
+          color={running ? theme.inverted.primary : theme.secondary}
+        >
+          <Text as='span' type='smallHeavy'>
+            {t.baseNode.blockInfo.height}
+          </Text>
+          106604
+        </Text>
+        <Text
+          type='smallMedium'
+          style={{ marginTop: theme.spacingVertical(0) }}
+          color={running ? theme.inverted.primary : theme.secondary}
+        >
+          <Text as='span' type='smallHeavy'>
+            {t.baseNode.blockInfo.time}
+          </Text>
+          2022-09-27 11:04:33
+        </Text>
+        <Text
+          type='smallMedium'
+          style={{ marginTop: theme.spacingVertical(0) }}
+          color={running ? theme.inverted.primary : theme.secondary}
+        >
+          <Text as='span' type='smallHeavy'>
+            {t.baseNode.blockInfo.status}
+          </Text>
+          Listening
+        </Text>
       </Box>
 
       <Box
