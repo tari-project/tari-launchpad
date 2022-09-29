@@ -5,7 +5,7 @@ grpc_address = "/ip4/0.0.0.0/tcp/18142"
 override_from = "esmeralda"
 
 [base_node.storage]
-pruning_horizon = 10_800
+pruning_horizon = 10_080
 pruning_interval = 50
 track_reorgs = true
 
