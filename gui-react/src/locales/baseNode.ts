@@ -56,6 +56,11 @@ const translations = {
     description:
       'If you have an Aurora Wallet on your smartphone, you can increase its security by connecting to the Tari Base Node.',
   },
+  blockInfo: {
+    height: 'Last block height: ',
+    time: 'Time: ',
+    status: 'Base Node status: ',
+  },
 }
 
 export default translations
