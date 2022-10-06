@@ -4,7 +4,9 @@ export const DockerRow = styled.div<{ $inverted?: boolean }>`
   display: flex;
   align-items: center;
   height: 2em;
-  padding: ${({ theme }) => theme.spacingVertical(1.25)};
+  font-size: 0.88em;
+  padding-top: ${({ theme }) => theme.spacingVertical(1.25)};
+  padding-bottom: ${({ theme }) => theme.spacingVertical(1.25)};
   &:not(:last-of-type) {
     border-bottom: 1px solid
       ${({ theme, $inverted }) =>
@@ -51,4 +53,12 @@ export const TextProgessContainer = styled.span`
   text-overflow: ellipsis;
   max-width: 100%;
   overflow: hidden;
+`
+
+export const PullAllContainer = styled.div`
+  padding-bottom: ${({ theme }) => theme.spacingVertical(1.25)};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid ${({ theme }) => theme.selectBorderColor};
 `

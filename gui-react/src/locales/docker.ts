@@ -13,6 +13,12 @@ export default {
     image: 'Image',
     status: 'Status',
   },
+  pullAll: {
+    button: 'Pull all',
+    checkingForUpdates: 'Checking for updates...',
+    updatesAvailable: 'There are images with updates available',
+    upToDate: 'All images are up to date',
+  },
   tBot: {
     newVersionAvailable: {
       part1: 'There is a newer version of wallet image ready to pull.',

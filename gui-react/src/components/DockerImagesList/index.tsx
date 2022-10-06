@@ -22,6 +22,7 @@ import {
   ErrorWrapper,
   TextProgessContainer,
   ProgressContainer,
+  PullAllContainer,
 } from './styles'
 import Alert from '../Alert'
 
@@ -45,12 +46,62 @@ const DockerImagesList = ({
   const [errorInAlert, setErrorInAlert] = useState<string | undefined>(
     undefined,
   )
+  const [pullBtnDisabled, setPullBtnDisabled] = useState<boolean>(false)
 
   const dockerImages = useAppSelector(selectDockerImages)
   const dockerImagesLoading = useAppSelector(selectDockerImagesLoading)
 
+  const needsUpdate = dockerImages
+    .filter(dockerImage => dockerImage.updated === false)
+    .map(dockerImage => dockerImage.containerName)
+
+  function pullAll() {
+    needsUpdate.map(dockerImage => {
+      dispatch(
+        actions.pullImage({
+          dockerImage: dockerImage,
+        }),
+      )
+    })
+    setPullBtnDisabled(true)
+  }
+
   return (
     <DockerList style={style}>
+      <PullAllContainer>
+        {dockerImagesLoading && (
+          <Text
+            style={{ flexBasis: '70%' }}
+            type='smallMedium'
+            color={inverted ? theme.inverted.disabledText : theme.primary}
+          >
+            {t.docker.pullAll.checkingForUpdates}
+          </Text>
+        )}
+        {!dockerImagesLoading && (
+          <>
+            <Text
+              style={{ flexBasis: '70%' }}
+              type='smallMedium'
+              color={inverted ? theme.inverted.disabledText : theme.primary}
+            >
+              {needsUpdate.length
+                ? t.docker.pullAll.updatesAvailable
+                : t.docker.pullAll.upToDate}
+            </Text>
+            {needsUpdate.length > 0 && (
+              <Button
+                variant='primary'
+                onClick={pullAll}
+                disabled={pullBtnDisabled}
+                size='small'
+              >
+                {t.docker.pullAll.button}
+              </Button>
+            )}
+          </>
+        )}
+      </PullAllContainer>
       {dockerImagesLoading && <LoadingOverlay inverted={inverted} />}
       {header && (
         <DockerRow key='headers'>
@@ -71,13 +122,17 @@ const DockerImagesList = ({
           <DockerRow key={dockerImage.dockerImage} $inverted={inverted}>
             <Text
               style={{ flexBasis: '30%' }}
-              type={header ? 'smallMedium' : 'defaultMedium'}
+              type='smallMedium'
               color={inverted ? theme.inverted.disabledText : theme.primary}
             >
               {dockerImage?.displayName?.toLowerCase() || ''}
             </Text>
             {dockerImage.updated && (
-              <DockerStatusWrapper>
+              <DockerStatusWrapper
+                style={{
+                  justifyContent: 'flex-start',
+                }}
+              >
                 {!disableIcons && (
                   <CheckIcon
                     color={theme.onTextLight}
@@ -134,6 +189,7 @@ const DockerImagesList = ({
                   variant='button-in-text'
                   type='link'
                   style={{ color: theme.onTextLight }}
+                  size='small'
                   onClick={() =>
                     dispatch(
                       actions.pullImage({

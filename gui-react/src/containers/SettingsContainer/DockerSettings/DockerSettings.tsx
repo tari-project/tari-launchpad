@@ -95,7 +95,6 @@ const DockerSettings = ({
       <DockerImagesList
         style={{
           marginBottom: theme.spacing(),
-          marginLeft: `-${theme.spacingHorizontal(1.2)}`,
         }}
       />
     </>
