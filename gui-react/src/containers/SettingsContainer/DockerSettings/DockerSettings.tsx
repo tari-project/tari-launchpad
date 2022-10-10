@@ -93,6 +93,7 @@ const DockerSettings = ({
       </SettingsSectionHeader>
 
       <DockerImagesList
+        pullAllBtn
         style={{
           marginBottom: theme.spacing(),
         }}

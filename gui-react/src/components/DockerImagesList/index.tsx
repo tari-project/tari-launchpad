@@ -31,11 +31,13 @@ const DockerImagesList = ({
   header,
   disableIcons,
   style,
+  pullAllBtn,
 }: {
   inverted?: boolean
   header?: boolean
   disableIcons?: boolean
   style?: CSSProperties
+  pullAllBtn?: boolean
 }) => {
   const theme = useTheme()
   const dispatch = useAppDispatch()
@@ -68,40 +70,42 @@ const DockerImagesList = ({
 
   return (
     <DockerList style={style}>
-      <PullAllContainer>
-        {dockerImagesLoading && (
-          <Text
-            style={{ flexBasis: '70%' }}
-            type='smallMedium'
-            color={inverted ? theme.inverted.disabledText : theme.primary}
-          >
-            {t.docker.pullAll.checkingForUpdates}
-          </Text>
-        )}
-        {!dockerImagesLoading && (
-          <>
+      {pullAllBtn && (
+        <PullAllContainer>
+          {dockerImagesLoading && (
             <Text
               style={{ flexBasis: '70%' }}
               type='smallMedium'
               color={inverted ? theme.inverted.disabledText : theme.primary}
             >
-              {needsUpdate.length
-                ? t.docker.pullAll.updatesAvailable
-                : t.docker.pullAll.upToDate}
+              {t.docker.pullAll.checkingForUpdates}
             </Text>
-            {needsUpdate.length > 0 && (
-              <Button
-                variant='primary'
-                onClick={pullAll}
-                disabled={pullBtnDisabled}
-                size='small'
+          )}
+          {!dockerImagesLoading && (
+            <>
+              <Text
+                style={{ flexBasis: '70%' }}
+                type='smallMedium'
+                color={inverted ? theme.inverted.disabledText : theme.primary}
               >
-                {t.docker.pullAll.button}
-              </Button>
-            )}
-          </>
-        )}
-      </PullAllContainer>
+                {needsUpdate.length
+                  ? t.docker.pullAll.updatesAvailable
+                  : t.docker.pullAll.upToDate}
+              </Text>
+              {needsUpdate.length > 0 && (
+                <Button
+                  variant='primary'
+                  onClick={pullAll}
+                  disabled={pullBtnDisabled}
+                  size='small'
+                >
+                  {t.docker.pullAll.button}
+                </Button>
+              )}
+            </>
+          )}
+        </PullAllContainer>
+      )}
       {dockerImagesLoading && <LoadingOverlay inverted={inverted} />}
       {header && (
         <DockerRow key='headers'>
