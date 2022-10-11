@@ -66,7 +66,7 @@ const CopyBox = ({
         <Button
           variant='text'
           style={{
-            padding: 0,
+            padding: '0 0 0 10px',
             margin: 0,
             position: 'relative',
             flexGrow: '1',
@@ -81,7 +81,13 @@ const CopyBox = ({
               </Tag>
             </animated.div>
           </FeedbackContainer>
-          <CopyIcon />
+          <CopyIcon
+            style={{
+              position: 'absolute',
+              bottom: '23px',
+              right: '0',
+            }}
+          />
         </Button>
       </StyledBox>
     </>
