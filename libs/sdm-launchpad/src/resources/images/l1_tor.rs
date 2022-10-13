@@ -21,6 +21,8 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+use std::ops::Deref;
+
 use async_trait::async_trait;
 use regex::Regex;
 use tari_sdm::{
@@ -83,7 +85,7 @@ impl ManagedContainer for Tor {
         args.set_pair("--ClientOnly", 1);
         args.set_pair("--ClientUseIPv6", 1);
         if let Some(settings) = self.settings.as_ref() {
-            let hashed = EncryptedKey::hash_password(settings.tor_password.reveal());
+            let hashed = EncryptedKey::hash_password(settings.tor_password.deref());
             args.set_pair("--HashedControlPassword", hashed);
         }
         args.flag("--allow-missing-torrc");

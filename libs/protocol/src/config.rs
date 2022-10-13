@@ -36,10 +36,9 @@ http://singapore.node.xmr.pm:38081";
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct BaseNodeConfig {}
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct WalletConfig {
     /// The password to de/en-crypt the wallet database
-    // #[serde(skip_serializing)]
     pub password: Hidden<String>,
 }
 
@@ -72,8 +71,8 @@ impl Default for MmProxyConfig {
     fn default() -> Self {
         MmProxyConfig {
             monerod_url: DEFAULT_MONEROD_URL.to_string(),
-            monero_username: "".to_string(),
-            monero_password: Hidden::default(),
+            monero_username: String::new(),
+            monero_password: Hidden::from(String::new()),
             monero_use_auth: false,
         }
     }
@@ -93,7 +92,7 @@ impl MmProxyConfig {
 /// be populated from some front-end or persistent storage
 /// file and is used to generate the environment variables
 /// needed to configure and run the various docker containers.
-#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LaunchpadConfig {
     /// The directory to use for config, id files and logs
     pub data_directory: PathBuf,
@@ -128,6 +127,24 @@ pub struct LaunchpadConfig {
     pub tag: Option<String>,
 
     pub with_monitoring: bool,
+}
+
+impl Default for LaunchpadConfig {
+    fn default() -> Self {
+        Self {
+            data_directory: PathBuf::default(),
+            tari_network: TariNetwork::Esmeralda,
+            tor_control_password: Hidden::from(String::new()),
+            base_node: None,
+            wallet: None,
+            sha3_miner: None,
+            mm_proxy: None,
+            xmrig: None,
+            registry: None,
+            tag: None,
+            with_monitoring: true,
+        }
+    }
 }
 
 #[derive(Debug, Error)]

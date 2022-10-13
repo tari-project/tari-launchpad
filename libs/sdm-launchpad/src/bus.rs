@@ -31,7 +31,7 @@ use tokio::{select, sync::mpsc};
 
 use crate::{
     resources::{
-        config::{LaunchpadConfig, LaunchpadProtocol, WalletConfig},
+        config::{LaunchpadConfig, LaunchpadProtocol},
         files::Configurator,
         images,
         networks,
@@ -89,14 +89,11 @@ impl LaunchpadWorker {
         let mut configurator = Configurator::init()?;
         let data_directory = configurator.base_path().clone();
         configurator.repair_configuration().await?;
-        let wallet_config = WalletConfig {
-            password: "123".to_string().into(),
-        };
         let config = LaunchpadConfig {
             data_directory,
             with_monitoring: true,
             tor_control_password: "tari".to_string().into(), // create_password(16).into(),
-            wallet: Some(wallet_config),
+            wallet: None,
             ..Default::default()
         };
 

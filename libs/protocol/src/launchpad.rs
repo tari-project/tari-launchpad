@@ -52,7 +52,7 @@ pub enum LaunchpadDelta {
     WalletDelta(WalletDelta),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LaunchpadState {
     pub config: LaunchpadConfig,
     pub containers: HashMap<TaskId, TaskState>,

@@ -21,6 +21,8 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+use std::ops::Deref;
+
 use anyhow::Error;
 use async_trait::async_trait;
 use tari_sdm::{
@@ -122,7 +124,9 @@ impl ManagedContainer for TariWallet {
                 "TARI_BASE_NODE__DATA_DIR",
                 format!("/blockchain/{}", settings.tari_network.lower_case()),
             );
-            envs.set("TARI_WALLET_PASSWORD", settings.wallet_password.reveal());
+            if let Some(pass) = settings.wallet_password.as_ref() {
+                envs.set("TARI_WALLET_PASSWORD", pass.deref());
+            }
         }
         envs.set("SHELL", "/bin/bash");
         envs.set("TERM", "linux");

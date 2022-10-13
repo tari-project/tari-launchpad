@@ -21,7 +21,7 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::path::PathBuf;
+use std::{ops::Deref, path::PathBuf};
 
 use anyhow::Error;
 use serde::Serialize;
@@ -101,7 +101,7 @@ pub struct ConnectionSettings {
     pub tor_password: Hidden<String>,
     pub tari_network: TariNetwork,
     pub data_directory: PathBuf,
-    pub wallet_password: Hidden<String>,
+    pub wallet_password: Option<Hidden<String>>,
 }
 
 impl<'a> From<&'a LaunchpadConfig> for ConnectionSettings {
@@ -110,14 +110,14 @@ impl<'a> From<&'a LaunchpadConfig> for ConnectionSettings {
             tor_password: config.tor_control_password.clone(),
             tari_network: config.tari_network,
             data_directory: config.data_directory.clone(),
-            wallet_password: config.wallet.clone().unwrap_or_default().password,
+            wallet_password: config.wallet.clone().map(|w| w.password),
         }
     }
 }
 
 impl ConnectionSettings {
     pub fn add_tor(&self, envs: &mut Envs) {
-        let value = format!("password={}", self.tor_password.reveal());
+        let value = format!("password={}", self.tor_password.deref());
         envs.set("TARI_BASE_NODE__P2P__TRANSPORT__TOR__CONTROL_AUTH", value);
     }
 
