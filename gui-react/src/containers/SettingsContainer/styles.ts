@@ -130,7 +130,7 @@ export const SwitchBg = styled.div<{ $transparent?: boolean }>`
 
 export const RowFlex = styled.div`
   display: flex;
-  align-tiems: center;
+  align-items: center;
   column-gap: ${({ theme }) => theme.spacingHorizontal(0.5)};
 `
 

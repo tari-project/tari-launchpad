@@ -42,6 +42,14 @@ export interface BaseNodeSettingsInputs {
   rootFolder: string
 }
 
+export interface ResetSettingsInputs {
+  confirmCancel: boolean
+  confirmReset: boolean
+  onReset: () => void
+  resetDiscard: () => void
+  resetSettings: () => void
+}
+
 export type SettingsComponentProps = {
   open?: boolean
   onClose: () => void

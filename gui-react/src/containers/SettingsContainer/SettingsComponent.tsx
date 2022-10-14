@@ -28,6 +28,7 @@ import BaseNodeSettings from './BaseNodeSettings'
 import MiningSettings from './MiningSettings'
 import DockerSettings from './DockerSettings'
 import WalletSettings from './WalletSettings'
+import ResetSettings from './ResetSettings'
 import {
   SettingsProps,
   SettingsComponentProps,
@@ -75,6 +76,16 @@ const renderSettings = (
       )
     case Settings.Security:
       return <SecuritySettings />
+    case Settings.Reset:
+      return (
+        <ResetSettings
+          formState={props.formState}
+          control={props.control}
+          values={props.values}
+          setValue={props.setValue}
+          setOpenMiningAuthForm={props.setOpenMiningAuthForm}
+        />
+      )
     default:
       return null
   }

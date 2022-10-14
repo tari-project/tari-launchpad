@@ -39,6 +39,8 @@ const translations: { [key: string]: { [key: string]: string } } = {
     error: 'Error',
     today: 'Today',
     results: 'Results',
+    reset: 'Reset',
+    dangerZone: 'Danger Zone',
   },
   weekdayCapitals: {
     sunday: 'S',
