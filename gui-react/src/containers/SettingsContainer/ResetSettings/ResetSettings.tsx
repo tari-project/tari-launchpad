@@ -1,9 +1,3 @@
-import {
-  Controller,
-  Control,
-  UseFormSetValue,
-  FormState,
-} from 'react-hook-form'
 import { useTheme } from 'styled-components'
 import { RowFlex, DiscardWarning } from '../styles'
 import Tag from '../../../components/Tag'
@@ -13,7 +7,6 @@ import SettingsSectionHeader from '../../../components/SettingsSectionHeader'
 import Text from '../../../components/Text'
 import t from '../../../locales'
 import { SettingsHeader } from '../styles'
-import { SettingsInputs } from '../types'
 
 import { ResetSettingsInputs } from './../types'
 
@@ -25,11 +18,6 @@ const ResetSettings = ({
   resetSettings,
 }: ResetSettingsInputs) => {
   const theme = useTheme()
-
-  function reset() {
-    console.log('confirmCancel ', confirmCancel)
-    console.log('confirmReset ', confirmReset)
-  }
 
   return (
     <>
