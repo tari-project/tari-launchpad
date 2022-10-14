@@ -1,0 +1,21 @@
+[package]
+name = "tari_sdm"
+version = "0.1.0"
+description = "Software Defined Mining for the Tari Network"
+authors = ["The Tari Development Community"]
+license = "BSD-3-Clause"
+repository = "https://github.com/tari-project/tari-launchpad"
+edition = "2021"
+
+[dependencies]
+tari_launchpad_protocol = { path = "../protocol" }
+
+anyhow = "1.0.65"
+async-trait = "0.1.57"
+bollard = "0.13.0"
+derive_more = "0.99.17"
+futures = "0.3.24"
+log = "0.4.17"
+thiserror = "1.0.37"
+tokio = { version = "1.21.1", features = ["macros"] }
+tokio-stream = { version = "0.1.10", features = ["sync"] }

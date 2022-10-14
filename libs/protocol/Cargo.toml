@@ -1,0 +1,15 @@
+[package]
+name = "tari_launchpad_protocol"
+version = "0.1.0"
+authors = ["The Tari Development Community"]
+license = "BSD-3-Clause"
+repository = "https://github.com/tari-project/tari-launchpad"
+edition = "2021"
+
+[dependencies]
+tari_utilities = { git = "https://github.com/tari-project/tari_utilities.git", tag = "v0.4.7" }
+
+anyhow = "1.0.65"
+derive_more = "0.99.17"
+serde = "1.0.145"
+thiserror = "1.0.34"
