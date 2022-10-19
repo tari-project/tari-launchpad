@@ -13,6 +13,7 @@ pub enum GrpcError {
     GrpcStatus(#[from] tonic::Status),
 }
 impl GrpcError {
+    #[allow(unused)]
     pub fn chained_message(&self) -> String {
         let mut messages = vec![self.to_string()];
         let mut this = self as &dyn std::error::Error;

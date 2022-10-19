@@ -52,10 +52,11 @@ pub enum LaunchpadDelta {
     WalletDelta(WalletDelta),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct LaunchpadState {
     pub config: LaunchpadConfig,
     pub containers: HashMap<TaskId, TaskState>,
+    /// A flag that shows the wallet is active.
     pub active: bool,
     pub wallet: WalletState,
 }

@@ -127,6 +127,7 @@ pub struct LaunchpadConfig {
     pub tag: Option<String>,
 
     pub with_monitoring: bool,
+    pub with_tor: bool,
 }
 
 impl Default for LaunchpadConfig {
@@ -143,6 +144,7 @@ impl Default for LaunchpadConfig {
             registry: None,
             tag: None,
             with_monitoring: true,
+            with_tor: true,
         }
     }
 }
