@@ -43,7 +43,14 @@ use tari_wallet_grpc_client::{grpc::GetIdentityRequest, WalletGrpcClient};
 
 use super::{TariBaseNode, DEFAULT_REGISTRY, GENERAL_VOLUME};
 use crate::resources::{
-    config::{BaseNodeIdentity, ConnectionSettings, LaunchpadConfig, LaunchpadInnerEvent, LaunchpadProtocol},
+    config::{
+        BaseNodeIdentity,
+        ConnectionSettings,
+        LaunchpadConfig,
+        LaunchpadInnerEvent,
+        LaunchpadProtocol,
+        WalletConfig,
+    },
     images::{BLOCKCHAIN_PATH, VAR_TARI_PATH},
     networks::LocalNet,
     volumes::SharedVolume,
@@ -52,6 +59,7 @@ use crate::resources::{
 #[derive(Debug, Default)]
 pub struct TariWallet {
     settings: Option<ConnectionSettings>,
+    wallet: Option<WalletConfig>,
     identity: Option<BaseNodeIdentity>,
 }
 
@@ -78,7 +86,8 @@ impl ManagedContainer for TariWallet {
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> bool {
         self.settings = config.map(ConnectionSettings::from);
-        self.settings.is_some()
+        self.wallet = config.and_then(|c| c.wallet.clone());
+        self.settings.is_some() && self.wallet.is_some() && self.identity.is_some()
     }
 
     fn on_event(&mut self, event: LaunchpadInnerEvent) {
@@ -124,9 +133,10 @@ impl ManagedContainer for TariWallet {
                 "TARI_BASE_NODE__DATA_DIR",
                 format!("/blockchain/{}", settings.tari_network.lower_case()),
             );
-            if let Some(pass) = settings.wallet_password.as_ref() {
-                envs.set("TARI_WALLET_PASSWORD", pass.deref());
-            }
+        }
+        if let Some(wallet) = self.wallet.as_ref() {
+            // TODO: Use `.reveal()` instead
+            envs.set("TARI_WALLET_PASSWORD", wallet.password.deref());
         }
         envs.set("SHELL", "/bin/bash");
         envs.set("TERM", "linux");

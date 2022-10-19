@@ -22,7 +22,7 @@
 //
 
 use anyhow::Error;
-use tari_launchpad_protocol::container::TaskStatus;
+use tari_launchpad_protocol::container::{TaskProgress, TaskStatus};
 
 use super::{Event, ImageTask, Status};
 use crate::{
@@ -35,6 +35,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     pub fn process_event_impl(&mut self, event: Event) -> Result<(), Error> {
         match event {
             Event::Created => self.on_created(),
+            Event::PullingProgress(value) => self.on_pulling_progress(value),
             Event::Destroyed => self.on_destroyed(),
             Event::Started => self.on_started(),
             Event::Killed => self.on_killed(),
@@ -46,6 +47,13 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     fn on_created(&mut self) -> Result<(), Error> {
         if let Status::WaitContainerCreated = self.status.get() {
             self.status.set(Status::StartContainer);
+        }
+        Ok(())
+    }
+
+    fn on_pulling_progress(&mut self, value: TaskProgress) -> Result<(), Error> {
+        if let Status::PullingImage { .. } = self.status.get() {
+            self.update_task_status(TaskStatus::Progress(value))?;
         }
         Ok(())
     }
@@ -80,8 +88,8 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     fn on_checker_event(&mut self, event: CheckerEvent) -> Result<(), Error> {
         if let Status::Started { .. } = self.status.get() {
             match event {
-                CheckerEvent::Progress(pct, info) => {
-                    self.update_task_status(TaskStatus::Progress(pct, info))?;
+                CheckerEvent::Progress(progress) => {
+                    self.update_task_status(TaskStatus::Progress(progress))?;
                 },
                 CheckerEvent::Ready => {
                     self.status.set(Status::Ready);

@@ -96,12 +96,12 @@ impl TryFrom<GetIdentityResponse> for WalletIdentity {
     }
 }
 
+// TODO: Use it as a field of the LaunchpadConfig
 #[derive(Debug)]
 pub struct ConnectionSettings {
     pub tor_password: Hidden<String>,
     pub tari_network: TariNetwork,
     pub data_directory: PathBuf,
-    pub wallet_password: Option<Hidden<String>>,
 }
 
 impl<'a> From<&'a LaunchpadConfig> for ConnectionSettings {
@@ -110,7 +110,6 @@ impl<'a> From<&'a LaunchpadConfig> for ConnectionSettings {
             tor_password: config.tor_control_password.clone(),
             tari_network: config.tari_network,
             data_directory: config.data_directory.clone(),
-            wallet_password: config.wallet.clone().map(|w| w.password),
         }
     }
 }

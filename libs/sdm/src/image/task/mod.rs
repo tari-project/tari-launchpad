@@ -27,6 +27,7 @@ mod update;
 
 use anyhow::Error;
 use async_trait::async_trait;
+use tari_launchpad_protocol::container::TaskProgress;
 
 use super::{checker::CheckerEvent, ManagedContainer};
 use crate::{
@@ -142,6 +143,7 @@ pub enum ContainerState {
 #[derive(Debug)]
 pub enum Event {
     Destroyed,
+    PullingProgress(TaskProgress),
     Created,
     Started,
     Killed,

@@ -25,6 +25,7 @@ use std::ops::Deref;
 
 use async_trait::async_trait;
 use regex::Regex;
+use tari_launchpad_protocol::container::TaskProgress;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
     image::{
@@ -120,8 +121,11 @@ impl ContainerChecker<LaunchpadProtocol> for Checker {
         if let Some(caps) = self.re.captures(record) {
             if let Some(value) = caps.name("pct") {
                 if let Ok(value) = value.as_str().parse() as Result<i32, _> {
-                    ctx.report(CheckerEvent::Progress(value as u8, "Bootstrapping...".into()))
-                        .ok();
+                    let progress = TaskProgress {
+                        pct: value as u8,
+                        stage: "Bootstrapping...".into(),
+                    };
+                    ctx.report(CheckerEvent::Progress(progress)).ok();
                     if value == 100 {
                         ctx.report(CheckerEvent::Ready).ok();
                     }
