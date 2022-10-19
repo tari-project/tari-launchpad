@@ -3,6 +3,7 @@
 members = [
     "libs/*",
     "backend",
+    "experimental/*",
 ]
 # default-members = [ "backend" ]
 

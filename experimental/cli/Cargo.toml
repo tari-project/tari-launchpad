@@ -1,0 +1,18 @@
+[package]
+name = "tari_cli_launchpad"
+version = "0.1.0"
+description = "Tari Launchpad (command-line)"
+authors = ["The Tari Development Community"]
+license = "BSD-3-Clause"
+repository = "https://github.com/tari-project/tari-launchpad"
+edition = "2021"
+
+[dependencies]
+tari_sdm = { path = "../../libs/sdm" }
+tari_sdm_launchpad = { path = "../../libs/sdm-launchpad" }
+
+anyhow = "1.0.65"
+env_logger = "0.9.1"
+log = "0.4.17"
+tokio = { version = "1.21.1", features = ["signal"] }
+rand = "0.8.5"
