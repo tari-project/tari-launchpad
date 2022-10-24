@@ -24,7 +24,7 @@
 use anyhow::Error;
 use futures::StreamExt;
 use tari_launchpad_protocol::{
-    launchpad::Reaction,
+    launchpad::{LaunchpadDelta, Reaction},
     wallet::{WalletAction, WalletBalance, WalletDelta, WalletTransaction},
 };
 use tari_wallet_grpc_client::{
@@ -148,7 +148,7 @@ impl WalletGrpcWorker {
     }
 
     fn send_update(&mut self, delta: WalletDelta) -> Result<(), Error> {
-        let msg = Reaction::WalletDelta(delta);
+        let msg = Reaction::Delta(LaunchpadDelta::WalletDelta(delta));
         self.out_tx
             .send(msg)
             .map_err(|_| Error::msg("Can't send update for the wallet"))

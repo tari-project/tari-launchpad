@@ -23,6 +23,7 @@
 
 use anyhow::Error;
 use tari_launchpad_protocol::{
+    config::WalletConfig,
     container::{TaskDelta, TaskId},
     launchpad::{Action, LaunchpadAction, LaunchpadDelta, LaunchpadState, Reaction},
 };
@@ -86,18 +87,7 @@ impl LaunchpadWorker {
         scope.add_image(images::Promtail::default())?;
         scope.add_image(images::Grafana::default())?;
 
-        let mut configurator = Configurator::init()?;
-        let data_directory = configurator.base_path().clone();
-        configurator.repair_configuration().await?;
-        let config = LaunchpadConfig {
-            data_directory,
-            with_monitoring: true,
-            tor_control_password: "tari".to_string().into(), // create_password(16).into(),
-            wallet: None,
-            ..Default::default()
-        };
-
-        let state = LaunchpadState::new(config);
+        let state = LaunchpadState::new();
 
         let worker = LaunchpadWorker {
             state,
@@ -112,6 +102,7 @@ impl LaunchpadWorker {
     }
 
     async fn entrypoint(mut self) {
+        self.load_configuration().await.ok();
         loop {
             if let Err(err) = self.step().await {
                 log::error!("Bus failed: {}", err);
@@ -119,8 +110,27 @@ impl LaunchpadWorker {
         }
     }
 
+    async fn load_configuration(&mut self) -> Result<(), Error> {
+        let mut configurator = Configurator::init()?;
+        let data_directory = configurator.base_path().clone();
+        configurator.repair_configuration().await?;
+        let wallet_config = WalletConfig {
+            password: "123".to_string().into(),
+        };
+        let config = LaunchpadConfig {
+            data_directory,
+            with_monitoring: true,
+            tor_control_password: "tari".to_string().into(), // create_password(16).into(),
+            wallet: Some(wallet_config),
+            ..Default::default()
+        };
+        self.apply_delta(LaunchpadDelta::UpdateConfig(config));
+        Ok(())
+    }
+
     async fn step(&mut self) -> Result<(), Error> {
         select! {
+            // TODO: Watch config changes here
             action = self.in_rx.recv() => {
                 if let Some(action) = action {
                     self.process_incoming(action).await?;
@@ -139,13 +149,19 @@ impl LaunchpadWorker {
         match incoming {
             Action::Action(action) => self.process_action(action).await,
             Action::Start => {
-                println!("START EVENT!");
-                if self.state.active {
+                // TODO: Ignore that and use a session
+                let active = self
+                    .state
+                    .config
+                    .as_ref()
+                    .map(|config| config.session.active)
+                    .unwrap_or_default();
+                if active {
                     self.scope.set_config(None)?;
                     self.apply_delta(LaunchpadDelta::SetActive(false));
                 } else {
                     let config = self.state.config.clone();
-                    self.scope.set_config(Some(config))?;
+                    self.scope.set_config(config)?;
                     self.apply_delta(LaunchpadDelta::SetActive(true));
                 }
             },
@@ -156,17 +172,16 @@ impl LaunchpadWorker {
     async fn process_action(&mut self, action: LaunchpadAction) {
         match action {
             LaunchpadAction::Connect => {
-                // TODO: Load the real config
-                println!("CONNECTED!");
                 let state = self.state.clone();
-                self.apply_delta(LaunchpadDelta::Rewrite(state));
+                self.send(Reaction::State(state));
             },
         }
     }
 
     fn apply_delta(&mut self, delta: LaunchpadDelta) {
         self.state.apply(delta.clone());
-        self.send(delta);
+        let reaction = Reaction::Delta(delta);
+        self.send(reaction);
     }
 
     fn send(&mut self, out: Reaction) {
@@ -177,7 +192,6 @@ impl LaunchpadWorker {
 
     async fn process_report(&mut self, report: ReportEnvelope<LaunchpadProtocol>) -> Result<(), Error> {
         // TODO: Convert to the `LaunchpadDelta` and apply
-        println!("Delta: {:?}", report);
         match report.details {
             Report::Delta(delta) => {
                 if report.task_id == self.wallet_task_id {

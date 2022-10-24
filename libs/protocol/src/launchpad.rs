@@ -45,7 +45,6 @@ pub enum LaunchpadAction {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LaunchpadDelta {
-    Rewrite(LaunchpadState),
     UpdateConfig(LaunchpadConfig),
     SetActive(bool),
     TaskDelta(TaskId, TaskDelta),
@@ -54,38 +53,42 @@ pub enum LaunchpadDelta {
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct LaunchpadState {
-    pub config: LaunchpadConfig,
+    pub config: Option<LaunchpadConfig>,
     pub containers: HashMap<TaskId, TaskState>,
-    /// A flag that shows the wallet is active.
-    pub active: bool,
     pub wallet: WalletState,
 }
 
 impl LaunchpadState {
-    pub fn new(config: LaunchpadConfig) -> Self {
+    pub fn new() -> Self {
         Self {
-            config,
+            config: None,
             containers: HashMap::new(),
-            active: false,
             wallet: WalletState::default(),
         }
     }
 }
 
-pub type Reaction = LaunchpadDelta;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Reaction {
+    State(LaunchpadState),
+    Delta(LaunchpadDelta),
+}
 
 impl LaunchpadState {
     pub fn apply(&mut self, delta: LaunchpadDelta) {
         use LaunchpadDelta::*;
         match delta {
-            Rewrite(this) => {
-                *self = this;
-            },
+            // TODO: Change to UpdateSettings
             UpdateConfig(config) => {
-                self.config = config;
+                self.config = Some(config);
             },
+            // UpdateSession(session) => {
+            // if let Some(config) =
+            // },
             SetActive(flag) => {
-                self.active = flag;
+                if let Some(config) = self.config.as_mut() {
+                    config.session.active = flag;
+                }
             },
             TaskDelta(task_id, delta) => {
                 self.containers.entry(task_id).or_default().apply(delta);
