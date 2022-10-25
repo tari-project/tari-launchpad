@@ -21,10 +21,12 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#[cfg(feature = "tauri")]
+pub mod api;
 pub mod bus;
 pub mod resources;
-#[cfg(feature = "tauri")]
-pub mod tauri;
+// #[cfg(feature = "tauri")]
+// pub mod tauri;
 mod wallet_grpc;
 
 pub use bus::LaunchpadBus;

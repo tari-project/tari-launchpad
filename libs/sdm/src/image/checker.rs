@@ -27,6 +27,7 @@ use anyhow::Error;
 use async_trait::async_trait;
 use derive_more::{Deref, DerefMut};
 use futures::stream::{FusedStream, Stream, StreamExt};
+use tari_launchpad_protocol::container::TaskProgress;
 use tokio::{
     select,
     time::{sleep, Duration},
@@ -37,7 +38,7 @@ use crate::{image::ManagedProtocol, scope::ControlEvent, task::TaskSender};
 
 #[derive(Debug)]
 pub enum CheckerEvent {
-    Progress(u8, String),
+    Progress(TaskProgress),
     Ready,
 }
 
@@ -69,7 +70,8 @@ impl<P: ManagedProtocol> CheckerContext<P> {
 #[async_trait]
 pub trait ContainerChecker<P: ManagedProtocol>: Send {
     async fn entrypoint(mut self: Box<Self>, mut ctx: CheckerContext<P>) {
-        ctx.report(CheckerEvent::Progress(0, "Starting...".into())).ok();
+        let progress = TaskProgress::new("Starting...");
+        ctx.report(CheckerEvent::Progress(progress)).ok();
         loop {
             select! {
                 log_event = ctx.logs.next() => {

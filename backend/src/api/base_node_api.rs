@@ -23,9 +23,11 @@
 
 use std::convert::TryFrom;
 
+use anyhow::Error;
 use futures::StreamExt;
 use log::*;
-use tauri::{AppHandle, Manager, Wry};
+use tauri::{App, AppHandle, Manager, Wry};
+use tokio::time::{sleep, Duration};
 
 use crate::{
     commands::status,
@@ -38,21 +40,9 @@ pub const ONBOARDING_PROGRESS_DESTINATION: &str = "tari://onboarding_progress";
 const LOG_TARGET: &str = "tari_launchpad::base_node_api";
 
 #[tauri::command]
-pub async fn base_node_sync_progress(app: AppHandle<Wry>) -> Result<(), String> {
+pub async fn base_node_sync_progress(_app: AppHandle<Wry>) -> Result<(), String> {
     info!(target: LOG_TARGET, "Setting up progress info stream");
-    let mut client = GrpcBaseNodeClient::new();
-    let mut stream = client.stream().await.map_err(|e| e.chained_message())?;
-
-    let app_clone = app.clone();
-    tauri::async_runtime::spawn(async move {
-        info!(target: LOG_TARGET, "Syncing blocks progress is started....");
-        while let Some(progress) = stream.next().await {
-            debug!(target: LOG_TARGET, "Blockchain sync progress: {:?}", progress);
-            if let Err(err) = app_clone.emit_all(ONBOARDING_PROGRESS_DESTINATION, progress) {
-                warn!(target: LOG_TARGET, "Could not emit event to front-end, {:?}", err);
-            }
-        }
-    });
+    // A GRPC Stream is controlled by the `BaseNodeGrpcStreamer`. See below.
     Ok(())
 }
 
@@ -72,5 +62,38 @@ pub async fn node_identity() -> Result<BaseNodeIdentity, String> {
             ImageType::BaseNode
         );
         Err("tari_base_node is not running".to_string())
+    }
+}
+
+pub fn grpc_stream(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
+    let handle = app.handle();
+    let streamer = BaseNodeGrpcStreamer { handle };
+    tauri::async_runtime::spawn(streamer.entrypoint());
+    Ok(())
+}
+
+struct BaseNodeGrpcStreamer {
+    handle: AppHandle<Wry>,
+}
+
+impl BaseNodeGrpcStreamer {
+    async fn entrypoint(mut self) {
+        loop {
+            self.try_connect_stream().await.ok();
+            sleep(Duration::from_secs(5)).await;
+        }
+    }
+
+    async fn try_connect_stream(&mut self) -> Result<(), Error> {
+        let mut client = GrpcBaseNodeClient::new();
+        let mut stream = client.stream().await?;
+        info!(target: LOG_TARGET, "Syncing blocks progress is started....");
+        while let Some(progress) = stream.next().await {
+            debug!(target: LOG_TARGET, "Blockchain sync progress: {:?}", progress);
+            if let Err(err) = self.handle.emit_all(ONBOARDING_PROGRESS_DESTINATION, progress) {
+                warn!(target: LOG_TARGET, "Could not emit event to front-end, {:?}", err);
+            }
+        }
+        Ok(())
     }
 }

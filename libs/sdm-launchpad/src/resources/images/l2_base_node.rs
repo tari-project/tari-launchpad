@@ -24,6 +24,7 @@
 use anyhow::Error;
 use async_trait::async_trait;
 use tari_base_node_grpc_client::{grpc, BaseNodeGrpcClient};
+use tari_launchpad_protocol::container::TaskProgress;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
     image::{
@@ -164,11 +165,11 @@ impl ContainerChecker<LaunchpadProtocol> for Checker {
         self.progress.update(response);
         let info = self.progress.progress_info();
         log::trace!("Progress updated !common::progress={}", info.block_progress);
-        ctx.report(CheckerEvent::Progress(
-            info.block_progress as u8,
-            "Syncing blockchain...".into(),
-        ))
-        .ok();
+        let progress = TaskProgress {
+            pct: info.block_progress as u8,
+            stage: "Syncing blockchain...".into(),
+        };
+        ctx.report(CheckerEvent::Progress(progress)).ok();
         if done {
             ctx.report(CheckerEvent::Ready).ok();
         }

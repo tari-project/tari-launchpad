@@ -19,8 +19,8 @@
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-mod base_node_api;
-mod wallet_api;
+pub mod base_node_api;
+pub mod wallet_api;
 use std::convert::TryFrom;
 
 pub use base_node_api::{base_node_sync_progress, node_identity};

@@ -69,11 +69,26 @@ impl TaskState {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskProgress {
+    pub pct: u8,
+    pub stage: String,
+}
+
+impl TaskProgress {
+    pub fn new(stage: impl ToString) -> Self {
+        Self {
+            pct: 0,
+            stage: stage.to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TaskStatus {
     Inactive,
     /// Waiting for dependencies.
     Pending,
-    Progress(u8, String),
+    Progress(TaskProgress),
     Active,
     // TODO: Add failed with a reason?
 }
@@ -89,7 +104,7 @@ impl fmt::Display for TaskStatus {
         match self {
             Self::Inactive => write!(f, "Inactive"),
             Self::Pending => write!(f, "Pending"),
-            Self::Progress(pct, stage) => write!(f, "Progress({} - {}%)", stage, pct),
+            Self::Progress(value) => write!(f, "Progress({} - {}%)", value.stage, value.pct),
             Self::Active => write!(f, "Active"),
         }
     }

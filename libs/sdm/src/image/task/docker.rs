@@ -52,6 +52,7 @@ use bollard::{
     system::EventsOptions,
 };
 use futures::{StreamExt, TryStreamExt};
+use tari_launchpad_protocol::container::TaskProgress;
 
 use super::{ContainerState, Event, ImageTask};
 use crate::{
@@ -338,7 +339,14 @@ struct ProgressConv;
 impl Converter<CreateImageInfo, Event> for ProgressConv {
     fn convert(&self, res: Result<CreateImageInfo, Error>) -> Option<Event> {
         log::debug!("Create Image Info: {:?}", res);
-        None
+        let info = res.ok()?;
+        let details = info.progress_detail?;
+        let current = details.current? * 100;
+        let total = details.total?;
+        let pct = current / total;
+        let stage = info.status?;
+        let progress = TaskProgress { pct: pct as u8, stage };
+        Some(Event::PullingProgress(progress))
     }
 }
 

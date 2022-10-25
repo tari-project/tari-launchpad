@@ -22,7 +22,7 @@
 //
 
 use anyhow::Error;
-use tari_launchpad_protocol::container::TaskStatus;
+use tari_launchpad_protocol::container::{TaskProgress, TaskStatus};
 
 use super::{ContainerState, ImageTask, Status};
 use crate::{config::ManagedProtocol, task::TaskContext};
@@ -31,6 +31,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     pub async fn process_update_impl(&mut self) -> Result<(), Error> {
         match self.status.get() {
             Status::InitialState => self.do_initial_state().await,
+            Status::PullingImage { .. } => self.do_pulling().await,
             Status::CleanDangling => self.do_clean_dangling().await,
             Status::WaitContainerKilled => self.do_wait_container_killed().await,
             Status::WaitContainerRemoved => self.do_wait_container_removed().await,
@@ -41,10 +42,6 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
             Status::WaitContainerStarted => self.do_wait_container_started().await,
             Status::Started { .. } => self.do_started().await,
             Status::Ready => self.do_started().await,
-            other => {
-                log::warn!("Not implemented state: {:?}", other);
-                Ok(())
-            },
         }
     }
 
@@ -54,16 +51,25 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         log::debug!("Cheking image {} ...", self.inner.image_name);
         if self.image_exists().await {
             log::debug!("Image {} exists. Skip pulling.", self.inner.image_name);
-            self.update_task_status(TaskStatus::Progress(0, "Cleaning...".into()))?;
+            let progress = TaskProgress::new("Cleaning...");
+            self.update_task_status(TaskStatus::Progress(progress))?;
             self.status.set(Status::CleanDangling);
         } else {
             log::debug!("Image {} doesn't exist. Pulling.", self.inner.image_name);
-            self.update_task_status(TaskStatus::Progress(0, "Pulling...".into()))?;
+            let progress = TaskProgress::new("Pulling...");
+            self.update_task_status(TaskStatus::Progress(progress))?;
             let progress = self.pull();
-            // TODO: Use events to change status...
             self.status.set(Status::PullingImage { progress });
         }
-        // Pulling the images if not exists
+        Ok(())
+    }
+
+    async fn do_pulling(&mut self) -> Result<(), Error> {
+        if self.image_exists().await {
+            // Just loaded, container can't be exist
+            self.status.set(Status::Idle);
+            self.update_task_status(TaskStatus::Inactive)?;
+        }
         Ok(())
     }
 
