@@ -71,11 +71,11 @@ const SecuritySettingsContainer = () => {
 
       <div style={{ display: 'inline-flex' }}>
         {alreadyCreated ? (
-          <Button onClick={() => undefined} disabled>
+          <Button onClick={() => undefined} disabled size='small'>
             {t.settings.security.alreadyCreated}
           </Button>
         ) : (
-          <Button onClick={() => setOpenSeedPhraseModal(true)}>
+          <Button onClick={() => setOpenSeedPhraseModal(true)} size='small'>
             {t.settings.security.createRecoveryPhrase}
           </Button>
         )}

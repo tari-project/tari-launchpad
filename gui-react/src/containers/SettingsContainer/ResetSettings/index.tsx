@@ -1,23 +1,9 @@
 import { useState } from 'react'
-import { Control, FormState, UseFormSetValue } from 'react-hook-form'
-import { SettingsInputs } from '../types'
 import ResetSettings from './ResetSettings'
 import { actions } from '../../../store/settings'
 import { useAppDispatch } from '../../../store/hooks'
 
-const ResetSettingsContainer = ({
-  formState,
-  control,
-  values,
-  setValue,
-  setOpenMiningAuthForm,
-}: {
-  formState: FormState<SettingsInputs>
-  control: Control<SettingsInputs>
-  values: SettingsInputs
-  setValue: UseFormSetValue<SettingsInputs>
-  setOpenMiningAuthForm: (value: boolean) => void
-}) => {
+const ResetSettingsContainer = () => {
   const dispatch = useAppDispatch()
   const [confirmReset, setConfirmReset] = useState(false)
 
@@ -32,7 +18,6 @@ const ResetSettingsContainer = ({
 
   return (
     <ResetSettings
-      confirmCancel={false}
       confirmReset={confirmReset}
       onReset={tryToReset}
       resetDiscard={() => setConfirmReset(false)}

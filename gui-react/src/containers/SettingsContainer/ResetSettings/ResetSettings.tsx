@@ -11,7 +11,6 @@ import { SettingsHeader } from '../styles'
 import { ResetSettingsInputs } from './../types'
 
 const ResetSettings = ({
-  confirmCancel,
   confirmReset,
   onReset,
   resetDiscard,
@@ -54,22 +53,23 @@ const ResetSettings = ({
       </div>
 
       {confirmReset && (
-        <div>
-          <DiscardWarning>
-            <Text type='smallHeavy'>{t.settings.resetChanges}</Text>
-            <Text type='smallMedium'>{t.settings.resetChangesDesc}.</Text>
-          </DiscardWarning>
+        <div
+          style={{
+            display: 'flex',
+            gap: theme.spacingHorizontal(1),
+          }}
+        >
           <Button variant='secondary' onClick={resetDiscard} size='small'>
             {t.common.phrases.keepEditing}
           </Button>
-          <Button onClick={resetSettings} variant='warning' size='small'>
+          <Button onClick={resetSettings} variant='primary' size='small'>
             {t.settings.resetAndExit}
           </Button>
         </div>
       )}
-      {!confirmCancel && !confirmReset && (
+      {!confirmReset && (
         <div>
-          <Button variant='secondary' onClick={onReset}>
+          <Button variant='primary' onClick={onReset} size='small'>
             {t.common.verbs.reset}
           </Button>
         </div>
