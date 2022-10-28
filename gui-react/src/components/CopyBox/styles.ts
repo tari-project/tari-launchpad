@@ -32,14 +32,13 @@ export const ValueContainer = styled.div`
   padding: 10px 0;
 
   ::-webkit-scrollbar {
-    height: 10px;
+    height: 4px;
   }
 
   /* Track */
   ::-webkit-scrollbar-track {
     background: ${({ theme }) => theme.scrollBarThumb};
     border-radius: 6px;
-    border: 3px solid transparent;
   }
 
   /* Handle */
@@ -47,7 +46,6 @@ export const ValueContainer = styled.div`
     background: #ffffff;
     border-radius: 6px;
     background-clip: padding-box;
-    border: 3px solid transparent;
   }
 
   /* Handle on hover */
@@ -55,6 +53,5 @@ export const ValueContainer = styled.div`
     background: #cccccc;
     border-radius: 6px;
     background-clip: padding-box;
-    border: 3px solid transparent;
   }
 `
