@@ -83,8 +83,6 @@ fn entrypoint() -> Result<(), AppError> {
     info!("Using Docker version: {}", docker.version());
     let migrations = do_migrations();
     tauri::Builder::default()
-        .setup(api::base_node_api::grpc_stream)
-        .setup(api::wallet_api::grpc_stream)
         .plugin(TauriSql::default().add_migrations("sqlite:launchpad.db", migrations))
         .manage(AppState::new(docker, workspaces, package_info))
         .menu(menu)
