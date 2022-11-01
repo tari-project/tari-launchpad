@@ -22,11 +22,9 @@
 //
 use std::convert::TryFrom;
 
-use anyhow::Error;
 use futures::StreamExt;
 use log::{debug, error, info, warn};
-use tauri::{App, AppHandle, Manager, Wry};
-use tokio::time::{sleep, Duration};
+use tauri::{AppHandle, Manager, Wry};
 
 use crate::{
     commands::status,
@@ -65,9 +63,33 @@ pub async fn wallet_balance() -> Result<WalletBalance, String> {
 }
 
 #[tauri::command]
-pub async fn wallet_events(_app: AppHandle<Wry>) -> Result<(), String> {
+pub async fn wallet_events(app: AppHandle<Wry>) -> Result<(), String> {
     info!("Setting up event stream");
-    // A GRPC Stream is controlled by the `WalletGrpcStreamer`. See below.
+    let mut wallet_client = GrpcWalletClient::new();
+    let mut stream = wallet_client.stream().await.map_err(|e| e.chained_message())?;
+    let app_clone = app.clone();
+    tauri::async_runtime::spawn(async move {
+        while let Some(response) = stream.next().await {
+            if let Some(value) = response.transaction {
+                let wt = WalletTransaction {
+                    event: value.event,
+                    tx_id: value.tx_id,
+                    source_pk: value.source_pk,
+                    dest_pk: value.dest_pk,
+                    status: value.status,
+                    direction: value.direction,
+                    amount: value.amount,
+                    message: value.message,
+                    is_coinbase: value.is_coinbase,
+                };
+
+                if let Err(err) = app_clone.emit_all("tari://wallet_event", wt) {
+                    warn!("Could not emit event to front-end, {:?}", err);
+                }
+            }
+        }
+        info!("Event stream has closed.");
+    });
     Ok(())
 }
 
@@ -135,49 +157,4 @@ pub async fn delete_seed_words(app: AppHandle<Wry>) -> Result<(), String> {
 pub async fn transaction_fee() -> Result<u32, String> {
     // @TODO - replace with real transaction fees [microT]
     Ok(1790)
-}
-
-pub fn grpc_stream(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
-    let handle = app.handle();
-    let streamer = WalletGrpcStreamer { handle };
-    tauri::async_runtime::spawn(streamer.entrypoint());
-    Ok(())
-}
-
-struct WalletGrpcStreamer {
-    handle: AppHandle<Wry>,
-}
-
-impl WalletGrpcStreamer {
-    async fn entrypoint(mut self) {
-        loop {
-            self.try_connect_stream().await.ok();
-            sleep(Duration::from_secs(5)).await;
-        }
-    }
-
-    async fn try_connect_stream(&mut self) -> Result<(), Error> {
-        let mut wallet_client = GrpcWalletClient::new();
-        let mut stream = wallet_client.stream().await?;
-        while let Some(response) = stream.next().await {
-            if let Some(value) = response.transaction {
-                let wt = WalletTransaction {
-                    event: value.event,
-                    tx_id: value.tx_id,
-                    source_pk: value.source_pk,
-                    dest_pk: value.dest_pk,
-                    status: value.status,
-                    direction: value.direction,
-                    amount: value.amount,
-                    message: value.message,
-                    is_coinbase: value.is_coinbase,
-                };
-
-                if let Err(err) = self.handle.emit_all("tari://wallet_event", wt) {
-                    warn!("Could not emit event to front-end, {:?}", err);
-                }
-            }
-        }
-        Ok(())
-    }
 }
