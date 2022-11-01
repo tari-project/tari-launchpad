@@ -6,6 +6,7 @@ use tokio::sync::{mpsc, RwLock};
 
 use crate::bus::LaunchpadBus;
 
+#[allow(unused)]
 pub struct SdmApi {
     state: Arc<RwLock<LaunchpadState>>,
     incoming: mpsc::UnboundedSender<Action>,
@@ -40,7 +41,15 @@ impl SdmWorker {
         let action = Action::Action(LaunchpadAction::Connect);
         self.incoming.send(action).ok();
         while let Some(reaction) = self.outgoing.recv().await {
-            self.state.write().await.apply(reaction);
+            let mut state = self.state.write().await;
+            match reaction {
+                Reaction::State(new_state) => {
+                    *state = new_state;
+                },
+                Reaction::Delta(delta) => {
+                    state.apply(delta);
+                },
+            }
         }
     }
 }
