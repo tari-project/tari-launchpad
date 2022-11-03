@@ -40,9 +40,9 @@ pub trait ManagedContainer: fmt::Debug + Send + 'static {
     }
 
     /// Reconfigures the task and return a flag should the container be active?
-    fn reconfigure(&mut self, config: Option<&<Self::Protocol as ManagedProtocol>::Config>) -> bool {
+    fn reconfigure(&mut self, config: Option<&<Self::Protocol as ManagedProtocol>::Config>) -> Option<bool> {
         // Start if config exists
-        config.is_some()
+        config.as_ref().map(|_| true)
     }
 
     fn on_event(&mut self, _event: <Self::Protocol as ManagedProtocol>::Inner) {}

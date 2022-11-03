@@ -68,6 +68,10 @@ impl<C: ManagedProtocol> RunnableTask for ImageTask<C> {
     fn name(&self) -> &str {
         self.container_name.as_ref()
     }
+
+    fn is_permanent(&self) -> bool {
+        false
+    }
 }
 
 #[async_trait]
@@ -77,7 +81,7 @@ impl<C: ManagedProtocol> RunnableContext<ImageTask<C>> for TaskContext<ImageTask
     }
 
     fn reconfigure(&mut self, config: Option<&C::Config>) -> bool {
-        self.inner.image.reconfigure(config)
+        self.inner.image.reconfigure(config).unwrap_or_default()
     }
 
     fn process_inner_event(&mut self, event: C::Inner) {

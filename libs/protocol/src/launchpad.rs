@@ -28,6 +28,8 @@ use serde::{Deserialize, Serialize};
 use crate::{
     config::LaunchpadConfig,
     container::{TaskDelta, TaskId, TaskState},
+    session::LaunchpadSession,
+    settings::LaunchpadSettings,
     wallet::{WalletDelta, WalletState},
 };
 
@@ -35,25 +37,26 @@ use crate::{
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Action {
     Action(LaunchpadAction),
-    Start,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LaunchpadAction {
     Connect,
+    ChangeSession(LaunchpadSession),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LaunchpadDelta {
-    UpdateConfig(LaunchpadConfig),
-    SetActive(bool),
+    UpdateConfig(LaunchpadSettings),
+    UpdateSession(LaunchpadSession),
+    TaskAdded(TaskId, TaskState),
     TaskDelta(TaskId, TaskDelta),
     WalletDelta(WalletDelta),
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct LaunchpadState {
-    pub config: Option<LaunchpadConfig>,
+    pub config: LaunchpadConfig,
     pub containers: HashMap<TaskId, TaskState>,
     pub wallet: WalletState,
 }
@@ -61,7 +64,7 @@ pub struct LaunchpadState {
 impl LaunchpadState {
     pub fn new() -> Self {
         Self {
-            config: None,
+            config: LaunchpadConfig::default(),
             containers: HashMap::new(),
             wallet: WalletState::default(),
         }
@@ -78,20 +81,20 @@ impl LaunchpadState {
     pub fn apply(&mut self, delta: LaunchpadDelta) {
         use LaunchpadDelta::*;
         match delta {
-            // TODO: Change to UpdateSettings
-            UpdateConfig(config) => {
-                self.config = Some(config);
+            // TODO: Rename to UpdateSettings
+            UpdateConfig(settings) => {
+                self.config.settings = Some(settings);
             },
-            // UpdateSession(session) => {
-            // if let Some(config) =
-            // },
-            SetActive(flag) => {
-                if let Some(config) = self.config.as_mut() {
-                    config.session.active = flag;
-                }
+            UpdateSession(session) => {
+                self.config.session = session;
+            },
+            TaskAdded(task_id, state) => {
+                self.containers.insert(task_id, state);
             },
             TaskDelta(task_id, delta) => {
-                self.containers.entry(task_id).or_default().apply(delta);
+                if let Some(state) = self.containers.get_mut(&task_id) {
+                    state.apply(delta);
+                }
             },
             WalletDelta(delta) => {
                 self.wallet.apply(delta);

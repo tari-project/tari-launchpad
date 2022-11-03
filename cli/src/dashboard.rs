@@ -20,6 +20,7 @@ pub struct Dashboard {
     events: mpsc::Receiver<Event>,
     state: Option<LaunchpadState>,
     selected_container: usize,
+    terminating: bool,
 }
 
 impl Dashboard {
@@ -41,7 +42,32 @@ impl Dashboard {
             events: rx,
             state: None,
             selected_container: 0,
+            terminating: false,
         })
+    }
+
+    pub fn state(&self) -> Option<&LaunchpadState> {
+        self.state.as_ref()
+    }
+
+    pub fn is_alive(&self) -> bool {
+        let has_active_task = self
+            .state
+            .as_ref()
+            .map(|state| {
+                state
+                    .containers
+                    .values()
+                    .filter(|state| !state.permanent)
+                    .any(|state| state.status.is_active())
+            })
+            .unwrap_or_default();
+
+        !self.terminating || has_active_task
+    }
+
+    pub fn terminate(&mut self) {
+        self.terminating = true;
     }
 
     pub fn process_delta(&mut self, reaction: Reaction) {
@@ -67,14 +93,15 @@ impl Dashboard {
             .as_ref()
             .map(|state| state.containers.len())
             .unwrap_or_default();
+        let last = if total > 0 { total - 1 } else { 0 };
         match key {
-            KeyCode::Up => {
+            KeyCode::Up | KeyCode::Char('k') => {
                 if self.selected_container > 0 {
                     self.selected_container -= 1;
                 }
             },
-            KeyCode::Down => {
-                if self.selected_container < total {
+            KeyCode::Down | KeyCode::Char('j') => {
+                if self.selected_container < last {
                     self.selected_container += 1;
                 }
             },
@@ -82,7 +109,7 @@ impl Dashboard {
         }
     }
 
-    pub fn uninit(mut self) -> Result<(), Error> {
+    pub fn uninit(&mut self) -> Result<(), Error> {
         disable_raw_mode()?;
         execute!(self.terminal.backend_mut(), LeaveAlternateScreen, DisableMouseCapture)?;
         self.terminal.show_cursor()?;
@@ -109,7 +136,7 @@ impl Dashboard {
             }
         }
         self.terminal.draw(|f| {
-            let chunks = Layout::default()
+            let vchunks = Layout::default()
                 .direction(Direction::Vertical)
                 //.margin(4)
                 .constraints([Constraint::Percentage(60), Constraint::Percentage(40)].as_ref())
@@ -117,18 +144,22 @@ impl Dashboard {
 
             let top_chunks = Layout::default()
                 .direction(Direction::Horizontal)
-                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                .split(chunks[0]);
+                .constraints([Constraint::Percentage(100)].as_ref())
+                .split(vchunks[0]);
 
             let block = Block::default().title("Logs").borders(Borders::ALL);
             let list = List::new(logs).block(block);
-            f.render_widget(list, chunks[1]);
+            f.render_widget(list, vchunks[1]);
 
             let block = Block::default().title("Containers").borders(Borders::ALL);
             let table = Table::new(rows)
                 .block(block)
-                .header(Row::new(vec!["Container", "State"]))
-                .widths(&[Constraint::Percentage(40), Constraint::Percentage(60)]);
+                .header(Row::new(vec!["Container", "State", "Flag"]))
+                .widths(&[
+                    Constraint::Percentage(30),
+                    Constraint::Percentage(60),
+                    Constraint::Percentage(10),
+                ]);
 
             f.render_widget(table, top_chunks[0]);
         })?;

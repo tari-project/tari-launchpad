@@ -27,7 +27,11 @@ use anyhow::Error;
 use serde::Serialize;
 use tari_base_node_grpc_client::grpc::NodeIdentity;
 use tari_common_types::{emoji::EmojiId, types::PublicKey};
-pub use tari_launchpad_protocol::config::{LaunchpadConfig, TariNetwork, WalletConfig};
+use tari_launchpad_protocol::session::LaunchpadSession;
+pub use tari_launchpad_protocol::{
+    config::LaunchpadConfig,
+    settings::{LaunchpadSettings, TariNetwork, WalletConfig},
+};
 use tari_sdm::{config::ManagedProtocol, image::Envs};
 use tari_utilities::{ByteArray, Hidden};
 use tari_wallet_grpc_client::grpc::GetIdentityResponse;
@@ -99,18 +103,21 @@ impl TryFrom<GetIdentityResponse> for WalletIdentity {
 // TODO: Use it as a field of the LaunchpadConfig
 #[derive(Debug)]
 pub struct ConnectionSettings {
+    pub session: LaunchpadSession,
     pub tor_password: Hidden<String>,
     pub tari_network: TariNetwork,
     pub data_directory: PathBuf,
 }
 
-impl<'a> From<&'a LaunchpadConfig> for ConnectionSettings {
-    fn from(config: &'a LaunchpadConfig) -> Self {
-        ConnectionSettings {
-            tor_password: config.tor_control_password.clone(),
-            tari_network: config.tari_network,
-            data_directory: config.data_directory.clone(),
-        }
+impl ConnectionSettings {
+    pub fn try_extract(config: &LaunchpadConfig) -> Option<Self> {
+        let settings = config.settings.as_ref()?;
+        Some(ConnectionSettings {
+            session: config.session.clone(),
+            tor_password: settings.tor_control_password.clone(),
+            tari_network: settings.tari_network,
+            data_directory: settings.data_directory.clone(),
+        })
     }
 }
 

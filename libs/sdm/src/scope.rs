@@ -25,7 +25,7 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
 use bollard::Docker;
-use tari_launchpad_protocol::container::{TaskDelta, TaskId};
+use tari_launchpad_protocol::container::{TaskDelta, TaskId, TaskState};
 use tokio::sync::{broadcast, mpsc};
 
 use crate::{
@@ -44,6 +44,7 @@ pub struct ReportEnvelope<C: ManagedProtocol> {
 
 #[derive(Debug)]
 pub enum Report<C: ManagedProtocol> {
+    State(TaskState),
     Delta(TaskDelta),
     Extras(C::Outer),
 }

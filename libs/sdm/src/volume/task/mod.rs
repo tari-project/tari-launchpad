@@ -63,6 +63,10 @@ impl<C: ManagedProtocol> RunnableTask for VolumeTask<C> {
     fn name(&self) -> &str {
         self.volume_name.as_ref()
     }
+
+    fn is_permanent(&self) -> bool {
+        true
+    }
 }
 
 #[async_trait]
