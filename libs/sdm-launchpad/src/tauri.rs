@@ -25,7 +25,7 @@ use anyhow::Error;
 use tari_launchpad_protocol::{ACTIONS, REACTIONS};
 use tauri::{App, Manager, Wry};
 
-use crate::{api::SdmApi, bus::LaunchpadBus};
+use crate::bus::LaunchpadBus;
 
 pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
     let handle = app.handle();

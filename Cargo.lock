@@ -5455,6 +5455,7 @@ dependencies = [
  "tari_common",
  "tari_common_types",
  "tari_comms",
+ "tari_sdm_launchpad",
  "tari_utilities",
  "tauri",
  "tauri-build",
