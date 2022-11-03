@@ -27,5 +27,5 @@ pub mod launchpad;
 pub mod session;
 pub mod wallet;
 
-pub const ACTIONS: &str = "actions";
-pub const REACTIONS: &str = "reactions";
+pub const ACTIONS: &str = "tari://actions";
+pub const REACTIONS: &str = "tari://reactions";

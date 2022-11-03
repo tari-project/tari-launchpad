@@ -85,6 +85,7 @@ fn entrypoint() -> Result<(), AppError> {
     tauri::Builder::default()
         .plugin(TauriSql::default().add_migrations("sqlite:launchpad.db", migrations))
         .manage(AppState::new(docker, workspaces, package_info))
+        .setup(tari_sdm_launchpad::tauri::bus_setup)
         .menu(menu)
         .invoke_handler(handler())
         .on_window_event(on_event)
