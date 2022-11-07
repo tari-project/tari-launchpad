@@ -57,6 +57,8 @@ const WalletSettings = ({
         style={{
           background: theme.settingsCopyBoxBackground,
           borderColor: theme.selectBorderColor,
+          padding: '7px 20px',
+          height: '55px',
         }}
       />
       <Text type='smallMedium' color={theme.nodeWarningText}>

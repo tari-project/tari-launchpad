@@ -81,13 +81,7 @@ const CopyBox = ({
               </Tag>
             </animated.div>
           </FeedbackContainer>
-          <CopyIcon
-            style={{
-              position: 'absolute',
-              bottom: '23px',
-              right: '0',
-            }}
-          />
+          <CopyIcon />
         </Button>
       </StyledBox>
     </>

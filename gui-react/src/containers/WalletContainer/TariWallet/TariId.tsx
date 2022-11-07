@@ -77,8 +77,8 @@ const TariId = ({
             borderColor: theme.walletCopyBoxBorder,
             backgroundColor: theme.resetBackground,
             color: theme.textSecondary,
-            padding: showEmoji ? '3px 20px 5px 20px' : '10px 20px 5px 20px',
-            height: '65px',
+            padding: showEmoji ? '0px 20px 5px 20px' : '7px 20px 5px 20px',
+            height: '55px',
           }}
         />
         <div
