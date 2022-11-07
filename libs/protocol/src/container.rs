@@ -35,6 +35,12 @@ impl From<&str> for TaskId {
     }
 }
 
+impl AsRef<str> for TaskId {
+    fn as_ref(&self) -> &str {
+        self.0.as_ref()
+    }
+}
+
 const TAIL_LIMIT: usize = 30;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
