@@ -5,6 +5,7 @@ export enum Settings {
   Docker = 'docker',
   // Logs = 'logs',
   Security = 'security',
+  Reset = 'reset',
 }
 
 export interface InitialSettings {

@@ -28,6 +28,7 @@ import BaseNodeSettings from './BaseNodeSettings'
 import MiningSettings from './MiningSettings'
 import DockerSettings from './DockerSettings'
 import WalletSettings from './WalletSettings'
+import ResetSettings from './ResetSettings'
 import {
   SettingsProps,
   SettingsComponentProps,
@@ -75,6 +76,8 @@ const renderSettings = (
       )
     case Settings.Security:
       return <SecuritySettings />
+    case Settings.Reset:
+      return <ResetSettings />
     default:
       return null
   }
@@ -83,7 +86,6 @@ const renderSettings = (
 const SettingsComponent = ({
   open,
   onClose,
-  onReset,
   activeSettings,
   goToSettings,
   formState,
@@ -93,11 +95,8 @@ const SettingsComponent = ({
   defaultMiningMergedValues,
   onSubmit,
   confirmCancel,
-  confirmReset,
   cancelDiscard,
-  resetDiscard,
   discardChanges,
-  resetSettings,
   openMiningAuthForm,
   setOpenMiningAuthForm,
   openBaseNodeConnect,
@@ -215,25 +214,8 @@ const SettingsComponent = ({
             </Button>
           </Footer>
         )}
-        {confirmReset && (
+        {!confirmCancel && (
           <Footer>
-            <DiscardWarning>
-              <Text type='smallHeavy'>{t.settings.resetChanges}</Text>
-              <Text type='smallMedium'>{t.settings.resetChangesDesc}.</Text>
-            </DiscardWarning>
-            <Button variant='secondary' onClick={resetDiscard} size='small'>
-              {t.common.phrases.keepEditing}
-            </Button>
-            <Button onClick={resetSettings} variant='warning' size='small'>
-              {t.settings.resetAndExit}
-            </Button>
-          </Footer>
-        )}
-        {!confirmCancel && !confirmReset && (
-          <Footer>
-            <Button variant='secondary' onClick={onReset}>
-              {t.common.verbs.reset}
-            </Button>
             <Spacer />
             <Button variant='secondary' onClick={onClose}>
               {t.common.verbs.cancel}
