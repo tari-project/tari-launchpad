@@ -1,5 +1,5 @@
 import { useTheme } from 'styled-components'
-import { RowFlex, DiscardWarning } from '../styles'
+import { RowFlex } from '../styles'
 import Tag from '../../../components/Tag'
 import Button from '../../../components/Button'
 
