@@ -218,6 +218,10 @@ The delta is represented be the following struct:
 pub enum LaunchpadDelta {
     /// A new configuration is loaded (or changed by an action)
     UpdateConfig(LaunchpadConfig),
+    /// Updates a session
+    UpdateSession(LaunchpadSession),
+    /// When a task added to the engine
+    TaskAdded(TaskId, TaskState),
     /// Update the state of a container
     TaskDelta(TaskId, TaskDelta),
     /// Update the state of a wallet
@@ -231,25 +235,67 @@ and update the `LaunchpadState`.
 Components of the launchpad app have to listen to the changes
 of the state and be re-rendered if the state is changed.
 
+### Session
+
+To control containers during a session there is
+a special `LaunchpadSession` struct:
+
+```rust
+pub struct LaunchpadSession {
+    pub all_active: bool,
+
+    pub base_layer_active: bool,
+    pub merge_layer_active: bool,
+    pub monitoring_layer_active: bool,
+
+    pub tor_active: bool,
+    pub base_node_active: bool,
+    pub wallet_active: bool,
+    pub miner_active: bool,
+
+    pub grafana_active: bool,
+    pub loki_active: bool,
+    pub promtail_active: bool,
+}
+```
+
+By settings flags we could activate specific containers or a set of containers.
+For example, to activate a base node with a wallet we could set
+`base_layer_active` to `true` and send updated session object to the engine
+using `LaunchpadAction::ChangeSession(_)` event.
+
 ### Actions
 
 To send actions like: transfer funds, save settings, etc. we
 should send an event to the `tari://actions` stream of the
-following `Action` type:
+following `Action` wrapper and the `LaunchpadAction` type:
 
 ```rust
 pub enum Action {
+    Action(LaunchpadAction),
+}
+```
+
+```rust
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum LaunchpadAction {
     Connect,
-    SaveSettings(LaunchpadConfig),
-    ///
-    TransferFunds(Amount, Recipient),
-    // etc.
+    ChangeSession(LaunchpadSession),
 }
 ```
 
 The first event `Connect` is the special event that asks to re-send
 the current state and should be sent when the main window is loaded
 and the app is ready for processing events.
+
+The event `ChangeSession` updates a session object that activates
+or deactivates containers or the app. When a new session object sent
+the engine takes that into account and start or terminate specific
+containers.
+
+#### Extra Actions
+
+The following actions are optional and are not supported yet.
 
 The event `SaveSettings` sends a new configuration to the engine when
 the user changes it and saves it on the settings screen.
