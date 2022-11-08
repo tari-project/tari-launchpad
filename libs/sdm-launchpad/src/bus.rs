@@ -23,16 +23,16 @@
 
 use anyhow::Error;
 use tari_launchpad_protocol::{
-    config::WalletConfig,
     container::{TaskDelta, TaskId},
     launchpad::{Action, LaunchpadAction, LaunchpadDelta, LaunchpadState, Reaction},
+    settings::WalletConfig,
 };
 use tari_sdm::{ids::ManagedTask, Report, ReportEnvelope, SdmScope};
 use tokio::{select, sync::mpsc};
 
 use crate::{
     resources::{
-        config::{LaunchpadConfig, LaunchpadProtocol},
+        config::{LaunchpadProtocol, LaunchpadSettings},
         files::Configurator,
         images,
         networks,
@@ -103,6 +103,9 @@ impl LaunchpadWorker {
 
     async fn entrypoint(mut self) {
         self.load_configuration().await.ok();
+        // TODO: Watch for the config file changes
+        let config = self.state.config.clone();
+        self.scope.set_config(Some(config)).ok();
         loop {
             if let Err(err) = self.step().await {
                 log::error!("Bus failed: {}", err);
@@ -117,7 +120,7 @@ impl LaunchpadWorker {
         let wallet_config = WalletConfig {
             password: "123".to_string().into(),
         };
-        let config = LaunchpadConfig {
+        let config = LaunchpadSettings {
             data_directory,
             with_monitoring: true,
             tor_control_password: "tari".to_string().into(), // create_password(16).into(),
@@ -148,34 +151,22 @@ impl LaunchpadWorker {
     async fn process_incoming(&mut self, incoming: Action) -> Result<(), Error> {
         match incoming {
             Action::Action(action) => self.process_action(action).await,
-            Action::Start => {
-                // TODO: Ignore that and use a session
-                let active = self
-                    .state
-                    .config
-                    .as_ref()
-                    .map(|config| config.session.active)
-                    .unwrap_or_default();
-                if active {
-                    self.scope.set_config(None)?;
-                    self.apply_delta(LaunchpadDelta::SetActive(false));
-                } else {
-                    let config = self.state.config.clone();
-                    self.scope.set_config(config)?;
-                    self.apply_delta(LaunchpadDelta::SetActive(true));
-                }
-            },
         }
-        Ok(())
     }
 
-    async fn process_action(&mut self, action: LaunchpadAction) {
+    async fn process_action(&mut self, action: LaunchpadAction) -> Result<(), Error> {
         match action {
             LaunchpadAction::Connect => {
                 let state = self.state.clone();
                 self.send(Reaction::State(state));
             },
+            LaunchpadAction::ChangeSession(session) => {
+                self.apply_delta(LaunchpadDelta::UpdateSession(session));
+                let config = self.state.config.clone();
+                self.scope.set_config(Some(config))?;
+            },
         }
+        Ok(())
     }
 
     fn apply_delta(&mut self, delta: LaunchpadDelta) {
@@ -193,6 +184,10 @@ impl LaunchpadWorker {
     async fn process_report(&mut self, report: ReportEnvelope<LaunchpadProtocol>) -> Result<(), Error> {
         // TODO: Convert to the `LaunchpadDelta` and apply
         match report.details {
+            Report::State(state) => {
+                let state = LaunchpadDelta::TaskAdded(report.task_id, state);
+                self.apply_delta(state);
+            },
             Report::Delta(delta) => {
                 if report.task_id == self.wallet_task_id {
                     self.check_wallet_grpc(&delta);
@@ -207,7 +202,7 @@ impl LaunchpadWorker {
 
     fn check_wallet_grpc(&mut self, delta: &TaskDelta) {
         if let TaskDelta::UpdateStatus(status) = delta {
-            if status.is_active() {
+            if status.is_ready() {
                 if self.wallet_grpc.is_none() {
                     let grpc = WalletGrpc::new(self.out_tx.clone());
                     self.wallet_grpc = Some(grpc);

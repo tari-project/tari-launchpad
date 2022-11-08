@@ -28,7 +28,7 @@ use async_trait::async_trait;
 use bollard::Docker;
 use derive_more::{Deref, DerefMut};
 use futures::StreamExt;
-use tari_launchpad_protocol::container::{TaskDelta, TaskId, TaskStatus as TaskStatusValue};
+use tari_launchpad_protocol::container::{TaskDelta, TaskId, TaskState, TaskStatus as TaskStatusValue};
 use tokio::{
     select,
     sync::{broadcast, mpsc},
@@ -63,6 +63,8 @@ pub trait RunnableTask: Sized + Send + 'static {
     type Event: TaskEvent;
 
     fn name(&self) -> &str;
+
+    fn is_permanent(&self) -> bool;
 }
 
 #[async_trait]
@@ -234,7 +236,7 @@ where TaskContext<R>: RunnableContext<R>
 
     pub async fn routine(&mut self) -> Result<(), Error> {
         self.check_dependencies();
-        self.initialize().await;
+        self.initialize().await?;
         let interval = Duration::from_millis(1_000);
         let events_receiver = self.events_receiver.take().unwrap();
         let mut events = UnboundedReceiverStream::new(events_receiver);
@@ -328,8 +330,13 @@ where TaskContext<R>: RunnableContext<R>
         self.context.dependencies_ready = self.dependencies.values().all(|ready| *ready);
     }
 
-    pub async fn initialize(&mut self) {
+    pub async fn initialize(&mut self) -> Result<(), Error> {
         self.context.initialize().await;
+        let permanent = self.context.inner.is_permanent();
+        let state = TaskState::new(permanent);
+        let report = Report::State(state);
+        self.context.sender.send_report(report)?;
+        Ok(())
     }
 
     pub fn reconfigure(&mut self, config: Option<&<R::Protocol as ManagedProtocol>::Config>) {

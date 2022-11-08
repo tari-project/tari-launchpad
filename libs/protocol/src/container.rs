@@ -41,18 +41,18 @@ const TAIL_LIMIT: usize = 30;
 pub struct TaskState {
     pub status: TaskStatus,
     pub tail: VecDeque<String>,
-}
-
-impl Default for TaskState {
-    fn default() -> Self {
-        Self {
-            status: TaskStatus::Inactive,
-            tail: VecDeque::with_capacity(TAIL_LIMIT),
-        }
-    }
+    pub permanent: bool,
 }
 
 impl TaskState {
+    pub fn new(permanent: bool) -> Self {
+        Self {
+            status: TaskStatus::Inactive,
+            tail: VecDeque::with_capacity(TAIL_LIMIT),
+            permanent,
+        }
+    }
+
     pub fn apply(&mut self, delta: TaskDelta) {
         match delta {
             TaskDelta::UpdateStatus(status) => {
@@ -94,8 +94,12 @@ pub enum TaskStatus {
 }
 
 impl TaskStatus {
-    pub fn is_active(&self) -> bool {
+    pub fn is_ready(&self) -> bool {
         matches!(self, Self::Active)
+    }
+
+    pub fn is_active(&self) -> bool {
+        !matches!(self, Self::Inactive)
     }
 }
 

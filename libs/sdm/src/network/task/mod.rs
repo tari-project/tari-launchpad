@@ -62,6 +62,10 @@ impl<C: ManagedProtocol> RunnableTask for NetworkTask<C> {
     fn name(&self) -> &str {
         self.network_name.as_ref()
     }
+
+    fn is_permanent(&self) -> bool {
+        true
+    }
 }
 
 #[async_trait]

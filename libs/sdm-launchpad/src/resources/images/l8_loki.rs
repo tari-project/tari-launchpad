@@ -89,9 +89,10 @@ impl ManagedContainer for Loki {
         ports.add(18_310);
     }
 
-    fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> bool {
-        self.settings = config.map(ConnectionSettings::from);
-        self.settings.is_some()
+    fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
+        self.settings = ConnectionSettings::try_extract(config?);
+        let session = &self.settings.as_ref()?.session;
+        Some(session.all_active || session.monitoring_layer_active || session.loki_active)
     }
 
     fn volumes(&self, volumes: &mut Volumes) {

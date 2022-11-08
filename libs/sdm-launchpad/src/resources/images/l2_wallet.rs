@@ -84,10 +84,14 @@ impl ManagedContainer for TariWallet {
         "tari_wallet"
     }
 
-    fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> bool {
-        self.settings = config.map(ConnectionSettings::from);
-        self.wallet = config.and_then(|c| c.wallet.clone());
-        self.settings.is_some() && self.wallet.is_some() && self.identity.is_some()
+    fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
+        let config = config?;
+        self.settings = ConnectionSettings::try_extract(config);
+        self.wallet = config.settings.as_ref().and_then(|s| s.wallet.clone());
+        let session = &self.settings.as_ref()?.session;
+        self.wallet.as_ref()?;
+        self.identity.as_ref()?;
+        Some(session.all_active || session.base_layer_active || session.wallet_active)
     }
 
     fn on_event(&mut self, event: LaunchpadInnerEvent) {
