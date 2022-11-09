@@ -49,8 +49,8 @@ pub enum LaunchpadAction {
 pub enum LaunchpadDelta {
     UpdateConfig(LaunchpadSettings),
     UpdateSession(LaunchpadSession),
-    TaskAdded(TaskId, TaskState),
-    TaskDelta(TaskId, TaskDelta),
+    TaskAdded { id: TaskId, state: TaskState },
+    TaskDelta { id: TaskId, delta: TaskDelta },
     WalletDelta(WalletDelta),
 }
 
@@ -88,11 +88,11 @@ impl LaunchpadState {
             UpdateSession(session) => {
                 self.config.session = session;
             },
-            TaskAdded(task_id, state) => {
-                self.containers.insert(task_id, state);
+            TaskAdded { id, state } => {
+                self.containers.insert(id, state);
             },
-            TaskDelta(task_id, delta) => {
-                if let Some(state) = self.containers.get_mut(&task_id) {
+            TaskDelta { id, delta } => {
+                if let Some(state) = self.containers.get_mut(&id) {
                     state.apply(delta);
                 }
             },

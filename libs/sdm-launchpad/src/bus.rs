@@ -185,14 +185,20 @@ impl LaunchpadWorker {
         // TODO: Convert to the `LaunchpadDelta` and apply
         match report.details {
             Report::State(state) => {
-                let state = LaunchpadDelta::TaskAdded(report.task_id, state);
+                let state = LaunchpadDelta::TaskAdded {
+                    id: report.task_id,
+                    state,
+                };
                 self.apply_delta(state);
             },
             Report::Delta(delta) => {
                 if report.task_id == self.wallet_task_id {
                     self.check_wallet_grpc(&delta);
                 }
-                let delta = LaunchpadDelta::TaskDelta(report.task_id, delta);
+                let delta = LaunchpadDelta::TaskDelta {
+                    id: report.task_id,
+                    delta,
+                };
                 self.apply_delta(delta);
             },
             Report::Extras(_) => {},
