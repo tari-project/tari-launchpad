@@ -55,29 +55,15 @@ impl App {
             }
             event = self.dashboard.next_event() => {
                 if let Some(Event::Key(key)) = event {
-                    match key.code {
-                        KeyCode::Char('q') => {
-                            self.dashboard.terminate();
-                            if let Some(state) = self.dashboard.state() {
-                                let mut session = state.config.session.clone();
-                                session.all_active = false;
-                                let action = Action::Action(LaunchpadAction::ChangeSession(session));
-                                self.bus.incoming.send(action)?;
-                            }
-                        },
-                        KeyCode::Char('s') => {
-                            if let Some(state) = self.dashboard.state() {
-                                let mut session = state.config.session.clone();
-                                session.all_active = !session.all_active;
-                                let action = Action::Action(LaunchpadAction::ChangeSession(session));
-                                self.bus.incoming.send(action)?;
-                            }
-                        },
-                        key => {
-                            self.dashboard.process_key(key);
-                            self.dashboard.render()?;
-                        }
+                    if let KeyCode::Char('q') = key.code {
+                        self.dashboard.terminate();
                     }
+                    if let Some(new_session) = self.dashboard.process_key(key.code) {
+                        let event = LaunchpadAction::ChangeSession(new_session);
+                        let action = Action::Action(event);
+                        self.bus.incoming.send(action)?;
+                    }
+                    self.dashboard.render()?;
                 }
             }
         }

@@ -23,6 +23,7 @@
 
 pub mod config;
 pub mod container;
+pub mod images;
 pub mod launchpad;
 pub mod session;
 pub mod settings;

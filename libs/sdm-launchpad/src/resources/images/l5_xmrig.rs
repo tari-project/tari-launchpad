@@ -21,22 +21,11 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::ops::Deref;
-
-use async_trait::async_trait;
-use regex::Regex;
-use tari_launchpad_protocol::container::TaskProgress;
+use tari_launchpad_protocol::settings::XmRigConfig;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
-    image::{
-        checker::{CheckerContext, CheckerEvent, ContainerChecker},
-        Args,
-        Envs,
-        ManagedContainer,
-        Networks,
-    },
+    image::{Args, Envs, ManagedContainer, Networks},
 };
-use tor_hash_passwd::EncryptedKey;
 
 use super::DEFAULT_REGISTRY;
 use crate::resources::{
@@ -45,13 +34,14 @@ use crate::resources::{
 };
 
 #[derive(Debug, Default)]
-pub struct Tor {
+pub struct XMRig {
     settings: Option<ConnectionSettings>,
+    xmrig: Option<XmRigConfig>,
 }
 
-impl ManagedTask for Tor {
+impl ManagedTask for XMRig {
     fn id() -> TaskId {
-        "Tor".into()
+        "Xmrig".into()
     }
 
     fn deps() -> Vec<TaskId> {
@@ -59,7 +49,7 @@ impl ManagedTask for Tor {
     }
 }
 
-impl ManagedContainer for Tor {
+impl ManagedContainer for XMRig {
     type Protocol = LaunchpadProtocol;
 
     fn registry(&self) -> &str {
@@ -67,71 +57,38 @@ impl ManagedContainer for Tor {
     }
 
     fn image_name(&self) -> &str {
-        "tor"
+        "xmrig"
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;
-        Some(session.all_active || session.base_layer_active || session.tor_active)
-    }
 
-    fn checker(&mut self) -> Box<dyn ContainerChecker<LaunchpadProtocol>> {
-        Box::new(Checker::new())
+        self.xmrig = config?.settings.as_ref()?.xmrig.clone();
+        self.xmrig.as_ref()?;
+
+        Some(session.all_active || session.merge_layer_active || session.xmrig_active)
     }
 
     fn args(&self, args: &mut Args) {
-        args.set_pair("--SocksPort", "0.0.0.0:9050");
-        args.set_pair("--ControlPort", "0.0.0.0:9051");
-        args.set_pair("--CookieAuthentication", 0);
-        args.set_pair("--ClientOnly", 1);
-        args.set_pair("--ClientUseIPv6", 1);
-        if let Some(settings) = self.settings.as_ref() {
-            let hashed = EncryptedKey::hash_password(settings.tor_password.deref());
-            args.set_pair("--HashedControlPassword", hashed);
-        }
-        args.flag("--allow-missing-torrc");
+        args.set("--url", "mm_proxy:18081");
+        args.set("--user", "${TARI_MONERO_WALLET_ADDRESS}");
+        args.set("--coin", "monero");
+        args.flag("--daemon");
+        args.set("--log-file", "/var/tari/xmrig/xmrig.log");
+        args.flag("--verbose");
     }
 
     fn envs(&self, envs: &mut Envs) {
         if let Some(settings) = self.settings.as_ref() {
             settings.add_common(envs);
         }
+        if let Some(xmrig) = self.xmrig.as_ref() {
+            envs.set("TARI_MONERO_WALLET_ADDRESS", &xmrig.monero_mining_address);
+        }
     }
 
     fn networks(&self, networks: &mut Networks) {
-        networks.add("tor", LocalNet::id());
-    }
-}
-
-struct Checker {
-    re: Regex,
-}
-
-impl Checker {
-    fn new() -> Self {
-        let re = Regex::new(r"Bootstrapped\s+(?P<pct>\d+)%").unwrap();
-        Self { re }
-    }
-}
-
-#[async_trait]
-impl ContainerChecker<LaunchpadProtocol> for Checker {
-    // TODO: Add result here?
-    async fn on_log_event(&mut self, record: &str, ctx: &mut CheckerContext<LaunchpadProtocol>) {
-        if let Some(caps) = self.re.captures(record) {
-            if let Some(value) = caps.name("pct") {
-                if let Ok(value) = value.as_str().parse() as Result<i32, _> {
-                    let progress = TaskProgress {
-                        pct: value as u8,
-                        stage: "Bootstrapping...".into(),
-                    };
-                    ctx.report(CheckerEvent::Progress(progress)).ok();
-                    if value == 100 {
-                        ctx.report(CheckerEvent::Ready).ok();
-                    }
-                }
-            }
-        }
+        networks.add("xmrig", LocalNet::id());
     }
 }

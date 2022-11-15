@@ -5189,6 +5189,7 @@ dependencies = [
  "env_logger",
  "log",
  "rand 0.8.5",
+ "strum 0.24.1",
  "tari_launchpad_protocol",
  "tari_sdm",
  "tari_sdm_launchpad",
@@ -5474,6 +5475,7 @@ dependencies = [
  "anyhow",
  "derive_more",
  "serde",
+ "strum 0.24.1",
  "tari_utilities",
  "thiserror",
 ]

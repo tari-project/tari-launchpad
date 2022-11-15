@@ -27,8 +27,6 @@ use serde::{Deserialize, Serialize};
 use tari_utilities::Hidden;
 use thiserror::Error;
 
-use crate::session::LaunchpadSession;
-
 pub const DEFAULT_MONEROD_URL: &str = "http://stagenet.xmr-tw.org:38081,\
 http://stagenet.community.xmr.to:38081,\
 http://monero-stagenet.exan.tech:38081,\
@@ -96,7 +94,6 @@ impl MmProxyConfig {
 /// needed to configure and run the various docker containers.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LaunchpadSettings {
-    pub session: LaunchpadSession,
     /// The directory to use for config, id files and logs
     pub data_directory: PathBuf,
     /// The Tari network to use. Default = esmeralda
@@ -136,7 +133,6 @@ pub struct LaunchpadSettings {
 impl Default for LaunchpadSettings {
     fn default() -> Self {
         Self {
-            session: LaunchpadSession::default(),
             data_directory: PathBuf::default(),
             tari_network: TariNetwork::Esmeralda,
             tor_control_password: Hidden::from(String::new()),

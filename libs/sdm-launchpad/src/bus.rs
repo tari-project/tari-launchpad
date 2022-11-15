@@ -79,13 +79,19 @@ impl LaunchpadWorker {
         scope.add_network(networks::LocalNet::default())?;
         scope.add_volume(volumes::SharedVolume::default())?;
         scope.add_volume(volumes::SharedGrafanaVolume::default())?;
+
         scope.add_image(images::Tor::default())?;
         scope.add_image(images::TariBaseNode::default())?;
         scope.add_image(images::TariWallet::default())?;
         scope.add_image(images::TariSha3Miner::default())?;
+
         scope.add_image(images::Loki::default())?;
         scope.add_image(images::Promtail::default())?;
         scope.add_image(images::Grafana::default())?;
+
+        scope.add_image(images::MmProxy::default())?;
+        scope.add_image(images::Monerod::default())?;
+        scope.add_image(images::XMRig::default())?;
 
         let state = LaunchpadState::new();
 

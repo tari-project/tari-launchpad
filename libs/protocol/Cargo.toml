@@ -12,4 +12,5 @@ tari_utilities = { git = "https://github.com/tari-project/tari_utilities.git", t
 anyhow = "1.0.65"
 derive_more = "0.99.17"
 serde = "1.0.145"
+strum = { version = "0.24.1", features = ["derive"] }
 thiserror = "1.0.34"
