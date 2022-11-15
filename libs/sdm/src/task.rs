@@ -28,7 +28,7 @@ use async_trait::async_trait;
 use bollard::Docker;
 use derive_more::{Deref, DerefMut};
 use futures::StreamExt;
-use tari_launchpad_protocol::container::{TaskDelta, TaskId, TaskState, TaskStatus as TaskStatusValue};
+use tari_launchpad_protocol::container::{StatsData, TaskDelta, TaskId, TaskState, TaskStatus as TaskStatusValue};
 use tokio::{
     select,
     sync::{broadcast, mpsc},
@@ -133,6 +133,12 @@ impl<E, P: ManagedProtocol> TaskSender<E, P> {
 
     pub fn send_logs(&self, record: String) -> Result<(), Error> {
         let delta = TaskDelta::LogRecord(record);
+        let report = Report::Delta(delta);
+        self.send_report(report)
+    }
+
+    pub fn send_stats(&self, record: StatsData) -> Result<(), Error> {
+        let delta = TaskDelta::StatsRecord(record);
         let report = Report::Delta(delta);
         self.send_report(report)
     }

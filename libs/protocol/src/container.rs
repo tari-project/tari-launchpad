@@ -23,6 +23,7 @@
 
 use std::{collections::VecDeque, fmt};
 
+use chrono::NaiveDateTime;
 use derive_more::{Display, From, Into};
 use serde::{Deserialize, Serialize};
 
@@ -43,10 +44,13 @@ impl AsRef<str> for TaskId {
 
 const TAIL_LIMIT: usize = 30;
 
+const STATS_LIMIT: usize = 30;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskState {
     pub status: TaskStatus,
     pub tail: VecDeque<String>,
+    pub stats: VecDeque<StatsData>,
     pub permanent: bool,
 }
 
@@ -55,6 +59,7 @@ impl TaskState {
         Self {
             status: TaskStatus::Inactive,
             tail: VecDeque::with_capacity(TAIL_LIMIT),
+            stats: VecDeque::with_capacity(STATS_LIMIT),
             permanent,
         }
     }
@@ -69,6 +74,12 @@ impl TaskState {
                     self.tail.pop_back();
                 }
                 self.tail.push_front(record);
+            },
+            TaskDelta::StatsRecord(record) => {
+                if self.stats.len() == STATS_LIMIT {
+                    self.stats.pop_back();
+                }
+                self.stats.push_front(record);
             },
         }
     }
@@ -124,4 +135,13 @@ impl fmt::Display for TaskStatus {
 pub enum TaskDelta {
     UpdateStatus(TaskStatus),
     LogRecord(String),
+    StatsRecord(StatsData),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StatsData {
+    pub timestamp: NaiveDateTime,
+    pub cpu_usage: u64,
+    pub mem_limit: u64,
+    pub mem_usage: u64,
 }

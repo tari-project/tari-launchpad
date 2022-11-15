@@ -14,3 +14,4 @@ derive_more = "0.99.17"
 serde = "1.0.145"
 strum = { version = "0.24.1", features = ["derive"] }
 thiserror = "1.0.34"
+chrono = "0.4.23"
