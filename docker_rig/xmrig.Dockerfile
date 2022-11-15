@@ -5,7 +5,7 @@ FROM alpine:latest as builder
 ARG BUILDPLATFORM
 
 # https://github.com/xmrig/xmrig/releases
-ARG XMRIG_VERSION="v6.18.0"
+ARG XMRIG_VERSION="v6.18.1"
 
 RUN apk add \
     git \
