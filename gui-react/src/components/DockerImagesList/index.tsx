@@ -197,7 +197,7 @@ const DockerImagesList = ({
                   onClick={() =>
                     dispatch(
                       actions.pullImage({
-                        dockerImage: dockerImage.containerName,
+                        dockerImage: dockerImage?.containerName,
                       }),
                     )
                   }

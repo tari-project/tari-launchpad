@@ -21,6 +21,10 @@ pub struct LaunchpadSession {
     pub grafana_active: bool,
     pub loki_active: bool,
     pub promtail_active: bool,
+
+    // pub shared_grafana_volume_active: bool,
+    // pub local_net_active: bool,
+    // pub shared_volume_active: bool,
 }
 
 impl LaunchpadSession {

@@ -13,6 +13,7 @@ import tbotReducer from './tbot'
 import dockerImagesReducer from './dockerImages'
 import credentialsReducer from './credentials'
 import temporaryReducer from './temporary'
+import launchpadStateReducer from './launchpadState'
 
 // exported for tests
 export const rootReducer = {
@@ -26,6 +27,7 @@ export const rootReducer = {
   dockerImages: dockerImagesReducer,
   credentials: credentialsReducer,
   temporary: temporaryReducer,
+  launchpadState: launchpadStateReducer,
 }
 const reducer = combineReducers(rootReducer)
 

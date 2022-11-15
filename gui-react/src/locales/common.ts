@@ -94,7 +94,7 @@ const translations: { [key: string]: { [key: string]: string } } = {
     [Container.Tor]: 'Tor',
     [Container.BaseNode]: 'Base Node',
     [Container.Wallet]: 'Wallet',
-    [Container.SHA3Miner]: 'SHA3 miner',
+    [Container.Sha3Miner]: 'SHA3 miner',
     [Container.MMProxy]: 'Merge miner proxy',
     [Container.XMrig]: 'xmrig',
     [Container.Monerod]: 'monerod',

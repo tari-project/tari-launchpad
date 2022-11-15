@@ -30,12 +30,15 @@ import { useDockerTBotQueue } from './useDockerTBotQueue'
 import { useInternetCheck } from './useInternetCheck'
 import { useWaitingWalletPassConfirm } from './useWaitingWalletPassConfirm'
 
+import { useListenForDelta } from './hooks/useListenForDelta'
+import { connect, getLaunchPadState } from './store/launchpadState'
+
 const AppContainer = styled.div`
   background: ${({ theme }) => theme.background};
   display: flex;
   flex: 1;
   overflow: hidden;
-  border-radius: 10;
+  border-radius: 10px;
 `
 const OnboardedAppContainer = ({
   children,
@@ -77,6 +80,7 @@ const App = () => {
         await dispatch(init()).unwrap()
         setInitialized(true)
         hideSplashscreen()
+        await dispatch(connect()).unwrap()
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error('App exception:', err)
@@ -91,6 +95,13 @@ const App = () => {
   useDockerEvents({ dispatch })
   useDockerImageDownloadListener({ dispatch })
   useInternetCheck({ dispatch })
+  useListenForDelta({ dispatch })
+
+  useEffect(() => {
+    if (initialized) {
+      dispatch(getLaunchPadState())
+    }
+  }, [initialized, dispatch])
 
   return (
     <ThemeProvider theme={themeConfig}>

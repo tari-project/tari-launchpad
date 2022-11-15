@@ -62,7 +62,7 @@ export const startMiningNode = createAsyncThunk<
     if (node === 'tari') {
       await thunkApi
         .dispatch(
-          containersActions.startRecipe({ containerName: Container.SHA3Miner }),
+          containersActions.startRecipe({ containerName: Container.Sha3Miner }),
         )
         .unwrap()
     }
@@ -115,7 +115,7 @@ export const stopMiningNode = createAsyncThunk<
       case 'tari':
         promises.push(
           thunkApi
-            .dispatch(containersActions.stopRecipe(Container.SHA3Miner))
+            .dispatch(containersActions.stopRecipe(Container.Sha3Miner))
             .unwrap(),
         )
         break

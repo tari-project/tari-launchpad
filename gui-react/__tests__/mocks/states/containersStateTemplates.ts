@@ -11,7 +11,7 @@ const noErrors = {
   [Container.Tor]: undefined,
   [Container.BaseNode]: undefined,
   [Container.Wallet]: undefined,
-  [Container.SHA3Miner]: undefined,
+  [Container.Sha3Miner]: undefined,
   [Container.MMProxy]: undefined,
   [Container.XMrig]: undefined,
   [Container.Monerod]: undefined,
@@ -77,7 +77,7 @@ export const tariContainersRunning: ContainersState = {
       Container.Tor,
       Container.BaseNode,
       Container.Wallet,
-      Container.SHA3Miner,
+      Container.Sha3Miner,
     ]),
   },
   stats: {
@@ -85,7 +85,7 @@ export const tariContainersRunning: ContainersState = {
       Container.Tor,
       Container.BaseNode,
       Container.Wallet,
-      Container.SHA3Miner,
+      Container.Sha3Miner,
     ]),
   },
 }

@@ -30,7 +30,7 @@ export const initialState: ContainersState = {
     [Container.Tor]: undefined,
     [Container.BaseNode]: undefined,
     [Container.Wallet]: undefined,
-    [Container.SHA3Miner]: undefined,
+    [Container.Sha3Miner]: undefined,
     [Container.MMProxy]: undefined,
     [Container.XMrig]: undefined,
     [Container.Monerod]: undefined,
