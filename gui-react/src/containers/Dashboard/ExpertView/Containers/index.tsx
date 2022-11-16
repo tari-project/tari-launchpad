@@ -18,7 +18,7 @@ const ContainersContainer = () => {
   const dispatch = useAppDispatch()
   const containerStates = useAppSelector(selectContainerStates)
 
-  const containers1 = useMemo(
+  const containers = useMemo(
     () =>
       containerStates.map(({ id, task_state }) => ({
         id: id,
@@ -32,6 +32,8 @@ const ContainersContainer = () => {
           ],
         pending: task_state?.status === TaskStatus.Pending,
         running: task_state?.status === TaskStatus.Active,
+        progress:
+          task_state?.status === TaskStatus.Progress ? task_state?.status : {},
       })),
     [containerStates],
   )
@@ -50,7 +52,7 @@ const ContainersContainer = () => {
 
   return (
     <>
-      <Containers containers={containers1} updateSession={updateSession} />
+      <Containers containers={containers} updateSession={updateSession} />
       <Alert
         title='Error'
         open={Boolean(error)}

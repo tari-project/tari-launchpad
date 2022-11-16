@@ -20,6 +20,10 @@ export enum TaskStatus {
   Progress = 'Progress',
   Active = 'Active',
 }
+export type TaskProgress = {
+  pct: number
+  stage: string
+}
 
 export type TaskId = string
 
@@ -88,9 +92,10 @@ interface MmProxyConfig {
   monero_password: string
   monero_use_auth: boolean
 }
+export type Task = TaskStatus | { [TaskStatus.Progress]: TaskProgress }
 
 export interface Delta {
-  UpdateStatus: TaskStatus
+  UpdateStatus: Task
   LogRecord?: string
 }
 export interface TaskDelta {
@@ -99,7 +104,7 @@ export interface TaskDelta {
 }
 
 export interface TaskState {
-  status: TaskStatus
+  status: Task
   tail?: Array<string>
   permanent: boolean
 }
