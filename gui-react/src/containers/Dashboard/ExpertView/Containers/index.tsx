@@ -20,25 +20,8 @@ const ContainersContainer = () => {
   const containerStates = useAppSelector(selectContainerStates)
 
   const containerStatuses = useAppSelector(selectContainersStatusesWithStats)
-  const containers1 = useMemo(
-    () =>
-      containerStatuses.map(
-        ({ container, imageName, displayName, status }) => ({
-          id: status.id,
-          container: container as Container,
-          imageName,
-          displayName,
-          error: status.error,
-          cpu: status.stats.cpu,
-          memory: status.stats.memory,
-          pending: status.pending,
-          running: status.running,
-        }),
-      ),
-    [containerStatuses],
-  )
 
-  console.log(`containers1: ${JSON.stringify(containers1)}`)
+  console.log(`containerStatuses: ${JSON.stringify(containerStatuses)}`)
 
   const containers = useMemo(
     () =>

@@ -1,6 +1,7 @@
 //todo move this file
 
 import { WalletBalance } from '../wallet/walletService'
+import { ContainerStats } from '../containers/types'
 
 export interface LaunchpadState {
   config: LaunchpadConfig
@@ -106,6 +107,7 @@ export interface TaskDelta {
 export interface TaskState {
   status: Task
   permanent: boolean
+  stats?: ContainerStats
   tail?: Array<string>
   exitCode?: number
   error?: string

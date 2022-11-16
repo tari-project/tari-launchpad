@@ -14,8 +14,11 @@ import { Containers, TaskStatus } from '../launchpadState/types'
 export const selectState = (rootState: RootState) => rootState.containers
 
 export const selectContainer = (c: ContainerName) => (r: RootState) => {
+  const indexOfC = Object.values(Container).indexOf(c as unknown as Container)
+  const containerKey = Object.keys(Container)[indexOfC]
+
   const containers = r?.launchpadState?.launchpadState?.containers.filter(
-    value => value.id === c,
+    value => value.id == Containers[containerKey as keyof typeof Containers],
   )
   containers.sort((a, b) => b.timestamp - a.timestamp)
   const { id, task_state } = containers[0] || []
