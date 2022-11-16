@@ -7,20 +7,20 @@ import { selectDockerImages, selectRecipe } from '../dockerImages/selectors'
 import {
   ContainerStatusDto,
   Container,
-  SystemEventAction,
   ContainerStatusDtoWithStats,
 } from './types'
+import { Containers, TaskStatus } from '../launchpadState/types'
 
 export const selectState = (rootState: RootState) => rootState.containers
 
 export const selectContainer = (c: ContainerName) => (r: RootState) => {
-  const containers = Object.entries(r.containers.containers).filter(
-    ([, value]) => value.name === c,
+  const containers = r?.launchpadState?.launchpadState?.containers.filter(
+    value => value.id === c,
   )
-  containers.sort(([, a], [, b]) => b.timestamp - a.timestamp)
-  const [containerId, containerStatus] = containers[0] || []
+  containers.sort((a, b) => b.timestamp - a.timestamp)
+  const { id, task_state } = containers[0] || []
 
-  return { containerId, containerStatus }
+  return { containerId: id, containerStatus: task_state }
 }
 
 export const selectContainerError = (c: ContainerName) => (r: RootState) => {
@@ -54,18 +54,17 @@ export const selectContainerStatus: ContainerStatusSelector =
       }
     }
 
-    const { name: _, ...containerStatusWithoutName } = containerStatus
+    const { ...containerStatusWithoutName } = containerStatus
     return {
       ...containerStatusWithoutName,
       id: containerId,
       pending:
-        pending ||
-        (containerStatus.status !== SystemEventAction.Start &&
-          containerStatus.status !== SystemEventAction.Destroy &&
-          containerStatus.status !== SystemEventAction.Die),
-      running: containerStatus.status === SystemEventAction.Start,
+        containerStatus?.status === TaskStatus.Pending ||
+        (containerStatus?.status !== TaskStatus.Active &&
+          containerStatus?.status !== TaskStatus.Inactive),
+      running: containerStatus?.status === TaskStatus.Active,
       containerName,
-      error: containerStatus.error || typeError,
+      error: containerStatus?.error || typeError,
     }
   }
 
@@ -101,9 +100,9 @@ export const selectContainerStatusWithStats: ContainerStatusSelectorWithStats =
   }
 
 export const selectRunningContainers = (rootState: RootState): Container[] =>
-  Object.entries(rootState.containers.containers)
+  Object.entries(rootState.launchpadState.launchpadState.containers)
     .map(([, containerStatus]) =>
-      selectContainerStatus(containerStatus.name as Container)(rootState),
+      selectContainerStatus(containerStatus.id as Containers)(rootState),
     )
     .filter(status => status.running)
     .map(status => rootState.containers.containers[status.id].name as Container)

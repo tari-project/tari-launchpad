@@ -105,16 +105,19 @@ export interface TaskDelta {
 
 export interface TaskState {
   status: Task
-  tail?: Array<string>
   permanent: boolean
+  tail?: Array<string>
+  exitCode?: number
+  error?: string
 }
 
 export type ContainerState = {
-  [Key in Containers as string]?: TaskState | undefined
+  [Key in Containers as string]?: TaskState
 }
 export interface ContainerTaskState {
   id: Containers
   task_state?: TaskState
+  timestamp: number
 }
 
 export interface LaunchpadDelta {

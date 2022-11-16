@@ -5,7 +5,7 @@ import { useAppSelector } from './store/hooks'
 import { selectWalletContainerLastAction } from './store/wallet/selectors'
 import { selectWalletPasswordConfirmation } from './store/temporary/selectors'
 import { temporaryActions } from './store/temporary'
-import { SystemEventAction } from './store/containers/types'
+import { TaskStatus } from './store/launchpadState/types'
 
 export const useWaitingWalletPassConfirm = ({
   dispatch,
@@ -45,8 +45,8 @@ export const useWaitingWalletPassConfirm = ({
 
     if (
       counter > 3 &&
-      (walletLastState?.status === SystemEventAction.Die ||
-        walletLastState?.status === SystemEventAction.Destroy)
+      (walletLastState?.status === TaskStatus.Active ||
+        walletLastState?.status === TaskStatus.Inactive)
     ) {
       if (walletLastState?.exitCode === 13) {
         dispatch(

@@ -11,12 +11,34 @@ import {
   Containers as ContainerNameKey,
   TaskStatus,
 } from '../../../../store/launchpadState/types'
+import { selectContainersStatusesWithStats } from '../../../../store/containers/selectors'
 
 const ContainersContainer = () => {
   const [error, setError] = useState('')
 
   const dispatch = useAppDispatch()
   const containerStates = useAppSelector(selectContainerStates)
+
+  const containerStatuses = useAppSelector(selectContainersStatusesWithStats)
+  const containers1 = useMemo(
+    () =>
+      containerStatuses.map(
+        ({ container, imageName, displayName, status }) => ({
+          id: status.id,
+          container: container as Container,
+          imageName,
+          displayName,
+          error: status.error,
+          cpu: status.stats.cpu,
+          memory: status.stats.memory,
+          pending: status.pending,
+          running: status.running,
+        }),
+      ),
+    [containerStatuses],
+  )
+
+  console.log(`containers1: ${JSON.stringify(containers1)}`)
 
   const containers = useMemo(
     () =>

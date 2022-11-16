@@ -5,6 +5,7 @@ import {
   LaunchpadDelta,
   LaunchpadState,
   TaskDelta,
+  TaskStatus,
 } from './types'
 import { createAction, createSlice } from '@reduxjs/toolkit'
 
@@ -40,15 +41,18 @@ const launchpadStateSlice = createSlice({
   reducers: {
     setLaunchpadState(state, { payload }: { payload: LaunchpadState }) {
       const containers = payload?.containers
-      const containerStates: ContainerTaskState[] = Object.values(
+
+      const containerState: ContainerTaskState[] = Object.values(
         Containers,
       ).map(c => ({
         id: c,
-        task_state: containers ? containers[c] : undefined,
+        task_state: containers[c],
+        timestamp:
+          containers[c]?.status === TaskStatus.Active ? Number(Date.now()) : 0,
       }))
 
-      state.launchpadState = { ...payload, containers: containerStates }
       state.State = payload
+      state.launchpadState = { ...payload, containers: containerState }
     },
   },
   extraReducers: builder => {
@@ -92,6 +96,10 @@ const launchpadStateSlice = createSlice({
 
         containers[c] = {
           id: action.payload.TaskDelta.id,
+          timestamp:
+            action.payload.TaskDelta.delta.UpdateStatus === TaskStatus.Active
+              ? Number(Date.now())
+              : 0,
           task_state: {
             status: action.payload.TaskDelta.delta.UpdateStatus,
             permanent:
