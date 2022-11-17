@@ -14,6 +14,7 @@ tari_launchpad_protocol = { path = "../protocol" }
 tari_sdm = { path = "../sdm" }
 tari_wallet_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v0.38.7" }
 tari_utilities = { git = "https://github.com/tari-project/tari_utilities.git", tag = "v0.4.7" }
+openssl = { version = "0.10", features = ["vendored"] }
 
 anyhow = "1.0.65"
 async-trait = "0.1.57"
