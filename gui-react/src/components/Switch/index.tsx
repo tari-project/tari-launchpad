@@ -19,7 +19,7 @@ import { SwitchProps } from './types'
  * @param {string | ReactNode} [rightLabel] - the text or ReactNode element on the right side of the switch.
  * @param {(val: boolean) => void} onClick - when the switch is clicked. Returns the new value.
  * @param {boolean} [inverted] - use inverted styles
- * @param {boolean} [disable] - disable switch interaction
+ * @param {boolean} [$disable] - disable switch interaction
  * @param {string} [testId] - the test ID (react-testing/jest)
  *
  * @example
@@ -90,7 +90,7 @@ const Switch = ({
   return (
     <SwitchContainer
       onClick={() => onClick && !disable && onClick(!value)}
-      disable={disable}
+      $disable={disable}
       data-testid={testId || 'switch-input-cmp'}
     >
       {leftLabelEl ? (
@@ -104,8 +104,8 @@ const Switch = ({
         </LabelText>
       ) : null}
 
-      <SwitchController style={{ ...controllerAnim }} disable={disable}>
-        <SwitchCircle style={{ ...circleAnim }} disable={disable} />
+      <SwitchController style={{ ...controllerAnim }} $disable={disable}>
+        <SwitchCircle style={{ ...circleAnim }} $disable={disable} />
       </SwitchController>
 
       {rightLabelEl ? (

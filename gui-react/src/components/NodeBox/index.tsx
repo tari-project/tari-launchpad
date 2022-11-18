@@ -66,7 +66,7 @@ const NodeBox = ({
           >
             <SvgQuestion
               onClick={onHelpPromptClick}
-              useGradient={helpSvgGradient}
+              data-usegradient={helpSvgGradient}
               color={tag?.type === 'light' ? theme.accent : 'inherit'}
             />
           </SvgContainer>

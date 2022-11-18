@@ -50,7 +50,7 @@ describe('MiningContainer with Redux', () => {
       Container.Tor,
       Container.BaseNode,
       Container.Wallet,
-      Container.SHA3Miner,
+      Container.Sha3Miner,
     ]
 
     const store = configureStore({

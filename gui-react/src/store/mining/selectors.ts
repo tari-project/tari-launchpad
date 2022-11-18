@@ -21,7 +21,7 @@ export const selectTariContainers = createSelector(
   selectContainerStatusWithStats(Container.Tor),
   selectContainerStatusWithStats(Container.BaseNode),
   selectContainerStatusWithStats(Container.Wallet),
-  selectContainerStatusWithStats(Container.SHA3Miner),
+  selectContainerStatusWithStats(Container.Sha3Miner),
   (tor, baseNode, wallet, sha3) => {
     const containers = [tor, baseNode, wallet, sha3]
     const errors = containers

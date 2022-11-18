@@ -29,7 +29,7 @@ import { ContainersTable, TdRight } from './styles'
  * @prop {boolean} running - indicates if container is running
  * @prop {boolean} pending - indicates if container "running" state is about to change
  */
-const Containers = ({ containers, stop, start }: ContainersProps) => {
+const Containers = ({ containers, updateSession }: ContainersProps) => {
   const theme = useTheme()
   const [error, setError] = useState('')
 
@@ -37,16 +37,15 @@ const Containers = ({ containers, stop, start }: ContainersProps) => {
     <>
       <ContainersTable>
         <tbody>
-          {containers.map(container => (
-            <tr key={container.imageName}>
+          {containers?.map(container => (
+            <tr key={container.id}>
               <td>
-                <Text color={theme.inverted.primary}>
-                  {container.displayName}
-                </Text>
+                <Text color={theme.inverted.primary}>{container.id}</Text>
               </td>
               <TdRight>
                 <Text color={theme.secondary} as='span'>
-                  {container.cpu.toFixed(2)}%
+                  CPU val
+                  {/*{container.cpu.toFixed(2)}%*/}
                 </Text>{' '}
                 <Text color={theme.secondary} as='span' type='smallMedium'>
                   {t.common.nouns.cpu}
@@ -54,7 +53,8 @@ const Containers = ({ containers, stop, start }: ContainersProps) => {
               </TdRight>
               <TdRight>
                 <Text color={theme.secondary} as='span'>
-                  {container.memory.toFixed(2)} MB
+                  Mem val
+                  {/*{container.memory.toFixed(2)} MB*/}
                 </Text>{' '}
                 <Text color={theme.secondary} as='span' type='smallMedium'>
                   {t.common.nouns.memory}
@@ -96,7 +96,7 @@ const Containers = ({ containers, stop, start }: ContainersProps) => {
                       paddingLeft: 0,
                       color: theme.inverted.accentSecondary,
                     }}
-                    onClick={() => start(container.container)}
+                    onClick={() => updateSession(container.container)}
                   >
                     <Text type='smallMedium'>{t.common.verbs.start}</Text>
                   </Button>
@@ -118,7 +118,7 @@ const Containers = ({ containers, stop, start }: ContainersProps) => {
                       paddingLeft: 0,
                       color: theme.placeholderText,
                     }}
-                    onClick={() => stop(container.id)}
+                    onClick={() => updateSession(container.container, true)}
                   >
                     <Text type='smallMedium'>{t.common.verbs.stop}</Text>
                   </Button>

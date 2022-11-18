@@ -64,7 +64,7 @@ const OnboardingContainer = () => {
               <DownloadImagesMessage
                 key='dim'
                 onError={onDockerImageDownloadError}
-                onSuccess={onImagesDowloadSuccess}
+                onSuccess={onImagesDownloadSuccess}
               />
             ),
             barFill: 0.625,
@@ -87,7 +87,7 @@ const OnboardingContainer = () => {
     setMessages(newMsgs)
   }
 
-  const onImagesDowloadSuccess = () => {
+  const onImagesDownloadSuccess = () => {
     pushMessages([
       {
         content: <BlockchainSyncStep pushMessages={pushMessages} />,
@@ -106,7 +106,7 @@ const OnboardingContainer = () => {
             <DownloadImagesMessage
               key='dim'
               onError={onDockerImageDownloadError}
-              onSuccess={onImagesDowloadSuccess}
+              onSuccess={onImagesDownloadSuccess}
             />
           ),
           barFill: 0.625,
@@ -126,7 +126,7 @@ const OnboardingContainer = () => {
             key={`dim-${messages.length}`}
             errorType={type}
             onError={onDockerImageDownloadError}
-            onSuccess={onImagesDowloadSuccess}
+            onSuccess={onImagesDownloadSuccess}
           />
         ),
         barFill: 0.625,
@@ -152,7 +152,7 @@ const OnboardingContainer = () => {
             <DownloadImagesMessage
               key={`dim-${messages.length}`}
               onError={onDockerImageDownloadError}
-              onSuccess={onImagesDowloadSuccess}
+              onSuccess={onImagesDownloadSuccess}
             />
           ),
           barFill: 0.625,

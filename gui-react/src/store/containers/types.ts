@@ -11,13 +11,16 @@ export enum Container {
   Tor = 'tor',
   BaseNode = 'base_node',
   Wallet = 'wallet',
-  SHA3Miner = 'sha3_miner',
+  Sha3Miner = 'sha3_miner',
   MMProxy = 'mm_proxy',
   XMrig = 'xmrig',
   Monerod = 'monerod',
   Loki = 'loki',
   Promtail = 'promtail',
   Grafana = 'grafana',
+  LocalNet = 'localnet',
+  SharedVolume = 'shared_volume',
+  SharedGrafanaVolume = 'shared_grafana_volume',
 }
 
 export enum SystemEventAction {
