@@ -22,30 +22,50 @@ const ContainersContainer = () => {
 
   const containerStatuses = useAppSelector(selectContainersStatusesWithStats)
 
-  // console.log(`containerStatuses: ${JSON.stringify(containerStatuses)}`)
+  console.log(`containerStatuses: ${JSON.stringify(containerStatuses)}`)
 
   const containers = useMemo(
     () =>
-      containerStates.map(({ id, task_state }) => ({
-        id: id,
-        container:
-          Container[
-            id == 'Base Node'
-              ? ('BaseNode' as keyof typeof Container)
-              : (ContainerNameKey[
-                  id as keyof typeof ContainerNameKey
-                ] as keyof typeof Container)
-          ],
-        pending: task_state?.status === TaskStatus.Pending,
-        running: task_state?.status === TaskStatus.Active,
-        progress:
-          task_state?.status === TaskStatus.Progress ? task_state?.status : {},
-        stats:
-          task_state?.stats[task_state?.stats?.length - 1] ||
-          ({ cpu_usage: 0, mem_usage: 0 } as StatsData),
+      containerStatuses.map(({ container, status }) => ({
+        id: container,
+        container: Container[container as keyof typeof Container],
+        //   id == 'Base Node'
+        //     ? ('BaseNode' as keyof typeof Container)
+        //     : (ContainerNameKey[
+        //         id as keyof typeof ContainerNameKey
+        //       ] as keyof typeof Container)
+        // ],
+        pending: status.pending,
+        running: status.running,
+        stats: status.stats[0],
       })),
-    [containerStates],
+    [containerStatuses],
   )
+
+  // const containers = useMemo(
+  //   () =>
+  //     containerStates.map(({ id, task_state }) => ({
+  //       id: id,
+  //       container:
+  //         Container[
+  //           id == 'Base Node'
+  //             ? ('BaseNode' as keyof typeof Container)
+  //             : (ContainerNameKey[
+  //                 id as keyof typeof ContainerNameKey
+  //               ] as keyof typeof Container)
+  //         ],
+  //       pending:
+  //         task_state?.status === TaskStatus.Pending ||
+  //         (task_state?.status !== TaskStatus.Active &&
+  //           task_state?.status !== TaskStatus.Inactive),
+  //       running: task_state?.status === TaskStatus.Active,
+  //       progress:
+  //         task_state?.status === TaskStatus.Progress ? task_state?.status : {},
+  //       stats:
+  //         task_state?.stats[task_state?.stats?.length - 1] ||
+  //         ({ cpu_usage: 0, mem_usage: 0 } as StatsData),
+  //     })),
+  //   [containerStates],
 
   const updateSession = async (container: Container, stop?: boolean) => {
     try {
