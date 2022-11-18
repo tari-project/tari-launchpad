@@ -27,7 +27,7 @@ use anyhow::Error;
 use async_trait::async_trait;
 use derive_more::{Deref, DerefMut};
 use futures::stream::{FusedStream, Stream, StreamExt};
-use tari_launchpad_protocol::container::TaskProgress;
+use tari_launchpad_protocol::container::{StatsData, TaskProgress};
 use tokio::{
     select,
     time::{sleep, Duration},
@@ -44,12 +44,13 @@ pub enum CheckerEvent {
 
 pub struct CheckerContext<P: ManagedProtocol> {
     logs: Logs,
+    stats: Stats,
     sender: TaskSender<Event, P>,
 }
 
 impl<P: ManagedProtocol> CheckerContext<P> {
-    pub(crate) fn new(logs: Logs, sender: TaskSender<Event, P>) -> Self {
-        Self { logs, sender }
+    pub(crate) fn new(logs: Logs, stats: Stats, sender: TaskSender<Event, P>) -> Self {
+        Self { logs, stats, sender }
     }
 
     /// Reports the task about the progress.
@@ -80,6 +81,12 @@ pub trait ContainerChecker<P: ManagedProtocol>: Send {
                         ctx.sender.send_logs(msg).ok();
                     }
                 }
+                stat_event = ctx.stats.next() => {
+                    if let Some(Ok(msg)) = stat_event {
+                        self.on_stat_event(&msg, &mut ctx).await;
+                        ctx.sender.send_stats(msg).ok();
+                    }
+                }
                 _ = sleep(Duration::from_secs(1)) => {
                     if let Err(err) = self.on_interval(&mut ctx).await {
                         log::error!("On interval checker failed: {}", err);
@@ -90,6 +97,8 @@ pub trait ContainerChecker<P: ManagedProtocol>: Send {
     }
 
     async fn on_log_event(&mut self, _record: &str, _ctx: &mut CheckerContext<P>) {}
+
+    async fn on_stat_event(&mut self, _record: &StatsData, _ctx: &mut CheckerContext<P>) {}
 
     async fn on_interval(&mut self, _ctx: &mut CheckerContext<P>) -> Result<(), Error> {
         Ok(())
@@ -124,13 +133,13 @@ impl Logs {
 
 #[derive(Deref, DerefMut)]
 pub struct Stats {
-    stream: Pin<Box<dyn FusedStream<Item = Result<(), Error>> + Send>>,
+    stream: Pin<Box<dyn FusedStream<Item = Result<StatsData, Error>> + Send>>,
 }
 
 impl Stats {
     pub fn new<S>(stream: S) -> Self
     where
-        S: Stream<Item = Result<(), Error>>,
+        S: Stream<Item = Result<StatsData, Error>>,
         S: Send + 'static,
     {
         Self {

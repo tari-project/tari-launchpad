@@ -90,7 +90,6 @@ impl ManagedContainer for TariWallet {
         self.wallet = config.settings.as_ref().and_then(|s| s.wallet.clone());
         let session = &self.settings.as_ref()?.session;
         self.wallet.as_ref()?;
-        self.identity.as_ref()?;
         Some(session.all_active || session.base_layer_active || session.wallet_active)
     }
 

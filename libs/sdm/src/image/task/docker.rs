@@ -51,8 +51,9 @@ use bollard::{
     },
     system::EventsOptions,
 };
+use chrono::Local;
 use futures::{StreamExt, TryStreamExt};
-use tari_launchpad_protocol::container::TaskProgress;
+use tari_launchpad_protocol::container::{StatsData, TaskProgress};
 
 use super::{ContainerState, Event, ImageTask};
 use crate::{
@@ -124,7 +125,6 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         Forwarder::start(stream, ProgressConv, sender)
     }
 
-    // TODO: Add stats_stream as well
     pub fn logs_stream(&mut self) -> Logs {
         let opts = LogsOptions::<String> {
             follow: true,
@@ -329,9 +329,22 @@ fn log_conv(res: Result<LogOutput, BollardError>) -> Result<String, Error> {
     }
 }
 
-fn stat_conv(_res: Result<BollardStats, BollardError>) -> Result<(), Error> {
-    // TODO: Implement it
-    Ok(())
+fn stat_conv(res: Result<BollardStats, BollardError>) -> Result<StatsData, Error> {
+    if let Ok(BollardStats {
+        cpu_stats,
+        memory_stats,
+        ..
+    }) = res
+    {
+        Ok(StatsData {
+            timestamp: Local::now().naive_local(),
+            cpu_usage: cpu_stats.cpu_usage.total_usage,
+            mem_limit: memory_stats.limit.unwrap_or_default(),
+            mem_usage: memory_stats.usage.unwrap_or_default(),
+        })
+    } else {
+        Err(anyhow!("Unsupported stats event: {:?}", res))
+    }
 }
 
 struct ProgressConv;
