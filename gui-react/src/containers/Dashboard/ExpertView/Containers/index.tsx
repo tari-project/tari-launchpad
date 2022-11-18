@@ -9,6 +9,7 @@ import { selectContainerStates } from '../../../../store/launchpadState/selector
 import { changeSession } from '../../../../store/launchpadState'
 import {
   Containers as ContainerNameKey,
+  StatsData,
   TaskStatus,
 } from '../../../../store/launchpadState/types'
 import { selectContainersStatusesWithStats } from '../../../../store/containers/selectors'
@@ -21,7 +22,7 @@ const ContainersContainer = () => {
 
   const containerStatuses = useAppSelector(selectContainersStatusesWithStats)
 
-  console.log(`containerStatuses: ${JSON.stringify(containerStatuses)}`)
+  // console.log(`containerStatuses: ${JSON.stringify(containerStatuses)}`)
 
   const containers = useMemo(
     () =>
@@ -39,6 +40,9 @@ const ContainersContainer = () => {
         running: task_state?.status === TaskStatus.Active,
         progress:
           task_state?.status === TaskStatus.Progress ? task_state?.status : {},
+        stats:
+          task_state?.stats[task_state?.stats?.length - 1] ||
+          ({ cpu_usage: 0, mem_usage: 0 } as StatsData),
       })),
     [containerStates],
   )

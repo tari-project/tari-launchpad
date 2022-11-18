@@ -44,8 +44,7 @@ const Containers = ({ containers, updateSession }: ContainersProps) => {
               </td>
               <TdRight>
                 <Text color={theme.secondary} as='span'>
-                  CPU val
-                  {/*{container.cpu.toFixed(2)}%*/}
+                  {container.stats?.cpu_usage.toFixed(2) || 0}%
                 </Text>{' '}
                 <Text color={theme.secondary} as='span' type='smallMedium'>
                   {t.common.nouns.cpu}
@@ -53,8 +52,7 @@ const Containers = ({ containers, updateSession }: ContainersProps) => {
               </TdRight>
               <TdRight>
                 <Text color={theme.secondary} as='span'>
-                  Mem val
-                  {/*{container.memory.toFixed(2)} MB*/}
+                  {container.stats?.mem_usage.toFixed(2) || 0} MB
                 </Text>{' '}
                 <Text color={theme.secondary} as='span' type='smallMedium'>
                   {t.common.nouns.memory}

@@ -1,4 +1,5 @@
 import { Container, ContainerId } from '../../../../store/containers/types'
+import { StatsData } from '../../../../store/launchpadState/types'
 
 type ContainerDto = {
   id: ContainerId | undefined
@@ -9,6 +10,7 @@ type ContainerDto = {
   // memory: number
   pending: boolean
   running: boolean
+  stats: StatsData
 }
 // & Pick<DockerImage, 'imageName' | 'displayName'>
 

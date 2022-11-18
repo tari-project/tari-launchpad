@@ -71,7 +71,7 @@ export const DownloadDockerImage = () => {
 
   useEffect(() => {
     const foundImage = dockerImages.find(
-      i => i.containerName === dockerImage.containerName,
+      i => i.containerName === dockerImage?.containerName,
     )
 
     if (foundImage) {

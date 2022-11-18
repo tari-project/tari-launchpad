@@ -31,7 +31,8 @@ export const selectContainerError = (c: ContainerName) => (r: RootState) => {
 }
 
 const selectContainerStats = (containerId: string) => (r: RootState) =>
-  r.containers.stats[containerId]
+  r.launchpadState.launchpadState?.containers?.find(c => c?.id === containerId)
+    ?.task_state?.stats
 
 type ContainerStatusSelector = (
   c: ContainerName,
@@ -81,16 +82,19 @@ export const selectContainerStatusWithStats: ContainerStatusSelectorWithStats =
     if (!container.id) {
       return {
         ...container,
-        stats: {
-          cpu: 0,
-          memory: 0,
-          network: {
-            download: 0,
-            upload: 0,
+        stats: [
+          {
+            cpu_usage: 0,
+            mem_limit: 0,
+            mem_usage: 0,
+            // network: {
+            //   download: 0,
+            //   upload: 0,
+            // },
+            timestamp: '',
+            // unsubscribe: () => undefined,
           },
-          timestamp: '',
-          unsubscribe: () => undefined,
-        },
+        ],
       }
     }
 
@@ -98,7 +102,7 @@ export const selectContainerStatusWithStats: ContainerStatusSelectorWithStats =
 
     return {
       ...container,
-      stats: containerStats,
+      stats: containerStats || [],
     }
   }
 

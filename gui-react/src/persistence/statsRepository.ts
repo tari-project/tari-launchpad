@@ -3,7 +3,7 @@ import { SerializableContainerStats } from '../store/containers/types'
 import { db } from './db'
 
 export interface StatsEntry {
-  timestamp: string
+  timestamp: Date
   timestampS: number
   network: string
   service: ContainerName

@@ -1,6 +1,7 @@
 import type { UnlistenFn } from '@tauri-apps/api/event'
 
 import { ContainerName } from '../../types/general'
+import { StatsData } from '../launchpadState/types'
 
 export type ContainerId = string
 
@@ -68,7 +69,7 @@ export type ContainerStatusDto = {
 }
 
 export type ContainerStatusDtoWithStats = ContainerStatusDto & {
-  stats: ContainerStats
+  stats: StatsData[]
 }
 
 export type ContainerStateFields = Pick<

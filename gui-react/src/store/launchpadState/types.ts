@@ -20,6 +20,7 @@ export enum TaskStatus {
   Pending = 'Pending',
   Progress = 'Progress',
   Active = 'Active',
+  StatsRecord = 'StatsRecord',
 }
 export type TaskProgress = {
   pct: number
@@ -93,10 +94,19 @@ interface MmProxyConfig {
   monero_password: string
   monero_use_auth: boolean
 }
+
+export interface StatsData {
+  timestamp: string
+  cpu_usage: number
+  mem_limit: number
+  mem_usage: number
+}
 export type Task = TaskStatus | { [TaskStatus.Progress]: TaskProgress }
+// | { [TaskStatus.StatsRecord]: Array<StatsData> }
 
 export interface Delta {
   UpdateStatus: Task
+  StatsRecord: Array<StatsData>
   LogRecord?: string
 }
 export interface TaskDelta {
@@ -107,7 +117,7 @@ export interface TaskDelta {
 export interface TaskState {
   status: Task
   permanent: boolean
-  stats?: ContainerStats
+  stats: Array<StatsData>
   tail?: Array<string>
   exitCode?: number
   error?: string

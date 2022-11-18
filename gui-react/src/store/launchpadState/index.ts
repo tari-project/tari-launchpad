@@ -4,6 +4,7 @@ import {
   LaunchPad,
   LaunchpadDelta,
   LaunchpadState,
+  StatsData,
   TaskDelta,
   TaskStatus,
 } from './types'
@@ -102,6 +103,9 @@ const launchpadStateSlice = createSlice({
               : 0,
           task_state: {
             status: action.payload.TaskDelta.delta.UpdateStatus,
+            stats: action.payload.TaskDelta.delta.StatsRecord
+              ? action.payload.TaskDelta.delta.StatsRecord
+              : ([] as StatsData[]),
             permanent:
               state.State.containers[action.payload.TaskDelta.id]?.permanent ||
               false,
