@@ -69,14 +69,12 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         if let Status::WaitContainerStarted { .. } = self.status.get() {
             let checker = self.inner.image.checker();
             let logs = self.logs_stream();
-            // TODO: Forward stats to the state
-            let _stats = self.stats_stream();
+            let stats = self.stats_stream();
             let sender = self.sender().clone();
-            let context = CheckerContext::new(logs, sender);
+            let context = CheckerContext::new(logs, stats, sender);
             let fur = checker.entrypoint(context);
             let checker = tokio::spawn(fur).into();
             self.status.set(Status::Started { checker });
-            // TODO: Track logs for the ready checker...
         }
         Ok(())
     }

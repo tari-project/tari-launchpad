@@ -19,3 +19,4 @@ log = "0.4.17"
 thiserror = "1.0.37"
 tokio = { version = "1.21.1", features = ["macros"] }
 tokio-stream = { version = "0.1.10", features = ["sync"] }
+chrono = "0.4.23"
