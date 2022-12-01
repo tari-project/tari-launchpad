@@ -266,10 +266,10 @@ impl<'a, 'b> Render<'a, 'b> {
         } else {
             match self.dashboard_state.selected_tab {
                 Tab::Containers => {
-                    self.render_containers(rect);
+                    self.render_main_tab(rect);
                 },
                 Tab::Wallet => {
-                    self.render_wallet(rect);
+                    self.render_wallet_tab(rect);
                 },
             }
         }
@@ -313,7 +313,7 @@ impl<'a, 'b> Render<'a, 'b> {
         main_chunks[1]
     }
 
-    fn render_wallet(&mut self, size: Rect) {
+    fn render_wallet_tab(&mut self, size: Rect) {
         let vchunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Percentage(60), Constraint::Percentage(40)].as_ref())
@@ -351,7 +351,7 @@ impl<'a, 'b> Render<'a, 'b> {
         self.f.render_widget(list, vchunks[1]);
     }
 
-    fn render_containers(&mut self, size: Rect) {
+    fn render_main_tab(&mut self, size: Rect) {
         let mut rows = Vec::new();
         let mut logs = Vec::new();
         if let Some(app_state) = self.dashboard_state.state.as_ref() {
@@ -385,25 +385,38 @@ impl<'a, 'b> Render<'a, 'b> {
             .constraints([Constraint::Percentage(60), Constraint::Percentage(40)].as_ref())
             .split(size);
 
-        let top_chunks = Layout::default()
+        let top_row = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(100)].as_ref())
+            .constraints([Constraint::Percentage(60), Constraint::Percentage(40)].as_ref())
             .split(vchunks[0]);
 
-        let block = Block::default().title("Logs").borders(Borders::ALL);
-        let list = List::new(logs).block(block);
-        self.f.render_widget(list, vchunks[1]);
+        self.render_containers(top_row[0], rows);
+        self.render_stats(top_row[1]);
+        self.render_logs(vchunks[1], logs);
+    }
 
+    fn render_containers(&mut self, size: Rect, rows: Vec<Row<'_>>) {
         let block = Block::default().title("Containers").borders(Borders::ALL);
         let table = Table::new(rows)
             .block(block)
             .header(Row::new(vec!["Container", "State", "Flag"]))
             .widths(&[
                 Constraint::Percentage(30),
-                Constraint::Percentage(60),
-                Constraint::Percentage(10),
+                Constraint::Percentage(50),
+                Constraint::Percentage(20),
             ]);
-        self.f.render_widget(table, top_chunks[0]);
+        self.f.render_widget(table, size);
+    }
+
+    fn render_stats(&mut self, size: Rect) {
+        let block = Block::default().title("Stats").borders(Borders::ALL);
+        self.f.render_widget(block, size);
+    }
+
+    fn render_logs(&mut self, size: Rect, logs: Vec<ListItem<'_>>) {
+        let block = Block::default().title("Logs").borders(Borders::ALL);
+        let list = List::new(logs).block(block);
+        self.f.render_widget(list, size);
     }
 }
 
