@@ -219,7 +219,7 @@ impl Dashboard {
             KeyCode::Char('q') => {
                 if let Some(state) = self.state() {
                     let mut session = state.config.session.clone();
-                    session.all_active = false;
+                    session.stop_all();
                     return Some(session);
                 }
             },
