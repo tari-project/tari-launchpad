@@ -74,7 +74,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
             let context = CheckerContext::new(logs, stats, sender);
             let fur = checker.entrypoint(context);
             let checker = tokio::spawn(fur).into();
-            self.status.set(Status::Started { checker });
+            self.status.set(Status::Active { checker, ready: false });
         }
         Ok(())
     }
@@ -84,13 +84,17 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     fn on_checker_event(&mut self, event: CheckerEvent) -> Result<(), Error> {
-        if let Status::Started { .. } = self.status.get() {
+        if let Status::Active { .. } = self.status.get() {
             match event {
                 CheckerEvent::Progress(progress) => {
                     self.update_task_status(TaskStatus::Progress(progress))?;
                 },
                 CheckerEvent::Ready => {
-                    self.status.set(Status::Ready);
+                    self.status.update(|status| {
+                        if let Status::Active { ready, .. } = status {
+                            *ready = true;
+                        }
+                    });
                     self.update_task_status(TaskStatus::Active)?;
                 },
             }
@@ -103,7 +107,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
             Status::WaitContainerKilled => {
                 self.status.set(Status::CleanDangling);
             },
-            Status::Started { .. } => {
+            Status::Active { .. } => {
                 // TODO: Add waiting interval + fallback
                 // self.status.set(Status::CleanDangling);
             },

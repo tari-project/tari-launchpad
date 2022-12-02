@@ -40,8 +40,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
             Status::WaitContainerCreated => self.do_wait_container_created().await,
             Status::StartContainer => self.do_start_container().await,
             Status::WaitContainerStarted => self.do_wait_container_started().await,
-            Status::Started { .. } => self.do_started().await,
-            Status::Ready => self.do_started().await,
+            Status::Active { .. } => self.do_active().await,
         }
     }
 
@@ -134,7 +133,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         Ok(())
     }
 
-    async fn do_started(&mut self) -> Result<(), Error> {
+    async fn do_active(&mut self) -> Result<(), Error> {
         // TODO: Spawn `ready to use` worker
 
         // TODO: Remove the following
