@@ -415,12 +415,10 @@ impl<'a, 'b> Render<'a, 'b> {
         let block = Block::default().title("Stats").borders(Borders::ALL);
         if let Some(state) = state {
             let mut rows = Vec::new();
-            if let Some(stat_data) = state.stats.back() {
+            if let Some(stat_data) = state.stats.last() {
                 rows.push(Row::new(vec!["Timestamp".to_string(), stat_data.timestamp.to_string()]));
-                rows.push(Row::new(vec![
-                    "CPU usage".to_string(),
-                    stat_data.cpu_usage.get_appropriate_unit(false).to_string(),
-                ]));
+                let cpu_usage = state.stats.last_cpu().unwrap_or_default();
+                rows.push(Row::new(vec!["CPU usage".to_string(), format!("{:.2} %", cpu_usage)]));
                 rows.push(Row::new(vec![
                     "Mem limit".to_string(),
                     stat_data.mem_limit.get_appropriate_unit(false).to_string(),

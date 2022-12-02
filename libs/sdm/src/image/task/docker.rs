@@ -338,7 +338,8 @@ fn stat_conv(res: Result<BollardStats, BollardError>) -> Result<StatsData, Error
     {
         Ok(StatsData {
             timestamp: Local::now().naive_local(),
-            cpu_usage: cpu_stats.cpu_usage.total_usage.into(),
+            system_cpu_usage: cpu_stats.system_cpu_usage.unwrap_or_default(),
+            cpu_usage: cpu_stats.cpu_usage.total_usage,
             mem_limit: memory_stats.limit.unwrap_or_default().into(),
             mem_usage: memory_stats.usage.unwrap_or_default().into(),
         })
