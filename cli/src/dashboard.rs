@@ -8,6 +8,7 @@ use crossterm::{
 };
 use strum::{Display, EnumCount, EnumIter, FromRepr, IntoEnumIterator};
 use tari_launchpad_protocol::{
+    container::TaskState,
     launchpad::{LaunchpadState, Reaction},
     session::LaunchpadSession,
 };
@@ -354,6 +355,7 @@ impl<'a, 'b> Render<'a, 'b> {
     fn render_main_tab(&mut self, size: Rect) {
         let mut rows = Vec::new();
         let mut logs = Vec::new();
+        let mut selected_container = None;
         if let Some(app_state) = self.dashboard_state.state.as_ref() {
             for container in Container::iter() {
                 let id = container.id();
@@ -372,6 +374,7 @@ impl<'a, 'b> Render<'a, 'b> {
                             let item = ListItem::new(line.to_string());
                             logs.push(item);
                         }
+                        selected_container = Some(state);
                     }
                 } else {
                     let row = Row::new(vec![name, "...".to_string(), "-".to_string()]);
@@ -391,7 +394,7 @@ impl<'a, 'b> Render<'a, 'b> {
             .split(vchunks[0]);
 
         self.render_containers(top_row[0], rows);
-        self.render_stats(top_row[1]);
+        self.render_stats(top_row[1], selected_container);
         self.render_logs(vchunks[1], logs);
     }
 
@@ -408,9 +411,37 @@ impl<'a, 'b> Render<'a, 'b> {
         self.f.render_widget(table, size);
     }
 
-    fn render_stats(&mut self, size: Rect) {
+    fn render_stats(&mut self, size: Rect, state: Option<&TaskState>) {
         let block = Block::default().title("Stats").borders(Borders::ALL);
-        self.f.render_widget(block, size);
+        if let Some(state) = state {
+            let mut rows = Vec::new();
+            if let Some(stat_data) = state.stats.back() {
+                rows.push(Row::new(vec!["Timestamp".to_string(), stat_data.timestamp.to_string()]));
+                rows.push(Row::new(vec![
+                    "CPU usage".to_string(),
+                    stat_data.cpu_usage.get_appropriate_unit(false).to_string(),
+                ]));
+                rows.push(Row::new(vec![
+                    "Mem limit".to_string(),
+                    stat_data.mem_limit.get_appropriate_unit(false).to_string(),
+                ]));
+                rows.push(Row::new(vec![
+                    "Mem usage".to_string(),
+                    stat_data.mem_usage.get_appropriate_unit(false).to_string(),
+                ]));
+                rows.push(Row::new(vec![
+                    "Mem usage, %".to_string(),
+                    format!("{:.2} %", stat_data.get_mem_pct()),
+                ]));
+            }
+            let table = Table::new(rows)
+                .block(block)
+                .header(Row::new(vec!["Metric", "Value"]))
+                .widths(&[Constraint::Percentage(40), Constraint::Percentage(60)]);
+            self.f.render_widget(table, size);
+        } else {
+            self.f.render_widget(block, size);
+        }
     }
 
     fn render_logs(&mut self, size: Rect, logs: Vec<ListItem<'_>>) {

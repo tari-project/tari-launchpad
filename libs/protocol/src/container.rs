@@ -23,6 +23,7 @@
 
 use std::{collections::VecDeque, fmt};
 
+use byte_unit::Byte;
 use chrono::NaiveDateTime;
 use derive_more::{Display, From, Into};
 use serde::{Deserialize, Serialize};
@@ -141,7 +142,13 @@ pub enum TaskDelta {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StatsData {
     pub timestamp: NaiveDateTime,
-    pub cpu_usage: u64,
-    pub mem_limit: u64,
-    pub mem_usage: u64,
+    pub cpu_usage: Byte,
+    pub mem_limit: Byte,
+    pub mem_usage: Byte,
+}
+
+impl StatsData {
+    pub fn get_mem_pct(&self) -> f32 {
+        self.mem_usage.get_bytes() as f32 * 100.0 / self.mem_limit.get_bytes() as f32
+    }
 }
