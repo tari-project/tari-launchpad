@@ -118,16 +118,15 @@ pub enum Status {
     /// Check the `active` flag
     Idle,
 
-    Started {
+    Active {
         checker: TaskGuard<()>,
+        ready: bool,
     },
-
-    Ready,
 }
 
 impl TaskStatusChecker for Status {
     fn is_ready(&self) -> bool {
-        matches!(self, Self::Ready)
+        matches!(self, Self::Active { ready: true, .. })
     }
 }
 

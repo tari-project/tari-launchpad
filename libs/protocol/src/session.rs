@@ -24,6 +24,10 @@ pub struct LaunchpadSession {
 }
 
 impl LaunchpadSession {
+    pub fn stop_all(&mut self) {
+        *self = Self::default();
+    }
+
     pub fn is_tor_active(&self) -> bool {
         self.all_active || self.base_layer_active || self.tor_active
     }

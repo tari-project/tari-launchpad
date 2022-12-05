@@ -83,6 +83,11 @@ impl<S: TaskStatusChecker> SdmStatus<S> {
         self.fallback = None;
     }
 
+    pub fn update<F>(&mut self, func: F)
+    where F: FnOnce(&mut S) {
+        func(&mut self.status);
+    }
+
     // pub fn set_fallback(&mut self, fallback: Fallback<S>) {
     // self.fallback = Some(fallback);
     // }

@@ -23,6 +23,7 @@
 
 use std::{collections::VecDeque, fmt};
 
+use byte_unit::Byte;
 use chrono::NaiveDateTime;
 use derive_more::{Display, From, Into};
 use serde::{Deserialize, Serialize};
@@ -50,7 +51,7 @@ const STATS_LIMIT: usize = 30;
 pub struct TaskState {
     pub status: TaskStatus,
     pub tail: VecDeque<String>,
-    pub stats: VecDeque<StatsData>,
+    pub stats: TaskStats,
     pub permanent: bool,
 }
 
@@ -59,7 +60,7 @@ impl TaskState {
         Self {
             status: TaskStatus::Inactive,
             tail: VecDeque::with_capacity(TAIL_LIMIT),
-            stats: VecDeque::with_capacity(STATS_LIMIT),
+            stats: TaskStats::new(),
             permanent,
         }
     }
@@ -76,10 +77,7 @@ impl TaskState {
                 self.tail.push_front(record);
             },
             TaskDelta::StatsRecord(record) => {
-                if self.stats.len() == STATS_LIMIT {
-                    self.stats.pop_back();
-                }
-                self.stats.push_front(record);
+                self.stats.push(record);
             },
         }
     }
@@ -138,10 +136,52 @@ pub enum TaskDelta {
     StatsRecord(StatsData),
 }
 
+// TODO: Add own `Frame` type and use if for
+// logs as well.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskStats {
+    pub stats_frame: VecDeque<StatsData>,
+}
+
+impl TaskStats {
+    fn new() -> Self {
+        Self {
+            stats_frame: VecDeque::with_capacity(STATS_LIMIT),
+        }
+    }
+
+    fn push(&mut self, data: StatsData) {
+        if self.stats_frame.len() == STATS_LIMIT {
+            self.stats_frame.pop_front();
+        }
+        self.stats_frame.push_back(data);
+    }
+
+    pub fn last(&self) -> Option<&StatsData> {
+        self.stats_frame.back()
+    }
+
+    pub fn last_cpu(&self) -> Option<f32> {
+        let mut values = self.stats_frame.iter().rev();
+        let last = values.next()?;
+        let prev = values.next()?;
+        let cpu_delta = last.cpu_usage - prev.cpu_usage;
+        let system_delta = last.system_cpu_usage - prev.system_cpu_usage;
+        Some(cpu_delta as f32 / system_delta as f32 * 100.0)
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StatsData {
     pub timestamp: NaiveDateTime,
+    pub system_cpu_usage: u64,
     pub cpu_usage: u64,
-    pub mem_limit: u64,
-    pub mem_usage: u64,
+    pub mem_limit: Byte,
+    pub mem_usage: Byte,
+}
+
+impl StatsData {
+    pub fn get_mem_pct(&self) -> f32 {
+        self.mem_usage.get_bytes() as f32 * 100.0 / self.mem_limit.get_bytes() as f32
+    }
 }
