@@ -105,12 +105,19 @@ pub trait ContainerChecker<P: ManagedProtocol>: Send {
     }
 }
 
-pub struct ReadyIfStarted;
+#[derive(Default)]
+pub struct ReadyIfStarted {
+    started: bool,
+}
 
 #[async_trait]
 impl<P: ManagedProtocol> ContainerChecker<P> for ReadyIfStarted {
-    async fn entrypoint(mut self: Box<Self>, ctx: CheckerContext<P>) {
-        ctx.report(CheckerEvent::Ready).ok();
+    async fn on_interval(&mut self, ctx: &mut CheckerContext<P>) -> Result<(), Error> {
+        if !self.started {
+            ctx.report(CheckerEvent::Ready)?;
+            self.started = true;
+        }
+        Ok(())
     }
 }
 

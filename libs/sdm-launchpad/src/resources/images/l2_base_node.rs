@@ -135,6 +135,7 @@ impl ManagedContainer for TariBaseNode {
 struct Checker {
     progress: SyncProgress,
     identity_sent: bool,
+    ready: bool,
 }
 
 impl Checker {
@@ -143,6 +144,7 @@ impl Checker {
         Self {
             progress,
             identity_sent: false,
+            ready: false,
         }
     }
 }
@@ -150,6 +152,9 @@ impl Checker {
 #[async_trait]
 impl ContainerChecker<LaunchpadProtocol> for Checker {
     async fn on_interval(&mut self, ctx: &mut CheckerContext<LaunchpadProtocol>) -> Result<(), Error> {
+        if self.ready {
+            return Ok(());
+        }
         // TODO: Keep the client
         let mut client = BaseNodeGrpcClient::connect("http://127.0.0.1:18142").await?;
 
@@ -172,6 +177,7 @@ impl ContainerChecker<LaunchpadProtocol> for Checker {
         };
         ctx.report(CheckerEvent::Progress(progress)).ok();
         if done {
+            self.ready = true;
             ctx.report(CheckerEvent::Ready).ok();
         }
 
