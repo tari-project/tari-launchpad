@@ -43,6 +43,10 @@ pub struct ImageTask<C: ManagedProtocol> {
     // TODO: Rename to `fqdn`
     image_name: String,
     image: Box<dyn ManagedContainer<Protocol = C>>,
+    /// A flag to ask to restart a container
+    force_restart: bool,
+    /// A flag to drop and pull image again
+    force_pull: bool,
 }
 
 impl<C: ManagedProtocol> ImageTask<C> {
@@ -55,6 +59,8 @@ impl<C: ManagedProtocol> ImageTask<C> {
             container_name,
             image_name,
             image,
+            force_restart: false,
+            force_pull: false,
         }
     }
 }
@@ -97,6 +103,12 @@ impl<C: ManagedProtocol> RunnableContext<ImageTask<C>> for TaskContext<ImageTask
     }
 }
 
+impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
+    fn should_be_restarted(&self) -> bool {
+        self.force_restart || self.force_pull
+    }
+}
+
 #[derive(Debug)]
 pub enum Status {
     InitialState,
@@ -122,6 +134,8 @@ pub enum Status {
         checker: TaskGuard<()>,
         ready: bool,
     },
+
+    DropImage,
 }
 
 impl TaskStatusChecker for Status {

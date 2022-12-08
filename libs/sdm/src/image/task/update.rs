@@ -41,6 +41,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
             Status::StartContainer => self.do_start_container().await,
             Status::WaitContainerStarted => self.do_wait_container_started().await,
             Status::Active { .. } => self.do_active().await,
+            Status::DropImage => self.do_drop_image().await,
         }
     }
 
@@ -49,17 +50,27 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
 
         log::debug!("Cheking image {} ...", self.inner.image_name);
         if self.image_exists().await {
-            log::debug!("Image {} exists. Skip pulling.", self.inner.image_name);
-            let progress = TaskProgress::new("Cleaning...");
-            self.update_task_status(TaskStatus::Progress(progress))?;
-            self.status.set(Status::CleanDangling);
+            self.clean_dangling()?;
         } else {
-            log::debug!("Image {} doesn't exist. Pulling.", self.inner.image_name);
-            let progress = TaskProgress::new("Pulling...");
-            self.update_task_status(TaskStatus::Progress(progress))?;
-            let progress = self.pull();
-            self.status.set(Status::PullingImage { progress });
+            self.start_pulling()?;
         }
+        Ok(())
+    }
+
+    fn clean_dangling(&mut self) -> Result<(), Error> {
+        log::debug!("Image {} exists. Skip pulling.", self.inner.image_name);
+        let progress = TaskProgress::new("Cleaning...");
+        self.update_task_status(TaskStatus::Progress(progress))?;
+        self.status.set(Status::CleanDangling);
+        Ok(())
+    }
+
+    fn start_pulling(&mut self) -> Result<(), Error> {
+        log::debug!("Image {} doesn't exist. Pulling.", self.inner.image_name);
+        let progress = TaskProgress::new("Pulling...");
+        self.update_task_status(TaskStatus::Progress(progress))?;
+        let progress = self.pull();
+        self.status.set(Status::PullingImage { progress });
         Ok(())
     }
 
@@ -106,12 +117,21 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn do_idle(&mut self) -> Result<(), Error> {
-        if self.should_be_active() {
+        if self.force_pull {
+            self.force_pull = false;
+            self.status.set(Status::DropImage);
+            let progress = TaskProgress::new("Removing image...");
+            self.update_task_status(TaskStatus::Progress(progress))?;
+            Ok(())
+        } else if self.should_be_active() {
+            self.force_restart = false;
             log::debug!("Preparing a container {} to start...", self.inner.container_name);
             self.status.set(Status::CreateContainer);
             self.update_task_status(TaskStatus::Pending)?;
+            Ok(())
+        } else {
+            Ok(())
         }
-        Ok(())
     }
 
     async fn do_create_container(&mut self) -> Result<(), Error> {
@@ -134,10 +154,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn do_active(&mut self) -> Result<(), Error> {
-        // TODO: Spawn `ready to use` worker
-
-        // TODO: Remove the following
-        if !self.should_be_active() {
+        if !self.should_be_active() || self.should_be_restarted() {
             self.status.set(Status::CleanDangling);
         }
         Ok(())
@@ -145,5 +162,9 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
 
     async fn do_wait_container_started(&mut self) -> Result<(), Error> {
         Ok(())
+    }
+
+    async fn do_drop_image(&mut self) -> Result<(), Error> {
+        self.try_remove_image().await
     }
 }

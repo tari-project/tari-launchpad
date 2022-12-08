@@ -36,7 +36,7 @@ use bollard::{
         StatsOptions,
     },
     errors::Error as BollardError,
-    image::CreateImageOptions,
+    image::{CreateImageOptions, RemoveImageOptions},
     models::{
         ContainerInspectResponse,
         CreateImageInfo,
@@ -224,6 +224,16 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         self.driver
             .remove_container(&self.inner.container_name, Some(opts))
             .await?;
+        Ok(())
+    }
+
+    pub async fn try_remove_image(&mut self) -> Result<(), Error> {
+        let image_name = self.inner.image_name.as_ref();
+        let opts = Some(RemoveImageOptions {
+            force: true,
+            ..Default::default()
+        });
+        self.driver.remove_image(image_name, opts, None).await?;
         Ok(())
     }
 
