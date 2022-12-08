@@ -1,6 +1,6 @@
 # Package build
 
-ARG ALPINE_VERSION=3.16
+ARG ALPINE_VERSION=3.17
 
 FROM alpine:$ALPINE_VERSION
 
@@ -8,8 +8,8 @@ ARG ALPINE_VERSION
 ARG BUILDPLATFORM
 ARG VERSION=1.0.1
 
-# https://pkgs.alpinelinux.org/packages?name=tor&branch=v3.16&repo=community
-ARG TOR_VERSION=0.4.7.10-r0
+# https://pkgs.alpinelinux.org/packages?name=tor&branch=v3.17&repo=community&arch=&maintainer=
+ARG TOR_VERSION=0.4.7.12-r0
 
 # Install tor with a minimum version
 RUN apk update \
