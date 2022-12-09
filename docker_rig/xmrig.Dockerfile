@@ -1,11 +1,14 @@
 # Source build
-FROM alpine:latest as builder
 
-# Declare to make available
+ARG ALPINE_VERSION=3.17
+
+FROM alpine:$ALPINE_VERSION as builder
+
+ARG ALPINE_VERSION
 ARG BUILDPLATFORM
 
 # https://github.com/xmrig/xmrig/releases
-ARG XMRIG_VERSION="v6.18.0"
+ARG XMRIG_VERSION="v6.18.1"
 
 RUN apk add \
     git \
@@ -29,8 +32,9 @@ RUN cmake .. -DXMRIG_DEPS=scripts/deps -DBUILD_STATIC=ON
 RUN make -j$(nproc)
 
 # Create runtime base minimal image for the target platform executables
-FROM --platform=$TARGETPLATFORM alpine:latest as runtime
+FROM --platform=$TARGETPLATFORM alpine:$ALPINE_VERSION as runtime
 
+ARG ALPINE_VERSION
 ARG BUILDPLATFORM
 
 ARG XMRIG_VERSION
