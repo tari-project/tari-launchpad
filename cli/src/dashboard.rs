@@ -402,7 +402,7 @@ impl<'a, 'b> Render<'a, 'b> {
         let block = Block::default().title("Containers").borders(Borders::ALL);
         let table = Table::new(rows)
             .block(block)
-            .header(Row::new(vec!["Container", "State", "Flag"]))
+            .header(Row::new(vec!["Container", "State", "Active"]))
             .widths(&[
                 Constraint::Percentage(30),
                 Constraint::Percentage(50),
