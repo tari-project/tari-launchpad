@@ -116,6 +116,10 @@ impl TaskStatus {
     pub fn is_active(&self) -> bool {
         !matches!(self, Self::Inactive)
     }
+
+    pub fn is_inactive(&self) -> bool {
+        matches!(self, Self::Inactive)
+    }
 }
 
 impl fmt::Display for TaskStatus {
@@ -174,8 +178,8 @@ impl TaskStats {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StatsData {
     pub timestamp: NaiveDateTime,
-    pub system_cpu_usage: u64,
-    pub cpu_usage: u64,
+    pub system_cpu_usage: i64,
+    pub cpu_usage: i64,
     pub mem_limit: Byte,
     pub mem_usage: Byte,
 }
