@@ -33,6 +33,7 @@ use crate::{
 
 impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     pub fn process_event_impl(&mut self, event: Event) -> Result<(), Error> {
+        log::warn!("EVENT: {event:?}");
         match event {
             Event::Created => self.on_created(),
             Event::PullingProgress(value) => self.on_pulling_progress(value),

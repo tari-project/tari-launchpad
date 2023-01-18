@@ -2648,15 +2648,22 @@ checksum = "d36ca1786d9e79b8193a68d480a0907b612f109537115c6ff655a3a1967533fd"
 dependencies = [
  "anyhow",
  "arc-swap",
+ "chrono",
  "derivative",
  "fnv",
  "humantime",
+ "libc",
  "log",
+ "log-mdc",
+ "parking_lot 0.12.1",
  "serde",
  "serde-value",
+ "serde_json",
  "serde_yaml",
  "thiserror",
+ "thread-id",
  "typemap-ors",
+ "winapi",
 ]
 
 [[package]]
@@ -5208,6 +5215,7 @@ dependencies = [
  "crossterm",
  "env_logger",
  "log",
+ "log4rs",
  "rand 0.8.5",
  "strum 0.24.1",
  "tari_launchpad_protocol",
@@ -5973,6 +5981,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "thread-id"
+version = "4.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5fdfe0627923f7411a43ec9ec9c39c3a9b4151be313e0922042581fb6c9b717f"
+dependencies = [
+ "libc",
+ "redox_syscall",
+ "winapi",
 ]
 
 [[package]]

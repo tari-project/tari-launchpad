@@ -136,6 +136,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
 
     async fn do_create_container(&mut self) -> Result<(), Error> {
         log::debug!("Trying to create container {} ...", self.inner.container_name);
+        // TODO: Process the result as well
         self.try_create_container().await?;
         self.status.set(Status::WaitContainerCreated);
         Ok(())
@@ -147,9 +148,14 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn do_start_container(&mut self) -> Result<(), Error> {
-        self.try_start_container().await?;
-        self.status.set(Status::WaitContainerStarted);
-        self.update_task_status(TaskStatus::Pending)?;
+        if let Err(err) = self.try_start_container().await {
+            self.sender().send_error(err.to_string())?;
+            self.try_remove_container().await?;
+            self.status.set(Status::WaitContainerRemoved);
+        } else {
+            self.status.set(Status::WaitContainerStarted);
+            self.update_task_status(TaskStatus::Pending)?;
+        }
         Ok(())
     }
 

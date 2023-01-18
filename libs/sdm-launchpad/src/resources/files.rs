@@ -38,6 +38,7 @@ const LOGS4RS_YML: ConfigFile = embed_file!("log4rs.yml");
 const LOKI_YML: ConfigFile = embed_file!("loki_config.yml");
 const PROMTAIL_YML: ConfigFile = embed_file!("promtail.config.yml");
 const PROVISION_YML: ConfigFile = embed_file!("sources_provision.yml");
+const LOG4RS_CLI_YML: ConfigFile = embed_file!("log4rs-cli.yml");
 
 struct ConfigFile {
     filename: &'static str,
@@ -102,7 +103,14 @@ impl Configurator {
         Ok(())
     }
 
-    pub async fn repair_configuration(&mut self) -> Result<(), Error> {
+    pub async fn clean_configuration(&mut self) -> Result<(), Error> {
+        let base_dir = self.base_dir.clone();
+        let config_dir = self.create_sub_dir(&base_dir, "config").await?;
+        tokio::fs::remove_dir_all(config_dir).await?;
+        Ok(())
+    }
+
+    pub async fn init_configuration(&mut self) -> Result<(), Error> {
         // base path
         let base_dir = self.base_dir.clone();
         self.create_dir(&base_dir).await?;
@@ -114,6 +122,9 @@ impl Configurator {
         self.store_file(&config_dir, &LOKI_YML).await?;
         self.store_file(&config_dir, &PROMTAIL_YML).await?;
         self.store_file(&config_dir, &PROVISION_YML).await?;
+
+        self.create_sub_dir(&base_dir, "log").await?;
+        self.store_file(&config_dir, &LOG4RS_CLI_YML).await?;
 
         // TODO: Use `enum` here...
         // images

@@ -20,7 +20,7 @@ use tui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, Borders, List, ListItem, Paragraph, Row, Table, Tabs},
+    widgets::{Block, Borders, List, ListItem, Paragraph, Row, Table, Tabs, Wrap},
     Frame,
     Terminal,
 };
@@ -370,7 +370,7 @@ impl<'a, 'b> Render<'a, 'b> {
                     let row = Row::new(vec![name, status, value]);
                     rows.push(row);
                     if selected {
-                        for line in &state.tail {
+                        for line in state.tail.iter().rev() {
                             let item = ListItem::new(line.to_string());
                             logs.push(item);
                         }
@@ -412,6 +412,11 @@ impl<'a, 'b> Render<'a, 'b> {
     }
 
     fn render_stats(&mut self, size: Rect, state: Option<&TaskState>) {
+        let vertical = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+            .split(size);
+
         let block = Block::default().title("Stats").borders(Borders::ALL);
         if let Some(state) = state {
             let mut rows = Vec::new();
@@ -436,10 +441,17 @@ impl<'a, 'b> Render<'a, 'b> {
                 .block(block)
                 .header(Row::new(vec!["Metric", "Value"]))
                 .widths(&[Constraint::Percentage(40), Constraint::Percentage(60)]);
-            self.f.render_widget(table, size);
+            self.f.render_widget(table, vertical[0]);
         } else {
-            self.f.render_widget(block, size);
+            self.f.render_widget(block, vertical[0]);
         }
+        let block = Block::default().title("Fails").borders(Borders::ALL);
+        let mut text = String::new();
+        if let Some(err) = state.as_ref().and_then(|state| state.fails.last()) {
+            text.push_str(&err);
+        }
+        let paragraph = Paragraph::new(text).wrap(Wrap { trim: true }).block(block);
+        self.f.render_widget(paragraph, vertical[1]);
     }
 
     fn render_logs(&mut self, size: Rect, logs: Vec<ListItem<'_>>) {

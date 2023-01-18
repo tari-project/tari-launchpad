@@ -34,6 +34,7 @@ use tari_sdm::{
         Envs,
         ManagedContainer,
         Networks,
+        Ports,
     },
 };
 use tor_hash_passwd::EncryptedKey;
@@ -97,6 +98,11 @@ impl ManagedContainer for Tor {
         if let Some(settings) = self.settings.as_ref() {
             settings.add_common(envs);
         }
+    }
+
+    fn ports(&self, ports: &mut Ports) {
+        ports.add(9050);
+        ports.add(9051);
     }
 
     fn networks(&self, networks: &mut Networks) {

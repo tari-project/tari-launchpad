@@ -122,7 +122,7 @@ impl LaunchpadWorker {
     async fn load_configuration(&mut self) -> Result<(), Error> {
         let mut configurator = Configurator::init()?;
         let data_directory = configurator.base_path().clone();
-        configurator.repair_configuration().await?;
+        configurator.init_configuration().await?;
         let wallet_config = WalletConfig {
             password: "123".to_string().into(),
         };
