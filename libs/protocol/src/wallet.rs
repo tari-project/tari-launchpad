@@ -29,6 +29,7 @@ const HISTORY_LIMIT: usize = 30;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WalletState {
+    /// If wallet is active transactions could be sent.
     pub active: bool,
     pub balance: Option<WalletBalance>,
     pub transactions: VecDeque<WalletTransaction>,

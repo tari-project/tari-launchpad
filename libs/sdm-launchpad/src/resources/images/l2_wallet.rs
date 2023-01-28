@@ -115,6 +115,7 @@ impl ManagedContainer for TariWallet {
         ports.add(18_188);
     }
 
+    // TODO: Add `Result`
     fn args(&self, args: &mut Args) {
         if let Some(identity) = self.identity.as_ref() {
             let value = format!(
@@ -123,6 +124,8 @@ impl ManagedContainer for TariWallet {
                 identity.public_address,
             );
             args.set_pair("-p", value);
+        } else {
+            panic!("BASE NODE NOT SET");
         }
 
         args.set("--log-config", "/var/tari/config/log4rs.yml");

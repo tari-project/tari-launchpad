@@ -1,12 +1,13 @@
 mod app;
 mod dashboard;
+mod scenes;
 
 use std::env;
 
 use anyhow::{Context, Error};
 use app::App;
 use dashboard::Dashboard;
-use tari_sdm_launchpad::resources::files::Configurator;
+use tari_sdm_assets::configurator::Configurator;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {

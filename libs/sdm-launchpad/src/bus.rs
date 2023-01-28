@@ -28,12 +28,12 @@ use tari_launchpad_protocol::{
     settings::WalletConfig,
 };
 use tari_sdm::{ids::ManagedTask, Report, ReportEnvelope, SdmScope};
+use tari_sdm_assets::configurator::Configurator;
 use tokio::{select, sync::mpsc};
 
 use crate::{
     resources::{
         config::{LaunchpadProtocol, LaunchpadSettings},
-        files::Configurator,
         images,
         networks,
         volumes,
@@ -214,7 +214,7 @@ impl LaunchpadWorker {
 
     fn check_wallet_grpc(&mut self, delta: &TaskDelta) {
         if let TaskDelta::UpdateStatus(status) = delta {
-            if status.is_ready() {
+            if status.is_active() {
                 if self.wallet_grpc.is_none() {
                     let grpc = WalletGrpc::new(self.out_tx.clone());
                     self.wallet_grpc = Some(grpc);

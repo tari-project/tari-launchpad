@@ -18,6 +18,7 @@ base_node_identity_file = "/var/tari/base_node/config/igor/tar_base_node_id.json
 
 [esmeralda.base_node]
 identity_file = "/var/tari/base_node/config/esmeralda/tari_base_node_id.json"
+grpc_address = "/ip4/0.0.0.0/tcp/18142"
 
 [base_node.p2p]
 auxiliary_tcp_listener_address = "/dns4/base_node/tcp/18189"

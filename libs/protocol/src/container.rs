@@ -115,11 +115,11 @@ pub enum TaskStatus {
 }
 
 impl TaskStatus {
-    pub fn is_ready(&self) -> bool {
+    pub fn is_active(&self) -> bool {
         matches!(self, Self::Active)
     }
 
-    pub fn is_active(&self) -> bool {
+    pub fn is_started(&self) -> bool {
         !matches!(self, Self::Inactive)
     }
 
@@ -154,7 +154,7 @@ impl Frame<StatsData> {
         let prev = values.next()?;
         let cpu_delta = last.cpu_usage - prev.cpu_usage;
         let system_delta = last.system_cpu_usage - prev.system_cpu_usage;
-        Some(cpu_delta as f32 / system_delta as f32 * 100.0)
+        Some((cpu_delta as f32 / system_delta as f32 * 100.0).clamp(0.0, 100.0))
     }
 }
 

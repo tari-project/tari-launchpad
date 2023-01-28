@@ -5220,7 +5220,9 @@ dependencies = [
  "strum 0.24.1",
  "tari_launchpad_protocol",
  "tari_sdm",
+ "tari_sdm_assets",
  "tari_sdm_launchpad",
+ "tari_sim_launchpad",
  "tokio",
  "tui",
 ]
@@ -5603,12 +5605,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "tari_sdm_assets"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "dirs-next 2.0.0",
+ "tokio",
+]
+
+[[package]]
 name = "tari_sdm_launchpad"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "dirs-next 2.0.0",
  "futures",
  "log",
  "openssl",
@@ -5621,6 +5631,7 @@ dependencies = [
  "tari_common_types",
  "tari_launchpad_protocol",
  "tari_sdm",
+ "tari_sdm_assets",
  "tari_utilities",
  "tari_wallet_grpc_client",
  "tauri",
@@ -5652,6 +5663,19 @@ version = "0.38.7"
 source = "git+https://github.com/tari-project/tari?tag=v0.38.7#d9f009d2f3c82d5bad935de1aa199aef47ed3657"
 dependencies = [
  "futures",
+]
+
+[[package]]
+name = "tari_sim_launchpad"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "rand 0.8.5",
+ "tari_launchpad_protocol",
+ "tari_sdm",
+ "tari_sdm_launchpad",
+ "tokio",
 ]
 
 [[package]]
