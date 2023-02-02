@@ -98,6 +98,7 @@ pub async fn try_create_container(
     endpoints.insert(format!("{}_network", tari_workspace), endpoint);
     let options = Some(CreateContainerOptions {
         name: format!("{}_{}", tari_workspace, image.image_name()),
+        platform: None,
     });
     let config = Config::<String> {
         image: Some(fully_qualified_image_name.to_string()),

@@ -69,7 +69,7 @@ impl TestState {
             Status::ContainersActivated => {
                 if self
                     .inner
-                    .check_containers(&self.wallet_containers, TaskStatus::is_ready)
+                    .check_containers(&self.wallet_containers, TaskStatus::is_active)
                 {
                     // Try to store initial amount of funds
                     if self.set_init_funds() {
@@ -83,7 +83,7 @@ impl TestState {
             Status::MiningActivated => {
                 if self
                     .inner
-                    .check_containers(&self.mining_containers, TaskStatus::is_ready)
+                    .check_containers(&self.mining_containers, TaskStatus::is_active)
                 {
                     self.status = Status::WaitMining;
                 }

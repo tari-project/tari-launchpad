@@ -102,7 +102,7 @@ impl<'a, 'b> ContainersScene<'a, 'b> {
         let block = Block::default().title("Fails").borders(Borders::ALL);
         let mut text = String::new();
         if let Some(err) = state.as_ref().and_then(|state| state.fails.last()) {
-            text.push_str(&err);
+            text.push_str(err);
         }
         let paragraph = Paragraph::new(text).wrap(Wrap { trim: true }).block(block);
         self.f.render_widget(paragraph, vertical[1]);
