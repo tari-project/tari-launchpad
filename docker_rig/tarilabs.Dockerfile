@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.3
 # rust source compile with cross platform build support
-FROM --platform=$BUILDPLATFORM rust:1.62-bullseye as builder
+FROM --platform=$BUILDPLATFORM rust:1.67-bullseye as builder
 
 # Declare to make available
 ARG BUILDPLATFORM
@@ -65,6 +65,7 @@ ADD comms comms
 ADD infrastructure infrastructure
 ADD meta meta
 ADD buildtools/deps_only buildtools/deps_only
+ADD integration_tests integration_tests
 
 RUN --mount=type=cache,id=rust-git-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/home/rust/.cargo/git \
     --mount=type=cache,id=rust-home-registry-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/home/rust/.cargo/registry \
