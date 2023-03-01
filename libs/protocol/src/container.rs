@@ -21,12 +21,14 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::{collections::VecDeque, fmt};
+use std::fmt;
 
 use byte_unit::Byte;
 use chrono::NaiveDateTime;
 use derive_more::{Display, From, Into};
 use serde::{Deserialize, Serialize};
+
+use crate::frame::Frame;
 
 #[derive(Debug, Clone, From, Into, PartialOrd, Ord, PartialEq, Eq, Hash, Display, Serialize, Deserialize)]
 pub struct TaskId(String);
@@ -45,13 +47,16 @@ impl AsRef<str> for TaskId {
 
 const TAIL_LIMIT: usize = 30;
 
+const FAILS_LIMIT: usize = 10;
+
 const STATS_LIMIT: usize = 30;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskState {
     pub status: TaskStatus,
-    pub tail: VecDeque<String>,
-    pub stats: TaskStats,
+    pub tail: Frame<String>,
+    pub fails: Frame<String>,
+    pub stats: Frame<StatsData>,
     pub permanent: bool,
 }
 
@@ -59,8 +64,9 @@ impl TaskState {
     pub fn new(permanent: bool) -> Self {
         Self {
             status: TaskStatus::Inactive,
-            tail: VecDeque::with_capacity(TAIL_LIMIT),
-            stats: TaskStats::new(),
+            tail: Frame::new(TAIL_LIMIT),
+            fails: Frame::new(FAILS_LIMIT),
+            stats: Frame::new(STATS_LIMIT),
             permanent,
         }
     }
@@ -71,10 +77,10 @@ impl TaskState {
                 self.status = status;
             },
             TaskDelta::LogRecord(record) => {
-                if self.tail.len() == TAIL_LIMIT {
-                    self.tail.pop_back();
-                }
-                self.tail.push_front(record);
+                self.tail.push(record);
+            },
+            TaskDelta::LogError(record) => {
+                self.fails.push(record);
             },
             TaskDelta::StatsRecord(record) => {
                 self.stats.push(record);
@@ -109,11 +115,11 @@ pub enum TaskStatus {
 }
 
 impl TaskStatus {
-    pub fn is_ready(&self) -> bool {
+    pub fn is_active(&self) -> bool {
         matches!(self, Self::Active)
     }
 
-    pub fn is_active(&self) -> bool {
+    pub fn is_started(&self) -> bool {
         !matches!(self, Self::Inactive)
     }
 
@@ -137,41 +143,18 @@ impl fmt::Display for TaskStatus {
 pub enum TaskDelta {
     UpdateStatus(TaskStatus),
     LogRecord(String),
+    LogError(String),
     StatsRecord(StatsData),
 }
 
-// TODO: Add own `Frame` type and use if for
-// logs as well.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TaskStats {
-    pub stats_frame: VecDeque<StatsData>,
-}
-
-impl TaskStats {
-    fn new() -> Self {
-        Self {
-            stats_frame: VecDeque::with_capacity(STATS_LIMIT),
-        }
-    }
-
-    fn push(&mut self, data: StatsData) {
-        if self.stats_frame.len() == STATS_LIMIT {
-            self.stats_frame.pop_front();
-        }
-        self.stats_frame.push_back(data);
-    }
-
-    pub fn last(&self) -> Option<&StatsData> {
-        self.stats_frame.back()
-    }
-
+impl Frame<StatsData> {
     pub fn last_cpu(&self) -> Option<f32> {
-        let mut values = self.stats_frame.iter().rev();
+        let mut values = self.iter().rev();
         let last = values.next()?;
         let prev = values.next()?;
         let cpu_delta = last.cpu_usage - prev.cpu_usage;
         let system_delta = last.system_cpu_usage - prev.system_cpu_usage;
-        Some(cpu_delta as f32 / system_delta as f32 * 100.0)
+        Some((cpu_delta as f32 / system_delta as f32 * 100.0).clamp(0.0, 100.0))
     }
 }
 

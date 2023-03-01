@@ -142,6 +142,12 @@ impl<E, P: ManagedProtocol> TaskSender<E, P> {
         let report = Report::Delta(delta);
         self.send_report(report)
     }
+
+    pub fn send_error(&self, err: String) -> Result<(), Error> {
+        let delta = TaskDelta::LogError(err);
+        let report = Report::Delta(delta);
+        self.send_report(report)
+    }
 }
 
 #[derive(Deref, DerefMut)]

@@ -162,6 +162,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         self.inner.image.envs(&mut envs);
         let opts = CreateContainerOptions {
             name: self.inner.container_name.clone(),
+            platform: None,
         };
 
         let mut networks = Networks::default();

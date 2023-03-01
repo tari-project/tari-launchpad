@@ -1,0 +1,17 @@
+[package]
+name = "tari_sim_launchpad"
+version = "0.1.0"
+edition = "2021"
+authors = ["The Tari Development Community"]
+license = "BSD-3-Clause"
+repository = "https://github.com/tari-project/tari-launchpad"
+
+[dependencies]
+tari_launchpad_protocol = { path = "../protocol" }
+tari_sdm_launchpad = { path = "../sdm-launchpad" }
+tari_sdm = { path = "../sdm" }
+
+anyhow = "1.0.68"
+tokio = { version = "1.25.0", features = ["fs"] }
+chrono = "0.4.23"
+rand = "0.8.5"

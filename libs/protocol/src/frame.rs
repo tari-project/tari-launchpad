@@ -19,16 +19,39 @@
 // SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
 
-pub mod config;
-pub mod container;
-pub mod frame;
-pub mod images;
-pub mod launchpad;
-pub mod session;
-pub mod settings;
-pub mod wallet;
+use std::collections::VecDeque;
 
-pub const ACTIONS: &str = "tari://actions";
-pub const REACTIONS: &str = "tari://reactions";
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Frame<T> {
+    length: usize,
+    data: VecDeque<T>,
+}
+
+impl<T> Frame<T> {
+    pub fn new(length: usize) -> Self {
+        Self {
+            length,
+            data: VecDeque::with_capacity(length),
+        }
+    }
+
+    pub fn iter(&self) -> impl DoubleEndedIterator<Item = &T> {
+        self.data.iter()
+    }
+
+    pub fn last(&self) -> Option<&T> {
+        self.data.back()
+    }
+
+    pub fn push(&mut self, new_item: T) -> Option<T> {
+        let mut removed_item = None;
+        if self.data.len() == self.length {
+            removed_item = self.data.pop_front();
+        }
+        self.data.push_back(new_item);
+        removed_item
+    }
+}

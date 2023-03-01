@@ -10,13 +10,13 @@ edition = "2021"
 [dependencies]
 tari_launchpad_protocol = { path = "../protocol" }
 
-anyhow = "1.0.65"
-async-trait = "0.1.57"
-bollard = "0.13.0"
+anyhow = "1.0.68"
+async-trait = "0.1.64"
+bollard = "0.14.0"
 derive_more = "0.99.17"
-futures = "0.3.24"
+futures = "0.3.26"
 log = "0.4.17"
-thiserror = "1.0.37"
-tokio = { version = "1.21.1", features = ["macros"] }
-tokio-stream = { version = "0.1.10", features = ["sync"] }
+thiserror = "1.0.38"
+tokio = { version = "1.25.0", features = ["macros"] }
+tokio-stream = { version = "0.1.11", features = ["sync"] }
 chrono = "0.4.23"

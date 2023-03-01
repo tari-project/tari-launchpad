@@ -10,13 +10,20 @@ edition = "2021"
 [dependencies]
 tari_sdm = { path = "../libs/sdm" }
 tari_sdm_launchpad = { path = "../libs/sdm-launchpad" }
+tari_sim_launchpad = { path = "../libs/sim-launchpad", optional = true }
+tari_sdm_assets = { path = "../libs/sdm-assets" }
 tari_launchpad_protocol = { path = "../libs/protocol" }
 
-anyhow = "1.0.65"
-crossterm = "0.25.0"
-env_logger = "0.9.1"
+anyhow = "1.0.68"
+crossterm = "0.26.0"
+env_logger = "0.10.0"
 log = "0.4.17"
-tokio = { version = "1.21.1", features = ["signal"] }
+log4rs = "1.2.0"
+tokio = { version = "1.25.0", features = ["signal"] }
 tui = "0.19.0"
 rand = "0.8.5"
 strum = "0.24.1"
+
+[features]
+default = []
+sim = ["tari_sim_launchpad"]

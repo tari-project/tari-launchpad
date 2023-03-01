@@ -63,7 +63,7 @@ impl TestState {
                 self.status = Status::ContainersActivated;
             },
             Status::ContainersActivated => {
-                if self.inner.check_containers(&self.containers, TaskStatus::is_ready) {
+                if self.inner.check_containers(&self.containers, TaskStatus::is_active) {
                     self.inner.change_session(|session| {
                         session.base_layer_active = false;
                     })?;
