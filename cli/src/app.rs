@@ -1,7 +1,10 @@
 use anyhow::Error;
 use crossterm::event::{Event, KeyCode};
 use tari_launchpad_protocol::launchpad::{Action, LaunchpadAction};
+#[cfg(not(feature = "sim"))]
 use tari_sdm_launchpad::LaunchpadBus;
+#[cfg(feature = "sim")]
+use tari_sim_launchpad::LaunchpadBus;
 use tokio::{
     select,
     time::{sleep, Duration, Instant},

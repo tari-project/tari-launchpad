@@ -1,52 +1,142 @@
+---
 name: Release
-on:
+
+'on':
   push:
+    paths-ignore:
+      - '**/*.md'
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+      - 'v[0-9]+.[0-9]+.[0-9]+'
     branches:
-      - build-*
+      - 'main'
+      - 'build-*'
   workflow_dispatch:
 
 jobs:
-  release:
+  builds:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, ubuntu-latest] #, windows-latest]
+        platform: [
+          macos-latest,
+          ubuntu-latest,
+        ]
+        # windows-latest,
+
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Node.js setup
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: 'yarn'
 
-      - name: Rust setup
+      - name: Rust setup (native)
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
 
-      - name: Install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-latest'
+      - name: Rust setup (macOS/aarch64)
+        if: startsWith(runner.os,'macOS')
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-apple-darwin
+          override: true
+
+      - name: Cache cargo files and outputs
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install dependencies (Linux)
+        if: startsWith(runner.os,'Linux')
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            webkit2gtk-4.0 \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - name: Install dependencies (macOS)
+        if: startsWith(runner.os,'macOS')
+        run: |
+          brew install openssl
+          echo "AARCH64_APPLE_DARWIN_OPENSSL_INCLUDE_DIR=/usr/local/opt/openssl/include" >> $GITHUB_ENV
+          echo "AARCH64_APPLE_DARWIN_OPENSSL_LIB_DIR=/usr/local/opt/openssl/lib" >> $GITHUB_ENV
+
       - name: Install app dependencies and build web
         run: |
           yarn
           cd ./gui-react
           yarn
 
-      - name: Build the app
-        uses: tauri-apps/tauri-action@v0
-
+      - name: Build the app (Linux)
+        if: startsWith(runner.os,'Linux')
+        continue-on-error: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CI: false
+        run: |
+          yarn run tauri build --target x86_64-unknown-linux-gnu
+          # yarn run tauri build --target aarch64-unknown-linux-gnu
+
+      - name: Build the app (macOS)
+        if: startsWith(runner.os,'macOS')
+        continue-on-error: true
+        env:
+          CI: false
+        run: |
+          yarn run tauri build --target x86_64-apple-darwin
+          yarn run tauri build --target aarch64-apple-darwin
+          yarn run tauri build --target universal-apple-darwin
+
+      - name: Prepare packages - ${{ matrix.platform }}
+        shell: bash
+        run: |
+          # /target/**/release/bundle/macos/tari-launchpad*.app
+          target_temp="${{ runner.temp }}/${{ matrix.platform }}"
+          mkdir -p "${target_temp}"
+          find "${{ github.workspace }}/target/" \( -iname "*.deb" -o -iname "*.AppImage" \
+            -o -iname "*.dmg" \) -exec cp -v {} ${target_temp} \;
+          cd "${target_temp}"
+          shasum -a 256 * >> "${{ matrix.platform }}.txt.sha256sums"
+
+      - name: Artifact upload - ${{ matrix.platform }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v3
         with:
-          tagName: v__VERSION__ # tauri-action replaces \_\_VERSION\_\_ with the app version
-          releaseName: 'v__VERSION__'
-          releaseBody: 'See the assets to download this version and install.'
-          releaseDraft: true
-          prerelease: false
+          name: tari-launchpad-${{ matrix.platform }}
+          path: ${{ runner.temp }}/${{ matrix.platform }}
+
+  create-draft-release:
+    # tag should match - backend/(package.json|tauri.conf.json) [package:version]
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    needs: builds
+    steps:
+      - name: Download build binaries
+        uses: actions/download-artifact@v3
+        with:
+          path: tari-launchpad
+
+      - name: Verify binaries with checksums
+        shell: bash
+        working-directory: tari-launchpad
+        run: |
+          mv -v tari-launchpad-*-latest/* .
+          find . -name "*-latest.txt.sha256sums" -print | xargs cat >> tari-launchpad.txt.sha256sums
+          sha256sum -c tari-launchpad.txt.sha256sums
+
+      - name: Create draft release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "tari-launchpad/tari-launchpad_*,tari-launchpad/tari-launchpad.txt.sha256sums"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+          draft: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          replacesArtifacts: true

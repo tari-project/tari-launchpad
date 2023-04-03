@@ -36,7 +36,7 @@ use bollard::{
         StatsOptions,
     },
     errors::Error as BollardError,
-    image::CreateImageOptions,
+    image::{CreateImageOptions, RemoveImageOptions},
     models::{
         ContainerInspectResponse,
         CreateImageInfo,
@@ -51,8 +51,9 @@ use bollard::{
     },
     system::EventsOptions,
 };
+use chrono::Local;
 use futures::{StreamExt, TryStreamExt};
-use tari_launchpad_protocol::container::TaskProgress;
+use tari_launchpad_protocol::container::{StatsData, TaskProgress};
 
 use super::{ContainerState, Event, ImageTask};
 use crate::{
@@ -124,7 +125,6 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         Forwarder::start(stream, ProgressConv, sender)
     }
 
-    // TODO: Add stats_stream as well
     pub fn logs_stream(&mut self) -> Logs {
         let opts = LogsOptions::<String> {
             follow: true,
@@ -162,6 +162,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         self.inner.image.envs(&mut envs);
         let opts = CreateContainerOptions {
             name: self.inner.container_name.clone(),
+            platform: None,
         };
 
         let mut networks = Networks::default();
@@ -224,6 +225,16 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         self.driver
             .remove_container(&self.inner.container_name, Some(opts))
             .await?;
+        Ok(())
+    }
+
+    pub async fn try_remove_image(&mut self) -> Result<(), Error> {
+        let image_name = self.inner.image_name.as_ref();
+        let opts = Some(RemoveImageOptions {
+            force: true,
+            ..Default::default()
+        });
+        self.driver.remove_image(image_name, opts, None).await?;
         Ok(())
     }
 
@@ -329,9 +340,23 @@ fn log_conv(res: Result<LogOutput, BollardError>) -> Result<String, Error> {
     }
 }
 
-fn stat_conv(_res: Result<BollardStats, BollardError>) -> Result<(), Error> {
-    // TODO: Implement it
-    Ok(())
+fn stat_conv(res: Result<BollardStats, BollardError>) -> Result<StatsData, Error> {
+    if let Ok(BollardStats {
+        cpu_stats,
+        memory_stats,
+        ..
+    }) = res
+    {
+        Ok(StatsData {
+            timestamp: Local::now().naive_local(),
+            system_cpu_usage: cpu_stats.system_cpu_usage.unwrap_or_default() as i64,
+            cpu_usage: cpu_stats.cpu_usage.total_usage as i64,
+            mem_limit: memory_stats.limit.unwrap_or_default().into(),
+            mem_usage: memory_stats.usage.unwrap_or_default().into(),
+        })
+    } else {
+        Err(anyhow!("Unsupported stats event: {:?}", res))
+    }
 }
 
 struct ProgressConv;

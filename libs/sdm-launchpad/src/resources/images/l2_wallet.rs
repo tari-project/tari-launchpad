@@ -25,6 +25,7 @@ use std::ops::Deref;
 
 use anyhow::Error;
 use async_trait::async_trait;
+use tari_launchpad_protocol::container::TaskProgress;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
     image::{
@@ -39,7 +40,10 @@ use tari_sdm::{
     },
 };
 use tari_utilities::hex::Hex;
-use tari_wallet_grpc_client::{grpc::GetIdentityRequest, WalletGrpcClient};
+use tari_wallet_grpc_client::{
+    grpc::{check_connectivity_response::OnlineStatus, GetConnectivityRequest, GetIdentityRequest},
+    WalletGrpcClient,
+};
 
 use super::{TariBaseNode, DEFAULT_REGISTRY, GENERAL_VOLUME};
 use crate::resources::{
@@ -90,7 +94,6 @@ impl ManagedContainer for TariWallet {
         self.wallet = config.settings.as_ref().and_then(|s| s.wallet.clone());
         let session = &self.settings.as_ref()?.session;
         self.wallet.as_ref()?;
-        self.identity.as_ref()?;
         Some(session.all_active || session.base_layer_active || session.wallet_active)
     }
 
@@ -112,20 +115,23 @@ impl ManagedContainer for TariWallet {
         ports.add(18_188);
     }
 
+    // TODO: Add `Result`
     fn args(&self, args: &mut Args) {
-        args.set("--log-config", "/var/tari/config/log4rs.yml");
-        args.set("--seed-words-file", "/var/tari/config/seed_words.txt");
-        args.flag("--enable-grpc");
-        args.flag("-n");
-
         if let Some(identity) = self.identity.as_ref() {
             let value = format!(
                 "wallet.custom_base_node={}::{}",
                 identity.public_key.to_hex(),
-                identity.public_address
+                identity.public_address,
             );
             args.set_pair("-p", value);
+        } else {
+            panic!("BASE NODE NOT SET");
         }
+
+        args.set("--log-config", "/var/tari/config/log4rs.yml");
+        args.set("--seed-words-file", "/var/tari/config/seed_words.txt");
+        args.flag("--enable-grpc");
+        args.flag("-n");
     }
 
     fn envs(&self, envs: &mut Envs) {
@@ -167,11 +173,15 @@ impl ManagedContainer for TariWallet {
 
 struct Checker {
     identity_sent: bool,
+    online: bool,
 }
 
 impl Checker {
     fn new() -> Self {
-        Self { identity_sent: false }
+        Self {
+            identity_sent: false,
+            online: false,
+        }
     }
 }
 
@@ -186,6 +196,36 @@ impl ContainerChecker<LaunchpadProtocol> for Checker {
             let event = LaunchpadInnerEvent::WalletIdentityReady(identity);
             ctx.notify(event)?;
             self.identity_sent = true;
+        }
+
+        if !self.online {
+            let request = GetConnectivityRequest {};
+            let status_num = client.check_connectivity(request).await?.into_inner().status;
+            let status = OnlineStatus::from_i32(status_num);
+            let stage;
+            match status {
+                Some(OnlineStatus::Online) => {
+                    stage = "Online";
+                    self.online = true;
+                },
+                Some(OnlineStatus::Offline) => {
+                    stage = "Offline";
+                },
+                Some(OnlineStatus::Connecting) => {
+                    stage = "Connecting";
+                },
+                None => {
+                    stage = "Unknown status";
+                },
+            }
+            let progress = TaskProgress {
+                pct: 10,
+                stage: stage.into(),
+            };
+            ctx.report(CheckerEvent::Progress(progress)).ok();
+        }
+
+        if self.identity_sent && self.online {
             ctx.report(CheckerEvent::Ready).ok();
         }
 

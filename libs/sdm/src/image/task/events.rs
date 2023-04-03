@@ -33,6 +33,7 @@ use crate::{
 
 impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     pub fn process_event_impl(&mut self, event: Event) -> Result<(), Error> {
+        log::warn!("EVENT: {event:?}");
         match event {
             Event::Created => self.on_created(),
             Event::PullingProgress(value) => self.on_pulling_progress(value),
@@ -69,14 +70,12 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         if let Status::WaitContainerStarted { .. } = self.status.get() {
             let checker = self.inner.image.checker();
             let logs = self.logs_stream();
-            // TODO: Forward stats to the state
-            let _stats = self.stats_stream();
+            let stats = self.stats_stream();
             let sender = self.sender().clone();
-            let context = CheckerContext::new(logs, sender);
+            let context = CheckerContext::new(logs, stats, sender);
             let fur = checker.entrypoint(context);
             let checker = tokio::spawn(fur).into();
-            self.status.set(Status::Started { checker });
-            // TODO: Track logs for the ready checker...
+            self.status.set(Status::Active { checker, ready: false });
         }
         Ok(())
     }
@@ -86,13 +85,17 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     fn on_checker_event(&mut self, event: CheckerEvent) -> Result<(), Error> {
-        if let Status::Started { .. } = self.status.get() {
+        if let Status::Active { .. } = self.status.get() {
             match event {
                 CheckerEvent::Progress(progress) => {
                     self.update_task_status(TaskStatus::Progress(progress))?;
                 },
                 CheckerEvent::Ready => {
-                    self.status.set(Status::Ready);
+                    self.status.update(|status| {
+                        if let Status::Active { ready, .. } = status {
+                            *ready = true;
+                        }
+                    });
                     self.update_task_status(TaskStatus::Active)?;
                 },
             }
@@ -105,7 +108,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
             Status::WaitContainerKilled => {
                 self.status.set(Status::CleanDangling);
             },
-            Status::Started { .. } => {
+            Status::Active { .. } => {
                 // TODO: Add waiting interval + fallback
                 // self.status.set(Status::CleanDangling);
             },

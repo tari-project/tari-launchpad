@@ -19,76 +19,39 @@
 // SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
 
-use derive_more::Deref;
-use tokio::time::Instant;
+use std::collections::VecDeque;
 
-use crate::task::TaskStatusChecker;
+use serde::{Deserialize, Serialize};
 
-pub struct Fallback<S> {
-    pub when: Instant,
-    pub next_status: S,
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Frame<T> {
+    length: usize,
+    data: VecDeque<T>,
 }
 
-#[derive(Deref)]
-pub struct SdmStatus<S> {
-    name: String,
-    #[deref]
-    status: S,
-    has_work: bool,
-    fallback: Option<Fallback<S>>,
-}
-
-impl<S: Default> SdmStatus<S> {
-    pub fn new(name: String) -> Self {
+impl<T> Frame<T> {
+    pub fn new(length: usize) -> Self {
         Self {
-            name,
-            status: S::default(),
-            has_work: false,
-            fallback: None,
-        }
-    }
-}
-
-impl<S> SdmStatus<S> {
-    pub fn get(&self) -> &S {
-        &self.status
-    }
-
-    pub fn has_work(&self) -> bool {
-        self.has_work
-    }
-
-    pub fn reset_has_work_flag(&mut self) {
-        self.has_work = false;
-    }
-}
-
-impl<S: TaskStatusChecker> SdmStatus<S> {
-    pub fn check_fallback(&mut self) {
-        if let Some(fallback) = self.fallback.as_ref() {
-            let now = Instant::now();
-            if fallback.when < now {
-                let fallback = self.fallback.take().unwrap();
-                self.set(fallback.next_status);
-            }
+            length,
+            data: VecDeque::with_capacity(length),
         }
     }
 
-    pub fn set(&mut self, status: S) {
-        log::debug!("Set the new status !{}::status={:?}", self.name, self.status);
-        self.status = status;
-        self.has_work = true;
-        self.fallback = None;
+    pub fn iter(&self) -> impl DoubleEndedIterator<Item = &T> {
+        self.data.iter()
     }
 
-    pub fn update<F>(&mut self, func: F)
-    where F: FnOnce(&mut S) {
-        func(&mut self.status);
+    pub fn last(&self) -> Option<&T> {
+        self.data.back()
     }
 
-    // pub fn set_fallback(&mut self, fallback: Fallback<S>) {
-    // self.fallback = Some(fallback);
-    // }
+    pub fn push(&mut self, new_item: T) -> Option<T> {
+        let mut removed_item = None;
+        if self.data.len() == self.length {
+            removed_item = self.data.pop_front();
+        }
+        self.data.push_back(new_item);
+        removed_item
+    }
 }
