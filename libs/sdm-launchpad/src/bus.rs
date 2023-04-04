@@ -124,12 +124,12 @@ impl LaunchpadWorker {
         let data_directory = configurator.base_path().clone();
         configurator.init_configuration().await?;
         let wallet_config = WalletConfig {
-            password: "123".to_string().into(),
+            password: "123".to_string(),
         };
         let config = LaunchpadSettings {
             data_directory,
             with_monitoring: true,
-            tor_control_password: "tari".to_string().into(), // create_password(16).into(),
+            tor_control_password: "tari".to_string(), // create_password(16).into(),
             wallet: Some(wallet_config),
             ..Default::default()
         };

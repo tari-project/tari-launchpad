@@ -33,7 +33,7 @@ pub use tari_launchpad_protocol::{
     settings::{LaunchpadSettings, TariNetwork, WalletConfig},
 };
 use tari_sdm::{config::ManagedProtocol, image::Envs};
-use tari_utilities::{ByteArray, Hidden};
+use tari_utilities::ByteArray;
 use tari_wallet_grpc_client::grpc::GetIdentityResponse;
 
 #[derive(Debug)]
@@ -104,7 +104,7 @@ impl TryFrom<GetIdentityResponse> for WalletIdentity {
 #[derive(Debug)]
 pub struct ConnectionSettings {
     pub session: LaunchpadSession,
-    pub tor_password: Hidden<String>,
+    pub tor_password: String,
     pub tari_network: TariNetwork,
     pub data_directory: PathBuf,
 }

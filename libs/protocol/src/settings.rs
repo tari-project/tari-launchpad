@@ -24,7 +24,6 @@
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-use tari_utilities::Hidden;
 use thiserror::Error;
 
 pub const DEFAULT_MONEROD_URL: &str = "http://stagenet.xmr-tw.org:38081,\
@@ -39,7 +38,7 @@ pub struct BaseNodeConfig {}
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct WalletConfig {
     /// The password to de/en-crypt the wallet database
-    pub password: Hidden<String>,
+    pub password: String,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
@@ -61,8 +60,7 @@ pub struct MmProxyConfig {
     /// If required, the monero username for the monero daemon
     pub monero_username: String,
     /// If required, the password needed to access the monero deamon
-    // #[serde(skip_serializing)]
-    pub monero_password: Hidden<String>,
+    pub monero_password: String,
     /// If true, provide the monero username and password to the daemon. Otherwise those strings are ignored.
     pub monero_use_auth: bool,
 }
@@ -72,7 +70,7 @@ impl Default for MmProxyConfig {
         MmProxyConfig {
             monerod_url: DEFAULT_MONEROD_URL.to_string(),
             monero_username: String::new(),
-            monero_password: Hidden::from(String::new()),
+            monero_password: String::new(),
             monero_use_auth: false,
         }
     }
@@ -99,7 +97,7 @@ pub struct LaunchpadSettings {
     /// The Tari network to use. Default = esmeralda
     pub tari_network: TariNetwork,
     /// The tor control password to share among containers.
-    pub tor_control_password: Hidden<String>,
+    pub tor_control_password: String,
     /// Whether to spin up a base node or not, with
     /// the given configuration. Usually you want this.
     pub base_node: Option<BaseNodeConfig>,
@@ -135,7 +133,7 @@ impl Default for LaunchpadSettings {
         Self {
             data_directory: PathBuf::default(),
             tari_network: TariNetwork::Esmeralda,
-            tor_control_password: Hidden::from(String::new()),
+            tor_control_password: String::new(),
             base_node: None,
             wallet: None,
             sha3_miner: None,
