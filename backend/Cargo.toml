@@ -22,32 +22,32 @@ tari_common = { git = "https://github.com/tari-project/tari", tag = "v0.38.7" }
 tari_utilities = { git = "https://github.com/tari-project/tari_utilities.git", tag = "v0.4.7" }
 tari_sdm_launchpad = { path = "../libs/sdm-launchpad", features = ["tauri"] }
 
-anyhow = "1.0.68"
+anyhow = "1.0.70"
 bollard = "0.14.0"
-chrono = "0.4.23"
+chrono = "0.4.24"
 config = "0.13.3"
 derive_more = "0.99.17"
 env_logger = "0.10.0"
 lazy_static = "1.4.0"
 log = "0.4.17"
 rand = "0.8.5"
-serde_json = "1.0.91"
-serde = { version = "1.0.152", features = ["derive"] }
+serde_json = "1.0.95"
+serde = { version = "1.0.159", features = ["derive"] }
 strum = { version = "0.24.1", features = ["derive"] }
 tauri = { version = "1.2.4", features = ["api-all", "cli", "macos-private-api"] }
-toml = "0.5.11"
+toml = "0.7.3"
 tor-hash-passwd = "1.0.1"
-thiserror = "1.0.38"
-tokio = { version = "1.25.0", features = ["sync"] }
-futures = "0.3.26"
-regex = "1.7.1"
+thiserror = "1.0.40"
+tokio = { version = "1.27.0", features = ["sync"] }
+futures = "0.3.28"
+regex = "1.7.3"
 derivative = "2.2.0"
 # Forcing this version due to conflicts in dependencies
 sqlx-core = { version = "=0.5.7" }
 tauri-plugin-sql = { git = "https://github.com/tauri-apps/tauri-plugin-sql", features = ["sqlite"], branch = "release" }
 tonic = "0.6.2"
 hex = "0.4.3"
-reqwest = { version = "0.11.14", features = ["json"] }
+reqwest = { version = "0.11.16", features = ["json"] }
 
 [features]
 # Hack to fix a tauri bug
