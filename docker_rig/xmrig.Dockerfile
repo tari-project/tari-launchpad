@@ -8,7 +8,7 @@ ARG ALPINE_VERSION
 ARG BUILDPLATFORM
 
 # https://github.com/xmrig/xmrig/releases
-ARG XMRIG_VERSION="v6.18.1"
+ARG XMRIG_VERSION="v6.19.1"
 
 RUN apk add \
     git \

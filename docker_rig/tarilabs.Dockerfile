@@ -1,6 +1,10 @@
 # syntax = docker/dockerfile:1.3
+
+# https://hub.docker.com/_/rust
+ARG RUST_VERSION=1.68
+
 # rust source compile with cross platform build support
-FROM --platform=$BUILDPLATFORM rust:1.67-bullseye as builder
+FROM --platform=$BUILDPLATFORM rust:$RUST_VERSION-bullseye as builder
 
 # Declare to make available
 ARG BUILDPLATFORM
@@ -12,6 +16,8 @@ ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
 ARG RUST_TOOLCHAIN
+ARG RUST_TARGET
+ARG RUST_VERSION
 
 # Disable anti-cache
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -85,12 +91,12 @@ RUN --mount=type=cache,id=rust-git-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sha
       export RUSTFLAGS="-C target_cpu=$ARCH" && \
       export ROARING_ARCH=$ARCH && \
       rustup target add aarch64-unknown-linux-gnu && \
-      rustup toolchain install stable-aarch64-unknown-linux-gnu ; \
+      rustup toolchain install stable-aarch64-unknown-linux-gnu --force-non-host ; \
     fi && \
     if [ -n "${RUST_TOOLCHAIN}" ] ; then \
       # Install a non-standard toolchain if it has been requested.
       # By default we use the toolchain specified in rust-toolchain.toml
-      rustup toolchain install ${RUST_TOOLCHAIN} ; \
+      rustup toolchain install ${RUST_TOOLCHAIN} --force-non-host ; \
     fi && \
     rustup target list --installed && \
     rustup toolchain list && \
@@ -106,6 +112,7 @@ ARG BUILDPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
+ARG RUST_VERSION
 
 ARG VERSION
 
@@ -136,6 +143,7 @@ RUN groupadd --gid 1000 tari && \
 
 ENV dockerfile_version=$VERSION
 ENV dockerfile_build_arch=$BUILDPLATFORM
+ENV rust_version=$RUST_VERSION
 ENV APP_NAME=${APP_NAME:-wallet}
 ENV APP_EXEC=${APP_EXEC:-tari_console_wallet}
 
