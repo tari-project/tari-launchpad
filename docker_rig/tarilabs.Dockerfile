@@ -19,12 +19,7 @@ ARG RUST_TOOLCHAIN
 ARG RUST_TARGET
 ARG RUST_VERSION
 
-# Disable anti-cache
-RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
-# https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/syntax.md#run---mounttypecache
-RUN --mount=type=cache,id=build-apt-cache-${BUILDOS}-${BUILDARCH}${BUILDVARIANT},sharing=locked,target=/var/cache/apt \
-    --mount=type=cache,id=build-apt-lib-${BUILDOS}-${BUILDARCH}${BUILDVARIANT},sharing=locked,target=/var/lib/apt \
-  apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y \
   apt-transport-https \
   bash \
   ca-certificates \
@@ -52,6 +47,7 @@ ENV CARGO_HTTP_MULTIPLEXING=false
 ARG VERSION=1.0.1
 ARG APP_NAME=wallet
 ARG APP_EXEC=tari_console_wallet
+ARG TARI_NETWORK
 
 RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ] && [ "${ARCH}" = "native" ] ; then \
       echo "!! Cross-compile and native ARCH not a good idea !! " ; \
@@ -73,12 +69,7 @@ ADD meta meta
 ADD buildtools/deps_only buildtools/deps_only
 ADD integration_tests integration_tests
 
-RUN --mount=type=cache,id=rust-git-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/home/rust/.cargo/git \
-    --mount=type=cache,id=rust-home-registry-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/home/rust/.cargo/registry \
-    --mount=type=cache,id=rust-local-registry-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/usr/local/cargo/registry \
-    --mount=type=cache,id=rust-src-target-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/home/rust/src/target \
-    --mount=type=cache,id=rust-target-${TARGETOS}-${TARGETARCH}${TARGETVARIANT},sharing=locked,target=/tari/target \
-    if [ "${TARGETARCH}" = "arm64" ] && [ "${BUILDARCH}" != "${TARGETARCH}" ] ; then \
+RUN if [ "${TARGETARCH}" = "arm64" ] && [ "${BUILDARCH}" != "${TARGETARCH}" ] ; then \
       # Hardcoded ARM64 envs for cross-compiling - FixMe soon
       export BUILD_TARGET="aarch64-unknown-linux-gnu/" && \
       export RUST_TARGET="--target=aarch64-unknown-linux-gnu" && \
@@ -118,6 +109,7 @@ ARG VERSION
 
 ARG APP_NAME
 ARG APP_EXEC
+ARG TARI_NETWORK
 
 # Disable Prompt During Packages Installation
 ARG DEBIAN_FRONTEND=noninteractive
@@ -146,6 +138,7 @@ ENV dockerfile_build_arch=$BUILDPLATFORM
 ENV rust_version=$RUST_VERSION
 ENV APP_NAME=${APP_NAME:-wallet}
 ENV APP_EXEC=${APP_EXEC:-tari_console_wallet}
+ENV TARI_NETWORK=$TARI_NETWORK
 
 RUN mkdir -p "/var/tari/${APP_NAME}" && \
     chown -R tari:tari "/var/tari/${APP_NAME}"
