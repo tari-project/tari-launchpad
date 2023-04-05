@@ -69,6 +69,7 @@ build_tari_image() {
     --build-arg VERSION=$2 \
     --build-arg APP_NAME=$4 \
     --build-arg APP_EXEC=$5 \
+    --build-arg TARI_NETWORK=${TARI_NETWORK} \
     $6 $7 $8 $9 \
     -t ${TL_TAG_URL}/$1:$2 $3 ${TL_TAG_BUILD_Extra} ${TL_TAG_CMD}
 }
