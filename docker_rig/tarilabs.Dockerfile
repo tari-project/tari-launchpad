@@ -19,23 +19,26 @@ ARG RUST_TOOLCHAIN
 ARG RUST_TARGET
 ARG RUST_VERSION
 
-RUN apt-get update && apt-get install -y \
-  apt-transport-https \
-  bash \
-  ca-certificates \
-  curl \
-  gpg \
-  iputils-ping \
-  less \
-  libreadline-dev \
-  libsqlite3-0 \
-  openssl \
-  telnet \
-  cargo \
-  clang \
-  gcc-aarch64-linux-gnu \
-  g++-aarch64-linux-gnu \
-  cmake
+RUN export DEBIAN_FRONTEND=noninteractive \
+  && apt-get -y update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    apt-transport-https \
+    apt-utils \
+  && apt-get install -y --no-install-recommends \
+    bash \
+    curl \
+    gpg \
+    iputils-ping \
+    less \
+    libreadline-dev \
+    libsqlite3-0 \
+    openssl \
+    telnet \
+    cargo \
+    clang \
+    gcc-aarch64-linux-gnu \
+    g++-aarch64-linux-gnu \
+    cmake
 
 ARG ARCH=native
 #ARG FEATURES=avx2
@@ -55,19 +58,19 @@ RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ] && [ "${ARCH}" = "native" ] ; then 
 
 WORKDIR /tari
 
-ADD Cargo.toml .
-ADD Cargo.lock .
-ADD rust-toolchain.toml .
-ADD applications applications
-ADD base_layer base_layer
-ADD clients clients
-ADD common common
-ADD common_sqlite common_sqlite
-ADD comms comms
-ADD infrastructure infrastructure
-ADD meta meta
-ADD buildtools/deps_only buildtools/deps_only
-ADD integration_tests integration_tests
+COPY Cargo.toml .
+COPY Cargo.lock .
+COPY rust-toolchain.toml .
+COPY applications applications
+COPY base_layer base_layer
+COPY clients clients
+COPY common common
+COPY common_sqlite common_sqlite
+COPY comms comms
+COPY infrastructure infrastructure
+COPY meta meta
+COPY buildtools/deps_only buildtools/deps_only
+COPY integration_tests integration_tests
 
 RUN if [ "${TARGETARCH}" = "arm64" ] && [ "${BUILDARCH}" != "${TARGETARCH}" ] ; then \
       # Hardcoded ARM64 envs for cross-compiling - FixMe soon
@@ -111,22 +114,28 @@ ARG APP_NAME
 ARG APP_EXEC
 ARG TARI_NETWORK
 
-# Disable Prompt During Packages Installation
-ARG DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && apt-get --no-install-recommends install -y \
-  apt-transport-https \
-  bash \
-  ca-certificates \
-  curl \
-  gpg \
-  iputils-ping \
-  less \
-  libreadline8 \
-  libreadline-dev \
-  libsqlite3-0 \
-  openssl \
-  telnet
+RUN export DEBIAN_FRONTEND=noninteractive \
+  && apt-get -y update \
+  && apt-get --no-install-recommends install -y \
+    ca-certificates \
+    apt-transport-https \
+    apt-utils \
+  && apt-get --no-install-recommends install -y \
+    bash \
+    procps \
+    lsof \
+    less \
+    curl \
+    gpg \
+    iputils-ping \
+    libreadline8 \
+    libreadline-dev \
+    libsqlite3-0 \
+    openssl \
+    telnet \
+  && apt-get clean all \
+  && apt-get autoremove -y \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN groupadd --gid 1000 tari && \
     useradd --create-home --no-log-init --shell /bin/bash \
