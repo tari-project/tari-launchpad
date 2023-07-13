@@ -25,12 +25,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        image_name:
-          [
-            monerod,
-            tor,
-            xmrig,
-          ]
+        image_name: [monerod, tor, xmrig]
         include:
           - image_name: tari_base_node
             app_name: base_node
@@ -89,13 +84,13 @@ jobs:
           # Setup dockerfile to use
           if [ "${IMAGE:0:5}" == "tari_" ]
           then
-            echo ::set-output name=dockerfile::tarilabs.Dockerfile
+            echo name=dockerfile::tarilabs.Dockerfile >> "$GITHUB_OUTPUT"
             # Strip tari_
             IMAGE=${IMAGE/tari_/}
             # Strip console_
             IMAGE=${IMAGE/console_/}
-            echo ::set-output name=app_name::${IMAGE}
-            echo ::set-output name=dockercontext::./
+            echo name=app_name::${IMAGE} >> "$GITHUB_OUTPUT"
+            echo name=dockercontext::./ >> "$GITHUB_OUTPUT"
           else
             DOCKERFILE=${IMAGE}.Dockerfile
             DOCKERCONTEXT=./applications/launchpad/docker_rig/
@@ -105,8 +100,8 @@ jobs:
               { gsub(/["]/, "", $2); printf("%s",$2) }' \
               "${GITHUB_WORKSPACE}/${DOCKERCONTEXT}${DOCKERFILE}")
 
-            echo ::set-output name=dockerfile::${DOCKERFILE}
-            echo ::set-output name=dockercontext::${DOCKERCONTEXT}
+            echo name=dockerfile::${DOCKERFILE} >> "$GITHUB_OUTPUT"
+            echo name=dockercontext::${DOCKERCONTEXT} >> "$GITHUB_OUTPUT"
 
             if [ ! -z "${SUBTAG}" ]
             then
@@ -118,7 +113,7 @@ jobs:
 
           # Set docker image tag
           echo "tag: ${TAG}"
-          echo ::set-output name=tag::$TAG
+          echo name=tag::$TAG >> "$GITHUB_OUTPUT"
 
       - name: Login to Docker Image Provider
         uses: docker/login-action@v1
