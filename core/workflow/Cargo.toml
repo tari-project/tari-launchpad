@@ -1,0 +1,10 @@
+[package]
+name = "tari-lp-workflow"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.71"
+async-trait = "0.1.68"
+tact = { path = "../tact" }
+tari-lp-bus = { path = "../bus" }

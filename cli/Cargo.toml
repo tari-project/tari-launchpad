@@ -1,29 +1,17 @@
 [package]
-name = "tari_cli_launchpad"
+name = "tari-lp-cli"
 version = "0.1.0"
-description = "Tari Launchpad (command-line)"
-authors = ["The Tari Development Community"]
-license = "BSD-3-Clause"
-repository = "https://github.com/tari-project/tari-launchpad"
 edition = "2021"
 
 [dependencies]
-tari_sdm = { path = "../libs/sdm" }
-tari_sdm_launchpad = { path = "../libs/sdm-launchpad" }
-tari_sim_launchpad = { path = "../libs/sim-launchpad", optional = true }
-tari_sdm_assets = { path = "../libs/sdm-assets" }
-tari_launchpad_protocol = { path = "../libs/protocol" }
-
-anyhow = "1.0.70"
+anyhow = "1.0.71"
+async-trait = "0.1.68"
 crossterm = "0.26.1"
-env_logger = "0.10.0"
-log = "0.4.17"
-log4rs = "1.2.0"
-tokio = { version = "1.27.0", features = ["signal"] }
+derive_more = "0.99.17"
+rust_decimal = "1.29.1"
+strum = { version = "0.24.1", features = ["derive"] }
+tact = { path = "../core/tact" }
+thiserror = "1.0.40"
+tokio = "1.28.1"
 tui = "0.19.0"
-rand = "0.8.5"
-strum = "0.24.1"
-
-[features]
-default = []
-sim = ["tari_sim_launchpad"]
+tui-textarea = "0.2.0"

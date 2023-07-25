@@ -1,0 +1,9 @@
+[package]
+name = "tari-lp-protocol"
+description = "The protocol for managing the launchpad"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+derive_more = "0.99.17"
+serde = { version = "1.0.163", features = ["derive"] }

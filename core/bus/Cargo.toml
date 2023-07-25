@@ -1,0 +1,8 @@
+[package]
+name = "tari-lp-bus"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tari-lp-protocol = { path = "../protocol" }
+tokio = "1.28.1"

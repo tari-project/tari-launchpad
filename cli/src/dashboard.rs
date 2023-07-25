@@ -1,318 +1,181 @@
-use std::io::Stdout;
+use std::{io::Stdout, time::Duration};
 
 use anyhow::Error;
+use async_trait::async_trait;
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use strum::{Display, EnumCount, EnumIter, FromRepr, IntoEnumIterator};
-use tari_launchpad_protocol::{
-    launchpad::{LaunchpadState, Reaction},
-    session::LaunchpadSession,
-    wallet::WalletState,
-};
-use tokio::sync::mpsc;
-use tui::{
-    backend::CrosstermBackend,
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
-    text::{Span, Spans},
-    widgets::{Block, Borders, Paragraph, Tabs},
-    Frame,
-    Terminal,
+use tact::{Actor, ActorContext, Do, Interval, Recipient, Task};
+use thiserror::Error;
+use tui::{backend::CrosstermBackend, Terminal};
+
+use crate::{
+    component::{Component, ComponentEvent, Input, MainView},
+    events::{EventHandle, TermEvent},
+    state::{bus::Bus, AppState, StateAction},
 };
 
-use crate::scenes::{
-    containers_scene::{Container, ContainersScene},
-    wallet_scene::WalletScene,
-};
+type Term = Terminal<CrosstermBackend<Stdout>>;
 
-#[derive(Debug, EnumCount, EnumIter, FromRepr, Clone, Copy, Display)]
-pub enum Tab {
-    Containers,
-    Wallet,
+#[derive(Debug, Error)]
+pub enum DashboardError {
+    #[error("Terminal is not connected")]
+    NoTerminal,
+    #[error("Events thread is not started")]
+    NoEvents,
+    #[error("The state is not set")]
+    NoState,
 }
 
-impl Tab {
-    fn first() -> Self {
-        Self::Containers
-    }
+pub enum DashboardEvent {
+    Terminated,
+}
 
-    fn last() -> Self {
-        Self::Wallet
-    }
+pub struct Dashboard {
+    terminal: Option<Term>,
+    event_handle: Option<EventHandle>,
+    main_view: MainView,
+    // TODO: Get the state from a bus
+    state: Option<AppState>,
+    interval: Option<Interval>,
+    supervisor: Recipient<DashboardEvent>,
+    bus: Bus,
+    changes: Option<Task>,
+}
 
-    fn next(&mut self) {
-        let repr = *self as usize;
-        *self = Self::from_repr(repr + 1).unwrap_or_else(Self::last);
-    }
-
-    fn prev(&mut self) {
-        let repr = *self as usize;
-        if repr > 0 {
-            *self = Self::from_repr(repr - 1).unwrap_or_else(Self::first);
-        } else {
-            *self = Self::first();
+impl Dashboard {
+    pub fn new(bus: Bus, supervisor: Recipient<DashboardEvent>) -> Self {
+        Self {
+            terminal: None,
+            event_handle: None,
+            main_view: MainView::new(),
+            state: None,
+            interval: None,
+            supervisor,
+            bus,
+            changes: None,
         }
     }
 }
 
-pub struct DashboardState {
-    pub state: Option<LaunchpadState>,
-    pub selected_container: Container,
-    pub selected_tab: Tab,
-    pub show_help: bool,
-}
-
-impl DashboardState {
-    pub fn state(&self) -> Option<&LaunchpadState> {
-        self.state.as_ref()
-    }
-
-    pub fn wallet_state(&self) -> Option<&WalletState> {
-        self.state().map(|state| &state.wallet)
-    }
-}
-
-pub struct Dashboard {
-    terminal: Terminal<CrosstermBackend<Stdout>>,
-    events: mpsc::Receiver<Event>,
-    dashboard_state: DashboardState,
-    terminating: bool,
-}
-
-impl Dashboard {
-    pub fn init() -> Result<Self, Error> {
-        let (tx, rx) = mpsc::channel(12);
-        std::thread::spawn(move || -> Result<(), Error> {
-            loop {
-                let event = event::read()?;
-                tx.blocking_send(event)?;
-            }
-        });
+#[async_trait]
+impl Actor for Dashboard {
+    async fn initialize(&mut self, ctx: &mut ActorContext<Self>) -> Result<(), Error> {
+        let notifier = ctx.notifier(Redraw);
+        let task = self.bus.changes(notifier);
+        self.changes = Some(task);
+        let bus = self.bus.clone();
+        self.state = Some(AppState::new(bus));
+        let notifier = ctx.notifier(Tick);
+        let interval = Interval::spawn(Duration::from_millis(250), notifier);
+        self.interval = Some(interval);
         enable_raw_mode()?;
         let mut stdout = std::io::stdout();
         execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
-        let dashboard_state = DashboardState {
-            state: None,
-            selected_container: Container::BaseNode,
-            selected_tab: Tab::Containers,
-            show_help: false,
-        };
-        Ok(Self {
-            terminal,
-            events: rx,
-            dashboard_state,
-            terminating: false,
-        })
-    }
-
-    pub fn is_alive(&self) -> bool {
-        let has_active_task = self
-            .dashboard_state
-            .state
-            .as_ref()
-            .map(|state| {
-                state
-                    .containers
-                    .values()
-                    .filter(|state| !state.permanent)
-                    .any(|state| state.status.is_started())
-            })
-            .unwrap_or_default();
-
-        !self.terminating || has_active_task
-    }
-
-    pub fn terminate(&mut self) {
-        self.terminating = true;
-    }
-
-    pub fn process_delta(&mut self, reaction: Reaction) {
-        match reaction {
-            Reaction::State(state) => {
-                self.dashboard_state.state = Some(state);
-            },
-            Reaction::Delta(delta) => {
-                if let Some(state) = self.dashboard_state.state.as_mut() {
-                    state.apply(delta);
-                }
-            },
-        }
-    }
-
-    pub async fn next_event(&mut self) -> Option<Event> {
-        self.events.recv().await
-    }
-
-    pub fn process_key(&mut self, key: KeyCode) -> Option<LaunchpadSession> {
-        match key {
-            KeyCode::Up | KeyCode::Char('k') => {
-                self.dashboard_state.selected_container.prev();
-            },
-            KeyCode::Down | KeyCode::Char('j') => {
-                self.dashboard_state.selected_container.next();
-            },
-            KeyCode::Left | KeyCode::Char('h') => {
-                self.dashboard_state.selected_tab.prev();
-            },
-            KeyCode::Right | KeyCode::Char('l') => {
-                self.dashboard_state.selected_tab.next();
-            },
-            KeyCode::Esc | KeyCode::Tab => {
-                self.dashboard_state.show_help = !self.dashboard_state.show_help;
-            },
-            KeyCode::Char('s') => {
-                if let Some(state) = self.dashboard_state.state() {
-                    let mut session = state.config.session.clone();
-                    session.all_active = !session.all_active;
-                    return Some(session);
-                }
-            },
-            KeyCode::Char('q') => {
-                if let Some(state) = self.dashboard_state.state() {
-                    let mut session = state.config.session.clone();
-                    session.stop_all();
-                    return Some(session);
-                }
-            },
-            KeyCode::Char(' ') => {
-                if let Some(state) = self.dashboard_state.state() {
-                    let session = &state.config.session;
-                    let container = self.dashboard_state.selected_container;
-                    return Some(toggle_flag(session, container));
-                }
-            },
-            _ => {},
-        }
-        None
-    }
-
-    pub fn uninit(&mut self) -> Result<(), Error> {
-        disable_raw_mode()?;
-        execute!(self.terminal.backend_mut(), LeaveAlternateScreen, DisableMouseCapture)?;
-        self.terminal.show_cursor()?;
+        self.terminal = Some(terminal);
+        let addr = ctx.address().clone();
+        let handle = EventHandle::new(addr);
+        self.event_handle = Some(handle);
+        ctx.do_next(Redraw)?;
         Ok(())
     }
 
-    pub fn render(&mut self) -> Result<(), Error> {
-        self.terminal.draw(|f| {
-            let mut render = Render {
-                f,
-                dashboard_state: &self.dashboard_state,
-            };
-            render.render();
+    async fn finalize(&mut self, _ctx: &mut ActorContext<Self>) -> Result<(), Error> {
+        disable_raw_mode()?;
+        let mut terminal = self.terminal.take().ok_or_else(|| DashboardError::NoTerminal)?;
+        execute!(terminal.backend_mut(), LeaveAlternateScreen, DisableMouseCapture)?;
+        terminal.show_cursor()?;
+        self.supervisor.send(DashboardEvent::Terminated)?;
+        Ok(())
+    }
+}
+
+#[async_trait]
+impl Do<TermEvent> for Dashboard {
+    type Error = Error;
+
+    async fn handle(&mut self, event: TermEvent, ctx: &mut ActorContext<Self>) -> Result<(), Self::Error> {
+        match event {
+            TermEvent::Event(event) => {
+                if let Event::Key(key) = event {
+                    if let KeyCode::Char('q') = key.code {
+                        self.event_handle
+                            .as_mut()
+                            .ok_or_else(|| DashboardError::NoEvents)?
+                            .interrupt();
+                    }
+                    let state = self.state.as_mut().ok_or_else(|| DashboardError::NoState)?;
+                    self.main_view.on_event(key.into(), state);
+                    let changed = state.process_events();
+                    if changed {
+                        ctx.do_next(Redraw)?;
+                    }
+                }
+                ctx.do_next(Redraw)?;
+            },
+            TermEvent::End => {
+                ctx.shutdown();
+            },
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone)]
+struct Tick;
+
+#[async_trait]
+impl Do<Tick> for Dashboard {
+    type Error = Error;
+
+    async fn handle(&mut self, _event: Tick, ctx: &mut ActorContext<Self>) -> Result<(), Self::Error> {
+        let state = self.state.as_mut().ok_or_else(|| DashboardError::NoState)?;
+        self.main_view.on_event(ComponentEvent::Tick, state);
+        let changed = state.process_events();
+        if changed {
+            ctx.do_next(Redraw)?;
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone)]
+struct Redraw;
+
+#[async_trait]
+impl Do<Redraw> for Dashboard {
+    type Error = Error;
+
+    async fn handle(&mut self, _event: Redraw, _ctx: &mut ActorContext<Self>) -> Result<(), Self::Error> {
+        let state = self.state.as_ref().ok_or_else(|| DashboardError::NoState)?;
+        let terminal = self.terminal.as_mut().ok_or_else(|| DashboardError::NoTerminal)?;
+        terminal.draw(|f| {
+            self.main_view.draw(f, f.size(), state);
         })?;
         Ok(())
     }
 }
 
-struct Render<'a, 'b> {
-    f: &'a mut Frame<'b, CrosstermBackend<Stdout>>,
-    dashboard_state: &'a DashboardState,
-}
+#[async_trait]
+impl Do<StateAction> for Dashboard {
+    type Error = Error;
 
-impl<'a, 'b> Render<'a, 'b> {
-    fn render(&mut self) {
-        let rect = self.render_tabs();
-        if self.dashboard_state.show_help {
-            self.render_help(rect);
-        } else {
-            match self.dashboard_state.selected_tab {
-                Tab::Containers => {
-                    let mut scene = ContainersScene {
-                        f: self.f,
-                        dashboard_state: self.dashboard_state,
-                    };
-                    scene.render(rect);
-                },
-                Tab::Wallet => {
-                    let mut scene = WalletScene {
-                        f: self.f,
-                        dashboard_state: self.dashboard_state,
-                    };
-                    scene.render(rect);
-                },
-            }
+    async fn handle(&mut self, event: StateAction, ctx: &mut ActorContext<Self>) -> Result<(), Self::Error> {
+        match event {
+            StateAction::Redraw => {
+                // let state = self.state.as_mut().ok_or_else(|| DashboardError::NoState)?;
+                // self.main_view.on_event(KeyEvent::None.into(), state);
+                // let changed = state.process_events();
+                // if changed {
+                // ctx.do_next(Redraw)?;
+                // }
+                ctx.do_next(Redraw)?;
+            },
         }
+        Ok(())
     }
-
-    fn render_help(&mut self, rect: Rect) {
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .margin(5)
-            .constraints([Constraint::Percentage(100)].as_ref())
-            .split(rect);
-
-        let text = vec![Spans::from("S - Start/Stop containers")];
-
-        let block = Block::default()
-            .borders(Borders::ALL)
-            .style(Style::default().bg(Color::White).fg(Color::Black))
-            .title(Span::styled("Help", Style::default().add_modifier(Modifier::BOLD)));
-        let paragraph = Paragraph::new(text.clone())
-            .style(Style::default().bg(Color::White).fg(Color::Black))
-            .block(block)
-            .alignment(Alignment::Left);
-        self.f.render_widget(paragraph, chunks[0]);
-    }
-
-    fn render_tabs(&mut self) -> Rect {
-        let main_chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
-            .split(self.f.size());
-
-        let titles = Tab::iter()
-            .map(|s| Spans::from(vec![Span::raw(s.to_string())]))
-            .collect();
-        let tabs = Tabs::new(titles)
-            .block(Block::default().borders(Borders::ALL).title("Tabs"))
-            .select(self.dashboard_state.selected_tab as usize)
-            .style(Style::default().fg(Color::Cyan))
-            .highlight_style(Style::default().add_modifier(Modifier::BOLD).bg(Color::Black));
-        self.f.render_widget(tabs, main_chunks[0]);
-        main_chunks[1]
-    }
-}
-
-fn toggle_flag(session: &LaunchpadSession, id: Container) -> LaunchpadSession {
-    let mut session = session.clone();
-    use Container::*;
-    match id {
-        Tor => {
-            session.tor_active = !session.tor_active;
-        },
-        BaseNode => {
-            session.base_node_active = !session.base_node_active;
-        },
-        Wallet => {
-            session.wallet_active = !session.wallet_active;
-        },
-        Miner => {
-            session.miner_active = !session.miner_active;
-        },
-        MmProxy => {
-            session.mmproxy_active = !session.mmproxy_active;
-        },
-        Monerod => {
-            session.monerod_active = !session.monerod_active;
-        },
-        XMRig => {
-            session.xmrig_active = !session.xmrig_active;
-        },
-        Grafana => {
-            session.grafana_active = !session.grafana_active;
-        },
-        Loki => {
-            session.loki_active = !session.loki_active;
-        },
-        Promtail => {
-            session.promtail_active = !session.promtail_active;
-        },
-    }
-    session
 }
