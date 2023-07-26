@@ -36,7 +36,7 @@ pub trait ManagedContainer: fmt::Debug + Send + 'static {
     type Protocol: ManagedProtocol;
 
     fn checker(&mut self) -> Box<dyn ContainerChecker<Self::Protocol>> {
-        Box::new(ReadyIfStarted::default())
+        Box::<ReadyIfStarted>::default()
     }
 
     /// Reconfigures the task and return a flag should the container be active?

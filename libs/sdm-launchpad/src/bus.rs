@@ -41,6 +41,9 @@ use crate::{
     wallet_grpc::WalletGrpc,
 };
 
+pub type BusTx = mpsc::UnboundedSender<Action>;
+pub type BusRx = mpsc::UnboundedReceiver<Reaction>;
+
 pub struct LaunchpadBus {
     // pub handle: JoinHandle<()>,
     pub incoming: mpsc::UnboundedSender<Action>,
@@ -70,6 +73,7 @@ pub struct LaunchpadWorker {
 }
 
 impl LaunchpadWorker {
+    // TODO: Convert it to an actor
     #[tokio::main]
     async fn create_and_run(
         in_rx: mpsc::UnboundedReceiver<Action>,
@@ -124,12 +128,12 @@ impl LaunchpadWorker {
         let data_directory = configurator.base_path().clone();
         configurator.init_configuration().await?;
         let wallet_config = WalletConfig {
-            password: "123".to_string().into(),
+            password: "123".to_string(),
         };
         let config = LaunchpadSettings {
             data_directory,
             with_monitoring: true,
-            tor_control_password: "tari".to_string().into(), // create_password(16).into(),
+            tor_control_password: "tari".to_string(), // create_password(16).into(),
             wallet: Some(wallet_config),
             ..Default::default()
         };

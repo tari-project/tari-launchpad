@@ -7,6 +7,6 @@ license = "BSD-3-Clause"
 repository = "https://github.com/tari-project/tari-launchpad"
 
 [dependencies]
-anyhow = "1.0.70"
+anyhow = "1.0.72"
 dirs-next = "2.0.0"
-tokio = { version = "1.27.0", features = ["fs"] }
+tokio = { version = "1.29.1", features = ["fs"] }

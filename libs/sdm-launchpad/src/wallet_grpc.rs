@@ -133,8 +133,8 @@ impl WalletGrpcWorker {
             let wt = WalletTransaction {
                 event: value.event,
                 tx_id: value.tx_id,
-                source_pk: value.source_pk,
-                dest_pk: value.dest_pk,
+                // source_pk: value.source_pk,
+                // dest_pk: value.dest_pk,
                 status: value.status,
                 direction: value.direction,
                 amount: value.amount,

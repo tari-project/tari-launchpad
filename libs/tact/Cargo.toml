@@ -1,0 +1,14 @@
+[package]
+name = "tact"
+description = "The tiny actors library"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.71"
+async-trait = "0.1.68"
+derive_more = "0.99.17"
+futures = "0.3.28"
+log = "0.4.17"
+thiserror = "1.0.40"
+tokio = { version = "1.28.1", features = ["full"] }
