@@ -26,9 +26,18 @@ use std::{collections::HashMap, fmt};
 use anyhow::Error;
 use async_trait::async_trait;
 use bollard::Docker;
+use chrono::Local;
 use derive_more::{Deref, DerefMut};
 use futures::StreamExt;
-use tari_launchpad_protocol::container::{StatsData, TaskDelta, TaskId, TaskState, TaskStatus as TaskStatusValue};
+use tari_launchpad_protocol::container::{
+    LogLevel,
+    LogRecord,
+    StatsData,
+    TaskDelta,
+    TaskId,
+    TaskState,
+    TaskStatus as TaskStatusValue,
+};
 use tokio::{
     select,
     sync::{broadcast, mpsc},
@@ -131,7 +140,13 @@ impl<E, P: ManagedProtocol> TaskSender<E, P> {
             .map_err(|_| Error::msg("Can't send a report"))
     }
 
-    pub fn send_logs(&self, record: String) -> Result<(), Error> {
+    pub fn send_logs(&self, message: String) -> Result<(), Error> {
+        let record = LogRecord {
+            datetime: Local::now().naive_local(),
+            // TODO: Detect the real level
+            level: LogLevel::Info,
+            message,
+        };
         let delta = TaskDelta::LogRecord(record);
         let report = Report::Delta(delta);
         self.send_report(report)

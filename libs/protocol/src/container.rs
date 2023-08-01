@@ -27,6 +27,8 @@ use byte_unit::Byte;
 use chrono::NaiveDateTime;
 use derive_more::{Display, From, Into};
 use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
+use strum::AsRefStr;
 
 use crate::frame::Frame;
 
@@ -52,9 +54,26 @@ const FAILS_LIMIT: usize = 10;
 const STATS_LIMIT: usize = 30;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LogRecord {
+    pub datetime: NaiveDateTime,
+    pub level: LogLevel,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, AsRefStr, Serialize_repr, Deserialize_repr)]
+#[repr(u16)]
+pub enum LogLevel {
+    Trace = 0b00001,
+    Debug = 0b00010,
+    Info = 0b00100,
+    Warn = 0b01000,
+    Error = 0b10000,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskState {
     pub status: TaskStatus,
-    pub tail: Frame<String>,
+    pub tail: Frame<LogRecord>,
     pub fails: Frame<String>,
     pub stats: Frame<StatsData>,
     pub permanent: bool,
@@ -142,7 +161,7 @@ impl fmt::Display for TaskStatus {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TaskDelta {
     UpdateStatus(TaskStatus),
-    LogRecord(String),
+    LogRecord(LogRecord),
     LogError(String),
     StatsRecord(StatsData),
 }
