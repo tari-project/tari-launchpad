@@ -118,12 +118,14 @@ impl ManagedContainer for TariWallet {
     // TODO: Add `Result`
     fn args(&self, args: &mut Args) {
         if let Some(identity) = self.identity.as_ref() {
-            let value = format!(
-                "wallet.custom_base_node={}::{}",
-                identity.public_key.to_hex(),
-                identity.public_address,
-            );
-            args.set_pair("-p", value);
+            if let Some(public_address) = identity.public_addresses.get(0) {
+                let value = format!(
+                    "wallet.custom_base_node={}::{}",
+                    identity.public_key.to_hex(),
+                    public_address,
+                );
+                args.set_pair("-p", value);
+            }
         } else {
             panic!("BASE NODE NOT SET");
         }

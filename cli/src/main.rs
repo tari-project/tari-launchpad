@@ -1,12 +1,8 @@
-mod app;
-mod dashboard;
-mod scenes;
-
 use std::env;
 
 use anyhow::{Context, Error};
-use app::App;
-use dashboard::Dashboard;
+use tact::Actor;
+use tari_lp_cli::supervisor::Supervisor;
 use tari_sdm_assets::configurator::Configurator;
 
 #[tokio::main]
@@ -20,7 +16,8 @@ async fn main() -> Result<(), Error> {
 
     log4rs::init_file("config/log4rs-cli.yml", Default::default()).context("Can't read a logs configuration file")?;
 
-    let mut app = App::init()?;
-    app.routine().await?;
+    let supervisor = Supervisor::default();
+    let mut addr = supervisor.start();
+    addr.join().await?;
     Ok(())
 }

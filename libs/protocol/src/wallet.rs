@@ -85,8 +85,8 @@ pub enum WalletDelta {
 pub struct WalletTransaction {
     pub event: String,
     pub tx_id: String,
-    pub source_pk: Vec<u8>,
-    pub dest_pk: Vec<u8>,
+    // pub source_pk: Vec<u8>,
+    // pub dest_pk: Vec<u8>,
     pub status: String,
     pub direction: String,
     pub amount: u64,

@@ -33,7 +33,7 @@ pub use tari_launchpad_protocol::{
     settings::{LaunchpadSettings, TariNetwork, WalletConfig},
 };
 use tari_sdm::{config::ManagedProtocol, image::Envs};
-use tari_utilities::{ByteArray, Hidden};
+use tari_utilities::ByteArray;
 use tari_wallet_grpc_client::grpc::GetIdentityResponse;
 
 #[derive(Debug)]
@@ -55,7 +55,7 @@ pub enum LaunchpadInnerEvent {
 #[serde(rename_all = "camelCase")]
 pub struct BaseNodeIdentity {
     pub public_key: Vec<u8>,
-    pub public_address: String,
+    pub public_addresses: Vec<String>,
     node_id: Vec<u8>,
     emoji_id: String,
 }
@@ -69,7 +69,7 @@ impl TryFrom<NodeIdentity> for BaseNodeIdentity {
         let emoji_id = EmojiId::from_public_key(&public_key).to_string();
         Ok(BaseNodeIdentity {
             public_key: value.public_key,
-            public_address: value.public_address,
+            public_addresses: value.public_addresses,
             node_id: value.node_id,
             emoji_id,
         })
@@ -104,7 +104,7 @@ impl TryFrom<GetIdentityResponse> for WalletIdentity {
 #[derive(Debug)]
 pub struct ConnectionSettings {
     pub session: LaunchpadSession,
-    pub tor_password: Hidden<String>,
+    pub tor_password: String,
     pub tari_network: TariNetwork,
     pub data_directory: PathBuf,
 }
