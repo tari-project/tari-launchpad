@@ -13,5 +13,7 @@ pub static TARI_MINING: Focus = focus!();
 pub static MERGED_MINING: Focus = focus!();
 pub static BASE_NODE: Focus = focus!();
 pub static PASSWORD: Focus = focus!();
+pub static WALLET_CONTAINER: Focus = focus!();
 
 pub static LOGS_TABLE: Focus = focus!();
+pub static CONTAINERS_TABLE: Focus = focus!();

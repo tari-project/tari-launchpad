@@ -20,8 +20,12 @@ use crate::{
 struct BaseNodeHint;
 
 impl HintGetter for BaseNodeHint {
-    fn get_hint(&self, _state: &AppState) -> String {
-        "Base Node is already running!".into()
+    fn get_hint(&self, state: &AppState) -> String {
+        if state.state.config.session.is_base_node_active() {
+            "Base Node is already running!".into()
+        } else {
+            "Begin by starting the Base Node".into()
+        }
     }
 }
 

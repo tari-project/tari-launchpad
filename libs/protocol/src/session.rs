@@ -6,6 +6,7 @@ pub struct LaunchpadSession {
     pub all_active: bool,
 
     pub base_layer_active: bool,
+    pub wallet_layer_active: bool,
     pub merge_layer_active: bool,
     pub monitoring_layer_active: bool,
 
@@ -37,7 +38,7 @@ impl LaunchpadSession {
     }
 
     pub fn is_wallet_active(&self) -> bool {
-        self.all_active || self.base_layer_active || self.wallet_active
+        self.all_active || self.wallet_layer_active || self.wallet_active
     }
 
     pub fn is_miner_active(&self) -> bool {
