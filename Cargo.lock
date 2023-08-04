@@ -6433,6 +6433,7 @@ dependencies = [
  "chrono",
  "derive_more",
  "serde",
+ "serde_repr",
  "strum 0.25.0",
  "tari_utilities 0.4.10 (git+https://github.com/tari-project/tari_utilities.git?tag=v0.4.10)",
  "thiserror",

@@ -23,9 +23,10 @@
 use std::collections::{HashMap, HashSet};
 
 use anyhow::{anyhow as err, Error};
+use chrono::Local;
 use rand::Rng;
 use tari_launchpad_protocol::{
-    container::{StatsData, TaskDelta, TaskId, TaskProgress, TaskState, TaskStatus},
+    container::{LogLevel, LogRecord, StatsData, TaskDelta, TaskId, TaskProgress, TaskState, TaskStatus},
     launchpad::{Action, LaunchpadAction, LaunchpadDelta, LaunchpadState, Reaction},
     wallet::{WalletBalance, WalletDelta},
 };
@@ -170,8 +171,14 @@ impl Simulator {
         if task_status_prev.is_started() {
             // Add a log record.
             let now = chrono::Local::now();
-            let log = format!("{now} - log");
-            let delta = TaskDelta::LogRecord(log);
+            // TODO: Put the datetime to the `LogRecord` instead
+            let message = format!("{now} - log");
+            let record = LogRecord {
+                datetime: Local::now().naive_local(),
+                level: LogLevel::Info,
+                message,
+            };
+            let delta = TaskDelta::LogRecord(record);
             self.apply_task_delta(&id, delta)?;
 
             let mut rng = rand::thread_rng();

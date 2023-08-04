@@ -1,3 +1,6 @@
+mod logs;
+
+use logs::LogsScene;
 use strum::{Display, EnumCount, EnumIter, FromRepr};
 use tui::{
     backend::Backend,
@@ -30,12 +33,14 @@ impl TabGetter for ExpertTabs {
 
 pub struct ExpertScene {
     expert_tabs: AppTabs<ExpertTabs>,
+    logs_scene: LogsScene,
 }
 
 impl ExpertScene {
     pub fn new() -> Self {
         Self {
             expert_tabs: AppTabs::new(),
+            logs_scene: LogsScene::new(),
         }
     }
 }
@@ -43,6 +48,13 @@ impl ExpertScene {
 impl Input for ExpertScene {
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
         self.expert_tabs.on_event(event, state);
+        match self.expert_tabs.selected() {
+            ExpertTabs::Performance => {},
+            ExpertTabs::Containers => {},
+            ExpertTabs::Logs => {
+                self.logs_scene.on_event(event, state);
+            },
+        }
     }
 }
 
@@ -56,5 +68,12 @@ impl<B: Backend> Component<B> for ExpertScene {
             .constraints(constraints)
             .split(rect);
         self.expert_tabs.draw(f, chunks[0], state);
+        match self.expert_tabs.selected() {
+            ExpertTabs::Performance => {},
+            ExpertTabs::Containers => {},
+            ExpertTabs::Logs => {
+                self.logs_scene.draw(f, chunks[1], state);
+            },
+        }
     }
 }
