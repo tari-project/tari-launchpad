@@ -9,7 +9,6 @@ use crate::{
     component::{
         elements::{block_with_title, logo},
         normal::chrono_button::{ChronoButton, ChronoGetter},
-        widgets::LabeledInput,
         Component,
         ComponentEvent,
         Frame,
@@ -20,65 +19,62 @@ use crate::{
 };
 
 const LOGO: &str = r#"
-╔═╗┌┐┌┌┬┐┌─┐┬─┐  ╔═╗┌─┐┌─┐┌─┐┬ ┬┌─┐┬─┐┌┬┐
-║╣ │││ │ ├┤ ├┬┘  ╠═╝├─┤└─┐└─┐││││ │├┬┘ ││
-╚═╝┘└┘ ┴ └─┘┴└─  ╩  ┴ ┴└─┘└─┘└┴┘└─┘┴└──┴┘
+╦ ╦┌─┐┬  ┬  ┌─┐┌┬┐
+║║║├─┤│  │  ├┤  │
+╚╩╝┴ ┴┴─┘┴─┘└─┘ ┴
 "#;
 
-struct PasswordWidgetGetter;
+struct WalletContainerGetter;
 
-impl ChronoGetter for PasswordWidgetGetter {
+impl ChronoGetter for WalletContainerGetter {
     fn get_duration(&self, _state: &AppState) -> Option<Duration> {
         None
     }
 
-    fn get_label(&self, _state: &AppState) -> &str {
-        if false {
+    fn get_label(&self, state: &AppState) -> &str {
+        if state.state.config.session.is_wallet_active() {
             "Pause"
         } else {
-            "Start node"
+            "Start wallet"
         }
     }
 }
 
-pub struct PasswordWidget {
-    password: LabeledInput,
-    button: ChronoButton<PasswordWidgetGetter>,
+pub struct WalletContainerWidget {
+    button: ChronoButton<WalletContainerGetter>,
 }
 
-impl PasswordWidget {
+impl WalletContainerWidget {
     pub fn new() -> Self {
         Self {
-            password: LabeledInput::new("Password"),
-            button: ChronoButton::new(PasswordWidgetGetter),
+            button: ChronoButton::new(WalletContainerGetter),
         }
     }
 }
 
-impl Input for PasswordWidget {
+impl Input for WalletContainerWidget {
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
-        if state.focus_on == focus::PASSWORD {
-            self.password.set_focus(true);
+        if state.focus_on == focus::WALLET_CONTAINER {
             match event.pass() {
                 Pass::Up | Pass::Leave => {
                     state.focus_on(focus::ROOT);
                 },
                 Pass::Enter | Pass::Space => {
-                    // TODO: Toggle the base node state
+                    let session = &mut state.state.config.session;
+                    session.wallet_active = !session.wallet_active;
+                    state.update_state();
                 },
                 _ => {},
             }
-        } else {
-            self.password.set_focus(false);
         }
     }
 }
 
-impl<B: Backend> Component<B> for PasswordWidget {
+impl<B: Backend> Component<B> for WalletContainerWidget {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Wallet"), state.focus_on == focus::PASSWORD);
+        let block = block_with_title(Some("Wallet"), state.focus_on == focus::WALLET_CONTAINER);
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
 
@@ -88,7 +84,6 @@ impl<B: Backend> Component<B> for PasswordWidget {
             // Constraint::Percentage(50),
             Constraint::Length(1),
             Constraint::Min(0),
-            Constraint::Length(3),
             Constraint::Length(1),
         ];
         let v_chunks = Layout::default()
@@ -102,7 +97,6 @@ impl<B: Backend> Component<B> for PasswordWidget {
 
         // self.tari_amount.draw(f, v_chunks[2], state);
 
-        self.password.draw(f, v_chunks[4], state);
-        self.button.draw(f, v_chunks[5], state);
+        self.button.draw(f, v_chunks[4], state);
     }
 }

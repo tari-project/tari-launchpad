@@ -5990,6 +5990,7 @@ dependencies = [
  "strum 0.24.1",
  "tact",
  "tari_launchpad_protocol",
+ "tari_sdm",
  "tari_sdm_assets",
  "tari_sdm_launchpad",
  "tari_sim_launchpad",

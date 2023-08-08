@@ -1,5 +1,7 @@
+mod container;
 mod password;
 
+use container::WalletContainerWidget;
 use password::PasswordWidget;
 use tui::{
     backend::Backend,
@@ -13,18 +15,22 @@ use crate::{
 
 pub struct WalletScene {
     password: PasswordWidget,
+    container: WalletContainerWidget,
 }
 
 impl WalletScene {
     pub fn new() -> Self {
         Self {
             password: PasswordWidget::new(),
+            container: WalletContainerWidget::new(),
         }
     }
 }
 
 impl Input for WalletScene {
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+        // TODO: Check the wallet is locked/unlocked
+        self.container.on_event(event, state);
         self.password.on_event(event, state);
     }
 }
@@ -45,8 +51,7 @@ impl<B: Backend> Component<B> for WalletScene {
             .direction(Direction::Horizontal)
             .constraints(constraints)
             .split(v_chunks[1]);
-        self.password.draw(f, h_chunks[0], state);
-        // self.tari_mining.draw(f, h_chunks[0], state);
-        // self.merged_mining.draw(f, h_chunks[1], state);
+        self.container.draw(f, h_chunks[0], state);
+        // self.password.draw(f, h_chunks[0], state);
     }
 }

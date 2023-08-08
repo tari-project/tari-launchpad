@@ -20,6 +20,7 @@ tui-textarea = "0.2.0"
 
 tari_launchpad_protocol = { path = "../libs/protocol" }
 tari_sdm_assets = { path = "../libs/sdm-assets" }
+tari_sdm = { path = "../libs/sdm" }
 tari_sdm_launchpad = { path = "../libs/sdm-launchpad" }
 tari_sim_launchpad = { path = "../libs/sim-launchpad", optional = true }
 
