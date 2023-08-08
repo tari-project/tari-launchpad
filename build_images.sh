@@ -43,12 +43,12 @@ build_3dparty_image() {
     -t ${TL_TAG_URL}/$2:${SUBTAG}${SUBTAG_EXTRA} $3 ${TL_TAG_BUILD_Extra} ${TL_TAG_CMD}
 }
 
-build_tari_image() {
+build_minotari_image() {
 # $1 image name
 # $2 image tag
 # $3 build from path
-# $4 APP_NAME ie: base_node
-# $5 APP_EXEC ie: tari_base_node
+# $4 APP_NAME ie: minotari_node
+# $5 APP_EXEC ie: minotari_node
 
   # Add docker tag alias - ie: latest
   if [ ! -z "${TL_TAG_ALIAS}" ]; then
@@ -85,25 +85,25 @@ build_all_3dparty_images() {
   done
 }
 
-build_tari_image_json() {
+build_minotari_image_json() {
 # $1 json image_name
 
   export $(jq --arg jsonVar "$1" -r '. [] | select(."image_name"==$jsonVar)
     | to_entries[] | .key + "=" + .value' tarisuite.json)
-  build_tari_image $image_name \
+  build_minotari_image $image_name \
     "$TL_VERSION_LONG" ${TARI_SOURCE_ROOT} \
     $app_name $app_exec
 }
 
-build_all_tari_images() {
+build_all_minotari_images() {
   for element in "${arrTariSuite[@]}"; do
-    build_tari_image_json $element
+    build_minotari_image_json $element
   done
 }
 
 build_all_images() {
   build_all_3dparty_images
-  build_all_tari_images
+  build_all_minotari_images
 }
 
 build_help_info() {
@@ -141,9 +141,9 @@ fi
 # Location of Tari source code
 TARI_SOURCE_ROOT=${TARI_SOURCE_ROOT:-"../tari"}
 
-if [ ! -f "${TARI_SOURCE_ROOT}/applications/tari_base_node/Cargo.toml" ]; then
+if [ ! -f "${TARI_SOURCE_ROOT}/applications/minotari_node/Cargo.toml" ]; then
   echo "!! Can't find Tari source code at ${TARI_SOURCE_ROOT} !!"
-  echo "searching for ${TARI_SOURCE_ROOT}/applications/tari_base_node/Cargo.toml "
+  echo "searching for ${TARI_SOURCE_ROOT}/applications/minotari_node/Cargo.toml "
   exit 2
 fi
 
@@ -153,11 +153,11 @@ if [ ! -f "${TARI_SOURCE_ROOT}/buildtools/docker_rig/start_tari_app.sh" ]; then
   cp -v docker_rig/start_tari_app.sh ${TARI_SOURCE_ROOT}/buildtools/docker_rig/start_tari_app.sh
 fi
 
-# Version refers to the base_node, wallet, etc.
+# Version refers to the node, wallet, etc.
 #  applications/tari_app_utilities/Cargo.toml
 TL_VERSION=${TL_VERSION:-$(awk -F ' = ' '$1 ~ /version/ \
   { gsub(/["]/, "", $2); printf("%s",$2) }' \
-  "${TARI_SOURCE_ROOT}/applications/tari_base_node/Cargo.toml")}
+  "${TARI_SOURCE_ROOT}/applications/minotari_node/Cargo.toml")}
 
 # Default build options - general x86-64 / AMD64
 TBN_ARCH=${TBN_ARCH:-x86-64}
@@ -182,7 +182,7 @@ TL_VERSION_LONG=${TL_VERSION_LONG:-"${TL_VERSION}${TL_TAG_BUILD_PF}"}
 #TL_TAG_ALIAS=latest
 
 # Docker Build extra commands
-#TL_TAG_BUILD_Extra=" --build-arg RUST_TOOLCHAIN=nightly-2022-05-01 "
+#TL_TAG_BUILD_Extra=" --build-arg RUST_TOOLCHAIN=nightly-2023-06-03 "
 
 arrAllTools=(  $(jq -r '.[].image_name' tarisuite.json 3rdparty.json) )
 arrTariSuite=( $(jq -r '.[].image_name' tarisuite.json) )
@@ -213,7 +213,7 @@ case $commandEnv in
     build_all_3dparty_images
     ;;
   -t | tari )
-    build_all_tari_images
+    build_all_minotari_images
     ;;
   -a | all )
     build_all_images
@@ -223,8 +223,8 @@ case $commandEnv in
     shift
     if [[ ${arrAllTools[*]} =~ (^|[[:space:]])"${1}"($|[[:space:]]) ]]; then
       echo "Image found - $1"
-      if [ "${1:0:5}" == "tari_" ]; then
-        build_tari_image_json $1
+      if [ "${1:0:9}" == "minotari_" ]; then
+        build_minotari_image_json $1
       else
         build_3dparty_image_json $1
       fi

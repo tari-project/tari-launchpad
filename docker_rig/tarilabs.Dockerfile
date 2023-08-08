@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1.3
 
 # https://hub.docker.com/_/rust
-ARG RUST_VERSION=1.68
+ARG RUST_VERSION=1.71
 
 # rust source compile with cross platform build support
 FROM --platform=$BUILDPLATFORM rust:$RUST_VERSION-bullseye as builder
@@ -19,23 +19,25 @@ ARG RUST_TOOLCHAIN
 ARG RUST_TARGET
 ARG RUST_VERSION
 
-RUN apt-get update && apt-get install -y \
-  apt-transport-https \
-  bash \
-  ca-certificates \
-  curl \
-  gpg \
-  iputils-ping \
-  less \
-  libreadline-dev \
-  libsqlite3-0 \
-  openssl \
-  telnet \
-  cargo \
-  clang \
-  gcc-aarch64-linux-gnu \
-  g++-aarch64-linux-gnu \
-  cmake
+# Disable Prompt During Packages Installation
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get --no-install-recommends install -y \
+      apt-transport-https \
+      bash \
+      ca-certificates \
+      curl \
+      gpg \
+      less \
+      libreadline-dev \
+      libsqlite3-0 \
+      openssl \
+      cargo \
+      clang \
+      gcc-aarch64-linux-gnu \
+      g++-aarch64-linux-gnu \
+      cmake
 
 ARG ARCH=native
 #ARG FEATURES=avx2
@@ -46,7 +48,7 @@ ENV CARGO_HTTP_MULTIPLEXING=false
 
 ARG VERSION=1.0.1
 ARG APP_NAME=wallet
-ARG APP_EXEC=tari_console_wallet
+ARG APP_EXEC=minotari_console_wallet
 ARG TARI_NETWORK
 
 RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ] && [ "${ARCH}" = "native" ] ; then \
@@ -55,19 +57,19 @@ RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ] && [ "${ARCH}" = "native" ] ; then 
 
 WORKDIR /tari
 
-ADD Cargo.toml .
-ADD Cargo.lock .
-ADD rust-toolchain.toml .
-ADD applications applications
-ADD base_layer base_layer
-ADD clients clients
-ADD common common
-ADD common_sqlite common_sqlite
-ADD comms comms
-ADD infrastructure infrastructure
-ADD meta meta
-ADD buildtools/deps_only buildtools/deps_only
-ADD integration_tests integration_tests
+COPY Cargo.toml .
+COPY Cargo.lock .
+COPY rust-toolchain.toml .
+COPY applications applications
+COPY base_layer base_layer
+COPY clients clients
+COPY common common
+COPY common_sqlite common_sqlite
+COPY comms comms
+COPY infrastructure infrastructure
+COPY meta meta
+COPY buildtools/deps_only buildtools/deps_only
+COPY integration_tests integration_tests
 
 RUN if [ "${TARGETARCH}" = "arm64" ] && [ "${BUILDARCH}" != "${TARGETARCH}" ] ; then \
       # Hardcoded ARM64 envs for cross-compiling - FixMe soon
@@ -114,19 +116,24 @@ ARG TARI_NETWORK
 # Disable Prompt During Packages Installation
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get --no-install-recommends install -y \
-  apt-transport-https \
-  bash \
-  ca-certificates \
-  curl \
-  gpg \
-  iputils-ping \
-  less \
-  libreadline8 \
-  libreadline-dev \
-  libsqlite3-0 \
-  openssl \
-  telnet
+RUN apt-get update && \
+    apt-get --no-install-recommends install -y \
+      apt-transport-https \
+      bash \
+      ca-certificates \
+      curl \
+      gpg \
+      iputils-ping \
+      less \
+      libreadline8 \
+      libreadline-dev \
+      libsqlite3-0 \
+      openssl \
+      procps \
+      lsof && \
+    apt-get clean all && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN groupadd --gid 1000 tari && \
     useradd --create-home --no-log-init --shell /bin/bash \
@@ -137,20 +144,20 @@ ENV dockerfile_version=$VERSION
 ENV dockerfile_build_arch=$BUILDPLATFORM
 ENV rust_version=$RUST_VERSION
 ENV APP_NAME=${APP_NAME:-wallet}
-ENV APP_EXEC=${APP_EXEC:-tari_console_wallet}
+ENV APP_EXEC=${APP_EXEC:-minotari_console_wallet}
 ENV TARI_NETWORK=$TARI_NETWORK
 
 RUN mkdir -p "/var/tari/${APP_NAME}" && \
     chown -R tari:tari "/var/tari/${APP_NAME}"
 
-# Setup blockchain path for base_node only
-RUN if [ "${APP_NAME}" = "base_node" ] ; then \
-      echo "Base_node bits" && \
+# Setup blockchain path for minotari_node only
+RUN if [ "${APP_NAME}" = "node" ] ; then \
+      echo "minotari_node bits" && \
       mkdir /blockchain && \
       chown -R tari:tari /blockchain && \
       chmod -R 0700 /blockchain ; \
     else \
-      echo "Not base_node" ; \
+      echo "Not minotari_node" ; \
     fi
 
 USER tari
