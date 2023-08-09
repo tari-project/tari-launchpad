@@ -8,7 +8,7 @@
 # Binary build
 
 # https://github.com/monero-project/monero/releases
-ARG MONERO_VERSION=0.18.2.0
+ARG MONERO_VERSION=0.18.2.2
 
 # Declare stage using linux/amd64 base image
 FROM --platform=linux/amd64 bitnami/minideb:bullseye AS build-stage-amd64
@@ -18,7 +18,7 @@ ARG MONERO_ARCH=x64
 ARG MONERO_TAR=x86_64
 
 # https://github.com/monero-project/monero/releases
-ARG MONERO_AMD64_SHA256=83e6517dc9e5198228ee5af50f4bbccdb226fe69ff8dd54404dddb90a70b7322
+ARG MONERO_AMD64_SHA256=186800de18f67cca8475ce392168aabeb5709a8f8058b0f7919d7c693786d56b
 ARG MONERO_VERSION
 
 # Declare stage using linux/arm64 base image
@@ -29,7 +29,7 @@ ARG MONERO_ARCH=armv8
 ARG MONERO_TAR=aarch64
 
 # https://github.com/monero-project/monero/releases
-ARG MONERO_ARM64_SHA256=fb20eaf9b04020abdf883eb339258814742a1452653c1f5d8705d16e90413f35
+ARG MONERO_ARM64_SHA256=f3867f2865cb98ab1d18f30adfd9168f397bd07bf7c36550dfe3a2a11fc789ba
 ARG MONERO_VERSION
 
 # Declare TARGETARCH to make it available
@@ -49,9 +49,10 @@ ARG MONERO_SHA256
 ENV MONERO_SHA256=${MONERO_SHA256:-$MONERO_AMD64_SHA256}
 ENV MONERO_SHA256=${MONERO_SHA256:-$MONERO_ARM64_SHA256}
 
-RUN apt-get update && apt-get install -y \
-    curl \
-    bzip2
+RUN apt-get update && \
+    apt-get install -y \
+      curl \
+      bzip2
 
 WORKDIR /root
 
@@ -70,6 +71,9 @@ ARG BUILDPLATFORM
 ARG MONERO_VERSION
 ARG VERSION=1.0.1
 
+#COPY --chown=tari:tari --from=build-stage-download /root/monerod /usr/local/bin/monerod
+COPY --from=build-stage-download /root/monerod /usr/local/bin/monerod
+
 RUN groupadd -g 1000 tari && \
     useradd -ms /bin/bash -u 1000 -g 1000 tari && \
     mkdir -p /home/tari/.bitmonero  && \
@@ -77,8 +81,6 @@ RUN groupadd -g 1000 tari && \
 
 USER tari
 WORKDIR /home/tari
-
-COPY --chown=tari:tari --from=build-stage-download /root/monerod /usr/local/bin/monerod
 
 # blockchain location
 VOLUME /home/tari/.bitmonero

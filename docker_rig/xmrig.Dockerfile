@@ -1,6 +1,6 @@
 # Source build
 
-ARG ALPINE_VERSION=3.17
+ARG ALPINE_VERSION=3.18
 
 FROM alpine:$ALPINE_VERSION as builder
 
@@ -8,7 +8,7 @@ ARG ALPINE_VERSION
 ARG BUILDPLATFORM
 
 # https://github.com/xmrig/xmrig/releases
-ARG XMRIG_VERSION="v6.19.1"
+ARG XMRIG_VERSION="v6.20.0"
 
 RUN apk add \
     git \
@@ -39,7 +39,7 @@ ARG BUILDPLATFORM
 
 ARG XMRIG_VERSION
 ARG VERSION=1.0.1
-COPY --from=builder /xmrig/build/xmrig /usr/bin/
+COPY --from=builder /xmrig/build/xmrig /usr/local/bin/
 
 # Create a user & group
 RUN addgroup -g 1000 tari && \
@@ -47,7 +47,7 @@ RUN addgroup -g 1000 tari && \
 
 # Chown all the files to the app user.
 RUN mkdir -p /home/tari && \
-    chown tari.tari /home/tari
+    chown tari:tari /home/tari
 
 USER tari
 
@@ -67,4 +67,4 @@ RUN echo -e "\
 }\
 " > /home/tari/.xmrig.json
 
-ENTRYPOINT [ "/usr/bin/xmrig" ]
+ENTRYPOINT [ "/usr/local/bin/xmrig" ]
