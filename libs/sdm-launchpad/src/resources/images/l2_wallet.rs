@@ -85,7 +85,7 @@ impl ManagedContainer for TariWallet {
     }
 
     fn image_name(&self) -> &str {
-        "tari_wallet"
+        "minotari_console_wallet"
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {

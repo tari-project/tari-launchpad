@@ -59,7 +59,7 @@ impl ManagedContainer for MmProxy {
     }
 
     fn image_name(&self) -> &str {
-        "tari_mm_proxy"
+        "minotari_merge_mining_proxy"
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {

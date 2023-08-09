@@ -57,7 +57,7 @@ impl ManagedContainer for TariSha3Miner {
     }
 
     fn image_name(&self) -> &str {
-        "tari_sha3_miner"
+        "minotari_sha3_miner"
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {

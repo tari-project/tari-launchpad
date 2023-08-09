@@ -77,7 +77,7 @@ impl ManagedContainer for TariBaseNode {
     }
 
     fn image_name(&self) -> &str {
-        "tari_base_node"
+        "minotari_node"
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
