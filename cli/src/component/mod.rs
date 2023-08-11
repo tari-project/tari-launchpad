@@ -7,11 +7,13 @@ mod normal;
 mod onboarding;
 mod settings;
 mod tabs;
+mod termination;
 mod widgets;
 
 use crossterm::event::{KeyCode, KeyEvent};
 use derive_more::From;
 pub use main_view::MainView;
+pub use termination::TerminationView;
 use tui::{backend::Backend, layout::Rect, Frame};
 
 use crate::state::AppState;
@@ -37,6 +39,7 @@ pub enum Pass {
     Next,
     Other,
     Tick,
+    Quit,
 }
 
 // impl Pass {
@@ -67,6 +70,7 @@ impl ComponentEvent {
                 KeyCode::Esc => Pass::Leave,
                 KeyCode::Enter => Pass::Enter,
                 KeyCode::Char(' ') => Pass::Space,
+                KeyCode::Char('q') => Pass::Quit,
                 KeyCode::Tab => Pass::Next,
                 _ => Pass::Other,
             },

@@ -108,7 +108,7 @@ impl TaskState {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TaskProgress {
     pub pct: u8,
     pub stage: String,
@@ -123,7 +123,7 @@ impl TaskProgress {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum TaskStatus {
     Inactive,
     /// Waiting for dependencies.

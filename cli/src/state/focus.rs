@@ -7,6 +7,7 @@ macro_rules! focus {
     }};
 }
 
+pub static TERMINATION: Focus = focus!();
 pub static ONBOARDING: Focus = focus!();
 pub static ROOT: Focus = focus!();
 pub static TARI_MINING: Focus = focus!();
