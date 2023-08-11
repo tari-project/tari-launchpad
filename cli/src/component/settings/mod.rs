@@ -9,12 +9,12 @@ use base_node::BaseNodeSettings;
 use docker::DockerSettings;
 use logs::LogsSettings;
 use mining::MiningSettings;
-use security::SecuritySettings;
-use strum::{Display, EnumCount, EnumIter, FromRepr};
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
+use security::SecuritySettings;
+use strum::{Display, EnumCount, EnumIter, FromRepr};
 use wallet::WalletSettings;
 
 use crate::{
@@ -40,7 +40,14 @@ pub enum SettingsTabs {
 
 impl TabGetter for SettingsTabs {
     fn focus_to(&self, _: &AppState) -> Focus {
-        focus::ROOT
+        match self {
+            Self::Mining => mining::MINING_SETTINGS,
+            Self::Wallet => wallet::WALLET_SETTINGS,
+            Self::BaseNode => base_node::BASE_NODE_SETTINGS,
+            Self::Docker => docker::DOCKER_SETTINGS,
+            Self::Logs => logs::LOGS_SETTINGS,
+            _ => focus::ROOT,
+        }
     }
 }
 

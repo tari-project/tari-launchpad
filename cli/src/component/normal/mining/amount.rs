@@ -1,11 +1,11 @@
-use rust_decimal::Decimal;
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Alignment, Rect},
     style::{Modifier, Style},
-    text::{Span, Spans},
+    text::{Line, Span},
     widgets::Paragraph,
 };
+use rust_decimal::Decimal;
 
 use crate::{
     component::{Component, ComponentEvent, Frame, Input},
@@ -39,12 +39,12 @@ where G: AmountGetter
         let (amount, curr) = self.getter.get_amount(state);
         let s = amount.to_string();
 
-        let spans = Spans(vec![
+        let line = Line::from(vec![
             Span::raw(s),
             Span::raw(" "),
             Span::styled(curr, Style::default().add_modifier(Modifier::BOLD)),
         ]);
-        let text = vec![spans];
+        let text = vec![line];
         let paragraph = Paragraph::new(text).alignment(Alignment::Left);
         f.render_widget(paragraph, rect);
     }

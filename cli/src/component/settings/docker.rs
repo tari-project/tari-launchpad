@@ -1,4 +1,4 @@
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
@@ -11,9 +11,18 @@ use crate::{
         ComponentEvent,
         Frame,
         Input,
+        Pass,
     },
-    state::AppState,
+    focus_id,
+    state::{
+        focus::{self, Focus},
+        AppState,
+    },
 };
+
+pub static DOCKER_SETTINGS: Focus = focus_id!();
+static DOCKER_TAG: Focus = focus_id!();
+static DOCKER_REGISTRY: Focus = focus_id!();
 
 pub struct DockerSettings {
     expert_sep: Separator,
@@ -26,15 +35,47 @@ impl DockerSettings {
     pub fn new() -> Self {
         Self {
             expert_sep: Separator::new("Expert", []),
-            docker_tag: LabeledInput::new("Docker Tag"),
-            docker_registry: LabeledInput::new("Docker Registry"),
+            docker_tag: LabeledInput::new("Docker Tag", DOCKER_TAG),
+            docker_registry: LabeledInput::new("Docker Registry", DOCKER_REGISTRY),
             statuses_sep: Separator::new("Image Statuses", []),
         }
     }
 }
 
 impl Input for DockerSettings {
-    fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) {}
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+        if state.focus_on == DOCKER_SETTINGS {
+            state.focus_on(DOCKER_TAG);
+        } else if state.focus_on == DOCKER_TAG {
+            let released = self.docker_tag.is_released();
+            match event.pass() {
+                Pass::Up | Pass::Leave if released => {
+                    state.focus_on(focus::ROOT);
+                },
+                Pass::Down if released => {
+                    state.focus_on(DOCKER_REGISTRY);
+                },
+                _ => {
+                    self.docker_tag.on_event(event, state);
+                },
+            }
+        } else if state.focus_on == DOCKER_REGISTRY {
+            let released = self.docker_registry.is_released();
+            match event.pass() {
+                Pass::Leave if released => {
+                    state.focus_on(focus::ROOT);
+                },
+                Pass::Up if released => {
+                    state.focus_on(DOCKER_TAG);
+                },
+                _ => {
+                    self.docker_registry.on_event(event, state);
+                },
+            }
+        } else {
+            //
+        }
+    }
 }
 
 impl<B: Backend> Component<B> for DockerSettings {

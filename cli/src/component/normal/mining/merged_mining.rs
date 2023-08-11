@@ -1,11 +1,11 @@
 use std::time::Duration;
 
-use rust_decimal::Decimal;
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
     style::Color,
 };
+use rust_decimal::Decimal;
 
 use crate::{
     component::{

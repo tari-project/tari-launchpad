@@ -1,10 +1,10 @@
 use std::time::Duration;
 
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    text::{Span, Spans},
+    text::{Line, Span},
     widgets::{Block, Paragraph},
 };
 
@@ -62,13 +62,13 @@ where G: ChronoGetter
             caption = format!("  {}  ", label);
         }
 
-        let spans = Spans(vec![Span::styled(
+        let line = Line::from(vec![Span::styled(
             // "  Set up & start mining  ",
             // "  Start mining  ",
             caption,
             Style::default().bg(Color::Magenta),
         )]);
-        let text = vec![spans];
+        let text = vec![line];
         let p = Paragraph::new(text);
         f.render_widget(p, inner_rect);
     }

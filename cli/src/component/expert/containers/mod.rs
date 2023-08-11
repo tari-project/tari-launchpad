@@ -1,13 +1,13 @@
 use std::{borrow::Cow, cell::RefCell};
 
-use tari_sdm::ids::{ManagedTask, TaskId};
-use tari_sdm_launchpad::resources::images;
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Layout, Rect},
     style::{Color, Style},
     widgets::{Row, Table, TableState},
 };
+use tari_sdm::ids::{ManagedTask, TaskId};
+use tari_sdm_launchpad::resources::images;
 
 use crate::{
     component::{elements::block_with_title, AppState, Component, ComponentEvent, Frame, Input, Pass},

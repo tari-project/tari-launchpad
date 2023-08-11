@@ -1,6 +1,6 @@
 mod widget;
 
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };

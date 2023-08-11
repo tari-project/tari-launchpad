@@ -4,11 +4,11 @@ mod status_badge;
 mod tari_mining;
 
 use merged_mining::MergedMiningWidget;
-use tari_mining::TariMiningWidget;
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
+use tari_mining::TariMiningWidget;
 
 use crate::{
     component::{

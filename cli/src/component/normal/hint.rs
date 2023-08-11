@@ -1,7 +1,7 @@
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Alignment, Rect},
-    text::{Span, Spans},
+    text::{Line, Span},
     widgets::Paragraph,
 };
 
@@ -35,8 +35,8 @@ where T: HintGetter
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
         let text = self.getter.get_hint(state);
-        let spans = Spans(vec![Span::raw(text)]);
-        let text = vec![spans];
+        let line = Line::from(vec![Span::raw(text)]);
+        let text = vec![line];
         let paragraph = Paragraph::new(text).alignment(Alignment::Left);
         f.render_widget(paragraph, rect);
     }

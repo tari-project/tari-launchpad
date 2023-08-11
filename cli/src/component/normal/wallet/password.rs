@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
@@ -16,7 +16,11 @@ use crate::{
         Input,
         Pass,
     },
-    state::{focus, AppState},
+    focus_id,
+    state::{
+        focus::{self, Focus},
+        AppState,
+    },
 };
 
 const LOGO: &str = r#"
@@ -24,6 +28,8 @@ const LOGO: &str = r#"
 ║╣ │││ │ ├┤ ├┬┘  ╠═╝├─┤└─┐└─┐││││ │├┬┘ ││
 ╚═╝┘└┘ ┴ └─┘┴└─  ╩  ┴ ┴└─┘└─┘└┴┘└─┘┴└──┴┘
 "#;
+
+static PASSWORD_FIELD: Focus = focus_id!();
 
 struct PasswordWidgetGetter;
 
@@ -49,7 +55,7 @@ pub struct PasswordWidget {
 impl PasswordWidget {
     pub fn new() -> Self {
         Self {
-            password: LabeledInput::new("Password"),
+            password: LabeledInput::new("Password", PASSWORD_FIELD),
             button: ChronoButton::new(PasswordWidgetGetter),
         }
     }
@@ -58,7 +64,8 @@ impl PasswordWidget {
 impl Input for PasswordWidget {
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
         if state.focus_on == focus::PASSWORD {
-            self.password.set_focus(true);
+            // TODO: Set focus to the particular value
+            // self.password.set_focus(true);
             match event.pass() {
                 Pass::Up | Pass::Leave => {
                     state.focus_on(focus::ROOT);
@@ -68,8 +75,6 @@ impl Input for PasswordWidget {
                 },
                 _ => {},
             }
-        } else {
-            self.password.set_focus(false);
         }
     }
 }

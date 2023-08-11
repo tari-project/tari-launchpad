@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };

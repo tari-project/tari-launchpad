@@ -1,12 +1,19 @@
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
 
 use crate::{
-    component::{elements::block_with_title, widgets::LabeledInput, Component, ComponentEvent, Frame, Input},
-    state::AppState,
+    component::{elements::block_with_title, widgets::LabeledInput, Component, ComponentEvent, Frame, Input, Pass},
+    focus_id,
+    state::{
+        focus::{self, Focus},
+        AppState,
+    },
 };
+
+pub static WALLET_SETTINGS: Focus = focus_id!();
+static WALLET_ID: Focus = focus_id!();
 
 pub struct WalletSettings {
     wallet_id: LabeledInput,
@@ -15,13 +22,29 @@ pub struct WalletSettings {
 impl WalletSettings {
     pub fn new() -> Self {
         Self {
-            wallet_id: LabeledInput::new("Tari Wallet ID (address)"),
+            wallet_id: LabeledInput::new("Tari Wallet ID (address)", WALLET_ID),
         }
     }
 }
 
 impl Input for WalletSettings {
-    fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) {}
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+        if state.focus_on == WALLET_SETTINGS {
+            state.focus_on(WALLET_ID);
+        } else if state.focus_on == WALLET_ID {
+            let released = self.wallet_id.is_released();
+            match event.pass() {
+                Pass::Up | Pass::Leave if released => {
+                    state.focus_on(focus::ROOT);
+                },
+                _ => {
+                    self.wallet_id.on_event(event, state);
+                },
+            }
+        } else {
+            //
+        }
+    }
 }
 
 impl<B: Backend> Component<B> for WalletSettings {

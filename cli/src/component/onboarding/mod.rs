@@ -3,11 +3,11 @@ mod message;
 use std::time::{Duration, Instant};
 
 use message::MessageWidget;
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    text::{Span, Spans},
+    text::{Line, Span},
     widgets::{Gauge, Paragraph},
 };
 
@@ -108,7 +108,7 @@ impl<B: Backend> Component<B> for OnboardingScene {
         f.render_widget(gauge, line_chinks[0]);
         let style = Style::default().fg(Color::White);
         let bot_state = if self.wink.is_some() { "[o o]" } else { "[- -]" };
-        let text = vec![Spans::from(Span::styled(bot_state, style))];
+        let text = vec![Line::from(Span::styled(bot_state, style))];
         let bot = Paragraph::new(text);
         f.render_widget(bot, line_chinks[2]);
     }

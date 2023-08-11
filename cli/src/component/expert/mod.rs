@@ -3,11 +3,11 @@ mod logs;
 
 use containers::ContainersScene;
 use logs::LogsScene;
-use strum::{Display, EnumCount, EnumIter, FromRepr};
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
+use strum::{Display, EnumCount, EnumIter, FromRepr};
 
 use crate::{
     component::{

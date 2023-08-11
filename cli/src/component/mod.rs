@@ -13,8 +13,8 @@ mod widgets;
 use crossterm::event::{KeyCode, KeyEvent};
 use derive_more::From;
 pub use main_view::MainView;
+use ratatui::{backend::Backend, layout::Rect, Frame};
 pub use termination::TerminationView;
-use tui::{backend::Backend, layout::Rect, Frame};
 
 use crate::state::AppState;
 

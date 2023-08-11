@@ -1,8 +1,8 @@
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Alignment, Rect},
     style::{Color, Modifier, Style},
-    text::{Span, Spans},
+    text::{Line, Span},
     widgets::Paragraph,
 };
 
@@ -24,14 +24,14 @@ impl<B: Backend> Component<B> for Logo {
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, _state: &Self::State) {
         let bold = Style::default().fg(Color::White).add_modifier(Modifier::BOLD);
-        let spans = Spans(vec![
+        let line = Line::from(vec![
             Span::styled("Tari", bold),
             Span::raw(" "),
             Span::styled("Launchpad", bold),
             Span::raw(" "),
             Span::styled("App", bold),
         ]);
-        let text = vec![spans];
+        let text = vec![line];
         let paragraph = Paragraph::new(text).alignment(Alignment::Left);
         f.render_widget(paragraph, rect);
     }

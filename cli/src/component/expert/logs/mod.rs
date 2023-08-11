@@ -1,6 +1,6 @@
 use std::{borrow::Cow, cell::RefCell, collections::VecDeque};
 
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Layout, Rect},
     style::{Color, Style},

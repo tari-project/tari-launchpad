@@ -3,15 +3,15 @@ use std::{io::Stdout, time::Duration};
 use anyhow::Error;
 use async_trait::async_trait;
 use crossterm::{
-    event::{DisableMouseCapture, EnableMouseCapture, Event},
+    event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyModifiers},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use ratatui::{backend::CrosstermBackend, Terminal};
 use tact::{Actor, ActorContext, Do, Interval, Recipient, Task};
 use tari_launchpad_protocol::launchpad::{Action, LaunchpadAction, Reaction};
 use tari_sdm_launchpad::bus::{BusTx, LaunchpadBus};
 use thiserror::Error;
-use tui::{backend::CrosstermBackend, Terminal};
 
 use crate::{
     component::{Component, ComponentEvent, Input, MainView, TerminationView},
@@ -175,6 +175,14 @@ impl Do<TermEvent> for Dashboard {
         match event {
             TermEvent::Event(event) => {
                 if let Event::Key(key) = event {
+                    if let KeyCode::Char('q') = key.code {
+                        if key.modifiers.contains(KeyModifiers::CONTROL) {
+                            self.event_handle
+                                .as_mut()
+                                .ok_or_else(|| DashboardError::Events)?
+                                .interrupt();
+                        }
+                    }
                     let state = self.state.as_mut().ok_or_else(|| DashboardError::State)?;
                     self.main_view.on_event(key.into(), state);
                     let changed = state.process_events();

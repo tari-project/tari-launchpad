@@ -3,7 +3,7 @@ pub mod mode;
 
 use logo::Logo;
 use mode::ModeSelector;
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };

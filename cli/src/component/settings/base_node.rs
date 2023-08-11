@@ -1,4 +1,4 @@
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
@@ -11,9 +11,17 @@ use crate::{
         ComponentEvent,
         Frame,
         Input,
+        Pass,
     },
-    state::AppState,
+    focus_id,
+    state::{
+        focus::{self, Focus},
+        AppState,
+    },
 };
+
+pub static BASE_NODE_SETTINGS: Focus = focus_id!();
+static ROOT_FOLDER: Focus = focus_id!();
 
 pub struct BaseNodeSettings {
     expert_sep: Separator,
@@ -24,13 +32,29 @@ impl BaseNodeSettings {
     pub fn new() -> Self {
         Self {
             expert_sep: Separator::new("Expert", []),
-            root_folder: LabeledInput::new("Root folder"),
+            root_folder: LabeledInput::new("Root folder", ROOT_FOLDER),
         }
     }
 }
 
 impl Input for BaseNodeSettings {
-    fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) {}
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+        if state.focus_on == BASE_NODE_SETTINGS {
+            state.focus_on(ROOT_FOLDER);
+        } else if state.focus_on == ROOT_FOLDER {
+            let released = self.root_folder.is_released();
+            match event.pass() {
+                Pass::Up | Pass::Leave if released => {
+                    state.focus_on(focus::ROOT);
+                },
+                _ => {
+                    self.root_folder.on_event(event, state);
+                },
+            }
+        } else {
+            //
+        }
+    }
 }
 
 impl<B: Backend> Component<B> for BaseNodeSettings {

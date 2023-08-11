@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use tui::{backend::Backend, layout::Rect, terminal::Frame};
+use ratatui::{backend::Backend, layout::Rect, terminal::Frame};
 
 use crate::{
     component::{Component, ComponentEvent, Input, Pass},

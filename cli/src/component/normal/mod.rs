@@ -6,12 +6,12 @@ mod wallet;
 
 use base_node::BaseNodeScene;
 use mining::MiningScene;
-use strum::{Display, EnumCount, EnumIter, FromRepr};
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
     style::Color,
 };
+use strum::{Display, EnumCount, EnumIter, FromRepr};
 use wallet::WalletScene;
 
 use crate::{

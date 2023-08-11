@@ -1,4 +1,4 @@
-use tui::{backend::Backend, layout::Rect};
+use ratatui::{backend::Backend, layout::Rect};
 
 use crate::{
     component::{elements::block_with_title, Component, ComponentEvent, Frame, Input},

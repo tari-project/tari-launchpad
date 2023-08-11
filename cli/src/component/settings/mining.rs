@@ -1,4 +1,4 @@
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
@@ -11,9 +11,19 @@ use crate::{
         ComponentEvent,
         Frame,
         Input,
+        Pass,
     },
-    state::AppState,
+    focus_id,
+    state::{
+        focus::{self, Focus},
+        AppState,
+    },
 };
+
+pub static MINING_SETTINGS: Focus = focus_id!();
+static MONERO_ADDRESS: Focus = focus_id!();
+static SHA_THREADS: Focus = focus_id!();
+static MONERO_URL: Focus = focus_id!();
 
 pub struct MiningSettings {
     expert_sep: Separator,
@@ -26,15 +36,63 @@ impl MiningSettings {
     pub fn new() -> Self {
         Self {
             expert_sep: Separator::new("Expert", []),
-            monero_address: LabeledInput::new("Monero mining address"),
-            sha_threads: LabeledInput::new("SHA3 threads"),
-            monero_url: LabeledInput::new("Monero node URL"),
+            monero_address: LabeledInput::new("Monero mining address", MONERO_ADDRESS),
+            sha_threads: LabeledInput::new("SHA3 threads", SHA_THREADS),
+            monero_url: LabeledInput::new("Monero node URL", MONERO_URL),
         }
     }
 }
 
 impl Input for MiningSettings {
-    fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) {}
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+        if state.focus_on == MINING_SETTINGS {
+            state.focus_on(MONERO_ADDRESS);
+        } else if state.focus_on == MONERO_ADDRESS {
+            let released = self.monero_address.is_released();
+            match event.pass() {
+                Pass::Up | Pass::Leave if released => {
+                    state.focus_on(focus::ROOT);
+                },
+                Pass::Down if released => {
+                    state.focus_on(SHA_THREADS);
+                },
+                _ => {
+                    self.monero_address.on_event(event, state);
+                },
+            }
+        } else if state.focus_on == SHA_THREADS {
+            let released = self.sha_threads.is_released();
+            match event.pass() {
+                Pass::Leave if released => {
+                    state.focus_on(focus::ROOT);
+                },
+                Pass::Up if released => {
+                    state.focus_on(MONERO_ADDRESS);
+                },
+                Pass::Down if released => {
+                    state.focus_on(MONERO_URL);
+                },
+                _ => {
+                    self.sha_threads.on_event(event, state);
+                },
+            }
+        } else if state.focus_on == MONERO_URL {
+            let released = self.monero_url.is_released();
+            match event.pass() {
+                Pass::Leave if released => {
+                    state.focus_on(focus::ROOT);
+                },
+                Pass::Up if released => {
+                    state.focus_on(SHA_THREADS);
+                },
+                _ => {
+                    self.monero_url.on_event(event, state);
+                },
+            }
+        } else {
+            //
+        }
+    }
 }
 
 impl<B: Backend> Component<B> for MiningSettings {

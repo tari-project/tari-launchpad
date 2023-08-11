@@ -3,7 +3,7 @@ mod password;
 
 use container::WalletContainerWidget;
 use password::PasswordWidget;
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };

@@ -1,12 +1,12 @@
-use strum::IntoEnumIterator;
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::Rect,
     style::{Color, Style},
-    text::{Span, Spans},
+    text::{Line, Span},
     widgets::Tabs,
     Frame,
 };
+use strum::IntoEnumIterator;
 
 use crate::{
     component::{elements::block_with_title, Component, ComponentEvent, Input, Pass},
@@ -107,7 +107,7 @@ where
                     let span = Span::styled(text, tag_style);
                     spans.push(span);
                 }
-                Spans::from(spans)
+                Line::from(spans)
             })
             .collect();
         let block = block_with_title(None, state.focus_on == self.focus_on);

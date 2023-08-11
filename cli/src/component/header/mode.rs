@@ -1,9 +1,9 @@
 use crossterm::event::{KeyCode, KeyModifiers};
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Alignment, Rect},
     style::{Color, Modifier, Style},
-    text::{Span, Spans},
+    text::{Line, Span},
     widgets::Paragraph,
 };
 
@@ -87,7 +87,7 @@ impl<B: Backend> Component<B> for ModeSelector {
             }
         };
         let selector = if self.expert { " o" } else { "o " };
-        let spans = Spans(vec![
+        let line = Line::from(vec![
             Span::styled("Normal", style_for(Mode::Normal)),
             Span::raw(" ("),
             Span::styled(selector, bold),
@@ -96,7 +96,7 @@ impl<B: Backend> Component<B> for ModeSelector {
             Span::raw(" | "),
             Span::styled("Settings", style_for(Mode::Settings)),
         ]);
-        let text = vec![spans];
+        let text = vec![line];
         let paragraph = Paragraph::new(text).alignment(Alignment::Right);
         f.render_widget(paragraph, rect);
     }
