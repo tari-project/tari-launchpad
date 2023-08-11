@@ -88,6 +88,10 @@ impl ManagedContainer for TariWallet {
         "tari_wallet"
     }
 
+    fn tag(&self) -> &str {
+        "v0.49.2_20230628_e0e4ebc"
+    }
+
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
         let config = config?;
         self.settings = ConnectionSettings::try_extract(config);
