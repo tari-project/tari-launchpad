@@ -133,7 +133,7 @@ impl Default for LaunchpadSettings {
     fn default() -> Self {
         Self {
             data_directory: PathBuf::default(),
-            tari_network: TariNetwork::Esmeralda,
+            tari_network: TariNetwork::default(),
             tor_control_password: String::new(),
             base_node: None,
             wallet: None,
@@ -158,6 +158,7 @@ pub enum TariNetwork {
     Dibbler,
     Esmeralda,
     Igor,
+    Stagenet,
     Mainnet,
 }
 
@@ -167,6 +168,7 @@ impl TariNetwork {
             Self::Dibbler => "dibbler",
             Self::Esmeralda => "esmeralda",
             Self::Igor => "igor",
+            Self::Stagenet => "stagenet",
             Self::Mainnet => "mainnet",
         }
     }
@@ -176,6 +178,7 @@ impl TariNetwork {
             Self::Dibbler => "DIBBLER",
             Self::Esmeralda => "ESMERALDA",
             Self::Igor => "IGOR",
+            Self::Stagenet => "STAGENET",
             Self::Mainnet => "MAINNET",
         }
     }
@@ -184,7 +187,7 @@ impl TariNetwork {
 /// Default network is Esme. This will change after mainnet launch
 impl Default for TariNetwork {
     fn default() -> Self {
-        Self::Esmeralda
+        Self::Stagenet
     }
 }
 
