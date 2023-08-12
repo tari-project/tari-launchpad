@@ -97,7 +97,7 @@
           name: Syntax check ${{inputs.profile}}
           # Only run this job if at least one of the "check" parameters are set
           if: ${{ inputs.build-tari || inputs.build-launchpad-fe || inputs.check-ffi }}
-          runs-on: ubuntu-18.04
+          runs-on: ubuntu-20.04
           steps:
               - name: checkout
                 uses: actions/checkout@v2
@@ -147,7 +147,7 @@
       js-applications:
         name: Build javascript applications
         if: ${{ inputs.build-launchpad-fe || inputs.build-collectibles || inputs.build-explorer }}
-        runs-on: ubuntu-18.04
+        runs-on: ubuntu-20.04
         steps:
           - name: checkout
             uses: actions/checkout@v2
@@ -155,11 +155,13 @@
             uses: actions/setup-node@v3
             with:
               node-version: "16"
+          - name: Install Yarn
+            run: npm install -g yarn
           - name: log javascript environment
             run: |
-              node -v
-              npm -v
-              yarn -v
+              echo node $(node -v)
+              echo npm v$(npm -v)
+              echo yarn v$(yarn -v)
           - name: build gui-react
             if: ${{ inputs.build-launchpad-fe }}
             # Replace 'yarn build' with 'yarn tauri build' to build both, fronted (react) and backend
