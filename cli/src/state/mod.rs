@@ -22,6 +22,7 @@ pub struct AppState {
     pub bus: Bus,
     pub bus_tx: BusTx,
     pub state: LaunchpadState,
+    pub terminate: bool,
 }
 
 impl AppState {
@@ -32,12 +33,27 @@ impl AppState {
             bus,
             bus_tx,
             state,
+            terminate: false,
         }
+    }
+
+    pub fn is_terminated(&mut self) -> bool {
+        let has_active_task = self
+            .state
+            .containers
+            .values()
+            .filter(|state| !state.permanent)
+            .any(|state| state.status.is_started());
+        self.terminate && !has_active_task
     }
 
     pub fn focus_on(&mut self, value: Focus) {
         let event = AppEvent::SetFocus(value);
         self.events_queue.push_front(event);
+    }
+
+    pub fn terminate(&mut self) {
+        self.terminate = true;
     }
 
     pub fn redraw(&mut self) {

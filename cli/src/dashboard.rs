@@ -3,7 +3,7 @@ use std::{io::Stdout, time::Duration};
 use anyhow::Error;
 use async_trait::async_trait;
 use crossterm::{
-    event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{DisableMouseCapture, EnableMouseCapture, Event},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -14,9 +14,9 @@ use thiserror::Error;
 use tui::{backend::CrosstermBackend, Terminal};
 
 use crate::{
-    component::{Component, ComponentEvent, Input, MainView},
+    component::{Component, ComponentEvent, Input, MainView, TerminationView},
     events::{EventHandle, TermEvent},
-    state::{bus::Bus, AppState},
+    state::{bus::Bus, focus, AppState},
 };
 
 type Term = Terminal<CrosstermBackend<Stdout>>;
@@ -39,6 +39,7 @@ pub struct Dashboard {
     terminal: Option<Term>,
     event_handle: Option<EventHandle>,
     main_view: MainView,
+    termination_view: TerminationView,
     // TODO: Get the state from a bus
     state: Option<AppState>,
     interval: Option<Interval>,
@@ -55,6 +56,7 @@ impl Dashboard {
             terminal: None,
             event_handle: None,
             main_view: MainView::new(),
+            termination_view: TerminationView::new(),
             state: None,
             interval: None,
             supervisor,
@@ -132,6 +134,11 @@ impl Dashboard {
         tx.send(action)?;
         Ok(())
     }
+
+    fn stop_the_app(&mut self) -> Result<(), Error> {
+        self.event_handle.as_mut().ok_or(DashboardError::Events)?.interrupt();
+        Ok(())
+    }
 }
 
 #[async_trait]
@@ -168,12 +175,6 @@ impl Do<TermEvent> for Dashboard {
         match event {
             TermEvent::Event(event) => {
                 if let Event::Key(key) = event {
-                    if let KeyCode::Char('q') = key.code {
-                        self.event_handle
-                            .as_mut()
-                            .ok_or_else(|| DashboardError::Events)?
-                            .interrupt();
-                    }
                     let state = self.state.as_mut().ok_or_else(|| DashboardError::State)?;
                     self.main_view.on_event(key.into(), state);
                     let changed = state.process_events();
@@ -205,6 +206,9 @@ impl Do<Tick> for Dashboard {
         if changed {
             ctx.do_next(Redraw)?;
         }
+        if state.is_terminated() {
+            self.stop_the_app()?;
+        }
         Ok(())
     }
 }
@@ -220,7 +224,12 @@ impl Do<Redraw> for Dashboard {
         let state = self.state.as_ref().ok_or_else(|| DashboardError::State)?;
         let terminal = self.terminal.as_mut().ok_or_else(|| DashboardError::Terminal)?;
         terminal.draw(|f| {
-            self.main_view.draw(f, f.size(), state);
+            let rect = f.size();
+            if state.focus_on == focus::TERMINATION {
+                self.termination_view.draw(f, rect, state);
+            } else {
+                self.main_view.draw(f, rect, state);
+            }
         })?;
         Ok(())
     }

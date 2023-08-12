@@ -14,6 +14,7 @@ use crate::{
         Component,
         ComponentEvent,
         Input,
+        Pass,
     },
     state::{focus, AppState},
 };
@@ -40,6 +41,14 @@ impl MainView {
 
 impl Input for MainView {
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+        if event.pass() == Pass::Quit {
+            let session = &mut state.state.config.session;
+            session.stop_all();
+            state.terminate();
+            state.focus_on(focus::TERMINATION);
+            state.update_state();
+            return;
+        }
         self.header.on_event(event, state);
         if state.focus_on == focus::ONBOARDING {
             self.onboarding_scene.on_event(event, state);
