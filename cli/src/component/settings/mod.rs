@@ -1,3 +1,26 @@
+// Copyright 2023. The Tari Project
+//
+// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+// following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+// disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+// following disclaimer in the documentation and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+// products derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+
 mod base_node;
 mod docker;
 mod logs;
@@ -9,12 +32,12 @@ use base_node::BaseNodeSettings;
 use docker::DockerSettings;
 use logs::LogsSettings;
 use mining::MiningSettings;
-use security::SecuritySettings;
-use strum::{Display, EnumCount, EnumIter, FromRepr};
-use tui::{
+use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
+use security::SecuritySettings;
+use strum::{Display, EnumCount, EnumIter, FromRepr};
 use wallet::WalletSettings;
 
 use crate::{
@@ -40,7 +63,14 @@ pub enum SettingsTabs {
 
 impl TabGetter for SettingsTabs {
     fn focus_to(&self, _: &AppState) -> Focus {
-        focus::ROOT
+        match self {
+            Self::Mining => mining::MINING_SETTINGS,
+            Self::Wallet => wallet::WALLET_SETTINGS,
+            Self::BaseNode => base_node::BASE_NODE_SETTINGS,
+            Self::Docker => docker::DOCKER_SETTINGS,
+            Self::Logs => logs::LOGS_SETTINGS,
+            _ => focus::ROOT,
+        }
     }
 }
 

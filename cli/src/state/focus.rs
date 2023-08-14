@@ -1,20 +1,44 @@
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Focus(&'static str);
+// Copyright 2023. The Tari Project
+//
+// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+// following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+// disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+// following disclaimer in the documentation and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+// products derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
 
-macro_rules! focus {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Focus(pub &'static str);
+
+#[macro_export]
+macro_rules! focus_id {
     () => {{
-        Focus(concat!(file!(), line!()))
+        $crate::state::focus::Focus(concat!(file!(), line!()))
     }};
 }
 
-pub static TERMINATION: Focus = focus!();
-pub static ONBOARDING: Focus = focus!();
-pub static ROOT: Focus = focus!();
-pub static TARI_MINING: Focus = focus!();
-pub static MERGED_MINING: Focus = focus!();
-pub static BASE_NODE: Focus = focus!();
-pub static PASSWORD: Focus = focus!();
-pub static WALLET_CONTAINER: Focus = focus!();
+pub static TERMINATION: Focus = focus_id!();
+pub static ONBOARDING: Focus = focus_id!();
+pub static ROOT: Focus = focus_id!();
+pub static TARI_MINING: Focus = focus_id!();
+pub static MERGED_MINING: Focus = focus_id!();
+pub static BASE_NODE: Focus = focus_id!();
+pub static PASSWORD: Focus = focus_id!();
+pub static WALLET_CONTAINER: Focus = focus_id!();
 
-pub static LOGS_TABLE: Focus = focus!();
-pub static CONTAINERS_TABLE: Focus = focus!();
+pub static LOGS_TABLE: Focus = focus_id!();
+pub static CONTAINERS_TABLE: Focus = focus_id!();
