@@ -95,10 +95,10 @@ impl<B: Backend> Component<B> for LogsScene {
             .block(block)
             .header(header)
             .widths(&[
-                Constraint::Length(14),
-                Constraint::Length(10),
-                Constraint::Length(10),
-                Constraint::Min(100),
+                Constraint::Percentage(10),
+                Constraint::Percentage(10),
+                Constraint::Percentage(10),
+                Constraint::Percentage(70),
             ])
             .column_spacing(2);
         f.render_stateful_widget(table, rects[0], &mut *self.table_state.borrow_mut());
