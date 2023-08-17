@@ -67,7 +67,7 @@ impl ManagedContainer for XMRig {
         self.xmrig = config?.settings.as_ref()?.xmrig.clone();
         self.xmrig.as_ref()?;
 
-        Some(session.all_active || session.merge_layer_active || session.xmrig_active)
+        Some(session.is_xmrig_active())
     }
 
     fn args(&self, args: &mut Args) {

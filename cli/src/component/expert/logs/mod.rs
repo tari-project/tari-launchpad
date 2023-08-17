@@ -75,8 +75,7 @@ impl<B: Backend> Component<B> for LogsScene {
             .state
             .containers
             .iter()
-            .map(|(task_id, task_state)| task_state.tail.iter().rev().map(move |record| (task_id, record)))
-            .flatten()
+            .flat_map(|(task_id, task_state)| task_state.tail.iter().rev().map(move |record| (task_id, record)))
             .collect();
         records.sort_by(|l, r| r.1.datetime.cmp(&l.1.datetime));
 

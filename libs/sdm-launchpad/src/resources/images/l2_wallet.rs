@@ -98,7 +98,7 @@ impl ManagedContainer for TariWallet {
         self.wallet = config.settings.as_ref().and_then(|s| s.wallet.clone());
         let session = &self.settings.as_ref()?.session;
         self.wallet.as_ref()?;
-        Some(session.all_active || session.wallet_layer_active || session.wallet_active)
+        Some(session.is_wallet_active())
     }
 
     fn on_event(&mut self, event: LaunchpadInnerEvent) {
@@ -123,12 +123,12 @@ impl ManagedContainer for TariWallet {
     fn args(&self, args: &mut Args) {
         if let Some(identity) = self.identity.as_ref() {
             if let Some(public_address) = identity.public_addresses.get(0) {
-                let value = format!(
+                let _value = format!(
                     "wallet.custom_base_node={}::{}",
                     identity.public_key.to_hex(),
                     public_address,
                 );
-                args.set_pair("-p", value);
+                // args.set_pair("-p", value);
             }
         } else {
             panic!("BASE NODE NOT SET");

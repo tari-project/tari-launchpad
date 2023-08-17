@@ -92,7 +92,7 @@ impl ManagedContainer for Loki {
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;
-        Some(session.all_active || session.monitoring_layer_active || session.loki_active)
+        Some(session.is_loki_active())
     }
 
     fn volumes(&self, volumes: &mut Volumes) {

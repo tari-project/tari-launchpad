@@ -67,7 +67,7 @@ impl ManagedContainer for MmProxy {
         let session = &self.settings.as_ref()?.session;
         self.mm_proxy = config?.settings.as_ref()?.mm_proxy.clone();
         self.mm_proxy.as_ref()?; // To check it exists
-        Some(session.all_active || session.merge_layer_active || session.mmproxy_active)
+        Some(session.is_mmproxy_active())
     }
 
     fn args(&self, args: &mut Args) {
