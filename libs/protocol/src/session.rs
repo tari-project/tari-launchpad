@@ -30,6 +30,7 @@ pub struct LaunchpadSession {
 
     pub base_layer_active: bool,
     pub wallet_layer_active: bool,
+    pub mining_layer_active: bool,
     pub merge_layer_active: bool,
     pub monitoring_layer_active: bool,
 
@@ -65,7 +66,7 @@ impl LaunchpadSession {
     }
 
     pub fn is_miner_active(&self) -> bool {
-        self.all_active || self.base_layer_active || self.miner_active
+        self.all_active || self.mining_layer_active || self.miner_active
     }
 
     pub fn is_mmproxy_active(&self) -> bool {

@@ -61,7 +61,7 @@ impl ManagedContainer for Monerod {
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;
-        Some(session.all_active || session.merge_layer_active || session.monerod_active)
+        Some(session.is_monerod_active())
     }
 
     fn args(&self, args: &mut Args) {

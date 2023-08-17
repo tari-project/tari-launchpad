@@ -74,7 +74,7 @@ impl ManagedContainer for Tor {
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;
-        Some(session.all_active || session.base_layer_active || session.tor_active)
+        Some(session.is_tor_active())
     }
 
     fn checker(&mut self) -> Box<dyn ContainerChecker<LaunchpadProtocol>> {
