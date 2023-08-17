@@ -70,21 +70,29 @@ impl<B: Backend> Component<B> for LogsScene {
         let rects = Layout::default()
             .constraints([Constraint::Percentage(100)].as_ref())
             .split(rect);
+
+        let mut records: Vec<_> = state
+            .state
+            .containers
+            .iter()
+            .map(|(task_id, task_state)| task_state.tail.iter().rev().map(move |record| (task_id, record)))
+            .flatten()
+            .collect();
+        records.sort_by(|l, r| r.1.datetime.cmp(&l.1.datetime));
+
         let mut rows = Vec::new();
-        for (task_id, task_state) in &state.state.containers {
-            for record in task_state.tail.iter().rev() {
-                let dt = format!("{}\n{}", record.datetime.time(), record.datetime.date());
-                let (left, right) = split_half(&record.message);
-                let message = format!("{left}\n{right}");
-                let items = vec![
-                    Cow::Owned(dt),
-                    Cow::Borrowed(task_id.as_ref()),
-                    Cow::Borrowed(record.level.as_ref()),
-                    Cow::Owned(message),
-                ];
-                let row = Row::new(items).height(3);
-                rows.push(row);
-            }
+        for (task_id, record) in records {
+            let dt = format!("{}\n{}", record.datetime.time(), record.datetime.date());
+            let (left, right) = split_half(&record.message);
+            let message = format!("{left}\n{right}");
+            let items = vec![
+                Cow::Owned(dt),
+                Cow::Borrowed(task_id.as_ref()),
+                Cow::Borrowed(record.level.as_ref()),
+                Cow::Owned(message),
+            ];
+            let row = Row::new(items).height(3);
+            rows.push(row);
         }
         let header_cells = ["DateTime", "Localisation", "Level", "Message"];
         let header = Row::new(header_cells)
@@ -95,10 +103,10 @@ impl<B: Backend> Component<B> for LogsScene {
             .block(block)
             .header(header)
             .widths(&[
-                Constraint::Length(14),
-                Constraint::Length(10),
-                Constraint::Length(10),
-                Constraint::Min(100),
+                Constraint::Percentage(10),
+                Constraint::Percentage(10),
+                Constraint::Percentage(10),
+                Constraint::Percentage(70),
             ])
             .column_spacing(2);
         f.render_stateful_widget(table, rects[0], &mut *self.table_state.borrow_mut());
