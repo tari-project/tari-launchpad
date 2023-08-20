@@ -28,7 +28,11 @@ use serde::{Deserialize, Serialize};
 const HISTORY_LIMIT: usize = 30;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WalletId(pub String);
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WalletState {
+    pub wallet_id: Option<WalletId>,
     /// If wallet is active transactions could be sent.
     pub active: bool,
     pub balance: Option<WalletBalance>,
@@ -38,6 +42,7 @@ pub struct WalletState {
 impl Default for WalletState {
     fn default() -> Self {
         Self {
+            wallet_id: None,
             active: false,
             balance: None,
             transactions: VecDeque::with_capacity(HISTORY_LIMIT),
@@ -55,6 +60,9 @@ pub struct WalletBalance {
 impl WalletState {
     pub fn apply(&mut self, delta: WalletDelta) {
         match delta {
+            WalletDelta::SetAddress(wallet_id) => {
+                self.wallet_id = Some(wallet_id);
+            },
             WalletDelta::SetActive(flag) => {
                 self.active = flag;
                 if !self.active {
@@ -76,6 +84,7 @@ impl WalletState {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WalletDelta {
+    SetAddress(WalletId),
     SetActive(bool),
     UpdateBalance(WalletBalance),
     LogTransaction(WalletTransaction),

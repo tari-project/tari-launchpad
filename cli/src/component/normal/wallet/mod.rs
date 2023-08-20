@@ -21,9 +21,11 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+mod balance;
 mod container;
 mod password;
 
+use balance::BalanceWidget;
 use container::WalletContainerWidget;
 use password::PasswordWidget;
 use ratatui::{
@@ -39,6 +41,7 @@ use crate::{
 pub struct WalletScene {
     password: PasswordWidget,
     container: WalletContainerWidget,
+    balance: BalanceWidget,
 }
 
 impl WalletScene {
@@ -46,6 +49,7 @@ impl WalletScene {
         Self {
             password: PasswordWidget::new(),
             container: WalletContainerWidget::new(),
+            balance: BalanceWidget::new(),
         }
     }
 }
@@ -55,6 +59,7 @@ impl Input for WalletScene {
         // TODO: Check the wallet is locked/unlocked
         self.container.on_event(event, state);
         self.password.on_event(event, state);
+        self.balance.on_event(event, state);
     }
 }
 
@@ -75,6 +80,7 @@ impl<B: Backend> Component<B> for WalletScene {
             .constraints(constraints)
             .split(v_chunks[1]);
         self.container.draw(f, h_chunks[0], state);
+        self.balance.draw(f, h_chunks[1], state);
         // self.password.draw(f, h_chunks[0], state);
     }
 }
