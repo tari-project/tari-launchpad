@@ -97,7 +97,7 @@ impl LaunchpadWorker {
         scope.add_image(images::Monerod::default())?;
         scope.add_image(images::XMRig::default())?;
 
-        let state = LaunchpadState::new();
+        let state = LaunchpadState::default();
 
         let worker = LaunchpadWorker {
             state,

@@ -28,6 +28,8 @@ use serde::{Deserialize, Serialize};
 use crate::{
     config::LaunchpadConfig,
     container::{TaskDelta, TaskId, TaskState},
+    errors::ErrorRecord,
+    frame::Frame,
     session::LaunchpadSession,
     settings::LaunchpadSettings,
     wallet::{WalletDelta, WalletState},
@@ -52,21 +54,24 @@ pub enum LaunchpadDelta {
     TaskAdded { id: TaskId, state: TaskState },
     TaskDelta { id: TaskId, delta: TaskDelta },
     WalletDelta(WalletDelta),
+    AddError(ErrorRecord),
 }
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LaunchpadState {
     pub config: LaunchpadConfig,
     pub containers: HashMap<TaskId, TaskState>,
     pub wallet: WalletState,
+    pub errors: Frame<ErrorRecord>,
 }
 
-impl LaunchpadState {
-    pub fn new() -> Self {
+impl Default for LaunchpadState {
+    fn default() -> Self {
         Self {
             config: LaunchpadConfig::default(),
             containers: HashMap::new(),
             wallet: WalletState::default(),
+            errors: Frame::new(30),
         }
     }
 }
@@ -98,6 +103,9 @@ impl LaunchpadState {
             },
             WalletDelta(delta) => {
                 self.wallet.apply(delta);
+            },
+            AddError(error) => {
+                self.errors.push(error);
             },
         }
     }

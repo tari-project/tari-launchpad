@@ -1,4 +1,4 @@
-// Copyright 2022. The Tari Project
+// Copyright 2023. The Tari Project
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 // following conditions are met:
@@ -21,15 +21,11 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-pub mod config;
-pub mod container;
-pub mod errors;
-pub mod frame;
-pub mod images;
-pub mod launchpad;
-pub mod session;
-pub mod settings;
-pub mod wallet;
+use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
 
-pub const ACTIONS: &str = "tari://actions";
-pub const REACTIONS: &str = "tari://reactions";
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ErrorRecord {
+    pub datetime: NaiveDateTime,
+    pub message: String,
+}

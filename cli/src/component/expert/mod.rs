@@ -22,9 +22,11 @@
 //
 
 mod containers;
+mod errors;
 mod logs;
 
 use containers::ContainersScene;
+use errors::ErrorsScene;
 use logs::LogsScene;
 use ratatui::{
     backend::Backend,
@@ -48,6 +50,7 @@ pub enum ExpertTabs {
     Performance,
     Containers,
     Logs,
+    Errors,
 }
 
 impl TabGetter for ExpertTabs {
@@ -60,6 +63,7 @@ pub struct ExpertScene {
     expert_tabs: AppTabs<ExpertTabs>,
     logs_scene: LogsScene,
     containers_scene: ContainersScene,
+    errors_scene: ErrorsScene,
 }
 
 impl ExpertScene {
@@ -68,6 +72,7 @@ impl ExpertScene {
             expert_tabs: AppTabs::new(),
             logs_scene: LogsScene::new(),
             containers_scene: ContainersScene::new(),
+            errors_scene: ErrorsScene::new(),
         }
     }
 }
@@ -82,6 +87,9 @@ impl Input for ExpertScene {
             },
             ExpertTabs::Logs => {
                 self.logs_scene.on_event(event, state);
+            },
+            ExpertTabs::Errors => {
+                self.errors_scene.on_event(event, state);
             },
         }
     }
@@ -104,6 +112,9 @@ impl<B: Backend> Component<B> for ExpertScene {
             },
             ExpertTabs::Logs => {
                 self.logs_scene.draw(f, chunks[1], state);
+            },
+            ExpertTabs::Errors => {
+                self.errors_scene.draw(f, chunks[1], state);
             },
         }
     }

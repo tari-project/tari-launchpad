@@ -21,7 +21,7 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::{borrow::Cow, collections::VecDeque};
+use std::borrow::Cow;
 
 use ratatui::{
     backend::Backend,
@@ -29,24 +29,27 @@ use ratatui::{
     style::{Color, Style},
     widgets::{Row, Table},
 };
-use tari_launchpad_protocol::container::{LogRecord, TaskId};
+use tari_launchpad_protocol::{container::TaskId, errors::ErrorRecord};
 
 use crate::{
-    component::{elements::block_with_title, AppState, Component, ComponentEvent, Frame, Input, Pass},
+    component::{elements::block_with_title, expert::Focus, AppState, Component, ComponentEvent, Frame, Input, Pass},
+    focus_id,
     state::focus,
 };
 
-pub struct LogsScene {}
+pub static ERRORS_TABLE: Focus = focus_id!();
 
-impl LogsScene {
+pub struct ErrorsScene {}
+
+impl ErrorsScene {
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl Input for LogsScene {
+impl Input for ErrorsScene {
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
-        if state.focus_on == focus::LOGS_TABLE {
+        if state.focus_on == ERRORS_TABLE {
             match event.pass() {
                 Pass::Up | Pass::Leave => {
                     state.focus_on(focus::ROOT);
@@ -57,31 +60,27 @@ impl Input for LogsScene {
     }
 }
 
-impl<B: Backend> Component<B> for LogsScene {
+impl<B: Backend> Component<B> for ErrorsScene {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Logs"), state.focus_on == focus::LOGS_TABLE);
+        let block = block_with_title(Some("Errors"), state.focus_on == ERRORS_TABLE);
         let rects = Layout::default()
             .constraints([Constraint::Percentage(100)].as_ref())
             .split(rect);
-
         let records = flatten_records(state);
         let mut rows = Vec::new();
         for (task_id, record) in records {
             let dt = format!("{}\n{}", record.datetime.time(), record.datetime.date());
-            let (left, right) = split_half(&record.message);
-            let message = format!("{left}\n{right}");
             let items = vec![
                 Cow::Owned(dt),
                 Cow::Borrowed(task_id.as_ref()),
-                Cow::Borrowed(record.level.as_ref()),
-                Cow::Owned(message),
+                Cow::Borrowed(record.message.as_ref()),
             ];
             let row = Row::new(items).height(3);
             rows.push(row);
         }
-        let header_cells = ["DateTime", "Task", "Level", "Message"];
+        let header_cells = ["DateTime", "Task", "Error"];
         let header = Row::new(header_cells)
             .style(Style::default().fg(Color::Yellow))
             .height(1)
@@ -92,48 +91,20 @@ impl<B: Backend> Component<B> for LogsScene {
             .widths(&[
                 Constraint::Percentage(10),
                 Constraint::Percentage(10),
-                Constraint::Percentage(10),
-                Constraint::Percentage(70),
+                Constraint::Percentage(80),
             ])
             .column_spacing(2);
         f.render_widget(table, rects[0]);
     }
 }
 
-fn flatten_records(state: &AppState) -> Vec<(&TaskId, &LogRecord)> {
+fn flatten_records(state: &AppState) -> Vec<(&TaskId, &ErrorRecord)> {
     let mut records: Vec<_> = state
         .state
         .containers
         .iter()
-        .flat_map(|(task_id, task_state)| task_state.tail.iter().rev().map(move |record| (task_id, record)))
+        .flat_map(|(task_id, task_state)| task_state.fails.iter().rev().map(move |record| (task_id, record)))
         .collect();
     records.sort_by(|l, r| r.1.datetime.cmp(&l.1.datetime));
     records
-}
-
-fn split_half(s: &str) -> (String, String) {
-    let mut left = VecDeque::new();
-    let mut right = VecDeque::new();
-    let mut chars = s.chars();
-    let mut has_chars = true;
-    while has_chars {
-        has_chars = false;
-        if let Some(lchar) = chars.next() {
-            left.push_back(lchar);
-            has_chars = true;
-        }
-        if let Some(rchar) = chars.next_back() {
-            right.push_front(rchar);
-            has_chars = true;
-        }
-    }
-    loop {
-        if let Some(c) = right.pop_front() {
-            left.push_back(c);
-            if c.is_whitespace() {
-                break;
-            }
-        }
-    }
-    (left.into_iter().collect(), right.into_iter().collect())
 }
