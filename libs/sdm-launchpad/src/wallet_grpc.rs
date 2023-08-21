@@ -23,12 +23,20 @@
 
 use anyhow::Error;
 use futures::StreamExt;
+use tari_common_types::tari_address::TariAddress;
 use tari_launchpad_protocol::{
     launchpad::{LaunchpadDelta, Reaction},
-    wallet::{WalletAction, WalletBalance, WalletDelta, WalletTransaction},
+    wallet::{WalletAction, WalletBalance, WalletDelta, WalletId, WalletTransaction},
 };
 use tari_wallet_grpc_client::{
-    grpc::{GetBalanceRequest, GetBalanceResponse, TransactionEventRequest, TransactionEventResponse},
+    grpc::{
+        Empty,
+        GetAddressResponse,
+        GetBalanceRequest,
+        GetBalanceResponse,
+        TransactionEventRequest,
+        TransactionEventResponse,
+    },
     WalletGrpcClient,
 };
 use tokio::{
@@ -94,6 +102,10 @@ impl WalletGrpcWorker {
 
         let mut update = interval(Duration::from_millis(5_000));
 
+        let request = Empty {};
+        let response = client.get_address(request).await?.into_inner();
+        self.process_address(response)?;
+
         loop {
             select! {
                 action = self.rx.recv() => {
@@ -116,6 +128,12 @@ impl WalletGrpcWorker {
             }
         }
         Ok(())
+    }
+
+    fn process_address(&mut self, response: GetAddressResponse) -> Result<(), Error> {
+        let emoji = TariAddress::from_bytes(&response.address)?.to_emoji_string();
+        let delta = WalletDelta::SetAddress(WalletId(emoji));
+        self.send_update(delta)
     }
 
     fn process_balance(&mut self, response: GetBalanceResponse) -> Result<(), Error> {
