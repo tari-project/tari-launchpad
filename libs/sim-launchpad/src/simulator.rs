@@ -253,6 +253,7 @@ impl Simulator {
                     available: 0,
                     pending_incoming: 0,
                     pending_outgoing: 0,
+                    timelocked: 0,
                 };
                 let delta = WalletDelta::UpdateBalance(balance);
                 self.apply_wallet_delta(delta)?;

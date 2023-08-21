@@ -74,7 +74,7 @@ impl<B: Backend> Component<B> for WalletScene {
             .split(rect);
         // self.hint.draw(f, v_chunks[0], state);
 
-        let constraints = [Constraint::Percentage(50), Constraint::Percentage(50)];
+        let constraints = [Constraint::Percentage(70), Constraint::Percentage(30)];
         let h_chunks = Layout::default()
             .direction(Direction::Horizontal)
             .constraints(constraints)

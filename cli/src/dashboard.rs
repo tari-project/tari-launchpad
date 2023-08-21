@@ -26,7 +26,7 @@ use std::{io::Stdout, time::Duration};
 use anyhow::Error;
 use async_trait::async_trait;
 use crossterm::{
-    event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyModifiers},
+    event::{Event, KeyCode, KeyModifiers},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -105,7 +105,7 @@ impl Actor for Dashboard {
         self.interval = Some(interval);
         enable_raw_mode()?;
         let mut stdout = std::io::stdout();
-        execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
+        execute!(stdout, EnterAlternateScreen)?;
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
         self.terminal = Some(terminal);
@@ -122,7 +122,7 @@ impl Actor for Dashboard {
     async fn finalize(&mut self, _ctx: &mut ActorContext<Self>) -> Result<(), Error> {
         disable_raw_mode()?;
         let mut terminal = self.terminal.take().ok_or_else(|| DashboardError::Terminal)?;
-        execute!(terminal.backend_mut(), LeaveAlternateScreen, DisableMouseCapture)?;
+        execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
         terminal.show_cursor()?;
         self.supervisor.send(DashboardEvent::Terminated)?;
         Ok(())

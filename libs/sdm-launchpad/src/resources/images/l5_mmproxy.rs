@@ -62,6 +62,10 @@ impl ManagedContainer for MmProxy {
         "tari_mm_proxy"
     }
 
+    fn tag(&self) -> &str {
+        "v0.49.2_20230628_e0e4ebc"
+    }
+
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;

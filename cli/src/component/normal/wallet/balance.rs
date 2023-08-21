@@ -21,12 +21,12 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+use std::borrow::Cow;
+
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Modifier, Style},
-    text::{Line, Span},
-    widgets::Paragraph,
+    widgets::{Row, Table},
 };
 
 use crate::{
@@ -76,7 +76,7 @@ impl<B: Backend> Component<B> for BalanceWidget {
 
         let constraints = [
             Constraint::Length(1),
-            Constraint::Length(3),
+            Constraint::Length(4),
             // Constraint::Percentage(50),
             Constraint::Length(1),
             Constraint::Min(0),
@@ -88,24 +88,38 @@ impl<B: Backend> Component<B> for BalanceWidget {
             .constraints(constraints)
             .split(inner_rect);
 
-        let balance = &state
-            .state
-            .wallet
-            .balance
-            .as_ref()
-            .map(|wallet| wallet.available.to_string())
-            .unwrap_or_else(|| "-".to_string());
-        let text = vec![Line::from(vec![
-            Span::styled("Balance", Style::default().add_modifier(Modifier::BOLD)),
-            Span::raw(": "),
-            Span::raw(balance),
-        ])];
-        let p = Paragraph::new(text);
-        f.render_widget(p, v_chunks[0]);
-
-        // self.tari_amount.draw(f, v_chunks[2], state);
-
-        // self.password.draw(f, v_chunks[4], state);
-        // self.button.draw(f, v_chunks[5], state);
+        let mut available = None;
+        let mut incoming = None;
+        let mut outgoing = None;
+        let mut timelocked = None;
+        if let Some(balance) = state.state.wallet.balance.as_ref() {
+            available = Some(balance.available);
+            incoming = Some(balance.pending_incoming);
+            outgoing = Some(balance.pending_outgoing);
+            timelocked = Some(balance.timelocked);
+        }
+        let rows = rows([
+            ("Available", available),
+            ("Incoming", incoming),
+            ("Outgoing", outgoing),
+            ("Timelocked", timelocked),
+        ]);
+        let table = Table::new(rows)
+            .widths(&[Constraint::Percentage(40), Constraint::Percentage(60)])
+            .column_spacing(2);
+        f.render_widget(table, v_chunks[1]);
     }
+}
+
+fn rows<'a>(items: impl IntoIterator<Item = (&'a str, Option<u64>)>) -> Vec<Row<'a>> {
+    let mut rows = Vec::new();
+    for (title, value) in items {
+        let value = value
+            .map(|v| Cow::Owned(v.to_string()))
+            .unwrap_or_else(|| Cow::Borrowed("-"));
+        let items = vec![Cow::Borrowed(title), value];
+        let row = Row::new(items);
+        rows.push(row);
+    }
+    rows
 }
