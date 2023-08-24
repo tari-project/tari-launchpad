@@ -60,6 +60,7 @@ impl Simulator {
             deps: HashMap::new(),
             mined_at: Instant::now(),
         };
+        simulator.lp_state.wallet.balance = Some(WalletBalance::default());
         simulator.entrypoint().await
     }
 
@@ -148,6 +149,7 @@ impl Simulator {
             LaunchpadAction::ChangeSession(session) => {
                 self.apply_delta(LaunchpadDelta::UpdateSession(session))?;
             },
+            LaunchpadAction::WalletAction(_action) => {},
         }
         Ok(())
     }
@@ -263,10 +265,12 @@ impl Simulator {
     }
 
     fn update_mining(&mut self) -> Result<(), Error> {
-        if self.mined_at.elapsed() >= Duration::from_secs(10) {
-            if let Some(balance) = self.lp_state.wallet.balance.as_mut() {
-                balance.available += 1_000;
-            }
+        let session = self.lp_state.config.session.clone();
+        if session.is_miner_active() && self.mined_at.elapsed() >= Duration::from_secs(10) {
+            let mut balance = self.lp_state.wallet.balance.clone().unwrap_or_default();
+            balance.available += 1_000;
+            let delta = WalletDelta::UpdateBalance(balance);
+            self.apply_wallet_delta(delta)?;
             // TODO: Add a transaction
             self.mined_at = Instant::now();
         }

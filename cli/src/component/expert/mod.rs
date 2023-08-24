@@ -78,7 +78,9 @@ impl ExpertScene {
 }
 
 impl Input for ExpertScene {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         self.expert_tabs.on_event(event, state);
         match self.expert_tabs.selected() {
             ExpertTabs::Performance => {},
@@ -92,6 +94,7 @@ impl Input for ExpertScene {
                 self.errors_scene.on_event(event, state);
             },
         }
+        None
     }
 }
 

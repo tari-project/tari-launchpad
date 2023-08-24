@@ -45,7 +45,6 @@ pub type BusTx = mpsc::UnboundedSender<Action>;
 pub type BusRx = mpsc::UnboundedReceiver<Reaction>;
 
 pub struct LaunchpadBus {
-    // pub handle: JoinHandle<()>,
     pub incoming: mpsc::UnboundedSender<Action>,
     pub outgoing: mpsc::UnboundedReceiver<Reaction>,
 }
@@ -174,6 +173,11 @@ impl LaunchpadWorker {
                 self.apply_delta(LaunchpadDelta::UpdateSession(session));
                 let config = self.state.config.clone();
                 self.scope.set_config(Some(config))?;
+            },
+            LaunchpadAction::WalletAction(action) => {
+                if let Some(grpc) = self.wallet_grpc.as_mut() {
+                    grpc.send_action(action)?;
+                }
             },
         }
         Ok(())

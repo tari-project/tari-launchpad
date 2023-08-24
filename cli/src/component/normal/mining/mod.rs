@@ -75,9 +75,12 @@ impl MiningScene {
 }
 
 impl Input for MiningScene {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         self.tari_mining.on_event(event, state);
         self.merged_mining.on_event(event, state);
+        None
     }
 }
 

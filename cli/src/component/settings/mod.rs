@@ -99,7 +99,9 @@ impl SettingsScene {
 }
 
 impl Input for SettingsScene {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         self.settings_tabs.on_event(event, state);
         match self.settings_tabs.selected() {
             SettingsTabs::Mining => {
@@ -121,6 +123,7 @@ impl Input for SettingsScene {
                 self.security_settings.on_event(event, state);
             },
         }
+        None
     }
 }
 

@@ -26,8 +26,9 @@ use futures::StreamExt;
 use tari_common_types::tari_address::TariAddress;
 use tari_launchpad_protocol::{
     launchpad::{LaunchpadDelta, Reaction},
-    wallet::{WalletAction, WalletBalance, WalletDelta, WalletId, WalletTransaction},
+    wallet::{MyIdentity, WalletAction, WalletBalance, WalletDelta, WalletTransaction},
 };
+use tari_utilities::hex::Hex;
 use tari_wallet_grpc_client::{
     grpc::{
         Empty,
@@ -46,7 +47,7 @@ use tokio::{
 };
 
 pub struct WalletGrpc {
-    _tx: mpsc::UnboundedSender<WalletAction>,
+    tx: mpsc::UnboundedSender<WalletAction>,
 }
 
 impl WalletGrpc {
@@ -54,7 +55,12 @@ impl WalletGrpc {
         let (tx, rx) = mpsc::unbounded_channel();
         let worker = WalletGrpcWorker { rx, out_tx };
         tokio::spawn(worker.entrypoint());
-        Self { _tx: tx }
+        Self { tx }
+    }
+
+    pub fn send_action(&mut self, action: WalletAction) -> Result<(), Error> {
+        self.tx.send(action)?;
+        Ok(())
     }
 }
 
@@ -131,8 +137,10 @@ impl WalletGrpcWorker {
     }
 
     fn process_address(&mut self, response: GetAddressResponse) -> Result<(), Error> {
-        let emoji = TariAddress::from_bytes(&response.address)?.to_emoji_string();
-        let delta = WalletDelta::SetAddress(WalletId(emoji));
+        let emoji_id = TariAddress::from_bytes(&response.address)?.to_emoji_string();
+        let tari_address = response.address.to_hex();
+        let identity = MyIdentity { tari_address, emoji_id };
+        let delta = WalletDelta::SetAddress(identity);
         self.send_update(delta)
     }
 

@@ -61,14 +61,24 @@ impl LogsSettings {
 }
 
 impl Input for LogsSettings {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == LOGS_SETTINGS {
-            state.focus_on(MAX_SIZE);
+            match event.pass() {
+                Pass::Up | Pass::Leave => {
+                    state.focus_on(focus::ROOT);
+                },
+                Pass::Down | Pass::Enter => {
+                    state.focus_on(MAX_SIZE);
+                },
+                _ => {},
+            }
         } else if state.focus_on == MAX_SIZE {
             let released = self.max_size.is_released();
             match event.pass() {
-                Pass::Up | Pass::Leave if released => {
-                    state.focus_on(focus::ROOT);
+                Pass::Up | Pass::Down | Pass::Leave if released => {
+                    state.focus_on(LOGS_SETTINGS);
                 },
                 _ => {
                     self.max_size.on_event(event, state);
@@ -77,6 +87,7 @@ impl Input for LogsSettings {
         } else {
             //
         }
+        None
     }
 }
 
@@ -84,7 +95,7 @@ impl<B: Backend> Component<B> for LogsSettings {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Logs Settings"), false);
+        let block = block_with_title(Some("Logs Settings"), state.focus_on == LOGS_SETTINGS);
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
         let constraints = [

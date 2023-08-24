@@ -48,7 +48,9 @@ impl ErrorsScene {
 }
 
 impl Input for ErrorsScene {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == ERRORS_TABLE {
             match event.pass() {
                 Pass::Up | Pass::Leave => {
@@ -57,6 +59,7 @@ impl Input for ErrorsScene {
                 _ => {},
             }
         }
+        None
     }
 }
 

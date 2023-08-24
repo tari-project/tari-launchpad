@@ -21,6 +21,9 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+use std::str::FromStr;
+
+use anyhow::Error;
 use crossterm::event::{KeyCode, KeyModifiers};
 use ratatui::{
     backend::Backend,
@@ -34,47 +37,124 @@ use crate::{
     state::{AppState, Focus},
 };
 
-pub struct LabeledInput {
+pub enum Value<T> {
+    Empty,
+    Valid { value: T },
+    Invalid { reason: String },
+}
+
+impl<T> Value<T> {
+    pub fn is_valid(&self) -> bool {
+        !matches!(self, Value::Invalid { .. })
+    }
+}
+
+impl<T> Default for Value<T> {
+    fn default() -> Self {
+        Self::Empty
+    }
+}
+
+impl<T, E: ToString> From<Result<T, E>> for Value<T> {
+    fn from(res: Result<T, E>) -> Self {
+        match res {
+            Ok(value) => Self::Valid { value },
+            Err(err) => Self::Invalid {
+                reason: err.to_string(),
+            },
+        }
+    }
+}
+
+pub trait CharValidator: Send + 'static {
+    fn is_valid(&self, c: char) -> bool;
+}
+
+impl<T> CharValidator for T
+where
+    T: Fn(char) -> bool,
+    T: Send + 'static,
+{
+    fn is_valid(&self, c: char) -> bool {
+        (self)(c)
+    }
+}
+
+pub struct LabeledInput<T: FromStr = String> {
     input_mode: bool,
     label: String,
     content: String,
     focus: Focus,
+    value: Value<T>,
+    validator: Box<dyn CharValidator>,
 }
 
-impl LabeledInput {
+impl<T: FromStr> LabeledInput<T> {
     pub fn new(label: impl ToString, focus: Focus) -> Self {
+        Self::new_with_filter(label, focus, |_| true)
+    }
+
+    pub fn new_with_filter(label: impl ToString, focus: Focus, filter: impl CharValidator) -> Self {
         Self {
             input_mode: false,
             label: label.to_string(),
             content: String::new(),
             focus,
+            value: Value::default(),
+            validator: Box::new(filter),
         }
     }
 
     pub fn is_released(&self) -> bool {
         !self.input_mode
     }
+
+    pub fn set(&mut self, value: T) {
+        self.value = Value::Valid { value };
+    }
+
+    pub fn value(&self) -> Result<&T, Error> {
+        match &self.value {
+            Value::Valid { value } => Ok(value),
+            Value::Invalid { reason } => Err(Error::msg(reason.to_owned())),
+            Value::Empty => Err(Error::msg("Value is empty")),
+        }
+    }
 }
 
-impl Input for LabeledInput {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+impl<T> Input for LabeledInput<T>
+where
+    T: FromStr,
+    T::Err: ToString,
+{
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == self.focus {
             if let ComponentEvent::KeyEvent(key) = event {
                 if self.input_mode {
                     // TODO: Show the cursor
+                    let ctrl = key.modifiers.contains(KeyModifiers::CONTROL);
+                    let alt = key.modifiers.contains(KeyModifiers::ALT);
                     match key.code {
+                        KeyCode::Char('c') | KeyCode::Delete | KeyCode::Backspace if ctrl => {
+                            self.content.clear();
+                        },
                         KeyCode::Char(c) => {
-                            self.content.push(c);
+                            if self.validator.is_valid(c) {
+                                self.content.push(c);
+                            }
                         },
                         KeyCode::Backspace => {
-                            if key.modifiers.contains(KeyModifiers::ALT) {
+                            if alt {
                                 self.content.clear();
                             } else {
                                 self.content.pop();
                             }
                         },
-                        KeyCode::Esc => {
+                        KeyCode::Esc | KeyCode::Enter => {
                             self.input_mode = false;
+                            self.value = self.content.parse().into();
                         },
                         _ => {},
                     }
@@ -85,10 +165,11 @@ impl Input for LabeledInput {
                 }
             }
         }
+        None
     }
 }
 
-impl<B: Backend> Component<B> for LabeledInput {
+impl<B: Backend, T: FromStr> Component<B> for LabeledInput<T> {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
@@ -111,11 +192,18 @@ impl<B: Backend> Component<B> for LabeledInput {
                 (Color::White, Color::Reset)
             }
         };
+        let text_color = {
+            if self.value.is_valid() || self.input_mode {
+                Color::White
+            } else {
+                Color::Red
+            }
+        };
         let block = Block::default()
             .border_style(Style::default().fg(block_color))
             .borders(Borders::ALL);
         let s: &str = self.content.as_ref();
-        let text = Paragraph::new(s).block(block);
+        let text = Paragraph::new(s).block(block).style(Style::default().fg(text_color));
         f.render_widget(text, h_chunks[1]);
         // let input = self.input.widget();
         // f.render_widget(input, h_chunks[1]);

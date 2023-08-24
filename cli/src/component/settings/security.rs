@@ -24,9 +24,15 @@
 use ratatui::{backend::Backend, layout::Rect};
 
 use crate::{
-    component::{elements::block_with_title, Component, ComponentEvent, Frame, Input},
-    state::AppState,
+    component::{elements::block_with_title, Component, ComponentEvent, Frame, Input, Pass},
+    focus_id,
+    state::{
+        focus::{self, Focus},
+        AppState,
+    },
 };
+
+pub static SECURITY_SETTINGS: Focus = focus_id!();
 
 pub struct SecuritySettings {}
 
@@ -37,14 +43,29 @@ impl SecuritySettings {
 }
 
 impl Input for SecuritySettings {
-    fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) {}
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
+        if state.focus_on == SECURITY_SETTINGS {
+            match event.pass() {
+                Pass::Up | Pass::Leave => {
+                    state.focus_on(focus::ROOT);
+                },
+                Pass::Down | Pass::Enter => {
+                    // TODO:
+                },
+                _ => {},
+            }
+        }
+        None
+    }
 }
 
 impl<B: Backend> Component<B> for SecuritySettings {
     type State = AppState;
 
-    fn draw(&self, f: &mut Frame<B>, rect: Rect, _state: &Self::State) {
-        let block = block_with_title(Some("Security Settings"), false);
+    fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
+        let block = block_with_title(Some("Security Settings"), state.focus_on == SECURITY_SETTINGS);
         f.render_widget(block, rect);
     }
 }

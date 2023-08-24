@@ -28,11 +28,14 @@ use serde::{Deserialize, Serialize};
 const HISTORY_LIMIT: usize = 30;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct WalletId(pub String);
+pub struct MyIdentity {
+    pub tari_address: String,
+    pub emoji_id: String,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WalletState {
-    pub wallet_id: Option<WalletId>,
+    pub wallet_id: Option<MyIdentity>,
     /// If wallet is active transactions could be sent.
     pub active: bool,
     pub balance: Option<WalletBalance>,
@@ -50,7 +53,7 @@ impl Default for WalletState {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct WalletBalance {
     pub available: u64,
     pub pending_incoming: u64,
@@ -85,7 +88,7 @@ impl WalletState {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WalletDelta {
-    SetAddress(WalletId),
+    SetAddress(MyIdentity),
     SetActive(bool),
     UpdateBalance(WalletBalance),
     LogTransaction(WalletTransaction),
@@ -95,8 +98,6 @@ pub enum WalletDelta {
 pub struct WalletTransaction {
     pub event: String,
     pub tx_id: String,
-    // pub source_pk: Vec<u8>,
-    // pub dest_pk: Vec<u8>,
     pub status: String,
     pub direction: String,
     pub amount: u64,
@@ -106,5 +107,13 @@ pub struct WalletTransaction {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WalletAction {
-    TransferFunds,
+    TransferFunds(TransferFunds),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TransferFunds {
+    pub address: String,
+    pub amount: u64,
+    pub fee: u64,
+    pub message: String,
 }

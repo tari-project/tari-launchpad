@@ -32,7 +32,7 @@ use crate::{
     frame::Frame,
     session::LaunchpadSession,
     settings::LaunchpadSettings,
-    wallet::{WalletDelta, WalletState},
+    wallet::{WalletAction, WalletDelta, WalletState},
 };
 
 /// An action sent from UI to the backend.
@@ -45,6 +45,7 @@ pub enum Action {
 pub enum LaunchpadAction {
     Connect,
     ChangeSession(LaunchpadSession),
+    WalletAction(WalletAction),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -76,6 +77,7 @@ impl Default for LaunchpadState {
     }
 }
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Reaction {
     State(LaunchpadState),

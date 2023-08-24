@@ -31,8 +31,7 @@ use ratatui::{
 use crate::{
     component::{
         elements::{block_with_title, logo},
-        normal::chrono_button::{ChronoButton, ChronoGetter},
-        widgets::LabeledInput,
+        widgets::{ChronoButton, ChronoGetter, LabeledInput},
         Component,
         ComponentEvent,
         Frame,
@@ -53,6 +52,7 @@ const LOGO: &str = r#"
 "#;
 
 static PASSWORD_FIELD: Focus = focus_id!();
+static BUTTON: Focus = focus_id!();
 
 struct PasswordWidgetGetter;
 
@@ -79,13 +79,15 @@ impl PasswordWidget {
     pub fn new() -> Self {
         Self {
             password: LabeledInput::new("Password", PASSWORD_FIELD),
-            button: ChronoButton::new(PasswordWidgetGetter),
+            button: ChronoButton::new(PasswordWidgetGetter, BUTTON),
         }
     }
 }
 
 impl Input for PasswordWidget {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == focus::PASSWORD {
             // TODO: Set focus to the particular value
             // self.password.set_focus(true);
@@ -99,6 +101,7 @@ impl Input for PasswordWidget {
                 _ => {},
             }
         }
+        None
     }
 }
 
