@@ -28,6 +28,10 @@ use tokio::sync::mpsc;
 use crate::simulator::Simulator;
 
 // TODO: Move (join) this `Bus` with the main sdm bus
+
+pub type BusTx = mpsc::UnboundedSender<Action>;
+pub type BusRx = mpsc::UnboundedReceiver<Reaction>;
+
 pub struct LaunchpadBus {
     pub incoming: mpsc::UnboundedSender<Action>,
     pub outgoing: mpsc::UnboundedReceiver<Reaction>,

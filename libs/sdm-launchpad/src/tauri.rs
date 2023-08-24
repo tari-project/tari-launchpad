@@ -27,7 +27,7 @@ use tauri::{App, Manager, Wry};
 
 use crate::bus::LaunchpadBus;
 
-pub fn bus_setup(app: &App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
     let handle = app.handle();
     let bus = LaunchpadBus::start()?;
 

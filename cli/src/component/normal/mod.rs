@@ -22,7 +22,6 @@
 //
 
 mod base_node;
-mod chrono_button;
 mod hint;
 mod mining;
 mod wallet;
@@ -39,6 +38,7 @@ use wallet::WalletScene;
 
 use crate::{
     component::{
+        normal::wallet::WALLET_CONTAINER,
         tabs::{AppTabs, TabGetter},
         Component,
         ComponentEvent,
@@ -70,7 +70,7 @@ impl TabGetter for NormalTabs {
         match self {
             Self::Mining => focus::TARI_MINING,
             Self::BaseNode => focus::BASE_NODE,
-            Self::Wallet => focus::WALLET_CONTAINER,
+            Self::Wallet => WALLET_CONTAINER,
         }
     }
 }
@@ -94,7 +94,9 @@ impl NormalScene {
 }
 
 impl Input for NormalScene {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         self.normal_tabs.on_event(event, state);
         match self.normal_tabs.selected() {
             NormalTabs::Mining => {
@@ -107,6 +109,7 @@ impl Input for NormalScene {
                 self.wallet_scene.on_event(event, state);
             },
         }
+        None
     }
 }
 

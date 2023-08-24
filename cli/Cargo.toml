@@ -15,7 +15,7 @@ strum = { version = "0.24.1", features = ["derive"] }
 tact = { path = "../libs/tact" }
 thiserror = "1.0.40"
 tokio = "1.28.1"
-ratatui = "0.22.0"
+ratatui = "0.23.0"
 
 tari_launchpad_protocol = { path = "../libs/protocol" }
 tari_sdm_assets = { path = "../libs/sdm-assets" }

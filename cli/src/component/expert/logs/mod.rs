@@ -45,7 +45,9 @@ impl LogsScene {
 }
 
 impl Input for LogsScene {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == focus::LOGS_TABLE {
             match event.pass() {
                 Pass::Up | Pass::Leave => {
@@ -54,6 +56,7 @@ impl Input for LogsScene {
                 _ => {},
             }
         }
+        None
     }
 }
 

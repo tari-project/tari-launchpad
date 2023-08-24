@@ -26,11 +26,19 @@ use std::borrow::Cow;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
-    widgets::{Row, Table},
+    widgets::{Padding, Row, Table},
 };
 
 use crate::{
-    component::{elements::block_with_title, Component, ComponentEvent, Frame, Input, Pass},
+    component::{
+        elements::block_with_title,
+        normal::wallet::{SEND_FUNDS, WALLET_CONTAINER},
+        Component,
+        ComponentEvent,
+        Frame,
+        Input,
+        Pass,
+    },
     focus_id,
     state::{
         focus::{self, Focus},
@@ -49,7 +57,9 @@ impl BalanceWidget {
 }
 
 impl Input for BalanceWidget {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == BALANCE {
             // TODO: Set focus to the particular value
             // self.password.set_focus(true);
@@ -57,12 +67,19 @@ impl Input for BalanceWidget {
                 Pass::Up | Pass::Leave => {
                     state.focus_on(focus::ROOT);
                 },
+                Pass::Left => {
+                    state.focus_on(WALLET_CONTAINER);
+                },
+                Pass::Down | Pass::Right | Pass::Next => {
+                    state.focus_on(SEND_FUNDS);
+                },
                 Pass::Enter | Pass::Space => {
                     // TODO: Toggle the base node state
                 },
                 _ => {},
             }
         }
+        None
     }
 }
 
@@ -70,18 +87,16 @@ impl<B: Backend> Component<B> for BalanceWidget {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Balance"), state.focus_on == BALANCE);
+        let block = block_with_title(Some("Balance"), state.focus_on == BALANCE).padding(Padding::uniform(1));
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
 
         let constraints = [
-            Constraint::Length(1),
             Constraint::Length(4),
             // Constraint::Percentage(50),
             Constraint::Length(1),
             Constraint::Min(0),
             Constraint::Length(3),
-            Constraint::Length(1),
         ];
         let v_chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -107,7 +122,7 @@ impl<B: Backend> Component<B> for BalanceWidget {
         let table = Table::new(rows)
             .widths(&[Constraint::Percentage(40), Constraint::Percentage(60)])
             .column_spacing(2);
-        f.render_widget(table, v_chunks[1]);
+        f.render_widget(table, v_chunks[0]);
     }
 }
 

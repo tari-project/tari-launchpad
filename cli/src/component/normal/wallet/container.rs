@@ -28,20 +28,22 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Modifier, Style},
     text::{Line, Span},
-    widgets::Paragraph,
+    widgets::{Padding, Paragraph},
 };
 
 use crate::{
     component::{
         elements::{block_with_title, logo},
-        normal::chrono_button::{ChronoButton, ChronoGetter},
+        normal::wallet::{BALANCE, SEND_FUNDS},
+        widgets::{ChronoButton, ChronoGetter},
         Component,
         ComponentEvent,
         Frame,
         Input,
         Pass,
     },
-    state::{focus, AppState},
+    focus_id,
+    state::{focus, AppState, Focus},
 };
 
 const LOGO: &str = r#"
@@ -49,6 +51,9 @@ const LOGO: &str = r#"
 ║║║├─┤│  │  ├┤  │
 ╚╩╝┴ ┴┴─┘┴─┘└─┘ ┴
 "#;
+
+pub static WALLET_CONTAINER: Focus = focus_id!();
+static BUTTON: Focus = focus_id!();
 
 struct WalletContainerGetter;
 
@@ -73,17 +78,25 @@ pub struct WalletContainerWidget {
 impl WalletContainerWidget {
     pub fn new() -> Self {
         Self {
-            button: ChronoButton::new(WalletContainerGetter),
+            button: ChronoButton::new(WalletContainerGetter, BUTTON),
         }
     }
 }
 
 impl Input for WalletContainerWidget {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
-        if state.focus_on == focus::WALLET_CONTAINER {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
+        if state.focus_on == WALLET_CONTAINER {
             match event.pass() {
                 Pass::Up | Pass::Leave => {
                     state.focus_on(focus::ROOT);
+                },
+                Pass::Right | Pass::Next => {
+                    state.focus_on(BALANCE);
+                },
+                Pass::Down => {
+                    state.focus_on(SEND_FUNDS);
                 },
                 Pass::Enter | Pass::Space => {
                     let session = &mut state.state.config.session;
@@ -93,6 +106,7 @@ impl Input for WalletContainerWidget {
                 _ => {},
             }
         }
+        None
     }
 }
 
@@ -100,17 +114,17 @@ impl<B: Backend> Component<B> for WalletContainerWidget {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Wallet"), state.focus_on == focus::WALLET_CONTAINER);
+        let block =
+            block_with_title(Some("Wallet"), state.focus_on == WALLET_CONTAINER).padding(Padding::new(1, 1, 1, 0));
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
 
         let constraints = [
-            Constraint::Length(1),
             Constraint::Length(3),
             // Constraint::Percentage(50),
-            Constraint::Length(1),
+            Constraint::Length(2),
             Constraint::Min(0),
-            Constraint::Length(1),
+            Constraint::Length(3),
         ];
         let v_chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -119,26 +133,26 @@ impl<B: Backend> Component<B> for WalletContainerWidget {
         // self.status_badge.draw(f, v_chunks[0], state);
 
         let logo = logo(LOGO);
-        f.render_widget(logo, v_chunks[1]);
+        f.render_widget(logo, v_chunks[0]);
 
-        let address = state
-            .state
-            .wallet
-            .wallet_id
-            .as_ref()
-            .map(|id| id.0.as_ref())
-            .unwrap_or_else(|| "-");
+        let mut lines = Vec::new();
+        if let Some(wallet_id) = state.state.wallet.wallet_id.as_ref() {
+            lines.push(make_line("EmojiId", &wallet_id.emoji_id));
+            lines.push(make_line("Tari Address", &wallet_id.tari_address));
+        }
+        let p = Paragraph::new(lines);
+        f.render_widget(p, v_chunks[1]);
 
-        let text = vec![Line::from(vec![
-            Span::styled("WalletId", Style::default().add_modifier(Modifier::BOLD)),
-            Span::raw(": "),
-            Span::raw(address),
-        ])];
-        let p = Paragraph::new(text);
-        f.render_widget(p, v_chunks[2]);
+        // self.tari_amount.draw(f, v_chunks[3], state);
 
-        // self.tari_amount.draw(f, v_chunks[2], state);
-
-        self.button.draw(f, v_chunks[4], state);
+        self.button.draw(f, v_chunks[3], state);
     }
+}
+
+fn make_line<'a>(title: &'a str, value: &'a str) -> Line<'a> {
+    Line::from(vec![
+        Span::styled(title, Style::default().add_modifier(Modifier::BOLD)),
+        Span::raw(": "),
+        Span::raw(value),
+    ])
 }

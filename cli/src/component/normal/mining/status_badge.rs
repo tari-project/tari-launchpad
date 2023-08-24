@@ -49,7 +49,11 @@ impl<G> StatusBadge<G> {
 }
 
 impl<G> Input for StatusBadge<G> {
-    fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) {}
+    type Output = ();
+
+    fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) -> Option<Self::Output> {
+        None
+    }
 }
 
 impl<B: Backend, G> Component<B> for StatusBadge<G>

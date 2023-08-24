@@ -66,14 +66,24 @@ impl DockerSettings {
 }
 
 impl Input for DockerSettings {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == DOCKER_SETTINGS {
-            state.focus_on(DOCKER_TAG);
+            match event.pass() {
+                Pass::Up | Pass::Leave => {
+                    state.focus_on(focus::ROOT);
+                },
+                Pass::Down | Pass::Enter => {
+                    state.focus_on(DOCKER_TAG);
+                },
+                _ => {},
+            }
         } else if state.focus_on == DOCKER_TAG {
             let released = self.docker_tag.is_released();
             match event.pass() {
                 Pass::Up | Pass::Leave if released => {
-                    state.focus_on(focus::ROOT);
+                    state.focus_on(DOCKER_SETTINGS);
                 },
                 Pass::Down if released => {
                     state.focus_on(DOCKER_REGISTRY);
@@ -85,8 +95,8 @@ impl Input for DockerSettings {
         } else if state.focus_on == DOCKER_REGISTRY {
             let released = self.docker_registry.is_released();
             match event.pass() {
-                Pass::Leave if released => {
-                    state.focus_on(focus::ROOT);
+                Pass::Leave | Pass::Down if released => {
+                    state.focus_on(DOCKER_SETTINGS);
                 },
                 Pass::Up if released => {
                     state.focus_on(DOCKER_TAG);
@@ -98,6 +108,7 @@ impl Input for DockerSettings {
         } else {
             //
         }
+        None
     }
 }
 
@@ -105,7 +116,7 @@ impl<B: Backend> Component<B> for DockerSettings {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Docker Settings"), false);
+        let block = block_with_title(Some("Docker Settings"), state.focus_on == DOCKER_SETTINGS);
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
         let constraints = [
