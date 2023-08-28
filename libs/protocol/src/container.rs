@@ -30,7 +30,7 @@ use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use strum::AsRefStr;
 
-use crate::frame::Frame;
+use crate::{errors::ErrorRecord, frame::Frame};
 
 #[derive(Debug, Clone, From, Into, PartialOrd, Ord, PartialEq, Eq, Hash, Display, Serialize, Deserialize)]
 pub struct TaskId(String);
@@ -74,7 +74,7 @@ pub enum LogLevel {
 pub struct TaskState {
     pub status: TaskStatus,
     pub tail: Frame<LogRecord>,
-    pub fails: Frame<String>,
+    pub fails: Frame<ErrorRecord>,
     pub stats: Frame<StatsData>,
     pub permanent: bool,
 }
@@ -162,7 +162,7 @@ impl fmt::Display for TaskStatus {
 pub enum TaskDelta {
     UpdateStatus(TaskStatus),
     LogRecord(LogRecord),
-    LogError(String),
+    LogError(ErrorRecord),
     StatsRecord(StatsData),
 }
 

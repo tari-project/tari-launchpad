@@ -29,14 +29,9 @@ use bollard::Docker;
 use chrono::Local;
 use derive_more::{Deref, DerefMut};
 use futures::StreamExt;
-use tari_launchpad_protocol::container::{
-    LogLevel,
-    LogRecord,
-    StatsData,
-    TaskDelta,
-    TaskId,
-    TaskState,
-    TaskStatus as TaskStatusValue,
+use tari_launchpad_protocol::{
+    container::{LogLevel, LogRecord, StatsData, TaskDelta, TaskId, TaskState, TaskStatus as TaskStatusValue},
+    errors::ErrorRecord,
 };
 use tokio::{
     select,
@@ -158,8 +153,12 @@ impl<E, P: ManagedProtocol> TaskSender<E, P> {
         self.send_report(report)
     }
 
-    pub fn send_error(&self, err: String) -> Result<(), Error> {
-        let delta = TaskDelta::LogError(err);
+    pub fn send_error(&self, message: String) -> Result<(), Error> {
+        let record = ErrorRecord {
+            datetime: Local::now().naive_local(),
+            message,
+        };
+        let delta = TaskDelta::LogError(record);
         let report = Report::Delta(delta);
         self.send_report(report)
     }
