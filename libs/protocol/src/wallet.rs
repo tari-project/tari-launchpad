@@ -55,6 +55,7 @@ pub struct WalletBalance {
     pub available: u64,
     pub pending_incoming: u64,
     pub pending_outgoing: u64,
+    pub timelocked: u64,
 }
 
 impl WalletState {

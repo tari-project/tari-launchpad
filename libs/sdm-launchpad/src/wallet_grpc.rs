@@ -141,6 +141,7 @@ impl WalletGrpcWorker {
             available: response.available_balance,
             pending_incoming: response.pending_incoming_balance,
             pending_outgoing: response.pending_outgoing_balance,
+            timelocked: response.timelocked_balance,
         };
         let delta = WalletDelta::UpdateBalance(balance);
         self.send_update(delta)
