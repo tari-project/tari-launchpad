@@ -27,26 +27,26 @@ use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
     style::Color,
+    widgets::Padding,
 };
 use rust_decimal::Decimal;
 
 use crate::{
     component::{
         elements::{block_with_title, logo},
-        normal::{
-            chrono_button::{ChronoButton, ChronoGetter},
-            mining::{
-                amount::{AmountGetter, AmountIndicator},
-                status_badge::{StatusBadge, StatusGetter},
-            },
+        normal::mining::{
+            amount::{AmountGetter, AmountIndicator},
+            status_badge::{StatusBadge, StatusGetter},
         },
+        widgets::{ChronoButton, ChronoGetter},
         Component,
         ComponentEvent,
         Frame,
         Input,
         Pass,
     },
-    state::{focus, AppState},
+    focus_id,
+    state::{focus, AppState, Focus},
 };
 
 const LOGO: &str = r#"
@@ -54,6 +54,8 @@ const LOGO: &str = r#"
  ║ ├─┤├┬┘│  ║║║│││││││││ ┬
  ╩ ┴ ┴┴└─┴  ╩ ╩┴┘└┘┴┘└┘└─┘
 "#;
+
+static BUTTON: Focus = focus_id!();
 
 struct TariMiningGetter;
 
@@ -101,13 +103,15 @@ impl TariMiningWidget {
         Self {
             status_badge: StatusBadge::new(TariMiningGetter),
             tari_amount: AmountIndicator::new(XtrGetter),
-            button: ChronoButton::new(TariMiningGetter),
+            button: ChronoButton::new(TariMiningGetter, BUTTON),
         }
     }
 }
 
 impl Input for TariMiningWidget {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == focus::TARI_MINING {
             match event.pass() {
                 Pass::Right | Pass::Next => {
@@ -129,6 +133,7 @@ impl Input for TariMiningWidget {
                 _ => {},
             }
         }
+        None
     }
 }
 
@@ -136,7 +141,8 @@ impl<B: Backend> Component<B> for TariMiningWidget {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Tari Mining"), state.focus_on == focus::TARI_MINING);
+        let block =
+            block_with_title(Some("Tari Mining"), state.focus_on == focus::TARI_MINING).padding(Padding::horizontal(1));
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
 
@@ -146,7 +152,7 @@ impl<B: Backend> Component<B> for TariMiningWidget {
             // Constraint::Percentage(50),
             Constraint::Length(1),
             Constraint::Min(0),
-            Constraint::Length(1),
+            Constraint::Length(3),
         ];
         let v_chunks = Layout::default()
             .direction(Direction::Vertical)

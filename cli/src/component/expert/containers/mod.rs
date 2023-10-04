@@ -52,7 +52,9 @@ impl ContainersScene {
 }
 
 impl Input for ContainersScene {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == focus::CONTAINERS_TABLE {
             match event.pass() {
                 Pass::Up | Pass::Leave => {
@@ -61,6 +63,7 @@ impl Input for ContainersScene {
                 _ => {},
             }
         }
+        None
     }
 }
 

@@ -33,7 +33,7 @@ mod tabs;
 mod termination;
 mod widgets;
 
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use derive_more::From;
 pub use main_view::MainView;
 use ratatui::{backend::Backend, layout::Rect, Frame};
@@ -65,43 +65,39 @@ pub enum Pass {
     Quit,
 }
 
-// impl Pass {
-// fn any(&self, arr: &[Pass]) -> bool {
-// for item in arr {
-// if item == self {
-// return true;
-// }
-// }
-// false
-// }
-// }
-
 #[derive(Debug, Clone, Copy, From)]
 pub enum ComponentEvent {
     KeyEvent(KeyEvent),
     Tick,
+    StateChanged,
 }
 
 impl ComponentEvent {
     pub fn pass(&self) -> Pass {
         match self {
-            Self::KeyEvent(event) => match event.code {
-                KeyCode::Up | KeyCode::Char('k') => Pass::Up,
-                KeyCode::Down | KeyCode::Char('j') => Pass::Down,
-                KeyCode::Left | KeyCode::Char('h') => Pass::Left,
-                KeyCode::Right | KeyCode::Char('l') => Pass::Right,
-                KeyCode::Esc => Pass::Leave,
-                KeyCode::Enter => Pass::Enter,
-                KeyCode::Char(' ') => Pass::Space,
-                KeyCode::Char('q') => Pass::Quit,
-                KeyCode::Tab => Pass::Next,
-                _ => Pass::Other,
+            Self::KeyEvent(event) => {
+                let ctrl = event.modifiers.contains(KeyModifiers::CONTROL);
+                match event.code {
+                    KeyCode::Up | KeyCode::Char('k') => Pass::Up,
+                    KeyCode::Down | KeyCode::Char('j') => Pass::Down,
+                    KeyCode::Left | KeyCode::Char('h') => Pass::Left,
+                    KeyCode::Right | KeyCode::Char('l') => Pass::Right,
+                    KeyCode::Esc => Pass::Leave,
+                    KeyCode::Enter => Pass::Enter,
+                    KeyCode::Char(' ') => Pass::Space,
+                    KeyCode::Char('q') if ctrl => Pass::Quit,
+                    KeyCode::Tab => Pass::Next,
+                    _ => Pass::Other,
+                }
             },
             Self::Tick => Pass::Tick,
+            Self::StateChanged => Pass::Other,
         }
     }
 }
 
 pub trait Input {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState);
+    type Output;
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output>;
 }

@@ -25,7 +25,7 @@ use crossterm::event::{KeyCode, KeyModifiers};
 use ratatui::{
     backend::Backend,
     layout::{Alignment, Rect},
-    style::{Color, Modifier, Style},
+    style::{Color, Style},
     text::{Line, Span},
     widgets::Paragraph,
 };
@@ -35,54 +35,51 @@ use crate::{
     state::{focus, AppState},
 };
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Mode {
     Normal,
     Expert,
     Settings,
+    Onboarding,
 }
 
 /// A selector to switch between `Normal`, `Expert`, and `Settings`.
 pub struct ModeSelector {
-    expert: bool,
-    settings: bool,
+    mode: Mode,
 }
 
 impl ModeSelector {
     pub fn new() -> Self {
-        Self {
-            expert: false,
-            settings: false,
-        }
+        Self { mode: Mode::Normal }
     }
 
     pub fn selected(&self) -> Mode {
-        match (self.expert, self.settings) {
-            (_, true) => Mode::Settings,
-            (true, false) => Mode::Expert,
-            (false, false) => Mode::Normal,
-        }
+        self.mode.clone()
     }
 }
 
 impl Input for ModeSelector {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         let mut changed = false;
         if let ComponentEvent::KeyEvent(key) = event {
             if key.modifiers.contains(KeyModifiers::CONTROL) {
                 match key.code {
                     KeyCode::Char('n') => {
-                        self.expert = false;
-                        self.settings = false;
+                        self.mode = Mode::Normal;
                         changed = true;
                     },
                     KeyCode::Char('e') => {
-                        self.expert = !self.expert;
-                        self.settings = false;
+                        self.mode = Mode::Expert;
                         changed = true;
                     },
                     KeyCode::Char('s') => {
-                        self.settings = !self.settings;
+                        self.mode = Mode::Settings;
+                        changed = true;
+                    },
+                    KeyCode::Char('b') => {
+                        self.mode = Mode::Onboarding;
                         changed = true;
                     },
                     _ => {},
@@ -92,6 +89,7 @@ impl Input for ModeSelector {
         if changed {
             state.focus_on(focus::ROOT);
         }
+        None
     }
 }
 
@@ -101,7 +99,7 @@ impl<B: Backend> Component<B> for ModeSelector {
     fn draw(&self, f: &mut Frame<B>, rect: Rect, _state: &Self::State) {
         let not_selected = Style::default().fg(Color::White);
         let selected = Style::default().fg(Color::Magenta);
-        let bold = Style::default().fg(Color::White).add_modifier(Modifier::BOLD);
+        // let bold = Style::default().fg(Color::White).add_modifier(Modifier::BOLD);
         let style_for = |mode: Mode| -> Style {
             if mode == self.selected() {
                 selected
@@ -109,15 +107,18 @@ impl<B: Backend> Component<B> for ModeSelector {
                 not_selected
             }
         };
-        let selector = if self.expert { " o" } else { "o " };
+        // let selector = if self.expert { " o" } else { "o " };
         let line = Line::from(vec![
             Span::styled("Normal", style_for(Mode::Normal)),
-            Span::raw(" ("),
-            Span::styled(selector, bold),
-            Span::raw(") "),
+            Span::raw(" | "),
+            // Span::raw(" ("),
+            // Span::styled(selector, bold),
+            // Span::raw(") "),
             Span::styled("Expert", style_for(Mode::Expert)),
             Span::raw(" | "),
             Span::styled("Settings", style_for(Mode::Settings)),
+            Span::raw(" | "),
+            Span::styled("Bot", style_for(Mode::Onboarding)),
         ]);
         let text = vec![line];
         let paragraph = Paragraph::new(text).alignment(Alignment::Right);

@@ -27,14 +27,19 @@ pub mod onboarding;
 
 use std::collections::VecDeque;
 
+use anyhow::Error;
 pub use focus::Focus;
-use tari_launchpad_protocol::launchpad::{Action, LaunchpadAction, LaunchpadState};
+use tari_launchpad_protocol::{
+    launchpad::{Action, LaunchpadAction, LaunchpadState},
+    wallet::WalletAction,
+};
 use tari_sdm_launchpad::bus::BusTx;
 
 use crate::state::bus::Bus;
 
 pub enum AppEvent {
     SetFocus(Focus),
+    SendAction(WalletAction),
     UpdateState,
     Redraw,
 }
@@ -58,6 +63,11 @@ impl AppState {
             state,
             terminate: false,
         }
+    }
+
+    pub fn send_action(&mut self, action: WalletAction) {
+        let event = AppEvent::SendAction(action);
+        self.events_queue.push_front(event);
     }
 
     pub fn is_terminated(&mut self) -> bool {
@@ -93,23 +103,33 @@ impl AppState {
         if self.events_queue.is_empty() {
             false
         } else {
-            for event in self.events_queue.drain(..) {
-                match event {
-                    AppEvent::SetFocus(value) => {
-                        self.focus_on = value;
-                    },
-                    AppEvent::UpdateState => {
-                        let new_session = self.state.config.session.clone();
-                        let event = LaunchpadAction::ChangeSession(new_session);
-                        let action = Action::Action(event);
-                        if let Err(err) = self.bus_tx.send(action) {
-                            log::error!("Can't update the state: {err}");
-                        }
-                    },
-                    AppEvent::Redraw => {},
-                }
+            if let Err(err) = self.process_events_impl() {
+                log::error!("Can't update the state: {err}");
             }
             true
         }
+    }
+
+    pub fn process_events_impl(&mut self) -> Result<(), Error> {
+        for event in self.events_queue.drain(..) {
+            match event {
+                AppEvent::SetFocus(value) => {
+                    self.focus_on = value;
+                },
+                AppEvent::SendAction(action) => {
+                    let action = LaunchpadAction::WalletAction(action);
+                    let action = Action::Action(action);
+                    self.bus_tx.send(action)?;
+                },
+                AppEvent::UpdateState => {
+                    let new_session = self.state.config.session.clone();
+                    let event = LaunchpadAction::ChangeSession(new_session);
+                    let action = Action::Action(event);
+                    self.bus_tx.send(action)?;
+                },
+                AppEvent::Redraw => {},
+            }
+        }
+        Ok(())
     }
 }

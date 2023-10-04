@@ -91,7 +91,9 @@ impl<T> AppTabs<T> {
 impl<T> Input for AppTabs<T>
 where T: TabGetter
 {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == self.focus_on {
             match event.pass() {
                 Pass::Next | Pass::Right => {
@@ -107,6 +109,7 @@ where T: TabGetter
                 _ => {},
             }
         }
+        None
     }
 }
 

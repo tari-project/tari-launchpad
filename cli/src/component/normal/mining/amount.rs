@@ -50,7 +50,11 @@ impl<G> AmountIndicator<G> {
 }
 
 impl<G> Input for AmountIndicator<G> {
-    fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) {}
+    type Output = ();
+
+    fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) -> Option<Self::Output> {
+        None
+    }
 }
 
 impl<B: Backend, G> Component<B> for AmountIndicator<G>

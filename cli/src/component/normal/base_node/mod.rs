@@ -21,13 +21,13 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-mod widget;
+mod container;
 
+use container::BaseNodeWidget;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
-use widget::BaseNodeWidget;
 
 use crate::{
     component::{
@@ -67,8 +67,11 @@ impl BaseNodeScene {
 }
 
 impl Input for BaseNodeScene {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         self.base_node.on_event(event, state);
+        None
     }
 }
 

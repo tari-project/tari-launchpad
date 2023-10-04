@@ -33,7 +33,7 @@ use ratatui::{
 
 use crate::{
     component::{Component, ComponentEvent, Frame, Input},
-    state::{focus, AppState},
+    state::AppState,
 };
 
 pub struct Header {
@@ -51,8 +51,11 @@ impl Header {
 }
 
 impl Input for Header {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         self.mode_selector.on_event(event, state);
+        None
     }
 }
 
@@ -66,8 +69,6 @@ impl<B: Backend> Component<B> for Header {
             .constraints(constraints)
             .split(rect);
         self.logo.draw(f, chunks[0], state);
-        if state.focus_on != focus::ONBOARDING {
-            self.mode_selector.draw(f, chunks[1], state);
-        }
+        self.mode_selector.draw(f, chunks[1], state);
     }
 }

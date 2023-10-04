@@ -52,7 +52,9 @@ impl OnboardingScene {
 }
 
 impl Input for OnboardingScene {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if let Some(wink) = self.wink {
             if wink.elapsed() >= Duration::from_secs(5) {
                 self.wink.take();
@@ -76,6 +78,8 @@ impl Input for OnboardingScene {
             },
             _ => {},
         }
+
+        None
     }
 }
 

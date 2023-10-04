@@ -28,33 +28,49 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     text::{Line, Span},
-    widgets::{Block, Paragraph},
+    widgets::Paragraph,
 };
 
 use crate::{
-    component::{Component, ComponentEvent, Frame, Input},
-    state::AppState,
+    component::{elements::block_with_title, Component, ComponentEvent, Frame, Input, Pass},
+    state::{AppState, Focus},
 };
 
 pub trait ChronoGetter {
     /// How long the mining is active.
-    fn get_duration(&self, state: &AppState) -> Option<Duration>;
+    fn get_duration(&self, _state: &AppState) -> Option<Duration> {
+        None
+    }
+
     fn get_label(&self, state: &AppState) -> &str;
 }
 
 /// A button with a clock.
 pub struct ChronoButton<G> {
     getter: G,
+    focus: Focus,
 }
 
 impl<G> ChronoButton<G> {
-    pub fn new(getter: G) -> Self {
-        Self { getter }
+    pub fn new(getter: G, focus: Focus) -> Self {
+        Self { getter, focus }
     }
 }
 
+pub enum ButtonAction {
+    Clicked,
+}
+
 impl<G> Input for ChronoButton<G> {
-    fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) {}
+    type Output = ButtonAction;
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
+        let mut action = None;
+        if state.focus_on == self.focus && event.pass() == Pass::Enter {
+            action = Some(ButtonAction::Clicked);
+        }
+        action
+    }
 }
 
 impl<B: Backend, G> Component<B> for ChronoButton<G>
@@ -63,14 +79,11 @@ where G: ChronoGetter
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let constraints = [Constraint::Length(1), Constraint::Min(0)];
+        let constraints = [Constraint::Length(3), Constraint::Min(0)];
         let v_chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints(constraints)
             .split(rect);
-        let block = Block::default();
-        let inner_rect = block.inner(v_chunks[0]);
-        f.render_widget(block, v_chunks[0]);
 
         let caption;
         let label = self.getter.get_label(state);
@@ -85,11 +98,28 @@ where G: ChronoGetter
             caption = format!("  {}  ", label);
         }
 
+        let width = caption.len() as u16 + 2; // caption + border
+        let constraints = [Constraint::Min(width), Constraint::Min(0)];
+        let h_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(constraints)
+            .split(v_chunks[0]);
+        let block_color = {
+            if state.focus_on == self.focus {
+                Color::Magenta
+            } else {
+                Color::White
+            }
+        };
+        let block = block_with_title(None, false).border_style(Style::default().fg(block_color));
+        let inner_rect = block.inner(h_chunks[0]);
+        f.render_widget(block, h_chunks[0]);
+
         let line = Line::from(vec![Span::styled(
             // "  Set up & start mining  ",
             // "  Start mining  ",
             caption,
-            Style::default().bg(Color::Magenta),
+            Style::default(), //.bg(Color::Magenta),
         )]);
         let text = vec![line];
         let p = Paragraph::new(text);

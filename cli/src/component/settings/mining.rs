@@ -67,14 +67,38 @@ impl MiningSettings {
 }
 
 impl Input for MiningSettings {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
+        if let ComponentEvent::StateChanged = event {
+            if let Some(settings) = &state.state.config.settings {
+                if let Some(conf) = &settings.xmrig {
+                    let value = conf.monero_mining_address.clone();
+                    self.monero_address.set(value);
+                }
+                if let Some(conf) = &settings.mm_proxy {
+                    let value = conf.monerod_url.clone();
+                    self.monero_address.set(value);
+                }
+            }
+            return None;
+        }
+
         if state.focus_on == MINING_SETTINGS {
-            state.focus_on(MONERO_ADDRESS);
+            match event.pass() {
+                Pass::Up | Pass::Leave => {
+                    state.focus_on(focus::ROOT);
+                },
+                Pass::Down | Pass::Enter => {
+                    state.focus_on(MONERO_ADDRESS);
+                },
+                _ => {},
+            }
         } else if state.focus_on == MONERO_ADDRESS {
             let released = self.monero_address.is_released();
             match event.pass() {
                 Pass::Up | Pass::Leave if released => {
-                    state.focus_on(focus::ROOT);
+                    state.focus_on(MINING_SETTINGS);
                 },
                 Pass::Down if released => {
                     state.focus_on(SHA_THREADS);
@@ -87,7 +111,7 @@ impl Input for MiningSettings {
             let released = self.sha_threads.is_released();
             match event.pass() {
                 Pass::Leave if released => {
-                    state.focus_on(focus::ROOT);
+                    state.focus_on(MINING_SETTINGS);
                 },
                 Pass::Up if released => {
                     state.focus_on(MONERO_ADDRESS);
@@ -103,10 +127,13 @@ impl Input for MiningSettings {
             let released = self.monero_url.is_released();
             match event.pass() {
                 Pass::Leave if released => {
-                    state.focus_on(focus::ROOT);
+                    state.focus_on(MINING_SETTINGS);
                 },
                 Pass::Up if released => {
                     state.focus_on(SHA_THREADS);
+                },
+                Pass::Down if released => {
+                    state.focus_on(MINING_SETTINGS);
                 },
                 _ => {
                     self.monero_url.on_event(event, state);
@@ -115,6 +142,7 @@ impl Input for MiningSettings {
         } else {
             //
         }
+        None
     }
 }
 
@@ -122,7 +150,7 @@ impl<B: Backend> Component<B> for MiningSettings {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Mining Settings"), false);
+        let block = block_with_title(Some("Mining Settings"), state.focus_on == MINING_SETTINGS);
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
         let constraints = [

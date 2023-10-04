@@ -27,26 +27,26 @@ use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
     style::Color,
+    widgets::Padding,
 };
 use rust_decimal::Decimal;
 
 use crate::{
     component::{
         elements::{block_with_title, logo},
-        normal::{
-            chrono_button::{ChronoButton, ChronoGetter},
-            mining::{
-                amount::{AmountGetter, AmountIndicator},
-                status_badge::{StatusBadge, StatusGetter},
-            },
+        normal::mining::{
+            amount::{AmountGetter, AmountIndicator},
+            status_badge::{StatusBadge, StatusGetter},
         },
+        widgets::{ChronoButton, ChronoGetter},
         Component,
         ComponentEvent,
         Frame,
         Input,
         Pass,
     },
-    state::{focus, AppState},
+    focus_id,
+    state::{focus, AppState, Focus},
 };
 
 const LOGO: &str = r#"
@@ -54,6 +54,8 @@ const LOGO: &str = r#"
 ║║║├┤ ├┬┘│ ┬├┤  ││  ║║║│││││││││ ┬
 ╩ ╩└─┘┴└─└─┘└─┘─┴┘  ╩ ╩┴┘└┘┴┘└┘└─┘
 "#;
+
+static BUTTON: Focus = focus_id!();
 
 struct MergedMiningGetter;
 
@@ -112,13 +114,15 @@ impl MergedMiningWidget {
             status_badge: StatusBadge::new(MergedMiningGetter),
             tari_amount: AmountIndicator::new(XtrGetter),
             monero_amount: AmountIndicator::new(XmrGetter),
-            button: ChronoButton::new(MergedMiningGetter),
+            button: ChronoButton::new(MergedMiningGetter, BUTTON),
         }
     }
 }
 
 impl Input for MergedMiningWidget {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == focus::MERGED_MINING {
             match event.pass() {
                 Pass::Left | Pass::Next => {
@@ -140,6 +144,7 @@ impl Input for MergedMiningWidget {
                 _ => {},
             }
         }
+        None
     }
 }
 
@@ -147,7 +152,8 @@ impl<B: Backend> Component<B> for MergedMiningWidget {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Merged Mining"), state.focus_on == focus::MERGED_MINING);
+        let block = block_with_title(Some("Merged Mining"), state.focus_on == focus::MERGED_MINING)
+            .padding(Padding::horizontal(1));
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
 
@@ -158,7 +164,7 @@ impl<B: Backend> Component<B> for MergedMiningWidget {
             Constraint::Length(1),
             Constraint::Length(1),
             Constraint::Min(0),
-            Constraint::Length(1),
+            Constraint::Length(3),
         ];
         let v_chunks = Layout::default()
             .direction(Direction::Vertical)

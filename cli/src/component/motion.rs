@@ -43,7 +43,9 @@ pub struct Motion<T> {
 impl<T> Input for Motion<T>
 where T: Focusable + Input
 {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         let pass = event.pass();
         if let Some(focus) = self.directions.get(&pass) {
             state.focus_on(*focus);
@@ -51,6 +53,7 @@ where T: Focusable + Input
             self.inner.on_event(event, state);
         }
         self.inner.focus(self.focus == state.focus_on);
+        None
     }
 }
 

@@ -51,14 +51,24 @@ impl WalletSettings {
 }
 
 impl Input for WalletSettings {
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) {
+    type Output = ();
+
+    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == WALLET_SETTINGS {
-            state.focus_on(WALLET_ID);
+            match event.pass() {
+                Pass::Up | Pass::Leave => {
+                    state.focus_on(focus::ROOT);
+                },
+                Pass::Down | Pass::Enter => {
+                    state.focus_on(WALLET_ID);
+                },
+                _ => {},
+            }
         } else if state.focus_on == WALLET_ID {
             let released = self.wallet_id.is_released();
             match event.pass() {
-                Pass::Up | Pass::Leave if released => {
-                    state.focus_on(focus::ROOT);
+                Pass::Up | Pass::Down | Pass::Leave if released => {
+                    state.focus_on(WALLET_SETTINGS);
                 },
                 _ => {
                     self.wallet_id.on_event(event, state);
@@ -67,6 +77,7 @@ impl Input for WalletSettings {
         } else {
             //
         }
+        None
     }
 }
 
@@ -74,7 +85,7 @@ impl<B: Backend> Component<B> for WalletSettings {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Wallet Settings"), false);
+        let block = block_with_title(Some("Wallet Settings"), state.focus_on == WALLET_SETTINGS);
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
         let constraints = [Constraint::Length(3), Constraint::Min(0)];

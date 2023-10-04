@@ -43,7 +43,11 @@ impl MessageWidget {
 }
 
 impl Input for MessageWidget {
-    fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) {}
+    type Output = ();
+
+    fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) -> Option<Self::Output> {
+        None
+    }
 }
 
 impl<B: Backend> Component<B> for MessageWidget {
