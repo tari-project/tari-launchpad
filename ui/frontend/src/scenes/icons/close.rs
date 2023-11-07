@@ -1,4 +1,4 @@
-// Copyright 2022. The Tari Project
+// Copyright 2023. The Tari Project
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 // following conditions are met:
@@ -21,41 +21,42 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use anyhow::Error;
-use tari_launchpad_protocol::{ACTIONS, REACTIONS};
-use tauri::{App, Manager, Wry};
+use yew::{html, Html};
 
-use crate::bus::LaunchpadBus;
+// pub fn cross(width: u16, height: u16) -> Html {
+// html! {
+// <svg
+// width={width.to_string()}
+// height={height.to_string()}
+// viewBox="0 0 6 6"
+// fill="none"
+// data-testid="svg-closecross"
+// >
+// <path
+// d="M4.76796 1.23242L1.23242 4.76796M4.76796 4.76796L1.23242 1.23242"
+// stroke="currentColor"
+// strokeWidth="1.5"
+// strokeLinecap="round"
+// />
+// </svg>
+// }
+// }
 
-pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
-    let handle = app.handle();
-    let bus = LaunchpadBus::start()?;
-
-    let in_tx = bus.incoming;
-    let _id = app.listen_global(ACTIONS, move |event| {
-        if let Some(payload) = event.payload() {
-            let res = serde_json::from_str(payload);
-            match res {
-                Ok(incoming) => {
-                    log::trace!("Incoming event: {:?}", incoming);
-                    if let Err(err) = in_tx.send(incoming) {
-                        log::error!("Can't forward an incoming event: {:?}", err);
-                    }
-                },
-                Err(err) => {
-                    log::error!("Can't parse incoming event: {}", err);
-                },
-            }
-        }
-    });
-
-    let mut out_rx = bus.outgoing;
-    tauri::async_runtime::spawn(async move {
-        while let Some(event) = out_rx.recv().await {
-            handle.emit_all(REACTIONS, event)?;
-        }
-        Ok::<(), Error>(())
-    });
-
-    Ok(())
+pub fn close() -> Html {
+    // TODO: Move to a separate mod
+    html! {
+      <svg
+        width="8"
+        height="8"
+        viewBox="0 0 6 6"
+        fill="none"
+      >
+        <path
+          d="M4.76796 1.23242L1.23242 4.76796M4.76796 4.76796L1.23242 1.23242"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+    }
 }

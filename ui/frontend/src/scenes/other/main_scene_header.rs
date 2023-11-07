@@ -1,4 +1,4 @@
-// Copyright 2022. The Tari Project
+// Copyright 2023. The Tari Project
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 // following conditions are met:
@@ -22,40 +22,49 @@
 //
 
 use anyhow::Error;
-use tari_launchpad_protocol::{ACTIONS, REACTIONS};
-use tauri::{App, Manager, Wry};
+use strum::IntoEnumIterator;
+use yew::{classes, html, Html};
 
-use crate::bus::LaunchpadBus;
+use crate::{
+    states::local_state::{LocalState, LocalStateDelta, Scene, LOCAL_STATE},
+    widget::{AcceptAll, Connected, Context, Widget},
+};
 
-pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
-    let handle = app.handle();
-    let bus = LaunchpadBus::start()?;
+pub struct MainSceneHeader {
+    local_state: Connected<LocalState>,
+}
 
-    let in_tx = bus.incoming;
-    let _id = app.listen_global(ACTIONS, move |event| {
-        if let Some(payload) = event.payload() {
-            let res = serde_json::from_str(payload);
-            match res {
-                Ok(incoming) => {
-                    log::trace!("Incoming event: {:?}", incoming);
-                    if let Err(err) = in_tx.send(incoming) {
-                        log::error!("Can't forward an incoming event: {:?}", err);
-                    }
-                },
-                Err(err) => {
-                    log::error!("Can't parse incoming event: {}", err);
-                },
-            }
+impl Widget for MainSceneHeader {
+    type Msg = AcceptAll;
+
+    fn create(ctx: &mut Context<Self>) -> Self {
+        Self {
+            local_state: ctx.connect(&LOCAL_STATE),
         }
-    });
+    }
 
-    let mut out_rx = bus.outgoing;
-    tauri::async_runtime::spawn(async move {
-        while let Some(event) = out_rx.recv().await {
-            handle.emit_all(REACTIONS, event)?;
+    fn on_event(&mut self, msg: Self::Msg, ctx: &mut Context<Self>) -> Result<(), Error> {
+        log::info!("Event received: {:?}", msg);
+        ctx.redraw();
+        Ok(())
+    }
+
+    fn view_opt(&self, ctx: &Context<Self>) -> Option<Html> {
+        Some(html! {
+            <div class="menu">
+                { for Scene::iter().map(|item| self.render_item(item, ctx)) }
+            </div>
+        })
+    }
+}
+
+impl MainSceneHeader {
+    fn render_item(&self, scene: Scene, _ctx: &Context<Self>) -> Html {
+        let event = LocalStateDelta::SetScene(scene.clone());
+        let onclick = self.local_state.event(event);
+        let selected = (self.local_state.get().scene == scene).then(|| "selected");
+        html! {
+            <div class={classes!("menu_item", selected)} {onclick}>{ scene }</div>
         }
-        Ok::<(), Error>(())
-    });
-
-    Ok(())
+    }
 }

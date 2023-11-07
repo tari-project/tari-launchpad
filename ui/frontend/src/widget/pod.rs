@@ -1,4 +1,4 @@
-// Copyright 2022. The Tari Project
+// Copyright 2023. The Tari Project
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 // following conditions are met:
@@ -21,41 +21,51 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use anyhow::Error;
-use tari_launchpad_protocol::{ACTIONS, REACTIONS};
-use tauri::{App, Manager, Wry};
+use std::any::type_name;
 
-use crate::bus::LaunchpadBus;
+use yew::{Component, Context as YewContext, Html};
 
-pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
-    let handle = app.handle();
-    let bus = LaunchpadBus::start()?;
+use super::{base::Widget, context::Context};
 
-    let in_tx = bus.incoming;
-    let _id = app.listen_global(ACTIONS, move |event| {
-        if let Some(payload) = event.payload() {
-            let res = serde_json::from_str(payload);
-            match res {
-                Ok(incoming) => {
-                    log::trace!("Incoming event: {:?}", incoming);
-                    if let Err(err) = in_tx.send(incoming) {
-                        log::error!("Can't forward an incoming event: {:?}", err);
-                    }
-                },
-                Err(err) => {
-                    log::error!("Can't parse incoming event: {}", err);
-                },
+pub struct Pod<W: Widget> {
+    widget: W,
+    context: Context<W>,
+}
+
+pub enum Msg<W: Widget> {
+    WidgetMsg(W::Msg),
+}
+
+impl<W: Widget> Component for Pod<W> {
+    type Message = Msg<W>;
+    type Properties = ();
+
+    fn create(ctx: &YewContext<Self>) -> Self {
+        let mut context = Context::new(ctx);
+        let widget = W::create(&mut context);
+        Self { widget, context }
+    }
+
+    fn rendered(&mut self, _ctx: &YewContext<Self>, first_render: bool) {
+        if first_render {
+            if let Err(err) = self.widget.initialize(&mut self.context) {
+                log::error!("Initialization failed: {}", err);
             }
         }
-    });
+    }
 
-    let mut out_rx = bus.outgoing;
-    tauri::async_runtime::spawn(async move {
-        while let Some(event) = out_rx.recv().await {
-            handle.emit_all(REACTIONS, event)?;
+    fn update(&mut self, _ctx: &YewContext<Self>, msg: Self::Message) -> bool {
+        self.context.no_redraw();
+        let res = match msg {
+            Msg::WidgetMsg(msg) => self.widget.on_event(msg, &mut self.context),
+        };
+        if let Err(err) = res {
+            log::error!("Update of {} failed: {}", type_name::<W>(), err);
         }
-        Ok::<(), Error>(())
-    });
+        self.context.should_redraw()
+    }
 
-    Ok(())
+    fn view(&self, _ctx: &YewContext<Self>) -> Html {
+        self.widget.view(&self.context)
+    }
 }

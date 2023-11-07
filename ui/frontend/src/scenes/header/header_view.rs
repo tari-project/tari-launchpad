@@ -1,4 +1,4 @@
-// Copyright 2022. The Tari Project
+// Copyright 2023. The Tari Project
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 // following conditions are met:
@@ -21,41 +21,31 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use anyhow::Error;
-use tari_launchpad_protocol::{ACTIONS, REACTIONS};
-use tauri::{App, Manager, Wry};
+use yew::{html, Html};
 
-use crate::bus::LaunchpadBus;
+use super::{ControlButtons, TopMenu};
+use crate::{
+    scenes::icons,
+    widget::{Context, IgnoreAll, Pod, Widget},
+};
 
-pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
-    let handle = app.handle();
-    let bus = LaunchpadBus::start()?;
+pub struct HeaderView {}
 
-    let in_tx = bus.incoming;
-    let _id = app.listen_global(ACTIONS, move |event| {
-        if let Some(payload) = event.payload() {
-            let res = serde_json::from_str(payload);
-            match res {
-                Ok(incoming) => {
-                    log::trace!("Incoming event: {:?}", incoming);
-                    if let Err(err) = in_tx.send(incoming) {
-                        log::error!("Can't forward an incoming event: {:?}", err);
-                    }
-                },
-                Err(err) => {
-                    log::error!("Can't parse incoming event: {}", err);
-                },
-            }
-        }
-    });
+impl Widget for HeaderView {
+    type Msg = IgnoreAll;
 
-    let mut out_rx = bus.outgoing;
-    tauri::async_runtime::spawn(async move {
-        while let Some(event) = out_rx.recv().await {
-            handle.emit_all(REACTIONS, event)?;
-        }
-        Ok::<(), Error>(())
-    });
+    fn create(_ctx: &mut Context<Self>) -> Self {
+        Self {}
+    }
 
-    Ok(())
+    fn view_opt(&self, _ctx: &Context<Self>) -> Option<Html> {
+        Some(html! {
+            <div data-tauri-drag-region="" class="header_view">
+                <Pod<ControlButtons> />
+                <div class="logo">{ icons::logo() }</div>
+                <div class="separator" />
+                <Pod<TopMenu> />
+            </div>
+        })
+    }
 }

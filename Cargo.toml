@@ -4,6 +4,8 @@ members = [
     "libs/*",
     # "backend",
     "cli",
+    "ui/backend",
+    "ui/frontend",
 ]
 resolver = "2"
 # default-members = [ "backend" ]

@@ -1,4 +1,4 @@
-// Copyright 2022. The Tari Project
+// Copyright 2023. The Tari Project
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 // following conditions are met:
@@ -22,40 +22,62 @@
 //
 
 use anyhow::Error;
-use tari_launchpad_protocol::{ACTIONS, REACTIONS};
-use tauri::{App, Manager, Wry};
+use strum::IntoEnumIterator;
+use yew::{classes, html, Html};
 
-use crate::bus::LaunchpadBus;
+use crate::{
+    states::local_state::{LocalState, LocalStateDelta, ViewMode, LOCAL_STATE},
+    widget::{Connected, Context, FromDelta, Widget},
+};
 
-pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
-    let handle = app.handle();
-    let bus = LaunchpadBus::start()?;
+pub struct AppHeader {
+    local_state: Connected<LocalState>,
+}
 
-    let in_tx = bus.incoming;
-    let _id = app.listen_global(ACTIONS, move |event| {
-        if let Some(payload) = event.payload() {
-            let res = serde_json::from_str(payload);
-            match res {
-                Ok(incoming) => {
-                    log::trace!("Incoming event: {:?}", incoming);
-                    if let Err(err) = in_tx.send(incoming) {
-                        log::error!("Can't forward an incoming event: {:?}", err);
-                    }
-                },
-                Err(err) => {
-                    log::error!("Can't parse incoming event: {}", err);
-                },
-            }
+#[derive(Clone)]
+pub enum Msg {
+    Redraw,
+}
+
+impl FromDelta<LocalState> for Msg {
+    fn from_delta(_delta: &LocalStateDelta) -> Option<Self> {
+        Some(Self::Redraw)
+    }
+}
+
+impl Widget for AppHeader {
+    type Msg = Msg;
+
+    fn create(ctx: &mut Context<Self>) -> Self {
+        Self {
+            local_state: ctx.connect(&LOCAL_STATE),
         }
-    });
+    }
 
-    let mut out_rx = bus.outgoing;
-    tauri::async_runtime::spawn(async move {
-        while let Some(event) = out_rx.recv().await {
-            handle.emit_all(REACTIONS, event)?;
+    fn on_event(&mut self, msg: Self::Msg, ctx: &mut Context<Self>) -> Result<(), Error> {
+        match msg {
+            Msg::Redraw => {},
         }
-        Ok::<(), Error>(())
-    });
+        ctx.redraw();
+        Ok(())
+    }
 
-    Ok(())
+    fn view_opt(&self, ctx: &Context<Self>) -> Option<Html> {
+        Some(html! {
+            <div class="menu">
+                { for ViewMode::iter().map(|item| self.render_item(item, ctx)) }
+            </div>
+        })
+    }
+}
+
+impl AppHeader {
+    fn render_item(&self, view_mode: ViewMode, _ctx: &Context<Self>) -> Html {
+        let event = LocalStateDelta::SetViewMode(view_mode.clone());
+        let onclick = self.local_state.event(event);
+        let selected = (self.local_state.get().view_mode == view_mode).then(|| "selected");
+        html! {
+            <div class={classes!("menu_item", selected)} {onclick}>{ view_mode }</div>
+        }
+    }
 }
