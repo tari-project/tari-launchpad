@@ -36,7 +36,7 @@ impl<A: Actor> ActorRuntime<A> {
         Self { actor, context }
     }
 
-    pub async fn entyrpoint(mut self) {
+    pub async fn entrypoint(mut self) {
         let name = type_name::<Self>();
         let res = self.actor.initialize(&mut self.context).await;
         if let Err(err) = res {

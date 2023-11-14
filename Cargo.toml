@@ -2,7 +2,7 @@
 
 members = [
     "libs/*",
-    # "backend",
+#    "backend",
     "cli",
     "ui/backend",
     "ui/frontend",

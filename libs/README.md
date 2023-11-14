@@ -402,7 +402,7 @@ and synced.
 
 ###### With the state
 
-With the state to start a specific container we shold mark is as started
+With the state to start a specific container we should mark is as started
 in the configuration.
 
 We could send `UpdateConfig` action and set a flag represented activity
