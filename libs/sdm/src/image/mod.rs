@@ -32,6 +32,7 @@ pub(crate) use task::ImageTask;
 
 use crate::config::ManagedProtocol;
 
+/// A container that can be managed by SDM.
 pub trait ManagedContainer: fmt::Debug + Send + 'static {
     type Protocol: ManagedProtocol;
 

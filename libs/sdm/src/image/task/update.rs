@@ -35,6 +35,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
             Status::CleanDangling => self.do_clean_dangling().await,
             Status::WaitContainerKilled => self.do_wait_container_killed().await,
             Status::WaitContainerRemoved => self.do_wait_container_removed().await,
+            Status::CannotStart => self.abort().await,
             Status::Idle => self.do_idle().await,
             Status::CreateContainer => self.do_create_container().await,
             Status::WaitContainerCreated => self.do_wait_container_created().await,
@@ -48,8 +49,10 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     async fn do_initial_state(&mut self) -> Result<(), Error> {
         self.update_task_status(TaskStatus::Inactive)?;
 
-        log::debug!("Cheking image {} ...", self.inner.image_name);
+        log::debug!("Checking image {} ...", self.inner.image_name);
         if self.image_exists().await {
+            // The image exists, so check if there's a dangling container
+            log::debug!("Image {} exists. Skip pulling.", self.inner.image_name);
             self.clean_dangling()?;
         } else {
             self.start_pulling()?;
@@ -58,8 +61,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     fn clean_dangling(&mut self) -> Result<(), Error> {
-        log::debug!("Image {} exists. Skip pulling.", self.inner.image_name);
-        let progress = TaskProgress::new("Cleaning...");
+        let progress = TaskProgress::new("Checking for old containers...");
         self.update_task_status(TaskStatus::Progress(progress))?;
         self.status.set(Status::CleanDangling);
         Ok(())
@@ -83,8 +85,11 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         Ok(())
     }
 
+    /// Removes containers that shouldn't be there, for example after a crash, or if the user started a container
+    /// manually in docker. If the container is still running, we'll try and kill it first, otherwise we'll just
+    /// remove it.
     async fn do_clean_dangling(&mut self) -> Result<(), Error> {
-        log::debug!("Cheking container {} ...", self.inner.container_name);
+        log::debug!("Checking container {} ...", self.inner.container_name);
         let state = self.container_state().await;
         match state {
             ContainerState::Running => {
@@ -113,6 +118,10 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
 
     async fn do_wait_container_removed(&mut self) -> Result<(), Error> {
         // TODO: Wait interval
+        Ok(())
+    }
+
+    async fn abort(&mut self) -> Result<(), Error> {
         Ok(())
     }
 

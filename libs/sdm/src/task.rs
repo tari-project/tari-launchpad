@@ -319,7 +319,7 @@ where TaskContext<R>: RunnableContext<R>
 
     fn broadcast(&mut self, event: ControlEvent<R::Protocol>) {
         if let Err(err) = self.requests_sender.send(event) {
-            log::error!("Can't brodcast event: {:?}", err);
+            log::error!("Can't broadcast event: {:?}", err);
         }
     }
 
@@ -352,7 +352,7 @@ where TaskContext<R>: RunnableContext<R>
     }
 
     fn check_dependencies(&mut self) {
-        // If the set is empty `all` returs `true`.
+        // If the set is empty `all` returns `true`.
         self.context.dependencies_ready = self.dependencies.values().all(|ready| *ready);
     }
 

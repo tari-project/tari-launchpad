@@ -78,7 +78,7 @@ impl LaunchpadWorker {
         in_rx: mpsc::UnboundedReceiver<Action>,
         out_tx: mpsc::UnboundedSender<Reaction>,
     ) -> Result<(), Error> {
-        let mut scope = SdmScope::connect("esmeralda")?;
+        let mut scope = SdmScope::connect("stagenet")?;
         scope.add_network(networks::LocalNet::default())?;
         scope.add_volume(volumes::SharedVolume::default())?;
         scope.add_volume(volumes::SharedGrafanaVolume::default())?;
@@ -125,7 +125,7 @@ impl LaunchpadWorker {
     async fn load_configuration(&mut self) -> Result<(), Error> {
         let mut configurator = Configurator::init()?;
         let data_directory = configurator.base_path().clone();
-        configurator.init_configuration().await?;
+        configurator.init_configuration(false).await?;
         let wallet_config = WalletConfig {
             password: "123".to_string(),
         };

@@ -33,10 +33,11 @@ use crate::{
 
 impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     pub fn process_event_impl(&mut self, event: Event) -> Result<(), Error> {
-        log::warn!("EVENT: {event:?}");
+        log::debug!("Image event triggered. Image: {} Event: {event:?}", self.image_name);
         match event {
             Event::Created => self.on_created(),
             Event::PullingProgress(value) => self.on_pulling_progress(value),
+            Event::PullingFailed(reason) => self.on_pulling_failed(reason),
             Event::Destroyed => self.on_destroyed(),
             Event::Started => self.on_started(),
             Event::Killed => self.on_killed(),
@@ -55,6 +56,14 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     fn on_pulling_progress(&mut self, value: TaskProgress) -> Result<(), Error> {
         if let Status::PullingImage { .. } = self.status.get() {
             self.update_task_status(TaskStatus::Progress(value))?;
+        }
+        Ok(())
+    }
+
+    fn on_pulling_failed(&mut self, reason: String) -> Result<(), Error> {
+        if let Status::PullingImage { .. } = self.status.get() {
+            self.status.set(Status::CannotStart);
+            self.update_task_status(TaskStatus::Failed(reason))?;
         }
         Ok(())
     }

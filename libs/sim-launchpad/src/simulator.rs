@@ -228,6 +228,7 @@ impl Simulator {
             (_, false) => {
                 new_status = Some(TaskStatus::Inactive);
             },
+            (TaskStatus::Failed(_), _) => {}
         }
         if let Some(status) = new_status {
             let delta = TaskDelta::UpdateStatus(status);

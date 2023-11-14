@@ -78,53 +78,58 @@ impl Configurator {
     // Ok(config)
     // }
 
-    async fn create_dir(&mut self, folder: &Path) -> Result<(), Error> {
-        if !folder.exists() {
-            fs::create_dir_all(&folder).await?;
+    /// Create directory if it doesn't exist. Returns `true` if the directory was created.
+    async fn create_dir<P: AsRef<Path>>(&mut self, folder: P) -> Result<bool, Error> {
+        if folder.as_ref().exists() {
+            Ok(false)
+        } else {
+            fs::create_dir_all(folder).await?;
+            Ok(true)
         }
-        Ok(())
     }
 
-    async fn create_sub_dir(&mut self, folder: &Path, sub_path: &str) -> Result<PathBuf, Error> {
+    async fn create_sub_dir(&mut self, folder: &Path, sub_path: &str) -> Result<bool, Error> {
         let mut path = folder.to_path_buf();
         path.push(sub_path);
-        if !path.exists() {
-            fs::create_dir_all(&path).await?;
-        }
-        Ok(path)
+        self.create_dir(sub_path).await
     }
 
-    async fn store_file(&mut self, folder: &Path, file: &ConfigFile) -> Result<(), Error> {
-        let mut path = folder.to_path_buf();
+    async fn store_file<P: AsRef<Path>>(&mut self, folder: P, file: &ConfigFile, overwrite: bool) -> Result<(), Error> {
+        let mut path = folder.as_ref().to_path_buf();
         path.push(file.filename);
-        if !path.exists() {
+        if overwrite || !path.exists() {
             fs::write(path, file.data).await?;
         }
         Ok(())
     }
 
-    pub async fn clean_configuration(&mut self) -> Result<(), Error> {
-        let base_dir = self.base_dir.clone();
-        let config_dir = self.create_sub_dir(&base_dir, "config").await?;
-        tokio::fs::remove_dir_all(config_dir).await?;
-        Ok(())
-    }
-
-    pub async fn init_configuration(&mut self) -> Result<(), Error> {
+    /// Initialize configuration files
+    ///
+    /// If `overwrite` is `true`, then existing files will be overwritten.
+    pub async fn init_configuration(&mut self, overwrite: bool) -> Result<(), Error> {
         // base path
         let base_dir = self.base_dir.clone();
-        self.create_dir(&base_dir).await?;
-        let config_dir = self.create_sub_dir(&base_dir, "config").await?;
+        let _ = self.create_dir(&base_dir).await?;
+        let mut config_dir = base_dir.clone();
+        config_dir.push("config");
+        let new_config_dir = self.create_dir(&config_dir).await?;
         // config files
-        self.store_file(&config_dir, &CONFIG_TOML).await?;
-        self.store_file(&config_dir, &DEFAULTS_INI).await?;
-        self.store_file(&config_dir, &LOGS4RS_YML).await?;
-        self.store_file(&config_dir, &LOKI_YML).await?;
-        self.store_file(&config_dir, &PROMTAIL_YML).await?;
-        self.store_file(&config_dir, &PROVISION_YML).await?;
+        self.store_file(&config_dir, &CONFIG_TOML, new_config_dir || overwrite)
+            .await?;
+        self.store_file(&config_dir, &DEFAULTS_INI, new_config_dir || overwrite)
+            .await?;
+        self.store_file(&config_dir, &LOGS4RS_YML, new_config_dir || overwrite)
+            .await?;
+        self.store_file(&config_dir, &LOKI_YML, new_config_dir || overwrite)
+            .await?;
+        self.store_file(&config_dir, &PROMTAIL_YML, new_config_dir || overwrite)
+            .await?;
+        self.store_file(&config_dir, &PROVISION_YML, new_config_dir || overwrite)
+            .await?;
 
-        self.create_sub_dir(&base_dir, "log").await?;
-        self.store_file(&config_dir, &LOG4RS_CLI_YML).await?;
+        let new_log_dir = self.create_sub_dir(&base_dir, "log").await?;
+        self.store_file(&config_dir, &LOG4RS_CLI_YML, new_log_dir || overwrite)
+            .await?;
 
         // TODO: Use `enum` here...
         // images
