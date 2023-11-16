@@ -21,11 +21,9 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-mod containers;
 mod errors;
 mod logs;
 
-use containers::ContainersScene;
 use errors::ErrorsScene;
 use logs::LogsScene;
 use ratatui::{
@@ -48,7 +46,6 @@ use crate::{
 #[derive(Debug, EnumCount, EnumIter, FromRepr, Clone, Copy, Display)]
 pub enum ExpertTabs {
     Performance,
-    Containers,
     Logs,
     Errors,
 }
@@ -62,7 +59,6 @@ impl TabGetter for ExpertTabs {
 pub struct ExpertScene {
     expert_tabs: AppTabs<ExpertTabs>,
     logs_scene: LogsScene,
-    containers_scene: ContainersScene,
     errors_scene: ErrorsScene,
 }
 
@@ -71,7 +67,6 @@ impl ExpertScene {
         Self {
             expert_tabs: AppTabs::new(),
             logs_scene: LogsScene::new(),
-            containers_scene: ContainersScene::new(),
             errors_scene: ErrorsScene::new(),
         }
     }
@@ -84,9 +79,6 @@ impl Input for ExpertScene {
         self.expert_tabs.on_event(event, state);
         match self.expert_tabs.selected() {
             ExpertTabs::Performance => {},
-            ExpertTabs::Containers => {
-                self.containers_scene.on_event(event, state);
-            },
             ExpertTabs::Logs => {
                 self.logs_scene.on_event(event, state);
             },
@@ -110,9 +102,6 @@ impl<B: Backend> Component<B> for ExpertScene {
         self.expert_tabs.draw(f, chunks[0], state);
         match self.expert_tabs.selected() {
             ExpertTabs::Performance => {},
-            ExpertTabs::Containers => {
-                self.containers_scene.draw(f, chunks[1], state);
-            },
             ExpertTabs::Logs => {
                 self.logs_scene.draw(f, chunks[1], state);
             },

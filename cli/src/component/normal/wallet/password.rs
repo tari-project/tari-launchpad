@@ -93,7 +93,7 @@ impl Input for PasswordWidget {
             // self.password.set_focus(true);
             match event.pass() {
                 Pass::Up | Pass::Leave => {
-                    state.focus_on(focus::ROOT);
+                    state.focus_on(focus::WALLET);
                 },
                 Pass::Enter | Pass::Space => {
                     // TODO: Toggle the base node state

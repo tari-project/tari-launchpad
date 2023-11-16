@@ -30,15 +30,7 @@ use ratatui::{
 };
 
 use crate::{
-    component::{
-        elements::block_with_title,
-        normal::wallet::{SEND_FUNDS, WALLET_CONTAINER},
-        Component,
-        ComponentEvent,
-        Frame,
-        Input,
-        Pass,
-    },
+    component::{elements::block_with_title, Component, ComponentEvent, Frame, Input, Pass},
     focus_id,
     state::{
         focus::{self, Focus},
@@ -65,13 +57,7 @@ impl Input for BalanceWidget {
             // self.password.set_focus(true);
             match event.pass() {
                 Pass::Up | Pass::Leave => {
-                    state.focus_on(focus::ROOT);
-                },
-                Pass::Left => {
-                    state.focus_on(WALLET_CONTAINER);
-                },
-                Pass::Down | Pass::Right | Pass::Next => {
-                    state.focus_on(SEND_FUNDS);
+                    state.focus_on(focus::WALLET);
                 },
                 Pass::Enter | Pass::Space => {
                     // TODO: Toggle the base node state

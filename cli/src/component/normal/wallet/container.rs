@@ -33,8 +33,7 @@ use ratatui::{
 
 use crate::{
     component::{
-        elements::{block_with_title, logo},
-        normal::wallet::{BALANCE, SEND_FUNDS},
+        elements::block_with_title,
         widgets::{ChronoButton, ChronoGetter},
         Component,
         ComponentEvent,
@@ -46,13 +45,6 @@ use crate::{
     state::{focus, AppState, Focus},
 };
 
-const LOGO: &str = r#"
-╦ ╦┌─┐┬  ┬  ┌─┐┌┬┐
-║║║├─┤│  │  ├┤  │
-╚╩╝┴ ┴┴─┘┴─┘└─┘ ┴
-"#;
-
-pub static WALLET_CONTAINER: Focus = focus_id!();
 static BUTTON: Focus = focus_id!();
 
 struct WalletContainerGetter;
@@ -87,16 +79,10 @@ impl Input for WalletContainerWidget {
     type Output = ();
 
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
-        if state.focus_on == WALLET_CONTAINER {
+        if state.focus_on == focus::WALLET {
             match event.pass() {
                 Pass::Up | Pass::Leave => {
-                    state.focus_on(focus::ROOT);
-                },
-                Pass::Right | Pass::Next => {
-                    state.focus_on(BALANCE);
-                },
-                Pass::Down => {
-                    state.focus_on(SEND_FUNDS);
+                    state.focus_on(focus::MERGED_MINING);
                 },
                 Pass::Enter | Pass::Space => {
                     let session = &mut state.state.config.session;
@@ -114,26 +100,19 @@ impl<B: Backend> Component<B> for WalletContainerWidget {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block =
-            block_with_title(Some("Wallet"), state.focus_on == WALLET_CONTAINER).padding(Padding::new(1, 1, 1, 0));
+        let block = block_with_title(Some("Wallet"), state.focus_on == focus::WALLET).padding(Padding::new(1, 1, 1, 0));
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
 
         let constraints = [
-            Constraint::Length(3),
-            // Constraint::Percentage(50),
-            Constraint::Length(2),
-            Constraint::Min(0),
-            Constraint::Length(3),
+            Constraint::Min(30),    // Stretch
+            Constraint::Length(18), // Button
         ];
-        let v_chunks = Layout::default()
-            .direction(Direction::Vertical)
+        let h_chunks = Layout::default()
+            .direction(Direction::Horizontal)
             .constraints(constraints)
             .split(inner_rect);
         // self.status_badge.draw(f, v_chunks[0], state);
-
-        let logo = logo(LOGO);
-        f.render_widget(logo, v_chunks[0]);
 
         let mut lines = Vec::new();
         if let Some(wallet_id) = state.state.wallet.wallet_id.as_ref() {
@@ -141,11 +120,8 @@ impl<B: Backend> Component<B> for WalletContainerWidget {
             lines.push(make_line("Tari Address", &wallet_id.tari_address));
         }
         let p = Paragraph::new(lines);
-        f.render_widget(p, v_chunks[1]);
-
-        // self.tari_amount.draw(f, v_chunks[3], state);
-
-        self.button.draw(f, v_chunks[3], state);
+        f.render_widget(p, h_chunks[0]);
+        self.button.draw(f, h_chunks[1], state);
     }
 }
 

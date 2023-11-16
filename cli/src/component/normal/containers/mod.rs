@@ -106,10 +106,10 @@ impl<B: Backend> Component<B> for ContainersScene {
             .block(block)
             .header(header)
             .widths(&[
+                Constraint::Percentage(20),
                 Constraint::Percentage(10),
                 Constraint::Percentage(10),
-                Constraint::Percentage(10),
-                Constraint::Percentage(70),
+                Constraint::Percentage(60),
             ])
             .column_spacing(2);
         f.render_stateful_widget(table, rects[0], &mut *self.table_state.borrow_mut());
