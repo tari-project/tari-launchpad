@@ -44,7 +44,7 @@ pub use l8_grafana::Grafana;
 pub use l8_loki::Loki;
 pub use l8_promtail::Promtail;
 
-static DEFAULT_REGISTRY: &str = "quay.io/tarilabs";
+static DEFAULT_REGISTRY: &str = "ghcr.io/tari-project";
 static GRAFANA_REGISTRY: &str = "grafana";
 
 static GENERAL_VOLUME: &str = "/var/tari";

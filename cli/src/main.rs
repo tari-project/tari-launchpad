@@ -31,8 +31,7 @@ use tari_sdm_assets::configurator::Configurator;
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     let mut configurator = Configurator::init()?;
-    configurator.clean_configuration().await?;
-    configurator.init_configuration().await?;
+    configurator.init_configuration(false).await?;
 
     let workdir = configurator.base_path();
     env::set_current_dir(workdir)?;

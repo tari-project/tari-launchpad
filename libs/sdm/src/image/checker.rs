@@ -68,6 +68,11 @@ impl<P: ManagedProtocol> CheckerContext<P> {
     }
 }
 
+/// Polls a container for the logs and stats, and executes the related hooks for the event. If no events are
+/// received for 1 second, the `on_interval` hook is called. The default implementation of all of the hooks do nothing.
+///
+/// In each of the hooks, a mutable reference to a `CheckerContext` is provided, which can be used to access / update
+/// the log and stats history, and update the progress of a task.
 #[async_trait]
 pub trait ContainerChecker<P: ManagedProtocol>: Send {
     async fn entrypoint(mut self: Box<Self>, mut ctx: CheckerContext<P>) {

@@ -109,9 +109,9 @@
               - name: Cache rust dependencies
                 uses: Swatinem/rust-cache@v1
               - name: setup node
-                uses: actions/setup-node@v3
+                uses: actions/setup-node@v4
                 with:
-                    node-version: "16"
+                    node-version: "20"
               - name: ubuntu dependencies
                 if: ${{ inputs.build-tari }}
                 run: |
@@ -152,9 +152,9 @@
           - name: checkout
             uses: actions/checkout@v2
           - name: setup node
-            uses: actions/setup-node@v3
+            uses: actions/setup-node@v4
             with:
-              node-version: "16"
+              node-version: "20"
           - name: Install Yarn
             run: npm install -g yarn
           - name: log javascript environment

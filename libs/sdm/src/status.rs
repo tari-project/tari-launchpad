@@ -77,7 +77,7 @@ impl<S: TaskStatusChecker> SdmStatus<S> {
     }
 
     pub fn set(&mut self, status: S) {
-        log::debug!("Set the new status !{}::status={:?}", self.name, self.status);
+        log::debug!("Set the new status for [{}]={:?}", self.name, self.status);
         self.status = status;
         self.has_work = true;
         self.fallback = None;

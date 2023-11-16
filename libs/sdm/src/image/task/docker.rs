@@ -363,8 +363,12 @@ struct ProgressConv;
 
 impl Converter<CreateImageInfo, Event> for ProgressConv {
     fn convert(&self, res: Result<CreateImageInfo, Error>) -> Option<Event> {
-        log::debug!("Create Image Info: {:?}", res);
-        let info = res.ok()?;
+        if let Err(err) = res {
+            log::error!("Error while pulling image: {}", err);
+            return Some(Event::PullingFailed(err.to_string()));
+        }
+        let info = res.unwrap();
+        log::debug!("Created Image Info: {:?}", info);
         let details = info.progress_detail?;
         let current = details.current? * 100;
         let total = details.total?;

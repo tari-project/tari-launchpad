@@ -85,11 +85,11 @@ impl ManagedContainer for TariWallet {
     }
 
     fn image_name(&self) -> &str {
-        "tari_wallet"
+        "minotari_console_wallet"
     }
 
     fn tag(&self) -> &str {
-        "v0.49.2_20230628_e0e4ebc"
+        "0.52"
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {

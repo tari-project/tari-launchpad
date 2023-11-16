@@ -95,7 +95,7 @@ impl MmProxyConfig {
 pub struct LaunchpadSettings {
     /// The directory to use for config, id files and logs
     pub data_directory: PathBuf,
-    /// The Tari network to use. Default = esmeralda
+    /// The Tari network to use. Default = stagenet
     pub tari_network: TariNetwork,
     /// The tor control password to share among containers.
     pub tor_control_password: String,
@@ -155,9 +155,8 @@ pub struct UnsupportedNetwork(String);
 /// Supported networks for the launchpad
 #[derive(Serialize, Debug, Deserialize, Clone, Copy)]
 pub enum TariNetwork {
-    Dibbler,
-    Esmeralda,
     Igor,
+    Nextnet,
     Stagenet,
     Mainnet,
 }
@@ -165,9 +164,8 @@ pub enum TariNetwork {
 impl TariNetwork {
     pub fn lower_case(self) -> &'static str {
         match self {
-            Self::Dibbler => "dibbler",
-            Self::Esmeralda => "esmeralda",
             Self::Igor => "igor",
+            Self::Nextnet => "nextnet",
             Self::Stagenet => "stagenet",
             Self::Mainnet => "mainnet",
         }
@@ -175,9 +173,8 @@ impl TariNetwork {
 
     pub fn upper_case(self) -> &'static str {
         match self {
-            Self::Dibbler => "DIBBLER",
-            Self::Esmeralda => "ESMERALDA",
             Self::Igor => "IGOR",
+            Self::Nextnet => "NEXTNET",
             Self::Stagenet => "STAGENET",
             Self::Mainnet => "MAINNET",
         }
@@ -196,9 +193,8 @@ impl TryFrom<&str> for TariNetwork {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
-            "dibbler" => Ok(TariNetwork::Dibbler),
-            "esmeralda" => Ok(TariNetwork::Esmeralda),
             "igor" => Ok(TariNetwork::Igor),
+            "nextnet" => Ok(TariNetwork::Nextnet),
             "mainnet" => Ok(TariNetwork::Mainnet),
             other => Err(UnsupportedNetwork(other.to_owned())),
         }

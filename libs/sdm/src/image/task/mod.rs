@@ -120,6 +120,7 @@ pub enum Status {
     CleanDangling,
     WaitContainerKilled,
     WaitContainerRemoved,
+    CannotStart,
 
     CreateContainer,
     WaitContainerCreated,
@@ -161,6 +162,7 @@ pub enum ContainerState {
 pub enum Event {
     Destroyed,
     PullingProgress(TaskProgress),
+    PullingFailed(String),
     Created,
     Started,
     Killed,

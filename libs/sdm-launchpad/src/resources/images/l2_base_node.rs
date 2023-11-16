@@ -77,11 +77,11 @@ impl ManagedContainer for TariBaseNode {
     }
 
     fn image_name(&self) -> &str {
-        "tari_base_node"
+        "minotari_node"
     }
 
     fn tag(&self) -> &str {
-        "v0.49.2_20230628_e0e4ebc"
+        "0.52"
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
@@ -136,6 +136,7 @@ impl ManagedContainer for TariBaseNode {
     }
 }
 
+/// A helper struct to track the progress of the initial block download.
 struct Checker {
     progress: SyncProgress,
     identity_sent: bool,
@@ -155,6 +156,10 @@ impl Checker {
 
 #[async_trait]
 impl ContainerChecker<LaunchpadProtocol> for Checker {
+    /// The interval hook in the base node checker is used to query the base node via gRPC for the current sync
+    /// progress. The progress is then reported to the SDM via the `CheckerEvent::Progress` event.
+    /// The task is reported as complete (`READY`) once the `sync_state` value from the `get_sync_progress` RPC call
+    /// is `Done`.
     async fn on_interval(&mut self, ctx: &mut CheckerContext<LaunchpadProtocol>) -> Result<(), Error> {
         if self.ready {
             return Ok(());
