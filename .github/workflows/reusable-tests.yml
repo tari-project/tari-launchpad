@@ -24,9 +24,9 @@ jobs:
       - name: toolchain
         uses: actions-rs/toolchain@v1
       - name: setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: "16"
+          node-version: "20"
       - uses: Swatinem/rust-cache@v1
       - name: ubuntu dependencies
         run: |
