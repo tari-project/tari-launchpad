@@ -22,6 +22,7 @@
 //
 
 mod base_node;
+pub mod containers;
 mod hint;
 mod mining;
 mod wallet;
@@ -31,64 +32,28 @@ use mining::MiningScene;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
-    style::Color,
 };
-use strum::{Display, EnumCount, EnumIter, FromRepr};
 use wallet::WalletScene;
 
 use crate::{
-    component::{
-        normal::wallet::WALLET_CONTAINER,
-        tabs::{AppTabs, TabGetter},
-        Component,
-        ComponentEvent,
-        Frame,
-        Input,
-    },
-    state::{focus, AppState, Focus},
+    component::{normal::containers::ContainersScene, Component, ComponentEvent, Frame, Input},
+    state::AppState,
 };
 
-#[derive(Debug, EnumCount, EnumIter, FromRepr, Clone, Copy, Display)]
-pub enum NormalTabs {
-    Mining,
-    #[strum(serialize = "Base Node")]
-    BaseNode,
-    Wallet,
-}
-
-impl TabGetter for NormalTabs {
-    fn get_badge(&self, state: &AppState) -> Option<(&str, Color)> {
-        if let Self::Mining = self {
-            if state.state.config.session.is_mmproxy_active() {
-                return Some(("(running)", Color::Green));
-            }
-        }
-        None
-    }
-
-    fn focus_to(&self, _: &AppState) -> Focus {
-        match self {
-            Self::Mining => focus::TARI_MINING,
-            Self::BaseNode => focus::BASE_NODE,
-            Self::Wallet => WALLET_CONTAINER,
-        }
-    }
-}
-
 pub struct NormalScene {
-    normal_tabs: AppTabs<NormalTabs>,
     mining_scene: MiningScene,
     base_node_scene: BaseNodeScene,
     wallet_scene: WalletScene,
+    containers_scene: ContainersScene,
 }
 
 impl NormalScene {
     pub fn new() -> Self {
         Self {
-            normal_tabs: AppTabs::new(),
             mining_scene: MiningScene::new(),
             base_node_scene: BaseNodeScene::new(),
             wallet_scene: WalletScene::new(),
+            containers_scene: ContainersScene::new(),
         }
     }
 }
@@ -97,18 +62,9 @@ impl Input for NormalScene {
     type Output = ();
 
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
-        self.normal_tabs.on_event(event, state);
-        match self.normal_tabs.selected() {
-            NormalTabs::Mining => {
-                self.mining_scene.on_event(event, state);
-            },
-            NormalTabs::BaseNode => {
-                self.base_node_scene.on_event(event, state);
-            },
-            NormalTabs::Wallet => {
-                self.wallet_scene.on_event(event, state);
-            },
-        }
+        self.base_node_scene.on_event(event, state);
+        self.mining_scene.on_event(event, state);
+        self.wallet_scene.on_event(event, state);
         None
     }
 }
@@ -117,22 +73,28 @@ impl<B: Backend> Component<B> for NormalScene {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let constraints = [Constraint::Length(3), Constraint::Min(0)];
-        let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints(constraints)
+        let window_constraints = [Constraint::Percentage(60), Constraint::Percentage(40)];
+        let panel_constraints = [
+            Constraint::Length(8),  // base node
+            Constraint::Length(17), // miners
+            Constraint::Length(16), // wallet
+            Constraint::Min(0),
+            Constraint::Length(3),
+        ];
+
+        let windows = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(window_constraints)
             .split(rect);
-        self.normal_tabs.draw(f, chunks[0], state);
-        match self.normal_tabs.selected() {
-            NormalTabs::Mining => {
-                self.mining_scene.draw(f, chunks[1], state);
-            },
-            NormalTabs::BaseNode => {
-                self.base_node_scene.draw(f, chunks[1], state);
-            },
-            NormalTabs::Wallet => {
-                self.wallet_scene.draw(f, chunks[1], state);
-            },
-        }
+
+        let panels = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(panel_constraints)
+            .split(windows[0]);
+
+        self.containers_scene.draw(f, windows[1], state);
+        self.base_node_scene.draw(f, panels[0], state);
+        self.mining_scene.draw(f, panels[1], state);
+        self.wallet_scene.draw(f, panels[2], state);
     }
 }

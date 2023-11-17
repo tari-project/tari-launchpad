@@ -33,7 +33,7 @@ use rust_decimal::Decimal;
 
 use crate::{
     component::{
-        elements::{block_with_title, logo},
+        elements::block_with_title,
         normal::mining::{
             amount::{AmountGetter, AmountIndicator},
             status_badge::{StatusBadge, StatusGetter},
@@ -48,12 +48,6 @@ use crate::{
     focus_id,
     state::{focus, AppState, Focus},
 };
-
-const LOGO: &str = r#"
-╔╦╗┌─┐┬─┐┌─┐┌─┐┌┬┐  ╔╦╗┬┌┐┌┬┌┐┌┌─┐
-║║║├┤ ├┬┘│ ┬├┤  ││  ║║║│││││││││ ┬
-╩ ╩└─┘┴└─└─┘└─┘─┴┘  ╩ ╩┴┘└┘┴┘└┘└─┘
-"#;
 
 static BUTTON: Focus = focus_id!();
 
@@ -125,11 +119,11 @@ impl Input for MergedMiningWidget {
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if state.focus_on == focus::MERGED_MINING {
             match event.pass() {
-                Pass::Left | Pass::Next => {
+                Pass::Up | Pass::Prev => {
                     state.focus_on(focus::TARI_MINING);
                 },
-                Pass::Up | Pass::Leave => {
-                    state.focus_on(focus::ROOT);
+                Pass::Down | Pass::Next => {
+                    state.focus_on(focus::WALLET);
                 },
                 Pass::Enter | Pass::Space => {
                     let session = &mut state.state.config.session;
@@ -157,27 +151,28 @@ impl<B: Backend> Component<B> for MergedMiningWidget {
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
 
-        let constraints = [
-            Constraint::Length(1),
-            Constraint::Length(3),
-            // Constraint::Percentage(50),
-            Constraint::Length(1),
-            Constraint::Length(1),
-            Constraint::Min(0),
-            Constraint::Length(3),
+        let v_constraints = [
+            Constraint::Length(1), // status
+            Constraint::Length(1), // Balance XTR
+            Constraint::Length(1), // Balance XMR
+            Constraint::Min(0),    // stretch
         ];
-        let v_chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints(constraints)
+        let h_constraints = [
+            Constraint::Length(25), // status & balance
+            Constraint::Min(0),     // stretch
+            Constraint::Length(18), // Button
+        ];
+        let h_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(h_constraints)
             .split(inner_rect);
-        self.status_badge.draw(f, v_chunks[0], state);
-
-        let logo = logo(LOGO);
-        f.render_widget(logo, v_chunks[1]);
-
-        self.tari_amount.draw(f, v_chunks[2], state);
-        self.monero_amount.draw(f, v_chunks[3], state);
-
-        self.button.draw(f, v_chunks[5], state);
+        let status_and_balance = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(v_constraints)
+            .split(h_chunks[0]);
+        self.status_badge.draw(f, status_and_balance[0], state);
+        self.tari_amount.draw(f, status_and_balance[1], state);
+        self.monero_amount.draw(f, status_and_balance[2], state);
+        self.button.draw(f, h_chunks[2], state);
     }
 }

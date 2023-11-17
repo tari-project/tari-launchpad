@@ -31,7 +31,7 @@ use tari_launchpad_protocol::wallet::{TransferFunds, WalletAction};
 use crate::{
     component::{
         elements::block_with_title,
-        normal::wallet::{BALANCE, WALLET_CONTAINER},
+        normal::wallet::BALANCE,
         widgets::{ChronoButton, ChronoGetter, LabeledInput, ModalDialog},
         Component,
         ComponentEvent,
@@ -40,7 +40,7 @@ use crate::{
         Pass,
     },
     focus_id,
-    state::{focus::Focus, AppState},
+    state::{focus, focus::Focus, AppState},
 };
 
 pub static SEND_FUNDS: Focus = focus_id!();
@@ -91,7 +91,7 @@ impl Input for SendFundsWidget {
         if state.focus_on == SEND_FUNDS {
             match event.pass() {
                 Pass::Up | Pass::Leave => {
-                    state.focus_on(WALLET_CONTAINER);
+                    state.focus_on(focus::WALLET);
                 },
                 Pass::Enter | Pass::Down | Pass::Right => {
                     state.focus_on(ADDRESS);

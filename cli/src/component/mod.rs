@@ -54,12 +54,11 @@ pub enum Pass {
     Down,
     Left,
     Right,
-    // Esc
-    Leave,
+    Leave, // mapped to Esc
     Enter,
     Space,
-    // Tab
-    Next,
+    Prev, // shift-Tab
+    Next, // mapped to Tab
     Other,
     Tick,
     Quit,
@@ -77,6 +76,7 @@ impl ComponentEvent {
         match self {
             Self::KeyEvent(event) => {
                 let ctrl = event.modifiers.contains(KeyModifiers::CONTROL);
+                let shift = event.modifiers.contains(KeyModifiers::SHIFT);
                 match event.code {
                     KeyCode::Up | KeyCode::Char('k') => Pass::Up,
                     KeyCode::Down | KeyCode::Char('j') => Pass::Down,
@@ -86,7 +86,13 @@ impl ComponentEvent {
                     KeyCode::Enter => Pass::Enter,
                     KeyCode::Char(' ') => Pass::Space,
                     KeyCode::Char('q') if ctrl => Pass::Quit,
-                    KeyCode::Tab => Pass::Next,
+                    KeyCode::Tab => {
+                        if shift {
+                            Pass::Prev
+                        } else {
+                            Pass::Next
+                        }
+                    },
                     _ => Pass::Other,
                 }
             },
