@@ -31,5 +31,7 @@ pub mod session;
 pub mod settings;
 pub mod wallet;
 
+pub mod tari_format;
+
 pub const ACTIONS: &str = "tari://actions";
 pub const REACTIONS: &str = "tari://reactions";

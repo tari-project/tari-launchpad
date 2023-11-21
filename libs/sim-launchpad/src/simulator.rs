@@ -253,10 +253,10 @@ impl Simulator {
             self.apply_wallet_delta(delta)?;
             if new_state {
                 let balance = WalletBalance {
-                    available: 0,
-                    pending_incoming: 0,
-                    pending_outgoing: 0,
-                    timelocked: 0,
+                    available: 0.into(),
+                    pending_incoming: 0.into(),
+                    pending_outgoing: 0.into(),
+                    timelocked: 0.into(),
                 };
                 let delta = WalletDelta::UpdateBalance(balance);
                 self.apply_wallet_delta(delta)?;
@@ -269,7 +269,7 @@ impl Simulator {
         let session = self.lp_state.config.session.clone();
         if session.is_miner_active() && self.mined_at.elapsed() >= Duration::from_secs(10) {
             let mut balance = self.lp_state.wallet.balance.clone().unwrap_or_default();
-            balance.available += 1_000;
+            balance.available = (balance.available.as_u64() + 1_000).into();
             let delta = WalletDelta::UpdateBalance(balance);
             self.apply_wallet_delta(delta)?;
             // TODO: Add a transaction
