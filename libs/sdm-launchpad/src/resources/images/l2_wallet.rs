@@ -25,6 +25,8 @@ use std::ops::Deref;
 
 use anyhow::Error;
 use async_trait::async_trait;
+use log::{debug, error};
+use tari_app_grpc::tari_rpc::{ConnectivityStatus, Empty};
 use tari_launchpad_protocol::container::TaskProgress;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
@@ -39,13 +41,9 @@ use tari_sdm::{
         Volumes,
     },
 };
-use tari_utilities::hex::Hex;
-use tari_wallet_grpc_client::{
-    grpc::{check_connectivity_response::OnlineStatus, GetConnectivityRequest, GetIdentityRequest},
-    WalletGrpcClient,
-};
+use tari_wallet_grpc_client::{grpc::GetIdentityRequest, WalletGrpcClient};
 
-use super::{TariBaseNode, DEFAULT_REGISTRY, GENERAL_VOLUME};
+use super::{TariBaseNode, Tor, DEFAULT_REGISTRY, GENERAL_VOLUME};
 use crate::resources::{
     config::{
         BaseNodeIdentity,
@@ -54,6 +52,7 @@ use crate::resources::{
         LaunchpadInnerEvent,
         LaunchpadProtocol,
         WalletConfig,
+        WalletIdentity,
     },
     images::{BLOCKCHAIN_PATH, VAR_TARI_PATH},
     networks::LocalNet,
@@ -64,7 +63,8 @@ use crate::resources::{
 pub struct TariWallet {
     settings: Option<ConnectionSettings>,
     wallet: Option<WalletConfig>,
-    identity: Option<BaseNodeIdentity>,
+    base_node_identity: Option<BaseNodeIdentity>,
+    identity: Option<WalletIdentity>,
 }
 
 impl ManagedTask for TariWallet {
@@ -73,7 +73,7 @@ impl ManagedTask for TariWallet {
     }
 
     fn deps() -> Vec<TaskId> {
-        vec![LocalNet::id(), SharedVolume::id(), TariBaseNode::id()]
+        vec![LocalNet::id(), SharedVolume::id(), Tor::id(), TariBaseNode::id()]
     }
 }
 
@@ -93,6 +93,7 @@ impl ManagedContainer for TariWallet {
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
+        debug!("Reconfiguring wallet");
         let config = config?;
         self.settings = ConnectionSettings::try_extract(config);
         self.wallet = config.settings.as_ref().and_then(|s| s.wallet.clone());
@@ -104,9 +105,11 @@ impl ManagedContainer for TariWallet {
     fn on_event(&mut self, event: LaunchpadInnerEvent) {
         match event {
             LaunchpadInnerEvent::IdentityReady(identity) => {
+                self.base_node_identity = Some(identity);
+            },
+            LaunchpadInnerEvent::WalletIdentityReady(identity) => {
                 self.identity = Some(identity);
             },
-            LaunchpadInnerEvent::WalletIdentityReady(_) => {},
         }
     }
 
@@ -121,23 +124,10 @@ impl ManagedContainer for TariWallet {
 
     // TODO: Add `Result`
     fn args(&self, args: &mut Args) {
-        if let Some(identity) = self.identity.as_ref() {
-            if let Some(public_address) = identity.public_addresses.get(0) {
-                let _value = format!(
-                    "wallet.custom_base_node={}::{}",
-                    identity.public_key.to_hex(),
-                    public_address,
-                );
-                // args.set_pair("-p", value);
-            }
-        } else {
-            panic!("BASE NODE NOT SET");
-        }
-
         args.set("--log-config", "/var/tari/config/log4rs.yml");
         args.set("--seed-words-file", "/var/tari/config/seed_words.txt");
         args.flag("--enable-grpc");
-        args.flag("-n");
+        // args.flag("-n");
     }
 
     fn envs(&self, envs: &mut Envs) {
@@ -154,10 +144,16 @@ impl ManagedContainer for TariWallet {
             // TODO: Use `.reveal()` instead
             envs.set("TARI_WALLET_PASSWORD", wallet.password.deref());
         }
+        if let Some(identity) = self.base_node_identity.as_ref() {
+            let connection = identity.connection_string();
+            envs.set("TARI_WALLET__CUSTOM_BASE_NODE", connection);
+        } else {
+            error!("[Wallet config] Base node public key is unknown. Wallet will not be able to connect.");
+        }
         envs.set("SHELL", "/bin/bash");
         envs.set("TERM", "linux");
         envs.set("APP_NAME", "wallet");
-        envs.set("APP_EXEC", "tari_console_wallet");
+        envs.set("APP_EXEC", "minotari_console_wallet");
     }
 
     fn networks(&self, networks: &mut Networks) {
@@ -205,20 +201,24 @@ impl ContainerChecker<LaunchpadProtocol> for Checker {
         }
 
         if !self.online {
-            let request = GetConnectivityRequest {};
-            let status_num = client.check_connectivity(request).await?.into_inner().status;
-            let status = OnlineStatus::from_i32(status_num);
+            let status = client.get_network_status(Empty {}).await?.into_inner();
+            debug!("Wallet status: {:?}", status);
+            let connection_status = ConnectivityStatus::from_i32(status.status);
             let stage;
-            match status {
-                Some(OnlineStatus::Online) => {
+            match connection_status {
+                Some(ConnectivityStatus::Online) => {
                     stage = "Online";
                     self.online = true;
                 },
-                Some(OnlineStatus::Offline) => {
+                Some(ConnectivityStatus::Offline) => {
                     stage = "Offline";
                 },
-                Some(OnlineStatus::Connecting) => {
-                    stage = "Connecting";
+                Some(ConnectivityStatus::Initializing) => {
+                    stage = "Initializing";
+                },
+                Some(ConnectivityStatus::Degraded) => {
+                    stage = "Degraded";
+                    self.online = true;
                 },
                 None => {
                     stage = "Unknown status";

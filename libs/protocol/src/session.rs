@@ -54,15 +54,20 @@ impl LaunchpadSession {
     }
 
     pub fn is_tor_active(&self) -> bool {
-        self.all_active || self.base_layer_active || self.tor_active
+        self.all_active ||
+            self.tor_active ||
+            self.is_base_node_active() ||
+            self.is_wallet_active() ||
+            self.is_miner_active() ||
+            self.is_mmproxy_active()
     }
 
     pub fn is_base_node_active(&self) -> bool {
-        self.all_active || self.base_layer_active || self.base_node_active
+        self.all_active || self.base_layer_active || self.base_node_active || self.is_wallet_active()
     }
 
     pub fn is_wallet_active(&self) -> bool {
-        self.all_active || self.wallet_layer_active || self.wallet_active
+        self.all_active || self.wallet_layer_active || self.wallet_active || self.is_miner_active()
     }
 
     pub fn is_miner_active(&self) -> bool {

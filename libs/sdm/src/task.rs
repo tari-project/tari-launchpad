@@ -68,6 +68,7 @@ pub trait RunnableTask: Sized + Send + 'static {
 
     fn name(&self) -> &str;
 
+    /// Indicates whether any resources created by this task should persist between runs.
     fn is_permanent(&self) -> bool;
 }
 
@@ -382,7 +383,8 @@ where TaskContext<R>: RunnableContext<R>
     }
 
     pub async fn update(&mut self) {
-        log::trace!(
+        log::debug!(
+            // change back to trace
             "Update with the state !{}::update={:?}",
             self.context.name(),
             self.context.status.get()

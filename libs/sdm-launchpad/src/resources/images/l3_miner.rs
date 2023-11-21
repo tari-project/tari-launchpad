@@ -91,8 +91,8 @@ impl ManagedContainer for TariSha3Miner {
         }
         envs.set("SHELL", "/bin/bash");
         envs.set("TERM", "linux");
-        envs.set("APP_NAME", "sha3_miner");
-        envs.set("APP_EXEC", "tari_miner");
+        envs.set("APP_NAME", "minotari_sha3_miner");
+        envs.set("APP_EXEC", "minotari_miner");
     }
 
     fn networks(&self, networks: &mut Networks) {

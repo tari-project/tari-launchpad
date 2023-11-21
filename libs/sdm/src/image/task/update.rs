@@ -89,21 +89,33 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     /// manually in docker. If the container is still running, we'll try and kill it first, otherwise we'll just
     /// remove it.
     async fn do_clean_dangling(&mut self) -> Result<(), Error> {
-        log::debug!("Checking container {} ...", self.inner.container_name);
+        log::debug!(
+            "[Clean dangling] Checking for dangling instance of container {} ...",
+            self.inner.container_name
+        );
         let state = self.container_state().await;
         match state {
             ContainerState::Running => {
-                log::debug!("Container {} is running. Terminating it.", self.inner.container_name);
+                log::debug!(
+                    "[Clean dangling] Container {} is running. Terminating it.",
+                    self.inner.container_name
+                );
                 self.try_kill_container().await?;
                 self.status.set(Status::WaitContainerKilled);
             },
             ContainerState::NotRunning => {
-                log::debug!("Container {} is not running. Removing it.", self.inner.container_name);
+                log::debug!(
+                    "[Clean dangling] Container {} is not running. Removing it.",
+                    self.inner.container_name
+                );
                 self.try_remove_container().await?;
                 self.status.set(Status::WaitContainerRemoved);
             },
             ContainerState::NotFound => {
-                log::debug!("Container {} doesn't exist.", self.inner.container_name);
+                log::debug!(
+                    "[Clean dangling] Container {} doesn't exist.",
+                    self.inner.container_name
+                );
                 self.status.set(Status::Idle);
                 self.update_task_status(TaskStatus::Inactive)?;
             },
