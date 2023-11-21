@@ -28,6 +28,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     widgets::{Padding, Row, Table},
 };
+use tari_launchpad_protocol::tari_format::TariFormat;
 
 use crate::{
     component::{elements::block_with_title, Component, ComponentEvent, Frame, Input, Pass},
@@ -112,7 +113,7 @@ impl<B: Backend> Component<B> for BalanceWidget {
     }
 }
 
-fn rows<'a>(items: impl IntoIterator<Item = (&'a str, Option<u64>)>) -> Vec<Row<'a>> {
+fn rows<'a>(items: impl IntoIterator<Item = (&'a str, Option<TariFormat>)>) -> Vec<Row<'a>> {
     let mut rows = Vec::new();
     for (title, value) in items {
         let value = value

@@ -25,6 +25,8 @@ use std::collections::VecDeque;
 
 use serde::{Deserialize, Serialize};
 
+use crate::tari_format::TariFormat;
+
 const HISTORY_LIMIT: usize = 30;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -55,10 +57,10 @@ impl Default for WalletState {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct WalletBalance {
-    pub available: u64,
-    pub pending_incoming: u64,
-    pub pending_outgoing: u64,
-    pub timelocked: u64,
+    pub available: TariFormat,
+    pub pending_incoming: TariFormat,
+    pub pending_outgoing: TariFormat,
+    pub timelocked: TariFormat,
 }
 
 impl WalletState {

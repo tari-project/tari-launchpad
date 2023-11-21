@@ -146,10 +146,10 @@ impl WalletGrpcWorker {
 
     fn process_balance(&mut self, response: GetBalanceResponse) -> Result<(), Error> {
         let balance = WalletBalance {
-            available: response.available_balance,
-            pending_incoming: response.pending_incoming_balance,
-            pending_outgoing: response.pending_outgoing_balance,
-            timelocked: response.timelocked_balance,
+            available: response.available_balance.into(),
+            pending_incoming: response.pending_incoming_balance.into(),
+            pending_outgoing: response.pending_outgoing_balance.into(),
+            timelocked: response.timelocked_balance.into(),
         };
         let delta = WalletDelta::UpdateBalance(balance);
         self.send_update(delta)
