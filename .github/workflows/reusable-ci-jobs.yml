@@ -100,7 +100,7 @@
           runs-on: ubuntu-20.04
           steps:
               - name: checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v3
               - name: toolchain
                 uses: actions-rs/toolchain@v1
                 with:
@@ -150,7 +150,7 @@
         runs-on: ubuntu-20.04
         steps:
           - name: checkout
-            uses: actions/checkout@v2
+            uses: actions/checkout@v3
           - name: setup node
             uses: actions/setup-node@v4
             with:
