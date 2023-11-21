@@ -143,7 +143,7 @@ impl TestState {
             .as_ref()
             .and_then(|state| state.wallet.balance.as_ref());
         if let Some(balance) = balance {
-            self.initial_funds = balance.available;
+            self.initial_funds = balance.available.as_u64();
             true
         } else {
             false
@@ -155,7 +155,7 @@ impl TestState {
             .state
             .as_ref()
             .and_then(|state| state.wallet.balance.as_ref())
-            .map(|balance| balance.available > self.initial_funds)
+            .map(|balance| balance.available.as_u64() > self.initial_funds)
             .unwrap_or_default()
     }
 }
