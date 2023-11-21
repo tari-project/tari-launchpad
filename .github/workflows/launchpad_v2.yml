@@ -1,7 +1,6 @@
 name: Launchpad v2 CI
 
 on:
-  push:
   pull_request:
     types:
       - opened
