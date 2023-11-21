@@ -24,6 +24,7 @@
 use std::ops::Deref;
 
 use async_trait::async_trait;
+use log::debug;
 use regex::Regex;
 use tari_launchpad_protocol::container::TaskProgress;
 use tari_sdm::{
@@ -72,6 +73,7 @@ impl ManagedContainer for Tor {
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
+        debug!("Reconfiguring Tor");
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;
         Some(session.is_tor_active())

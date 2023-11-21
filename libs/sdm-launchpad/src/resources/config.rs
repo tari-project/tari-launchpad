@@ -33,7 +33,7 @@ pub use tari_launchpad_protocol::{
     settings::{LaunchpadSettings, TariNetwork, WalletConfig},
 };
 use tari_sdm::{config::ManagedProtocol, image::Envs};
-use tari_utilities::ByteArray;
+use tari_utilities::{hex::Hex, ByteArray};
 use tari_wallet_grpc_client::grpc::GetIdentityResponse;
 
 #[derive(Debug)]
@@ -58,6 +58,14 @@ pub struct BaseNodeIdentity {
     pub public_addresses: Vec<String>,
     node_id: Vec<u8>,
     emoji_id: String,
+}
+
+impl BaseNodeIdentity {
+    /// Provide the base node connection string. It is of the form
+    /// "0eefb45a4de9484eca74846a4f47d2c8d38e76be1fec63b0112bd00d297c0928::/ip4/13.40.98.39/tcp/18189"
+    pub fn connection_string(&self) -> String {
+        format!("{}::/dns4/base_node/tcp/18189", self.public_key.to_hex())
+    }
 }
 
 impl TryFrom<NodeIdentity> for BaseNodeIdentity {

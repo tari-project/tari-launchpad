@@ -1,96 +1,111 @@
-[common]
-
-[dibbler.p2p.seeds]
-dns_seeds = ["seeds.dibbler.tari.com"]
-peer_seeds = [
-    # 333388d1cbe3e2bd17453d052f
-    "c2eca9cf32261a1343e21ed718e79f25bfc74386e9305350b06f62047f519347::/onion3/6yxqk2ybo43u73ukfhyc42qn25echn4zegjpod2ccxzr2jd5atipwzqd:18141",
-    # 555575715a49fc242d756e52ca
-    "42fcde82b44af1de95a505d858cb31a422c56c4ac4747fbf3da47d648d4fc346::/onion3/2l3e7ysmihc23zybapdrsbcfg6omtjtfkvwj65dstnfxkwtai2fawtyd:18141",
-    # 77771f53be07fab4be5f1e1ff7
-    "50e6aa8f6c50f1b9d9b3d438dfd2a29cfe1f3e3a650bd9e6b1e10f96b6c38f4d::/onion3/7s6y3cz5bnewlj5ypm7sekhgvqjyrq4bpaj5dyvvo7vxydj7hsmyf5ad:18141",
-    # 9999016f1f3a6162dddf5a45aa
-    "36a9df45e1423b5315ffa7a91521924210c8e1d1537ad0968450f20f21e5200d::/onion3/v24qfheti2rztlwzgk6v4kdbes3ra7mo3i2fobacqkbfrk656e3uvnid:18141",
-    # bbbb8358387d81c388fadb4649
-    "be128d570e8ec7b15c101ee1a56d6c56dd7d109199f0bd02f182b71142b8675f::/onion3/ha422qsy743ayblgolui5pg226u42wfcklhc5p7nbhiytlsp4ir2syqd:18141",
-    # eeeeb0a943ed143e613a135392
-    "3e0321c0928ca559ab3c0a396272dfaea705efce88440611a38ff3898b097217::/onion3/sl5ledjoaisst6d4fh7kde746dwweuge4m4mf5nkzdhmy57uwgtb7qqd:18141",
-    # 66664a0f95ce468941bb9de228
-    "b0f797e7413b39b6646fa370e8394d3993ead124b8ba24325c3c07a05e980e7e::/ip4/35.177.93.69/tcp/18189",
-    # 22221bf814d5e524fce9ba5787
-    "0eefb45a4de9484eca74846a4f47d2c8d38e76be1fec63b0112bd00d297c0928::/ip4/13.40.98.39/tcp/18189",
-    # 4444a0efd8388739d563bdd979
-    "544ed2baed414307e119d12894e27f9ddbdfa2fd5b6528dc843f27903e951c30::/ip4/13.40.189.176/tcp/18189"
-]
-
-[esmeralda.p2p.seeds]
-dns_seeds = ["seeds.esmeralda.tari.com"]
-peer_seeds = [
-    # 00000df938d2615412b1e9fe9b
-    "68667362ceadf4543f4bac3a47e8bd1b6c5cbdab90fa781392e419b8ee03a153::/onion3/lf2p2zwuinjkk4bzzwddbol64x5ycofanja25zu2oxmrofa3nk43ypyd:18141",
-    # 33333faa19573c7d4c35d54c68
-    "a482e5541dfc76b53bddda5ad68a8bdec290c862e6e5c716e6014acd65347411::/onion3/3mpymjycel3ufraw55cnl5tvednrnzmqvq56vaydswnboibkja2d4tid:18141",
-    # 55555c74402e51a342a92afaea
-    "fe67c469fe61f31765f43ec781dcdde78092204d36bbdc544cb09ca41d495e06::/onion3/tbmffvb67hf2ujfh5md6n2hhgi5guao2ahmv54bh3vr5x3wjor2u5cid:18141",
-    # 88888dfde986ebd7a40966169e
-    "3cf5da9cecaf347b6fcfee9c8751be9fad529878572b19da3bd24c9704ab2426::/onion3/jxh2bl4zunbrd3y7pgayvcj3l4iczcne2s5h47lclv6e3kjzxbaplgqd:18141",
-    # 222223a86f76f1d09c05ef96cd
-    "18df727907476f455809d3794cfec1d489b6bf305d06467e8cf5cb102402530b::/onion3/vv26lxr727pvvxbmgf3sdbobqsqqfrtasfkavs4js5vlq3lk34a54hid:18141",
-    # 444447b8fdcfc7458f727ef9a2
-    "72468fae60e65218276793eabb764ed7280049bb74560ca18710755234bcce49::/onion3/oqpd4wgd7tzagvvgkfwrdu6ssvoqaw4zdoqhvutof2flgkgj6gwrpfqd:18141",
-]
-
-
+# Config for launchpad v1.0.0
 [base_node]
-network = "esmeralda"
+network = "stagenet"
 grpc_address = "/ip4/0.0.0.0/tcp/18142"
+override_from = "stagenet"
+grpc_enabled = true
 
 [base_node.storage]
+# pruning_horizon = 10_080
+# pruning_interval = 50
 track_reorgs = true
 
-[dibbler.base_node]
-data_dir = "/blockchain/dibbler"
-#identity_file = "/var/tari/base_node/config/dibbler/tari_base_node_id.json"
 
 [igor.base_node]
 network = "igor"
-data_dir = "/blockchain/igor"
+base_node_identity_file = "/var/tari/base_node/config/igor/tar_base_node_id.json"
+# Uncomment all gRPC server methods that should be denied default (only active when `grpc_enabled = true`)
+grpc_server_deny_methods = []
 
-[esmeralda.base_node]
-network = "esmeralda"
-data_dir = "/blockchain/esmeralda"
+[stagenet.base_node]
+identity_file = "/var/tari/base_node/config/stagenet/tari_base_node_id.json"
+# Uncomment all gRPC server methods that should be denied default (only active when `grpc_enabled = true`)
+grpc_server_deny_methods = []
+
+
+[nextnet.base_node]
+identity_file = "/var/tari/base_node/config/nextnet/tari_base_node_id.json"
+grpc_server_deny_methods = []
+
+[base_node.p2p]
+#auxiliary_tcp_listener_address = "/dns4/base_node/tcp/18189"
+auxiliary_tcp_listener_address = "/ip4/0.0.0.0/tcp/18189"
+user_agent = "Launchpad base node"
 
 [base_node.p2p.transport]
-tor.control_auth = "password=tari"
-#tcp.listener_address = "/dns4/base_node/tcp/18189"
-tor.socks_address_override = "/dns4/tor/tcp/9050"
-tor.control_address = "/dns4/tor/tcp/9051"
+type = "tor"
 
+[base_node.p2p.transport.tor]
+control_auth = "password=tari"
+socks_address_override = "/dns4/tor/tcp/9050"
+control_address = "/dns4/tor/tcp/9051"
+# When these peer addresses are encountered when dialing another peer, the tor proxy is bypassed and the connection is
+# made directly over TCP. /ip4, /ip6, /dns, /dns4 and /dns6 are supported. (e.g. ["/dns4/my-foo-base-node/tcp/9998"])
+proxy_bypass_addresses = ["/dns4/wallet/tcp/18188"]
+# When using the tor transport and set to true, outbound TCP connections bypass the tor proxy. Defaults to false for
+# better privacy
+proxy_bypass_for_outbound_tcp = true
+
+[base_node.p2p.transport.tcp]
+listener_address = "/dns4/base_node/tcp/18189"
+
+[nextnet.p2p.seeds]
+# DNS seeds hosts - DNS TXT records are queried from these hosts and the resulting peers added to the comms peer list.
+dns_seeds = ["seeds.nextnet.tari.com"]
+# Custom specified peer seed nodes
+peer_seeds = [
+    # 44444408d5fa29410d9752770f
+    "2c84ccdf0dcb7b4845f167ea8988166384a36451d068e0ae1bb84b5bf0d52425::/onion3/7gwfakr7ko5uo3fl3yz3fsjc7elccbzter5botggodrmmwi2exm3vbid:18141",
+    # bbbbbb87215db9ee00bb2763b5
+    "64639314dc3c9a4b0fa57f812d68b381a882e72eb9cc20e861ce6e04936ef438::/onion3/lvsj75guqc4gfqasgyhg3of2clijf3vkgipbpufh6dmhyapp2dmuelad:18141",
+]
+
+[stagenet.p2p.seeds]
+# DNS seeds hosts - DNS TXT records are queried from these hosts and the resulting peers added to the comms peer list.
+dns_seeds = ["seeds.stagenet.tari.com"]
+# Custom specified peer seed nodes
+peer_seeds = []
 
 [wallet]
-override_from = "esmeralda"
+override_from = "stagenet"
+db_file = "wallet/wallet.dat"
+grpc_enabled = true
 grpc_address = "/ip4/0.0.0.0/tcp/18143"
 password = "tari"
+use_libtor = false
+#gRPC authentication method (default = "none")
+#grpc_authentication = { username = "admin", password = "xxxx" }
 
-[dibbler.wallet]
-network = "dibbler"
-db_file = "wallet/dibbler/wallet.dat"
+# A custom base node peer that will be used to obtain metadata from, example
+# "0eefb45a4de9484eca74846a4f47d2c8d38e76be1fec63b0112bd00d297c0928::/ip4/13.40.98.39/tcp/18189"
+# This is set internally by launchpad when the base node starts
+# custom_base_node = "none"
 
-[igor.wallet]
-network = "igor"
-db_file = "wallet/igor/wallet.dat"
+[wallet.p2p]
 
-[esmeralda.wallet]
-network = "esmeralda"
-db_file = "wallet/esmeralda/wallet.dat"
+[wallet.p2p.transport]
+type = "tor"
+
+[wallet.p2p.transport.tor]
+control_auth = "password=tari"
+socks_address_override = "/dns4/tor/tcp/9050"
+control_address = "/dns4/tor/tcp/9051"
+# When these peer addresses are encountered when dialing another peer, the tor proxy is bypassed and the connection is
+# made directly over TCP. /ip4, /ip6, /dns, /dns4 and /dns6 are supported. (e.g. ["/dns4/my-foo-base-node/tcp/9998"])
+proxy_bypass_addresses = ["/dns4/wallet/tcp/18188"]
+proxy_bypass_for_outbound_tcp = true
+
+[wallet.p2p.transport.tcp]
+#listener_address = "/dns4/wallet/tcp/18188"
+listener_address = "/dns4/wallet/tcp/18188"
 
 [miner]
 base_node_grpc_address = "/dns4/base_node/tcp/18142"
 wallet_grpc_address = "/dns4/wallet/tcp/18143"
 mine_on_tip_only = true
+num_mining_threads = 4
 
 [merge_mining_proxy]
-#config = "dibbler"
 monerod_url = [ # stagenet
     "http://stagenet.xmr-tw.org:38081",
     "http://stagenet.community.xmr.to:38081",
@@ -105,4 +120,3 @@ submit_to_origin = true
 monerod_username = ""
 monerod_password = ""
 monerod_use_auth = false
-
