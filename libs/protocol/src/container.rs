@@ -128,8 +128,13 @@ pub enum TaskStatus {
     Inactive,
     /// Waiting for dependencies.
     Pending,
+    /// Task failed due to missing configuration.
+    MissingConfiguration(String),
+    /// Task is starting up
     Progress(TaskProgress),
+    /// Task is running
     Active,
+    /// Task failed for other reasons.
     Failed(String),
 }
 
@@ -146,6 +151,13 @@ impl TaskStatus {
         matches!(self, Self::Inactive)
     }
 
+    pub fn is_missing_configuration(&self) -> Option<&str> {
+        match self {
+            Self::MissingConfiguration(reason) => Some(reason.as_str()),
+            _ => None,
+        }
+    }
+
     pub fn is_failed(&self) -> bool {
         matches!(self, Self::Failed(_))
     }
@@ -158,6 +170,7 @@ impl fmt::Display for TaskStatus {
             Self::Pending => write!(f, "Pending"),
             Self::Progress(value) => write!(f, "Progress({} - {}%)", value.stage, value.pct),
             Self::Active => write!(f, "Active"),
+            Self::MissingConfiguration(reason) => write!(f, "Missing configuration. Details: {}", reason),
             Self::Failed(reason) => write!(f, "Failed. Reason: {}", reason),
         }
     }

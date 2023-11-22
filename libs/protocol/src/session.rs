@@ -40,7 +40,6 @@ pub struct LaunchpadSession {
     pub miner_active: bool,
 
     pub mmproxy_active: bool,
-    pub monerod_active: bool,
     pub xmrig_active: bool,
 
     pub grafana_active: bool,
@@ -63,13 +62,22 @@ impl LaunchpadSession {
     }
 
     pub fn is_base_node_active(&self) -> bool {
-        self.all_active || self.base_layer_active || self.base_node_active || self.is_wallet_active()
+        self.all_active ||
+            self.base_layer_active ||
+            self.base_node_active ||
+            self.is_wallet_active() ||
+            self.merge_layer_active
     }
 
     pub fn is_wallet_active(&self) -> bool {
-        self.all_active || self.wallet_layer_active || self.wallet_active || self.is_miner_active()
+        self.all_active ||
+            self.wallet_layer_active ||
+            self.wallet_active ||
+            self.is_miner_active() ||
+            self.merge_layer_active
     }
 
+    /// Indicates which states signal that the SHA3x miner should be active
     pub fn is_miner_active(&self) -> bool {
         self.all_active || self.mining_layer_active || self.miner_active
     }
@@ -78,12 +86,8 @@ impl LaunchpadSession {
         self.all_active || self.merge_layer_active || self.mmproxy_active
     }
 
-    pub fn is_monerod_active(&self) -> bool {
-        self.all_active || self.merge_layer_active || self.monerod_active
-    }
-
     pub fn is_xmrig_active(&self) -> bool {
-        self.all_active || self.merge_layer_active || self.xmrig_active
+        self.all_active || self.merge_layer_active || self.xmrig_active || self.is_mmproxy_active()
     }
 
     pub fn is_grafana_active(&self) -> bool {

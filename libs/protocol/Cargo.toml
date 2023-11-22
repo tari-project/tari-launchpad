@@ -9,7 +9,6 @@ edition = "2021"
 [dependencies]
 tari_utilities = { git = "https://github.com/tari-project/tari_utilities.git", tag = "v0.4.10" }
 
-anyhow = "1.0.72"
 byte-unit = { version = "4.0.19", features = ["serde"] }
 derive_more = "0.99.17"
 serde = "1"
@@ -17,3 +16,4 @@ strum = { version = "0.25.0", features = ["derive"] }
 thiserror = "1.0.44"
 chrono = { version = "0.4.26", features = ["serde"] }
 serde_repr = "0.1.16"
+toml = { version = "0.8.8", features = [] }

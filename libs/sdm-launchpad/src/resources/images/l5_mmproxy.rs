@@ -23,13 +23,14 @@
 
 use std::ops::Deref;
 
+use log::*;
 use tari_launchpad_protocol::settings::MmProxyConfig;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
-    image::{Args, Envs, ManagedContainer, Networks},
+    image::{Args, Envs, ManagedContainer, Mounts, Networks, Volumes},
 };
 
-use super::DEFAULT_REGISTRY;
+use super::{TariWallet, DEFAULT_REGISTRY, GENERAL_VOLUME, VAR_TARI_PATH};
 use crate::resources::{
     config::{ConnectionSettings, LaunchpadConfig, LaunchpadProtocol},
     networks::LocalNet,
@@ -47,7 +48,7 @@ impl ManagedTask for MmProxy {
     }
 
     fn deps() -> Vec<TaskId> {
-        vec![LocalNet::id()]
+        vec![LocalNet::id(), TariWallet::id()]
     }
 }
 
@@ -67,11 +68,26 @@ impl ManagedContainer for MmProxy {
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
-        self.settings = ConnectionSettings::try_extract(config?);
+        self.settings = config.and_then(ConnectionSettings::try_extract).or_else(|| {
+            warn!("No connection settings found for MM proxy");
+            None
+        });
         let session = &self.settings.as_ref()?.session;
-        self.mm_proxy = config?.settings.as_ref()?.mm_proxy.clone();
-        self.mm_proxy.as_ref()?; // To check it exists
-        Some(session.is_mmproxy_active())
+        self.mm_proxy = config?.settings.as_ref()?.saved_settings.mm_proxy.clone();
+        self.mm_proxy = match config?.settings {
+            Some(ref settings) if settings.saved_settings.mm_proxy.is_none() => {
+                info!("No MM proxy settings found for the container configuration. Falling back on defaults.");
+                let defaults = MmProxyConfig::default();
+                debug!("MM proxy default container configuration: {:?}", defaults);
+                Some(defaults)
+            },
+            Some(ref settings) => settings.saved_settings.mm_proxy.clone(),
+            None => {
+                warn!("The settings configuration for the MM proxy config is empty");
+                None
+            },
+        };
+        Some(self.mm_proxy.is_none() || session.is_mmproxy_active())
     }
 
     fn args(&self, args: &mut Args) {
@@ -80,6 +96,7 @@ impl ManagedContainer for MmProxy {
 
     fn envs(&self, envs: &mut Envs) {
         if let Some(settings) = self.settings.as_ref() {
+            settings.add_common(envs);
             settings.add_tor(envs);
         }
         envs.set("APP_NAME", "mm_proxy");
@@ -97,5 +114,15 @@ impl ManagedContainer for MmProxy {
 
     fn networks(&self, networks: &mut Networks) {
         networks.add("tari_mm_proxy", LocalNet::id());
+    }
+
+    fn volumes(&self, volumes: &mut Volumes) {
+        volumes.add(GENERAL_VOLUME);
+    }
+
+    fn mounts(&self, mounts: &mut Mounts) {
+        if let Some(settings) = self.settings.as_ref() {
+            mounts.bind_path(settings.data_directory.to_string_lossy(), VAR_TARI_PATH);
+        }
     }
 }

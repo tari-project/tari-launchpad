@@ -29,6 +29,7 @@ use bollard::Docker;
 use chrono::Local;
 use derive_more::{Deref, DerefMut};
 use futures::StreamExt;
+use log::*;
 use tari_launchpad_protocol::{
     container::{LogLevel, LogRecord, StatsData, TaskDelta, TaskId, TaskState, TaskStatus as TaskStatusValue},
     errors::ErrorRecord,
@@ -238,8 +239,7 @@ where TaskContext<R>: RunnableContext<R>
             driver: docker,
             inner,
         };
-        // It subscribed here to avoid the gap if
-        // that will subscribe in the routine.
+        // It subscribed here to avoid the gap if that will subscribe in the routine.
         let req_rx = req_tx.subscribe();
         let dependencies = M::deps().into_iter().map(|id| (id, false)).collect();
         Self {
@@ -257,7 +257,7 @@ where TaskContext<R>: RunnableContext<R>
 
     pub async fn entrypoint(mut self) {
         if let Err(err) = self.routine().await {
-            log::error!("Task failed: {}", err);
+            error!("Task failed: {}", err);
         }
     }
 
@@ -352,6 +352,8 @@ where TaskContext<R>: RunnableContext<R>
         }
     }
 
+    /// Checks whether all dependencies have a ready status and sets the `dependencies_ready` field in the context
+    /// accordingly.. Does not trigger any actions.
     fn check_dependencies(&mut self) {
         // If the set is empty `all` returns `true`.
         self.context.dependencies_ready = self.dependencies.values().all(|ready| *ready);
@@ -368,6 +370,11 @@ where TaskContext<R>: RunnableContext<R>
 
     pub fn reconfigure(&mut self, config: Option<&<R::Protocol as ManagedProtocol>::Config>) {
         let active = self.context.reconfigure(config);
+        if active {
+            debug!("[SdmTaskRunner::reconfigure] Task {} is queued to start", self.task_id)
+        } else {
+            debug!("[SdmTaskRunner::reconfigure] Task {} is will NOT start", self.task_id)
+        }
         self.context.should_start = active;
     }
 
@@ -376,15 +383,14 @@ where TaskContext<R>: RunnableContext<R>
     }
 
     pub fn process_event(&mut self, event: R::Event) {
-        log::trace!("Processing event !{}::event={:?}", self.context.name(), event);
+        trace!("Processing event !{}::event={:?}", self.context.name(), event);
         if let Err(err) = self.context.process_event(event) {
             log::error!("Event processing error: {}", err);
         }
     }
 
     pub async fn update(&mut self) {
-        log::debug!(
-            // change back to trace
+        trace!(
             "Update with the state !{}::update={:?}",
             self.context.name(),
             self.context.status.get()
@@ -397,7 +403,7 @@ where TaskContext<R>: RunnableContext<R>
             self.context.status.check_fallback();
             self.context.status.reset_has_work_flag();
             if let Err(err) = self.context.update().await {
-                log::error!("Update error: {}", err);
+                error!("Update error: {}", err);
                 self.next_update = now + Duration::from_secs(5);
                 // TODO: Set a fallback? and reset it when succeed?
                 break;

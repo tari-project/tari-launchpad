@@ -31,7 +31,7 @@ use crate::{
     errors::ErrorRecord,
     frame::Frame,
     session::LaunchpadSession,
-    settings::LaunchpadSettings,
+    settings::{LaunchpadSettings, PersistentSettings},
     wallet::{WalletAction, WalletDelta, WalletState},
 };
 
@@ -46,6 +46,7 @@ pub enum LaunchpadAction {
     Connect,
     ChangeSession(LaunchpadSession),
     WalletAction(WalletAction),
+    SaveSettings(PersistentSettings),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

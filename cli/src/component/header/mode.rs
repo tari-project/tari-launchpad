@@ -62,32 +62,28 @@ impl Input for ModeSelector {
     type Output = ();
 
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
-        let mut changed = false;
         if let ComponentEvent::KeyEvent(key) = event {
             if key.modifiers.contains(KeyModifiers::CONTROL) {
                 match key.code {
                     KeyCode::Char('n') => {
                         self.mode = Mode::Normal;
-                        changed = true;
+                        state.focus_on(focus::BASE_NODE);
                     },
                     KeyCode::Char('e') => {
                         self.mode = Mode::Expert;
-                        changed = true;
+                        state.focus_on(focus::ROOT);
                     },
                     KeyCode::Char('s') => {
                         self.mode = Mode::Settings;
-                        changed = true;
+                        state.focus_on(focus::ROOT);
                     },
                     KeyCode::Char('b') => {
                         self.mode = Mode::Onboarding;
-                        changed = true;
+                        state.focus_on(focus::ROOT);
                     },
                     _ => {},
                 }
             }
-        }
-        if changed {
-            state.focus_on(focus::ROOT);
         }
         None
     }

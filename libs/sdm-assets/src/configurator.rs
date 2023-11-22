@@ -33,6 +33,7 @@ macro_rules! embed_file {
 }
 
 const CONFIG_TOML: ConfigFile = embed_file!("config.toml");
+const SETTINGS_TOML: ConfigFile = embed_file!("settings.toml");
 const DEFAULTS_INI: ConfigFile = embed_file!("defaults.ini");
 const LOGS4RS_YML: ConfigFile = embed_file!("log4rs.yml");
 const LOKI_YML: ConfigFile = embed_file!("loki_config.yml");
@@ -115,6 +116,8 @@ impl Configurator {
         let new_config_dir = self.create_dir(&config_dir).await?;
         // config files
         self.store_file(&config_dir, &CONFIG_TOML, new_config_dir || overwrite)
+            .await?;
+        self.store_file(&config_dir, &SETTINGS_TOML, new_config_dir || overwrite)
             .await?;
         self.store_file(&config_dir, &DEFAULTS_INI, new_config_dir || overwrite)
             .await?;

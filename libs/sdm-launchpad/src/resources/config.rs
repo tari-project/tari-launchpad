@@ -123,7 +123,7 @@ impl ConnectionSettings {
         Some(ConnectionSettings {
             session: config.session.clone(),
             tor_password: settings.tor_control_password.clone(),
-            tari_network: settings.tari_network,
+            tari_network: settings.saved_settings.tari_network,
             data_directory: settings.data_directory.clone(),
         })
     }

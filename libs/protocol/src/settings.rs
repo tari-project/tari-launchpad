@@ -35,7 +35,7 @@ http://singapore.node.xmr.pm:38081";
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct BaseNodeConfig {}
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct WalletConfig {
     /// The password to de/en-crypt the wallet database
     pub password: String,
@@ -87,63 +87,115 @@ impl MmProxyConfig {
     }
 }
 
-/// Tari Launchpad configuration struct. This will generally
-/// be populated from some front-end or persistent storage
-/// file and is used to generate the environment variables
-/// needed to configure and run the various docker containers.
+/// Tari Launchpad configuration struct. This will generally be populated from some front-end or persistent storage
+/// file and is used to generate the environment variables needed to configure and run the various docker containers.
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+pub struct PersistentSettings {
+    /// The Tari network to use. Default = stagenet
+    pub tari_network: TariNetwork,
+    /// Base node configuration.
+    pub base_node: Option<BaseNodeConfig>,
+    /// Wallet configuration settings
+    pub wallet: Option<WalletConfig>,
+    /// SHA3x miner settings
+    pub sha3_miner: Option<Sha3MinerConfig>,
+    /// Merge-mining proxy settings
+    pub mm_proxy: Option<MmProxyConfig>,
+    /// XMRig settings
+    pub xmrig: Option<XmRigConfig>,
+    /// The Docker registry to use to download images. By default we use ghcr.io/tari-project
+    pub registry: Option<String>,
+    /// The docker tag to use. By default, we use 'latest'
+    pub tag: Option<String>,
+}
+
+impl PersistentSettings {
+    pub fn new_base_node_settings(&mut self) {
+        self.base_node = Some(BaseNodeConfig::default());
+    }
+
+    pub fn new_wallet_settings(&mut self) {
+        self.wallet = Some(WalletConfig::default());
+    }
+
+    pub fn new_sha3_miner_settings(&mut self) {
+        self.sha3_miner = Some(Sha3MinerConfig::default());
+    }
+
+    pub fn new_mm_proxy_settings(&mut self) {
+        self.mm_proxy = Some(MmProxyConfig::default());
+    }
+
+    pub fn new_xmrig_settings(&mut self) {
+        self.xmrig = Some(XmRigConfig::default());
+    }
+
+    pub fn set_wallet_password<S: Into<String>>(&mut self, password: S) {
+        if self.wallet.is_none() {
+            self.new_wallet_settings();
+        }
+        if let Some(w) = self.wallet.as_mut() {
+            w.password = password.into()
+        };
+    }
+
+    pub fn set_monero_mining_address<S: Into<String>>(&mut self, address: S) {
+        if self.xmrig.is_none() {
+            self.new_xmrig_settings();
+        }
+        if let Some(x) = self.xmrig.as_mut() {
+            x.monero_mining_address = address.into()
+        }
+    }
+
+    pub fn set_num_mining_threads(&mut self, num_threads: usize) {
+        if self.sha3_miner.is_none() {
+            self.new_sha3_miner_settings();
+        }
+        if let Some(s) = self.sha3_miner.as_mut() {
+            s.num_mining_threads = num_threads
+        }
+    }
+
+    pub fn set_monerod_url<S: Into<String>>(&mut self, url: S) {
+        if self.mm_proxy.is_none() {
+            self.new_mm_proxy_settings();
+        }
+        if let Some(m) = self.mm_proxy.as_mut() {
+            m.monerod_url = url.into()
+        }
+    }
+}
+
+impl TryFrom<&str> for PersistentSettings {
+    type Error = String;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        toml::from_str(value).map_err(|e| e.to_string())
+    }
+}
+
+/// Tari Launchpad configuration struct. This will generally be populated from some front-end or persistent storage
+/// file and is used to generate the environment variables needed to configure and run the various docker containers.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LaunchpadSettings {
     /// The directory to use for config, id files and logs
     pub data_directory: PathBuf,
-    /// The Tari network to use. Default = stagenet
-    pub tari_network: TariNetwork,
     /// The tor control password to share among containers.
     pub tor_control_password: String,
-    /// Whether to spin up a base node or not, with
-    /// the given configuration. Usually you want this.
-    pub base_node: Option<BaseNodeConfig>,
-    /// Whether to spin up a console wallet daemon,
-    /// with the given configuration. Optional.
-    pub wallet: Option<WalletConfig>,
-    /// Whether to spin up a SHA3 miner or not,
-    /// with the given configuration. If you want
-    /// to mine Tari natively, include this.
-    pub sha3_miner: Option<Sha3MinerConfig>,
-    /// Whether to spin up a merge-mine proxy or not,
-    /// with the given configuration. If included,
-    /// you must also include
-    /// xmrig
-    pub mm_proxy: Option<MmProxyConfig>,
-    /// Whether to spin up a Monero miner or not,
-    /// with the given configuration. If included
-    /// you should also include
-    /// mm_proxy
-    pub xmrig: Option<XmRigConfig>,
-    /// The Docker registry to use to download images.
-    /// By default we use quay.io
-    pub registry: Option<String>,
-    /// The docker tag to use. By default, we use 'latest'
-    pub tag: Option<String>,
-
     pub with_monitoring: bool,
     pub with_tor: bool,
+    pub saved_settings: PersistentSettings,
 }
 
 impl Default for LaunchpadSettings {
     fn default() -> Self {
         Self {
             data_directory: PathBuf::default(),
-            tari_network: TariNetwork::default(),
             tor_control_password: String::new(),
-            base_node: None,
-            wallet: None,
-            sha3_miner: None,
-            mm_proxy: None,
-            xmrig: None,
-            registry: None,
-            tag: None,
             with_monitoring: true,
             with_tor: true,
+            saved_settings: PersistentSettings::default(),
         }
     }
 }

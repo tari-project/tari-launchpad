@@ -75,7 +75,6 @@ impl Simulator {
         self.add_task(images::Grafana::id(), vec![])?;
 
         self.add_task(images::MmProxy::id(), vec![])?;
-        self.add_task(images::Monerod::id(), vec![])?;
         self.add_task(images::XMRig::id(), vec![])?;
         Ok(())
     }
@@ -150,6 +149,7 @@ impl Simulator {
                 self.apply_delta(LaunchpadDelta::UpdateSession(session))?;
             },
             LaunchpadAction::WalletAction(_action) => {},
+            LaunchpadAction::SaveSettings(_) => {},
         }
         Ok(())
     }
@@ -229,6 +229,7 @@ impl Simulator {
                 new_status = Some(TaskStatus::Inactive);
             },
             (TaskStatus::Failed(_), _) => {},
+            (TaskStatus::MissingConfiguration(_), true) => {},
         }
         if let Some(status) = new_status {
             let delta = TaskDelta::UpdateStatus(status);
@@ -291,7 +292,6 @@ impl Simulator {
         self.update_task(images::Grafana::id(), session.is_grafana_active())?;
 
         self.update_task(images::MmProxy::id(), session.is_mmproxy_active())?;
-        self.update_task(images::Monerod::id(), session.is_monerod_active())?;
         self.update_task(images::XMRig::id(), session.is_xmrig_active())?;
 
         self.update_wallet()?;

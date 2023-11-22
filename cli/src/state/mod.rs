@@ -40,6 +40,7 @@ use crate::state::bus::Bus;
 pub enum AppEvent {
     SetFocus(Focus),
     SendAction(WalletAction),
+    SettingsChanged,
     UpdateState,
     Redraw,
 }
@@ -99,6 +100,11 @@ impl AppState {
         self.events_queue.push_front(event);
     }
 
+    pub fn update_settings(&mut self) {
+        let event = AppEvent::SettingsChanged;
+        self.events_queue.push_front(event);
+    }
+
     pub fn process_events(&mut self) -> bool {
         if self.events_queue.is_empty() {
             false
@@ -125,6 +131,22 @@ impl AppState {
                     let new_session = self.state.config.session.clone();
                     let event = LaunchpadAction::ChangeSession(new_session);
                     let action = Action::Action(event);
+                    self.bus_tx.send(action)?;
+                },
+                AppEvent::SettingsChanged => {
+                    let settings = self
+                        .state
+                        .config
+                        .settings
+                        .as_ref()
+                        .map(|s| s.saved_settings.clone())
+                        .ok_or_else(|| {
+                            Error::msg(
+                                "Can't update settings, because the app state does not have a settings instance \
+                                 configured",
+                            )
+                        })?;
+                    let action = Action::Action(LaunchpadAction::SaveSettings(settings));
                     self.bus_tx.send(action)?;
                 },
                 AppEvent::Redraw => {},
