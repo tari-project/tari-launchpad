@@ -7,7 +7,6 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.71"
 async-trait = "0.1.68"
-derive_more = "0.99.17"
 futures = "0.3.28"
 log = "0.4.17"
 thiserror = "1.0.40"

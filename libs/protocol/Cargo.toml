@@ -7,7 +7,6 @@ repository = "https://github.com/tari-project/tari-launchpad"
 edition = "2021"
 
 [dependencies]
-tari_utilities = { git = "https://github.com/tari-project/tari_utilities.git", tag = "v0.4.10" }
 
 byte-unit = { version = "4.0.19", features = ["serde"] }
 derive_more = "0.99.17"

@@ -10,13 +10,6 @@ use std::thread;
 use log::*;
 use thiserror::Error;
 
-mod api;
-mod commands;
-mod docker;
-mod error;
-mod grpc;
-mod rest;
-
 use commands::AppState;
 use docker::{shutdown_all_containers, DockerWrapper, DockerWrapperError, Workspaces, DEFAULT_WORKSPACE_NAME};
 use tauri::{
