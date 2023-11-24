@@ -8,33 +8,38 @@
 # Binary build
 
 # https://github.com/monero-project/monero/releases
-ARG MONERO_VERSION=0.18.2.2
+ARG MONERO_VERSION=0.18.3.1
+
+# https://hub.docker.com/r/bitnami/minideb
+ARG OS_BASE=bookworm
 
 # Declare stage using linux/amd64 base image
-FROM --platform=linux/amd64 bitnami/minideb:bullseye AS build-stage-amd64
+FROM --platform=linux/amd64 bitnami/minideb:${OS_BASE} AS build-stage-amd64
 
 # Platform Args
 ARG MONERO_ARCH=x64
 ARG MONERO_TAR=x86_64
 
 # https://github.com/monero-project/monero/releases
-ARG MONERO_AMD64_SHA256=186800de18f67cca8475ce392168aabeb5709a8f8058b0f7919d7c693786d56b
+# monero-linux-x64
+ARG MONERO_AMD64_SHA256=23af572fdfe3459b9ab97e2e9aa7e3c11021c955d6064b801a27d7e8c21ae09d
 ARG MONERO_VERSION
 
 # Declare stage using linux/arm64 base image
-FROM --platform=linux/arm64 bitnami/minideb:bullseye AS build-stage-arm64
+FROM --platform=linux/arm64 bitnami/minideb:${OS_BASE} AS build-stage-arm64
 
 # Platform Args
 ARG MONERO_ARCH=armv8
 ARG MONERO_TAR=aarch64
 
 # https://github.com/monero-project/monero/releases
-ARG MONERO_ARM64_SHA256=f3867f2865cb98ab1d18f30adfd9168f397bd07bf7c36550dfe3a2a11fc789ba
+# monero-linux-armv8
+ARG MONERO_ARM64_SHA256=445032e88dc07e51ac5fff7034752be530d1c4117d8d605100017bcd87c7b21f
 ARG MONERO_VERSION
 
 # Declare TARGETARCH to make it available
 ARG TARGETARCH
-# Select final stage based on TARGETARCH ARG
+# Select download stage based on TARGETARCH ARG
 FROM build-stage-${TARGETARCH} as build-stage-download
 
 ARG BUILDPLATFORM
@@ -63,10 +68,12 @@ RUN curl https://dlsrc.getmonero.org/cli/monero-linux-$MONERO_ARCH-v$MONERO_VERS
   cp ./monero-$MONERO_TAR-linux-gnu-v$MONERO_VERSION/monerod . && \
   rm -r monero-*
 
-FROM bitnami/minideb:bullseye AS runtime-stage
+
+FROM bitnami/minideb:${OS_BASE} AS runtime-stage
 
 # Bring over the Args from platform selection
 ARG BUILDPLATFORM
+ARG OS_BASE
 
 ARG MONERO_VERSION
 ARG VERSION=1.0.1

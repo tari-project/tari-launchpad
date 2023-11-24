@@ -9,7 +9,7 @@ ARG BUILDPLATFORM
 ARG VERSION=1.0.1
 
 # https://pkgs.alpinelinux.org/packages?name=tor&branch=v3.18&repo=community&arch=&maintainer=
-ARG TOR_VERSION=0.4.7.13-r2
+ARG TOR_VERSION=0.4.8.9-r0
 
 # Install tor with a minimum version
 RUN apk add --no-cache grep curl tor>$TOR_VERSION
