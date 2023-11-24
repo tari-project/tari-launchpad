@@ -21,7 +21,7 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::str::FromStr;
+use std::{mem, str::FromStr};
 
 use anyhow::Error;
 use crossterm::event::{KeyCode, KeyModifiers};
@@ -38,14 +38,28 @@ use crate::{
 };
 
 pub enum Value<T> {
+    // No value is set
     Empty,
+    // The value has been updated, and no call to fetch_new_value has been made
+    New { value: T },
+    // The current value, after a call to fetch_new_value.
     Valid { value: T },
+    // The current value failed validation, and the reason is given
     Invalid { reason: String },
 }
 
 impl<T> Value<T> {
     pub fn is_valid(&self) -> bool {
         !matches!(self, Value::Invalid { .. })
+    }
+
+    fn into_inner(self) -> T {
+        match self {
+            Value::Valid { value } => value,
+            Value::New { value } => value,
+            Value::Invalid { .. } => panic!("Invalid value"),
+            Value::Empty => panic!("Empty value"),
+        }
     }
 }
 
@@ -55,16 +69,16 @@ impl<T> Default for Value<T> {
     }
 }
 
-impl<T, E: ToString> From<Result<T, E>> for Value<T> {
-    fn from(res: Result<T, E>) -> Self {
-        match res {
-            Ok(value) => Self::Valid { value },
-            Err(err) => Self::Invalid {
-                reason: err.to_string(),
-            },
-        }
-    }
-}
+// impl<T, E: ToString> From<Result<T, E>> for Value<T> {
+//     fn from(res: Result<T, E>) -> Self {
+//         match res {
+//             Ok(value) => Self::Valid { value },
+//             Err(err) => Self::Invalid {
+//                 reason: err.to_string(),
+//             },
+//         }
+//     }
+// }
 
 pub trait CharValidator: Send + 'static {
     fn is_valid(&self, c: char) -> bool;
@@ -80,7 +94,7 @@ where
     }
 }
 
-pub struct LabeledInput<T: FromStr = String> {
+pub struct LabeledInput<T: Eq + FromStr = String> {
     input_mode: bool,
     label: String,
     content: String,
@@ -89,9 +103,17 @@ pub struct LabeledInput<T: FromStr = String> {
     validator: Box<dyn CharValidator>,
 }
 
-impl<T: FromStr> LabeledInput<T> {
+impl<T> LabeledInput<T>
+where T: Eq + FromStr + ToString
+{
     pub fn new(label: impl ToString, focus: Focus) -> Self {
         Self::new_with_filter(label, focus, |_| true)
+    }
+
+    pub fn new_with_value(label: impl ToString, focus: Focus, value: T) -> Self {
+        let mut input = Self::new(label, focus);
+        input.set(value);
+        input
     }
 
     pub fn new_with_filter(label: impl ToString, focus: Focus, filter: impl CharValidator) -> Self {
@@ -110,12 +132,48 @@ impl<T: FromStr> LabeledInput<T> {
     }
 
     pub fn set(&mut self, value: T) {
+        self.content = value.to_string();
         self.value = Value::Valid { value };
+    }
+
+    /// Update the value held in this input field, if the value has changed.
+    pub fn update_value<E: ToString>(&mut self, value: Result<T, E>) {
+        match value {
+            Ok(new_value) => {
+                let replace = self.value().map(|v| *v != new_value).unwrap_or(true); // covers empty and invalid cases
+                if replace {
+                    self.value = Value::New { value: new_value };
+                }
+            },
+            Err(err) => {
+                self.value = Value::Invalid {
+                    reason: err.to_string(),
+                };
+            },
+        }
+    }
+
+    pub fn has_new_value(&self) -> bool {
+        matches!(self.value, Value::New { .. })
+    }
+
+    /// If the value has recently been updated, return the new value. If the value has not been updated,
+    /// since the last call to fetch_new_value, return None.
+    pub fn fetch_new_value(&mut self) -> Option<&T> {
+        if self.has_new_value() {
+            let old = mem::replace(&mut self.value, Value::Empty);
+            let value = old.into_inner();
+            let _unused = mem::replace(&mut self.value, Value::Valid { value });
+            self.value().ok()
+        } else {
+            None
+        }
     }
 
     pub fn value(&self) -> Result<&T, Error> {
         match &self.value {
             Value::Valid { value } => Ok(value),
+            Value::New { value } => Ok(value),
             Value::Invalid { reason } => Err(Error::msg(reason.to_owned())),
             Value::Empty => Err(Error::msg("Value is empty")),
         }
@@ -124,7 +182,7 @@ impl<T: FromStr> LabeledInput<T> {
 
 impl<T> Input for LabeledInput<T>
 where
-    T: FromStr,
+    T: Eq + FromStr + ToString,
     T::Err: ToString,
 {
     type Output = ();
@@ -154,7 +212,7 @@ where
                         },
                         KeyCode::Esc | KeyCode::Enter => {
                             self.input_mode = false;
-                            self.value = self.content.parse().into();
+                            self.update_value(FromStr::from_str(&self.content));
                         },
                         _ => {},
                     }
@@ -169,7 +227,7 @@ where
     }
 }
 
-impl<B: Backend, T: FromStr> Component<B> for LabeledInput<T> {
+impl<B: Backend, T: Eq + FromStr> Component<B> for LabeledInput<T> {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {

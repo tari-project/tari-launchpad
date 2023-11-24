@@ -21,10 +21,12 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+use log::warn;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
+use tari_launchpad_protocol::settings::LaunchpadSettings;
 
 use crate::{
     component::{
@@ -51,7 +53,7 @@ static MONERO_URL: Focus = focus_id!();
 pub struct MiningSettings {
     expert_sep: Separator,
     monero_address: LabeledInput,
-    sha_threads: LabeledInput,
+    sha_threads: LabeledInput<usize>,
     monero_url: LabeledInput,
 }
 
@@ -60,8 +62,31 @@ impl MiningSettings {
         Self {
             expert_sep: Separator::new("Expert", []),
             monero_address: LabeledInput::new("Monero mining address", MONERO_ADDRESS),
-            sha_threads: LabeledInput::new("SHA3 threads", SHA_THREADS),
+            sha_threads: LabeledInput::new_with_value("SHA3 threads", SHA_THREADS, 2),
             monero_url: LabeledInput::new("Monero node URL", MONERO_URL),
+        }
+    }
+
+    pub fn check_for_updated_settings(&mut self, state: &mut AppState) {
+        let mut should_write = false;
+        if let Some(LaunchpadSettings { saved_settings, .. }) = &mut state.state.config.settings {
+            if let Some(v) = self.monero_url.fetch_new_value() {
+                saved_settings.set_monerod_url(v);
+                should_write = true;
+            }
+            if let Some(addr) = self.monero_address.fetch_new_value() {
+                saved_settings.set_monero_mining_address(addr);
+                should_write = true;
+            }
+            if let Some(v) = self.sha_threads.fetch_new_value() {
+                saved_settings.set_num_mining_threads(*v);
+                should_write = true;
+            }
+        } else {
+            warn!("The app state does not have a settings instance configured, so we cannot update the saved settings");
+        }
+        if should_write {
+            state.update_settings();
         }
     }
 }
@@ -72,13 +97,13 @@ impl Input for MiningSettings {
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if let ComponentEvent::StateChanged = event {
             if let Some(settings) = &state.state.config.settings {
-                if let Some(conf) = &settings.xmrig {
+                if let Some(conf) = &settings.saved_settings.xmrig {
                     let value = conf.monero_mining_address.clone();
                     self.monero_address.set(value);
                 }
-                if let Some(conf) = &settings.mm_proxy {
+                if let Some(conf) = &settings.saved_settings.mm_proxy {
                     let value = conf.monerod_url.clone();
-                    self.monero_address.set(value);
+                    self.monero_url.set(value);
                 }
             }
             return None;
@@ -142,6 +167,7 @@ impl Input for MiningSettings {
         } else {
             //
         }
+        self.check_for_updated_settings(state);
         None
     }
 }

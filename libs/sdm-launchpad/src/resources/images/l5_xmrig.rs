@@ -24,10 +24,10 @@
 use tari_launchpad_protocol::settings::XmRigConfig;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
-    image::{Args, Envs, ManagedContainer, Networks},
+    image::{Args, Envs, ManagedContainer, Networks, Volumes},
 };
 
-use super::DEFAULT_REGISTRY;
+use super::{MmProxy, DEFAULT_REGISTRY, GENERAL_VOLUME};
 use crate::resources::{
     config::{ConnectionSettings, LaunchpadConfig, LaunchpadProtocol},
     networks::LocalNet,
@@ -45,7 +45,7 @@ impl ManagedTask for XMRig {
     }
 
     fn deps() -> Vec<TaskId> {
-        vec![LocalNet::id()]
+        vec![LocalNet::id(), MmProxy::id()]
     }
 }
 
@@ -64,14 +64,14 @@ impl ManagedContainer for XMRig {
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;
 
-        self.xmrig = config?.settings.as_ref()?.xmrig.clone();
+        self.xmrig = config?.settings.as_ref()?.saved_settings.xmrig.clone();
         self.xmrig.as_ref()?;
 
         Some(session.is_xmrig_active())
     }
 
     fn args(&self, args: &mut Args) {
-        args.set("--url", "mm_proxy:18081");
+        args.set("--url", "tari_mm_proxy:18081");
         args.set("--user", "${TARI_MONERO_WALLET_ADDRESS}");
         args.set("--coin", "monero");
         args.flag("--daemon");
@@ -90,5 +90,9 @@ impl ManagedContainer for XMRig {
 
     fn networks(&self, networks: &mut Networks) {
         networks.add("xmrig", LocalNet::id());
+    }
+
+    fn volumes(&self, volumes: &mut Volumes) {
+        volumes.add(GENERAL_VOLUME);
     }
 }

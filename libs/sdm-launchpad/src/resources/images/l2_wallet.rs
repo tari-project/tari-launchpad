@@ -96,7 +96,7 @@ impl ManagedContainer for TariWallet {
         debug!("Reconfiguring wallet");
         let config = config?;
         self.settings = ConnectionSettings::try_extract(config);
-        self.wallet = config.settings.as_ref().and_then(|s| s.wallet.clone());
+        self.wallet = config.settings.as_ref().and_then(|s| s.saved_settings.wallet.clone());
         let session = &self.settings.as_ref()?.session;
         self.wallet.as_ref()?;
         Some(session.is_wallet_active())

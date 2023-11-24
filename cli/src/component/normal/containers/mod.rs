@@ -123,7 +123,6 @@ fn containers() -> Vec<TaskId> {
         images::TariWallet::id(),
         images::TariSha3Miner::id(),
         images::MmProxy::id(),
-        images::Monerod::id(),
         images::XMRig::id(),
         images::Grafana::id(),
         images::Loki::id(),

@@ -188,7 +188,7 @@ impl Do<Reaction> for Dashboard {
                 }
             },
         }
-        // Reporting about the state has changed
+        // Reporting about the state has changed - this gets triggered for every event, so isn't very efficient.
         if let Some(state) = self.state.as_mut() {
             let event = ComponentEvent::StateChanged;
             self.main_view.on_event(event, state);

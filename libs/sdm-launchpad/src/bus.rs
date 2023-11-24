@@ -21,11 +21,14 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+use std::path::PathBuf;
+
 use anyhow::Error;
+use log::*;
 use tari_launchpad_protocol::{
     container::{TaskDelta, TaskId},
     launchpad::{Action, LaunchpadAction, LaunchpadDelta, LaunchpadState, Reaction},
-    settings::WalletConfig,
+    settings::PersistentSettings,
 };
 use tari_sdm::{ids::ManagedTask, Report, ReportEnvelope, SdmScope};
 use tari_sdm_assets::configurator::Configurator;
@@ -93,7 +96,6 @@ impl LaunchpadWorker {
         scope.add_image(images::Grafana::default())?;
 
         scope.add_image(images::MmProxy::default())?;
-        scope.add_image(images::Monerod::default())?;
         scope.add_image(images::XMRig::default())?;
 
         let state = LaunchpadState::default();
@@ -117,23 +119,41 @@ impl LaunchpadWorker {
         self.scope.set_config(Some(config)).ok();
         loop {
             if let Err(err) = self.step().await {
-                log::error!("Bus failed: {}", err);
+                error!("Bus failed: {}", err);
             }
         }
+    }
+
+    /// Attempts to load and parse the settings file based on the given root directory.
+    /// The settings file is expected to be at `{root}/config/settings.toml` and be valid TOML.
+    async fn load_settings(mut path: PathBuf) -> Option<PersistentSettings> {
+        path.push("config");
+        path.push("settings.toml");
+        if !path.exists() {
+            return None;
+        }
+        let data = tokio::fs::read_to_string(&path)
+            .await
+            .map_err(|e| warn!("Can't read the settings file: {e}"))
+            .ok()?;
+        toml::from_str::<PersistentSettings>(data.as_str())
+            .map_err(|e| error!("{} is not valid TOML. {e}", path.to_string_lossy()))
+            .ok()
     }
 
     async fn load_configuration(&mut self) -> Result<(), Error> {
         let mut configurator = Configurator::init()?;
         let data_directory = configurator.base_path().clone();
         configurator.init_configuration(false).await?;
-        let wallet_config = WalletConfig {
-            password: "123".to_string(),
-        };
+        let saved_settings = Self::load_settings(data_directory.clone()).await.unwrap_or_else(|| {
+            warn!("Can't parse the settings file. Reverting to defaults.");
+            PersistentSettings::default()
+        });
         let config = LaunchpadSettings {
             data_directory,
             with_monitoring: true,
             tor_control_password: "tari".to_string(), // create_password(16).into(),
-            wallet: Some(wallet_config),
+            saved_settings,
             ..Default::default()
         };
         self.apply_delta(LaunchpadDelta::UpdateConfig(config));
@@ -179,6 +199,9 @@ impl LaunchpadWorker {
                     grpc.send_action(action)?;
                 }
             },
+            LaunchpadAction::SaveSettings(settings) => {
+                self.save_settings(settings).await?;
+            },
         }
         Ok(())
     }
@@ -191,8 +214,29 @@ impl LaunchpadWorker {
 
     fn send(&mut self, out: Reaction) {
         if let Err(err) = self.out_tx.send(out) {
-            log::error!("Can't send an outgoing message: {}", err);
+            error!("Can't send an outgoing message: {}", err);
         }
+    }
+
+    async fn save_settings(&mut self, new_settings: PersistentSettings) -> Result<(), Error> {
+        debug!("Saving the settings");
+        let mut path = self
+            .state
+            .config
+            .settings
+            .as_ref()
+            .map(|s| s.data_directory.clone())
+            .ok_or_else(|| Error::msg("Can't save the settings: no settings are attached to the config"))?;
+        path.push("config");
+        path.push("settings.toml");
+        debug!("Stored settings: {new_settings:?}");
+        let data = toml::to_string(&new_settings).unwrap();
+        tokio::fs::write(path, data).await?;
+        if let Some(settings) = self.state.config.settings.as_mut() {
+            // We just checked that this exists above
+            settings.saved_settings = new_settings
+        }
+        Ok(())
     }
 
     async fn process_report(&mut self, report: ReportEnvelope<LaunchpadProtocol>) -> Result<(), Error> {
