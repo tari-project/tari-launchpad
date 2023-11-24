@@ -26,7 +26,7 @@ impl From<u64> for TariFormat {
 impl Display for TariFormat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut value = self.value;
-        let unit = if value < 1_000_000 { "μT" } else { "T" };
+        let unit = if value < 1_000_000 { "μ𝛕︎" } else { "𝛕︎" };
         let mut decimals = None;
         if value >= 1_000_000 {
             decimals = Some((value % 1_000_000).to_string());
