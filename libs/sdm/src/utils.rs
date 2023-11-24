@@ -23,6 +23,7 @@
 
 use std::sync::Arc;
 
+use rand::distributions::{Alphanumeric, Distribution};
 use tokio::task::JoinHandle;
 
 #[must_use]
@@ -48,4 +49,10 @@ impl<T> Drop for TaskGuardInner<T> {
     fn drop(&mut self) {
         self.handle.abort();
     }
+}
+
+/// Create a cryptographically secure password on length `len`
+pub fn create_password(len: usize) -> String {
+    let mut rng = rand::thread_rng();
+    Alphanumeric.sample_iter(&mut rng).take(len).map(char::from).collect()
 }
