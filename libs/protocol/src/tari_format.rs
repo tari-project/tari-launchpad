@@ -26,7 +26,7 @@ impl From<u64> for TariFormat {
 impl Display for TariFormat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut value = self.value;
-        let unit = if value < 1_000_000 { "μ𝛕︎" } else { "𝛕︎" };
+        let unit = if value < 1_000_000 { "μ𝛕" } else { "𝛕" };
         let mut decimals = None;
         if value >= 1_000_000 {
             decimals = Some((value % 1_000_000).to_string());
@@ -58,26 +58,26 @@ mod test {
     fn format_whole_number() {
         let value = 1_234_567_891_000_000;
         let tari = TariFormat::from(value);
-        assert_eq!(tari.to_string(), "1,234,567,891.000 T");
+        assert_eq!(tari.to_string(), "1,234,567,891.000 𝛕");
     }
 
     #[test]
     fn format_small_number() {
         let value = 123_456;
         let tari = TariFormat::from(value);
-        assert_eq!(tari.to_string(), "123,456 μT");
+        assert_eq!(tari.to_string(), "123,456 μ𝛕");
     }
     #[test]
     fn format_big_number_w_frac() {
         let value = 1_234_567_890_222_333;
         let tari = TariFormat::from(value);
-        assert_eq!(tari.to_string(), "1,234,567,890.222 T");
+        assert_eq!(tari.to_string(), "1,234,567,890.222 𝛕");
     }
 
     #[test]
     fn format_zero() {
         let value = 0;
         let tari = TariFormat::from(value);
-        assert_eq!(tari.to_string(), "0 μT");
+        assert_eq!(tari.to_string(), "0 μ𝛕");
     }
 }
