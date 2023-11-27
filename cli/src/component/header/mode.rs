@@ -40,7 +40,6 @@ pub enum Mode {
     Normal,
     Expert,
     Settings,
-    Onboarding,
 }
 
 /// A selector to switch between `Normal`, `Expert`, and `Settings`.
@@ -77,10 +76,6 @@ impl Input for ModeSelector {
                         self.mode = Mode::Settings;
                         state.focus_on(focus::ROOT);
                     },
-                    KeyCode::Char('b') => {
-                        self.mode = Mode::Onboarding;
-                        state.focus_on(focus::ROOT);
-                    },
                     _ => {},
                 }
             }
@@ -95,7 +90,6 @@ impl<B: Backend> Component<B> for ModeSelector {
     fn draw(&self, f: &mut Frame<B>, rect: Rect, _state: &Self::State) {
         let not_selected = Style::default().fg(Color::White);
         let selected = Style::default().fg(Color::Magenta);
-        // let bold = Style::default().fg(Color::White).add_modifier(Modifier::BOLD);
         let style_for = |mode: Mode| -> Style {
             if mode == self.selected() {
                 selected
@@ -103,18 +97,12 @@ impl<B: Backend> Component<B> for ModeSelector {
                 not_selected
             }
         };
-        // let selector = if self.expert { " o" } else { "o " };
         let line = Line::from(vec![
-            Span::styled("Normal", style_for(Mode::Normal)),
+            Span::styled("(N)ormal", style_for(Mode::Normal)),
             Span::raw(" | "),
-            // Span::raw(" ("),
-            // Span::styled(selector, bold),
-            // Span::raw(") "),
-            Span::styled("Expert", style_for(Mode::Expert)),
+            Span::styled("(E)xpert", style_for(Mode::Expert)),
             Span::raw(" | "),
-            Span::styled("Settings", style_for(Mode::Settings)),
-            Span::raw(" | "),
-            Span::styled("Bot", style_for(Mode::Onboarding)),
+            Span::styled("(S)ettings", style_for(Mode::Settings)),
         ]);
         let text = vec![line];
         let paragraph = Paragraph::new(text).alignment(Alignment::Right);

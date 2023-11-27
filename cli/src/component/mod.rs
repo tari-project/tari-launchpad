@@ -27,7 +27,6 @@ mod header;
 mod main_view;
 mod motion;
 mod normal;
-mod onboarding;
 mod settings;
 mod tabs;
 mod termination;
@@ -103,7 +102,9 @@ impl ComponentEvent {
 }
 
 pub trait Input {
+    /// The result of a successful interaction with the input component.
     type Output;
 
+    /// Handle an event and return the result of the interaction. If the event is not handled, return `None`.
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output>;
 }

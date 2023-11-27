@@ -42,7 +42,7 @@ use thiserror::Error;
 use crate::{
     component::{Component, ComponentEvent, Input, MainView, TerminationView},
     events::{EventHandle, TermEvent},
-    state::{bus::Bus, focus, AppState},
+    state::{focus, AppState},
 };
 
 type Term = Terminal<CrosstermBackend<Stdout>>;
@@ -70,14 +70,12 @@ pub struct Dashboard {
     state: Option<AppState>,
     interval: Option<Interval>,
     supervisor: Recipient<DashboardEvent>,
-    bus: Bus,
     bus_tx: Option<BusTx>,
     bus_deltas: Option<Task>,
-    changes: Option<Task>,
 }
 
 impl Dashboard {
-    pub fn new(bus: Bus, supervisor: Recipient<DashboardEvent>) -> Self {
+    pub fn new(supervisor: Recipient<DashboardEvent>) -> Self {
         Self {
             terminal: None,
             event_handle: None,
@@ -86,10 +84,8 @@ impl Dashboard {
             state: None,
             interval: None,
             supervisor,
-            bus,
             bus_tx: None,
             bus_deltas: None,
-            changes: None,
         }
     }
 }
@@ -98,10 +94,6 @@ impl Dashboard {
 impl Actor for Dashboard {
     async fn initialize(&mut self, ctx: &mut ActorContext<Self>) -> Result<(), Error> {
         self.init_bus(ctx)?;
-
-        let notifier = ctx.notifier(Redraw);
-        let task = self.bus.changes(notifier);
-        self.changes = Some(task);
 
         let notifier = ctx.notifier(Tick);
         let interval = Interval::spawn(Duration::from_millis(250), notifier);
@@ -175,12 +167,11 @@ impl Do<Reaction> for Dashboard {
         log::trace!("Processing the event: {event:?}");
         match event {
             Reaction::State(state) => {
-                let bus = self.bus.clone();
                 let bus_tx = self
                     .bus_tx
                     .clone()
                     .ok_or_else(|| Error::msg("No bus sender available"))?;
-                self.state = Some(AppState::new(bus, bus_tx, state));
+                self.state = Some(AppState::new(bus_tx, state));
             },
             Reaction::Delta(delta) => {
                 if let Some(state) = self.state.as_mut() {

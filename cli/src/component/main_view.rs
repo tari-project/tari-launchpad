@@ -32,7 +32,6 @@ use crate::{
         expert::ExpertScene,
         header::{mode::Mode, Header},
         normal::NormalScene,
-        onboarding::OnboardingScene,
         settings::SettingsScene,
         Component,
         ComponentEvent,
@@ -47,7 +46,6 @@ pub struct MainView {
     normal_scene: NormalScene,
     expert_scene: ExpertScene,
     settings_scene: SettingsScene,
-    onboarding_scene: OnboardingScene,
 }
 
 impl MainView {
@@ -57,7 +55,6 @@ impl MainView {
             normal_scene: NormalScene::new(),
             expert_scene: ExpertScene::new(),
             settings_scene: SettingsScene::new(),
-            onboarding_scene: OnboardingScene::new(),
         }
     }
 }
@@ -86,9 +83,6 @@ impl Input for MainView {
                 Mode::Settings => {
                     self.settings_scene.on_event(event, state);
                 },
-                Mode::Onboarding => {
-                    self.onboarding_scene.on_event(event, state);
-                },
             }
         }
         None
@@ -114,9 +108,6 @@ impl<B: Backend> Component<B> for MainView {
             },
             Mode::Settings => {
                 self.settings_scene.draw(f, chunks[1], state);
-            },
-            Mode::Onboarding => {
-                self.onboarding_scene.draw(f, chunks[1], state);
             },
         }
     }
