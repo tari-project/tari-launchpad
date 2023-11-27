@@ -1,10 +1,11 @@
 # syntax = docker/dockerfile:1.3
 
 # https://hub.docker.com/_/rust
-ARG RUST_VERSION=1.71
+ARG RUST_VERSION=1.74
+ARG OS_BASE=bookworm
 
 # rust source compile with cross platform build support
-FROM --platform=$BUILDPLATFORM rust:$RUST_VERSION-bullseye as builder
+FROM --platform=$BUILDPLATFORM rust:$RUST_VERSION-${OS_BASE} as builder
 
 # Declare to make available
 ARG BUILDPLATFORM
@@ -18,6 +19,7 @@ ARG TARGETVARIANT
 ARG RUST_TOOLCHAIN
 ARG RUST_TARGET
 ARG RUST_VERSION
+ARG OS_BASE
 
 # Disable Prompt During Packages Installation
 ARG DEBIAN_FRONTEND=noninteractive
@@ -99,13 +101,14 @@ RUN if [ "${TARGETARCH}" = "arm64" ] && [ "${BUILDARCH}" != "${TARGETARCH}" ] ; 
     cp -v /tari/target/${BUILD_TARGET}release/${APP_EXEC} /tari/${APP_EXEC}
 
 # Create runtime base minimal image for the target platform executables
-FROM --platform=$TARGETPLATFORM bitnami/minideb:bullseye as runtime
+FROM --platform=$TARGETPLATFORM bitnami/minideb:${OS_BASE} as runtime
 
 ARG BUILDPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
 ARG RUST_VERSION
+ARG OS_BASE
 
 ARG VERSION
 
