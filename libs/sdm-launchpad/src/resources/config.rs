@@ -130,9 +130,11 @@ impl ConnectionSettings {
 }
 
 impl ConnectionSettings {
-    pub fn add_tor(&self, envs: &mut Envs) {
+    pub fn add_tor(&self, module: &str, envs: &mut Envs) {
         let value = format!("password={}", self.tor_password.deref());
-        envs.set("TARI_BASE_NODE__P2P__TRANSPORT__TOR__CONTROL_AUTH", value);
+        let module = module.to_uppercase();
+        let var_name = format!("TARI_{module}__P2P__TRANSPORT__TOR__CONTROL_AUTH");
+        envs.set(&var_name, value);
     }
 
     pub fn add_common(&self, envs: &mut Envs) {

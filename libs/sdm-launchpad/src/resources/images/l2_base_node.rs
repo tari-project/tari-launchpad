@@ -105,7 +105,7 @@ impl ManagedContainer for TariBaseNode {
     fn envs(&self, envs: &mut Envs) {
         if let Some(settings) = self.settings.as_ref() {
             settings.add_common(envs);
-            settings.add_tor(envs);
+            settings.add_tor("BASE_NODE", envs);
             // envs.set("WAIT_FOR_TOR", 10);
             envs.set(
                 "TARI_BASE_NODE__DATA_DIR",

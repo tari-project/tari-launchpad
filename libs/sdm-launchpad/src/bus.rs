@@ -30,7 +30,7 @@ use tari_launchpad_protocol::{
     launchpad::{Action, LaunchpadAction, LaunchpadDelta, LaunchpadState, Reaction},
     settings::PersistentSettings,
 };
-use tari_sdm::{ids::ManagedTask, Report, ReportEnvelope, SdmScope};
+use tari_sdm::{ids::ManagedTask, utils::create_password, Report, ReportEnvelope, SdmScope};
 use tari_sdm_assets::configurator::Configurator;
 use tokio::{select, sync::mpsc};
 
@@ -152,7 +152,7 @@ impl LaunchpadWorker {
         let config = LaunchpadSettings {
             data_directory,
             with_monitoring: true,
-            tor_control_password: "tari".to_string(), // create_password(16).into(),
+            tor_control_password: create_password(16).into(),
             saved_settings,
             ..Default::default()
         };

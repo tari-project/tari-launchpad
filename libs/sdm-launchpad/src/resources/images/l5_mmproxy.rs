@@ -97,7 +97,6 @@ impl ManagedContainer for MmProxy {
     fn envs(&self, envs: &mut Envs) {
         if let Some(settings) = self.settings.as_ref() {
             settings.add_common(envs);
-            settings.add_tor(envs);
         }
         envs.set("APP_NAME", "mm_proxy");
         envs.set("APP_EXEC", "minotari_merge_mining_proxy");

@@ -77,7 +77,6 @@ impl ManagedContainer for TariSha3Miner {
     fn envs(&self, envs: &mut Envs) {
         if let Some(settings) = self.settings.as_ref() {
             settings.add_common(envs);
-            settings.add_tor(envs);
             envs.set("TARI_MINER__NUM_MINING_THREADS", 8); // TODO: Get config num
             envs.set("TARI_MINER__MINE_ON_TIP_ONLY", 1);
             envs.set(
