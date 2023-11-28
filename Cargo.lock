@@ -5441,7 +5441,6 @@ dependencies = [
  "tari_sdm",
  "tari_sdm_assets",
  "tari_sdm_launchpad",
- "tari_sim_launchpad",
  "thiserror",
  "tokio",
 ]
@@ -5983,19 +5982,6 @@ version = "0.51.0-pre.4"
 source = "git+https://github.com/tari-project/tari?tag=v0.51.0-pre.4#87c070305951152c62a0179e13fadc55065cc318"
 dependencies = [
  "futures 0.3.29",
-]
-
-[[package]]
-name = "tari_sim_launchpad"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chrono",
- "rand 0.8.5",
- "tari_launchpad_protocol",
- "tari_sdm",
- "tari_sdm_launchpad",
- "tokio",
 ]
 
 [[package]]
