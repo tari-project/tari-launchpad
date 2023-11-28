@@ -35,7 +35,6 @@ use tari_mining::TariMiningWidget;
 
 use crate::{
     component::{
-        normal::hint::{HintGetter, HintLine},
         Component,
         ComponentEvent,
         Frame,
@@ -43,10 +42,11 @@ use crate::{
     },
     state::AppState,
 };
+use crate::component::widgets::status_line::{StatusLine, StatusReportGetter};
 
 struct MiningHint;
 
-impl HintGetter for MiningHint {
+impl StatusReportGetter for MiningHint {
     fn get_hint(&self, _state: &AppState) -> String {
         let mining = false;
         let text = if mining {
@@ -59,7 +59,7 @@ impl HintGetter for MiningHint {
 }
 
 pub struct MiningScene {
-    hint: HintLine<MiningHint>,
+    hint: StatusLine<MiningHint>,
     tari_mining: TariMiningWidget,
     merged_mining: MergedMiningWidget,
 }
@@ -67,7 +67,7 @@ pub struct MiningScene {
 impl MiningScene {
     pub fn new() -> Self {
         Self {
-            hint: HintLine::new(MiningHint),
+            hint: StatusLine::new(MiningHint),
             tari_mining: TariMiningWidget::new(),
             merged_mining: MergedMiningWidget::new(),
         }

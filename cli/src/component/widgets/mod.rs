@@ -26,6 +26,7 @@ mod dialog;
 mod label;
 mod labeled_input;
 mod separator;
+pub mod status_line;
 
 pub use chrono_button::{ButtonAction, ChronoButton, ChronoGetter};
 pub use dialog::ModalDialog;

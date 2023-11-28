@@ -23,7 +23,6 @@
 
 mod base_node;
 pub mod containers;
-mod hint;
 mod mining;
 mod wallet;
 
@@ -36,7 +35,7 @@ use ratatui::{
 use wallet::WalletScene;
 
 use crate::{
-    component::{normal::containers::ContainersScene, Component, ComponentEvent, Frame, Input},
+    component::{Component, ComponentEvent, Frame, Input, normal::containers::ContainersScene},
     state::AppState,
 };
 

@@ -33,21 +33,21 @@ use crate::{
     state::AppState,
 };
 
-pub struct HintLine<T> {
+pub struct StatusLine<T> {
     getter: T,
 }
 
-pub trait HintGetter {
+pub trait StatusReportGetter {
     fn get_hint(&self, state: &AppState) -> String;
 }
 
-impl<T> HintLine<T> {
+impl<T> StatusLine<T> {
     pub fn new(getter: T) -> Self {
         Self { getter }
     }
 }
 
-impl<T> Input for HintLine<T> {
+impl<T> Input for StatusLine<T> {
     type Output = ();
 
     fn on_event(&mut self, _event: ComponentEvent, _state: &mut AppState) -> Option<Self::Output> {
@@ -55,8 +55,8 @@ impl<T> Input for HintLine<T> {
     }
 }
 
-impl<B: Backend, T> Component<B> for HintLine<T>
-where T: HintGetter
+impl<B: Backend, T> Component<B> for StatusLine<T>
+where T: StatusReportGetter
 {
     type State = AppState;
 

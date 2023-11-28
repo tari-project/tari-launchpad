@@ -24,7 +24,7 @@
 use ratatui::{
     style::{Color, Modifier, Style},
     text::Span,
-    widgets::{Block, Borders, Paragraph},
+    widgets::{Block, Borders},
 };
 
 pub fn block_with_title(title: Option<&str>, focus: bool) -> Block<'_> {
@@ -43,9 +43,4 @@ pub fn block_with_title(title: Option<&str>, focus: bool) -> Block<'_> {
     } else {
         block
     }
-}
-
-pub fn logo(logo: &str) -> Paragraph<'_> {
-    let text = logo.trim_start_matches(char::is_whitespace);
-    Paragraph::new(text)
 }

@@ -30,7 +30,7 @@ use ratatui::{
 
 use crate::{
     component::{
-        elements::{block_with_title, logo},
+        elements::{block_with_title},
         widgets::{ChronoButton, ChronoGetter, LabeledInput},
         Component,
         ComponentEvent,
@@ -45,12 +45,6 @@ use crate::{
     },
 };
 
-const LOGO: &str = r#"
-╔═╗┌┐┌┌┬┐┌─┐┬─┐  ╔═╗┌─┐┌─┐┌─┐┬ ┬┌─┐┬─┐┌┬┐
-║╣ │││ │ ├┤ ├┬┘  ╠═╝├─┤└─┐└─┐││││ │├┬┘ ││
-╚═╝┘└┘ ┴ └─┘┴└─  ╩  ┴ ┴└─┘└─┘└┴┘└─┘┴└──┴┘
-"#;
-
 static PASSWORD_FIELD: Focus = focus_id!();
 static BUTTON: Focus = focus_id!();
 
@@ -62,11 +56,7 @@ impl ChronoGetter for PasswordWidgetGetter {
     }
 
     fn get_label(&self, _state: &AppState) -> &str {
-        if false {
-            "Pause"
-        } else {
-            "Start node"
-        }
+        "Pause"
     }
 }
 
@@ -127,10 +117,6 @@ impl<B: Backend> Component<B> for PasswordWidget {
             .constraints(constraints)
             .split(inner_rect);
         // self.status_badge.draw(f, v_chunks[0], state);
-
-        let logo = logo(LOGO);
-        f.render_widget(logo, v_chunks[1]);
-
         // self.tari_amount.draw(f, v_chunks[2], state);
 
         self.password.draw(f, v_chunks[4], state);

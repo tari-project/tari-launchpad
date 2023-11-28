@@ -31,7 +31,6 @@ use ratatui::{
 
 use crate::{
     component::{
-        normal::hint::{HintGetter, HintLine},
         Component,
         ComponentEvent,
         Frame,
@@ -39,28 +38,29 @@ use crate::{
     },
     state::AppState,
 };
+use crate::component::widgets::status_line::{StatusLine, StatusReportGetter};
 
 struct BaseNodeHint;
 
-impl HintGetter for BaseNodeHint {
+impl StatusReportGetter for BaseNodeHint {
     fn get_hint(&self, state: &AppState) -> String {
         if state.state.config.session.is_base_node_active() {
-            "Base Node is already running!".into()
+            "Running".into()
         } else {
-            "Begin by starting the Base Node".into()
+            "Not running".into()
         }
     }
 }
 
 pub struct BaseNodeScene {
-    hint: HintLine<BaseNodeHint>,
+    hint: StatusLine<BaseNodeHint>,
     base_node: BaseNodeWidget,
 }
 
 impl BaseNodeScene {
     pub fn new() -> Self {
         Self {
-            hint: HintLine::new(BaseNodeHint),
+            hint: StatusLine::new(BaseNodeHint),
             base_node: BaseNodeWidget::new(),
         }
     }
