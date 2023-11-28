@@ -30,11 +30,13 @@ use merged_mining::MergedMiningWidget;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
+    text::Text,
 };
 use tari_mining::TariMiningWidget;
 
 use crate::{
     component::{
+        widgets::status_line::{StatusLine, StatusReportGetter},
         Component,
         ComponentEvent,
         Frame,
@@ -42,12 +44,11 @@ use crate::{
     },
     state::AppState,
 };
-use crate::component::widgets::status_line::{StatusLine, StatusReportGetter};
 
 struct MiningHint;
 
 impl StatusReportGetter for MiningHint {
-    fn get_hint(&self, _state: &AppState) -> String {
+    fn get_status(&self, _state: &AppState) -> Text {
         let mining = false;
         let text = if mining {
             "Awesome! Tari Mining is on."

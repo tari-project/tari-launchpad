@@ -191,14 +191,6 @@ impl ContainerChecker<LaunchpadProtocol> for Checker {
             self.ready = true;
             ctx.report(CheckerEvent::Ready).ok();
         }
-
-        // let current = progress.local_height;
-        // let total = progress.tip_height;
-        // let pct = current as f32 / total as f32 * 100.0;
-        // ctx.report_progress(CheckerEvent::Progress(pct as u8)).ok();
-        // if current == total && total != 0 {
-        // ctx.report_progress(CheckerEvent::Ready).ok();
-        // }
         Ok(())
     }
 }

@@ -30,6 +30,7 @@ use crate::{
     container::{TaskDelta, TaskId, TaskState},
     errors::ErrorRecord,
     frame::Frame,
+    node::{NodeDelta, NodeState},
     session::LaunchpadSession,
     settings::{LaunchpadSettings, PersistentSettings},
     wallet::{WalletAction, WalletDelta, WalletState},
@@ -55,6 +56,7 @@ pub enum LaunchpadDelta {
     UpdateSession(LaunchpadSession),
     TaskAdded { id: TaskId, state: TaskState },
     TaskDelta { id: TaskId, delta: TaskDelta },
+    NodeDelta(NodeDelta),
     WalletDelta(WalletDelta),
     AddError(ErrorRecord),
 }
@@ -64,6 +66,7 @@ pub struct LaunchpadState {
     pub config: LaunchpadConfig,
     pub containers: HashMap<TaskId, TaskState>,
     pub wallet: WalletState,
+    pub node: NodeState,
     pub errors: Frame<ErrorRecord>,
 }
 
@@ -73,6 +76,7 @@ impl Default for LaunchpadState {
             config: LaunchpadConfig::default(),
             containers: HashMap::new(),
             wallet: WalletState::default(),
+            node: NodeState::default(),
             errors: Frame::new(30),
         }
     }
@@ -109,6 +113,9 @@ impl LaunchpadState {
             },
             AddError(error) => {
                 self.errors.push(error);
+            },
+            NodeDelta(delta) => {
+                self.node.apply(delta);
             },
         }
     }

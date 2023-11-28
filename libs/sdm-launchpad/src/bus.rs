@@ -35,6 +35,7 @@ use tari_sdm_assets::configurator::Configurator;
 use tokio::{select, sync::mpsc};
 
 use crate::{
+    node_grpc::NodeGrpc,
     resources::{
         config::{LaunchpadProtocol, LaunchpadSettings},
         images,
@@ -72,6 +73,7 @@ pub struct LaunchpadWorker {
     out_tx: mpsc::UnboundedSender<Reaction>,
     wallet_task_id: TaskId,
     wallet_grpc: Option<WalletGrpc>,
+    node_grpc: Option<NodeGrpc>,
 }
 
 impl LaunchpadWorker {
@@ -107,6 +109,7 @@ impl LaunchpadWorker {
             out_tx,
             wallet_task_id: images::TariWallet::id(),
             wallet_grpc: None,
+            node_grpc: None,
         };
         worker.entrypoint().await;
         Ok(())
@@ -152,7 +155,7 @@ impl LaunchpadWorker {
         let config = LaunchpadSettings {
             data_directory,
             with_monitoring: true,
-            tor_control_password: create_password(16).into(),
+            tor_control_password: create_password(16),
             saved_settings,
             ..Default::default()
         };
@@ -253,6 +256,9 @@ impl LaunchpadWorker {
                 if report.task_id == self.wallet_task_id {
                     self.check_wallet_grpc(&delta);
                 }
+                if report.task_id == images::TariBaseNode::id() {
+                    self.check_node_grpc(&delta);
+                }
                 let delta = LaunchpadDelta::TaskDelta {
                     id: report.task_id,
                     delta,
@@ -264,6 +270,7 @@ impl LaunchpadWorker {
         Ok(())
     }
 
+    // Only called if the task is the wallet task
     fn check_wallet_grpc(&mut self, delta: &TaskDelta) {
         if let TaskDelta::UpdateStatus(status) = delta {
             if status.is_active() {
@@ -276,6 +283,23 @@ impl LaunchpadWorker {
                 if self.wallet_grpc.is_some() {
                     self.wallet_grpc.take();
                     // TODO: Send a delta about grpc
+                }
+            }
+        }
+    }
+
+    // Only called if the task is the base node task
+    fn check_node_grpc(&mut self, delta: &TaskDelta) {
+        if let TaskDelta::UpdateStatus(status) = delta {
+            if status.is_active() {
+                if self.node_grpc.is_none() {
+                    let grpc = NodeGrpc::new(self.out_tx.clone());
+                    self.node_grpc = Some(grpc);
+                }
+            } else {
+                // Detaches grpc instances that closes a channel
+                if self.node_grpc.is_some() {
+                    self.node_grpc.take();
                 }
             }
         }

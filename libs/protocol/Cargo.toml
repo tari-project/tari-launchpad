@@ -8,6 +8,10 @@ edition = "2021"
 
 [dependencies]
 
+tari_base_node_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v0.51.0-pre.4" }
+tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v0.51.0-pre.4" }
+tari_utilities = "0.4.10"
+
 byte-unit = { version = "4.0.19", features = ["serde"] }
 derive_more = "0.99.17"
 serde = "1"

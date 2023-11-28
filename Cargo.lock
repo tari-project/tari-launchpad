@@ -5829,6 +5829,9 @@ dependencies = [
  "serde",
  "serde_repr",
  "strum 0.25.0",
+ "tari_base_node_grpc_client",
+ "tari_common_types",
+ "tari_utilities",
  "thiserror",
  "toml 0.8.8",
 ]
@@ -5939,6 +5942,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "chrono",
  "futures 0.3.29",
  "log",
  "openssl",
@@ -5958,6 +5962,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "toml 0.7.8",
+ "tonic",
  "tor-hash-passwd",
 ]
 

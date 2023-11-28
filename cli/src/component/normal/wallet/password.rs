@@ -30,7 +30,7 @@ use ratatui::{
 
 use crate::{
     component::{
-        elements::{block_with_title},
+        elements::block_with_title,
         widgets::{ChronoButton, ChronoGetter, LabeledInput},
         Component,
         ComponentEvent,
