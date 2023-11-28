@@ -21,9 +21,7 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-pub mod bus;
 pub mod focus;
-pub mod onboarding;
 
 use std::collections::VecDeque;
 
@@ -34,8 +32,6 @@ use tari_launchpad_protocol::{
     wallet::WalletAction,
 };
 use tari_sdm_launchpad::bus::BusTx;
-
-use crate::state::bus::Bus;
 
 pub enum AppEvent {
     SetFocus(Focus),
@@ -48,18 +44,16 @@ pub enum AppEvent {
 pub struct AppState {
     pub focus_on: Focus,
     pub events_queue: VecDeque<AppEvent>,
-    pub bus: Bus,
     pub bus_tx: BusTx,
     pub state: LaunchpadState,
     pub terminate: bool,
 }
 
 impl AppState {
-    pub fn new(bus: Bus, bus_tx: BusTx, state: LaunchpadState) -> Self {
+    pub fn new(bus_tx: BusTx, state: LaunchpadState) -> Self {
         Self {
             focus_on: focus::BASE_NODE,
             events_queue: VecDeque::new(),
-            bus,
             bus_tx,
             state,
             terminate: false,
