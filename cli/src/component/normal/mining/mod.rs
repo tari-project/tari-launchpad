@@ -30,12 +30,13 @@ use merged_mining::MergedMiningWidget;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
+    text::Text,
 };
 use tari_mining::TariMiningWidget;
 
 use crate::{
     component::{
-        normal::hint::{HintGetter, HintLine},
+        widgets::status_line::{StatusLine, StatusReportGetter},
         Component,
         ComponentEvent,
         Frame,
@@ -46,8 +47,8 @@ use crate::{
 
 struct MiningHint;
 
-impl HintGetter for MiningHint {
-    fn get_hint(&self, _state: &AppState) -> String {
+impl StatusReportGetter for MiningHint {
+    fn get_status(&self, _state: &AppState) -> Text {
         let mining = false;
         let text = if mining {
             "Awesome! Tari Mining is on."
@@ -59,7 +60,7 @@ impl HintGetter for MiningHint {
 }
 
 pub struct MiningScene {
-    hint: HintLine<MiningHint>,
+    hint: StatusLine<MiningHint>,
     tari_mining: TariMiningWidget,
     merged_mining: MergedMiningWidget,
 }
@@ -67,7 +68,7 @@ pub struct MiningScene {
 impl MiningScene {
     pub fn new() -> Self {
         Self {
-            hint: HintLine::new(MiningHint),
+            hint: StatusLine::new(MiningHint),
             tari_mining: TariMiningWidget::new(),
             merged_mining: MergedMiningWidget::new(),
         }

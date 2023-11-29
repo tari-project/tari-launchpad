@@ -23,6 +23,7 @@
 
 use std::time::Duration;
 
+use crossterm::event::{KeyCode, KeyModifiers};
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -37,6 +38,7 @@ use crate::{
         widgets::{ChronoButton, ChronoGetter},
         Component,
         ComponentEvent,
+        ComponentEvent::KeyEvent,
         Frame,
         Input,
         Pass,
@@ -73,21 +75,31 @@ impl WalletContainerWidget {
             button: ChronoButton::new(WalletContainerGetter, BUTTON),
         }
     }
+
+    fn toggle_wallet(state: &mut AppState) {
+        let session = &mut state.state.config.session;
+        session.wallet_active = !session.wallet_active;
+        state.update_state();
+    }
 }
 
 impl Input for WalletContainerWidget {
     type Output = ();
 
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
+        if let KeyEvent(key) = event {
+            if key.code == KeyCode::Char('w') && key.modifiers.contains(KeyModifiers::CONTROL) {
+                Self::toggle_wallet(state);
+                return Some(());
+            }
+        }
         if state.focus_on == focus::WALLET {
             match event.pass() {
                 Pass::Up | Pass::Leave => {
-                    state.focus_on(focus::MERGED_MINING);
+                    state.focus_on(focus::BASE_NODE);
                 },
                 Pass::Enter | Pass::Space => {
-                    let session = &mut state.state.config.session;
-                    session.wallet_active = !session.wallet_active;
-                    state.update_state();
+                    Self::toggle_wallet(state);
                 },
                 _ => {},
             }
@@ -100,7 +112,8 @@ impl<B: Backend> Component<B> for WalletContainerWidget {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Wallet"), state.focus_on == focus::WALLET).padding(Padding::new(1, 1, 1, 0));
+        let block = block_with_title(Some("Wallet [Ctrl-W]"), state.focus_on == focus::WALLET)
+            .padding(Padding::new(1, 1, 1, 0));
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
 

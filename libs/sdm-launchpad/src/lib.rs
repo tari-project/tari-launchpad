@@ -24,6 +24,8 @@
 #[cfg(feature = "tauri")]
 pub mod api;
 pub mod bus;
+
+mod node_grpc;
 pub mod resources;
 #[cfg(feature = "tauri")]
 pub mod tauri;

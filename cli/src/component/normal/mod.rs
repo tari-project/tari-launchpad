@@ -23,11 +23,9 @@
 
 mod base_node;
 pub mod containers;
-mod hint;
 mod mining;
 mod wallet;
 
-use base_node::BaseNodeScene;
 use mining::MiningScene;
 use ratatui::{
     backend::Backend,
@@ -36,13 +34,19 @@ use ratatui::{
 use wallet::WalletScene;
 
 use crate::{
-    component::{normal::containers::ContainersScene, Component, ComponentEvent, Frame, Input},
+    component::{
+        normal::{base_node::BaseNodeWidget, containers::ContainersScene},
+        Component,
+        ComponentEvent,
+        Frame,
+        Input,
+    },
     state::AppState,
 };
 
 pub struct NormalScene {
     mining_scene: MiningScene,
-    base_node_scene: BaseNodeScene,
+    base_node_widget: BaseNodeWidget,
     wallet_scene: WalletScene,
     containers_scene: ContainersScene,
 }
@@ -51,7 +55,7 @@ impl NormalScene {
     pub fn new() -> Self {
         Self {
             mining_scene: MiningScene::new(),
-            base_node_scene: BaseNodeScene::new(),
+            base_node_widget: BaseNodeWidget::new(),
             wallet_scene: WalletScene::new(),
             containers_scene: ContainersScene::new(),
         }
@@ -62,7 +66,7 @@ impl Input for NormalScene {
     type Output = ();
 
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
-        self.base_node_scene.on_event(event, state);
+        self.base_node_widget.on_event(event, state);
         self.mining_scene.on_event(event, state);
         self.wallet_scene.on_event(event, state);
         None
@@ -75,8 +79,8 @@ impl<B: Backend> Component<B> for NormalScene {
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
         let window_constraints = [Constraint::Percentage(60), Constraint::Percentage(40)];
         let panel_constraints = [
-            Constraint::Length(8),  // base node
             Constraint::Length(17), // miners
+            Constraint::Length(10), // base node
             Constraint::Length(16), // wallet
             Constraint::Min(0),
             Constraint::Length(3),
@@ -93,8 +97,8 @@ impl<B: Backend> Component<B> for NormalScene {
             .split(windows[0]);
 
         self.containers_scene.draw(f, windows[1], state);
-        self.base_node_scene.draw(f, panels[0], state);
-        self.mining_scene.draw(f, panels[1], state);
+        self.mining_scene.draw(f, panels[0], state);
+        self.base_node_widget.draw(f, panels[1], state);
         self.wallet_scene.draw(f, panels[2], state);
     }
 }

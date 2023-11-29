@@ -123,7 +123,7 @@ impl Input for MergedMiningWidget {
                     state.focus_on(focus::TARI_MINING);
                 },
                 Pass::Down | Pass::Next => {
-                    state.focus_on(focus::WALLET);
+                    state.focus_on(focus::BASE_NODE);
                 },
                 Pass::Enter | Pass::Space => {
                     let session = &mut state.state.config.session;

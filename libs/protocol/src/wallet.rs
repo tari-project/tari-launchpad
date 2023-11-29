@@ -21,9 +21,11 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::collections::VecDeque;
+use std::{collections::VecDeque, fmt::Display};
 
 use serde::{Deserialize, Serialize};
+use tari_common_types::tari_address::TariAddress;
+use thiserror::Error;
 
 use crate::tari_format::TariFormat;
 
@@ -33,6 +35,35 @@ const HISTORY_LIMIT: usize = 30;
 pub struct MyIdentity {
     pub tari_address: String,
     pub emoji_id: String,
+}
+
+#[derive(Debug, Clone, Error)]
+pub struct InvalidPublicKey(pub String);
+
+impl Display for InvalidPublicKey {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("Received data is not a valid public key: ")?;
+        f.write_str(&self.0)?;
+        Ok(())
+    }
+}
+
+impl From<InvalidPublicKey> for String {
+    fn from(v: InvalidPublicKey) -> String {
+        v.0
+    }
+}
+
+impl TryFrom<&[u8]> for MyIdentity {
+    type Error = InvalidPublicKey;
+
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+        let tari_address =
+            TariAddress::from_bytes(value).map_err(|e| InvalidPublicKey(format!("Not a valid public key. {e}")))?;
+        let emoji_id = tari_address.to_emoji_string();
+        let tari_address = tari_address.to_string();
+        Ok(Self { tari_address, emoji_id })
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -27,6 +27,8 @@ pub mod errors;
 pub mod frame;
 pub mod images;
 pub mod launchpad;
+
+pub mod node;
 pub mod session;
 pub mod settings;
 pub mod wallet;

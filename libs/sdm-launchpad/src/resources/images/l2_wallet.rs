@@ -203,8 +203,8 @@ impl ContainerChecker<LaunchpadProtocol> for Checker {
         if !self.online {
             let status = client.get_network_status(Empty {}).await?.into_inner();
             debug!("Wallet status: {:?}", status);
-            let connection_status = ConnectivityStatus::from_i32(status.status);
             let stage;
+            let connection_status = ConnectivityStatus::from_i32(status.status);
             match connection_status {
                 Some(ConnectivityStatus::Online) => {
                     stage = "Online";
