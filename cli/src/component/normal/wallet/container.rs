@@ -21,8 +21,6 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::time::Duration;
-
 use crossterm::event::{KeyCode, KeyModifiers};
 use ratatui::{
     backend::Backend,
@@ -33,47 +31,15 @@ use ratatui::{
 };
 
 use crate::{
-    component::{
-        elements::block_with_title,
-        widgets::{ChronoButton, ChronoGetter},
-        Component,
-        ComponentEvent,
-        ComponentEvent::KeyEvent,
-        Frame,
-        Input,
-        Pass,
-    },
-    focus_id,
-    state::{focus, AppState, Focus},
+    component::{elements::block_with_title, Component, ComponentEvent, ComponentEvent::KeyEvent, Frame, Input},
+    state::AppState,
 };
 
-static BUTTON: Focus = focus_id!();
-
-struct WalletContainerGetter;
-
-impl ChronoGetter for WalletContainerGetter {
-    fn get_duration(&self, _state: &AppState) -> Option<Duration> {
-        None
-    }
-
-    fn get_label(&self, state: &AppState) -> &str {
-        if state.state.config.session.is_wallet_active() {
-            "Pause"
-        } else {
-            "Start wallet"
-        }
-    }
-}
-
-pub struct WalletContainerWidget {
-    button: ChronoButton<WalletContainerGetter>,
-}
+pub struct WalletContainerWidget {}
 
 impl WalletContainerWidget {
     pub fn new() -> Self {
-        Self {
-            button: ChronoButton::new(WalletContainerGetter, BUTTON),
-        }
+        Self {}
     }
 
     fn toggle_wallet(state: &mut AppState) {
@@ -93,17 +59,6 @@ impl Input for WalletContainerWidget {
                 return Some(());
             }
         }
-        if state.focus_on == focus::WALLET {
-            match event.pass() {
-                Pass::Up | Pass::Leave => {
-                    state.focus_on(focus::BASE_NODE);
-                },
-                Pass::Enter | Pass::Space => {
-                    Self::toggle_wallet(state);
-                },
-                _ => {},
-            }
-        }
         None
     }
 }
@@ -112,8 +67,8 @@ impl<B: Backend> Component<B> for WalletContainerWidget {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Wallet [Ctrl-W]"), state.focus_on == focus::WALLET)
-            .padding(Padding::new(1, 1, 1, 0));
+        let wallet_active = state.state.config.session.is_wallet_active();
+        let block = block_with_title(Some("Wallet [Ctrl-W]"), wallet_active).padding(Padding::new(1, 1, 1, 0));
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
 
@@ -125,7 +80,6 @@ impl<B: Backend> Component<B> for WalletContainerWidget {
             .direction(Direction::Horizontal)
             .constraints(constraints)
             .split(inner_rect);
-        // self.status_badge.draw(f, v_chunks[0], state);
 
         let mut lines = Vec::new();
         if let Some(wallet_id) = state.state.wallet.wallet_id.as_ref() {
@@ -134,7 +88,6 @@ impl<B: Backend> Component<B> for WalletContainerWidget {
         }
         let p = Paragraph::new(lines);
         f.render_widget(p, h_chunks[0]);
-        self.button.draw(f, h_chunks[1], state);
     }
 }
 

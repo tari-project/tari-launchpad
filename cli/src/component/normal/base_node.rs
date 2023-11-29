@@ -1,8 +1,6 @@
 // Copyright 2023. The Tari Project
 // SPDX-License-Identifier: BSD-3-Clause
 
-use std::time::Duration;
-
 use crossterm::event::{KeyCode, KeyModifiers};
 use ratatui::{
     backend::Backend,
@@ -14,20 +12,14 @@ use ratatui::{
 use crate::{
     component::{
         elements::block_with_title,
-        widgets::{
-            status_line::{StatusLine, StatusReportGetter},
-            ChronoButton,
-            ChronoGetter,
-        },
+        widgets::status_line::{StatusLine, StatusReportGetter},
         Component,
         ComponentEvent,
         ComponentEvent::KeyEvent,
         Frame,
         Input,
-        Pass,
     },
-    focus_id,
-    state::{focus, AppState, Focus},
+    state::AppState,
 };
 
 #[derive(Default)]
@@ -67,38 +59,18 @@ impl StatusReportGetter for BaseNodeStatus {
     }
 }
 
-static BUTTON: Focus = focus_id!();
-
-struct BaseNodeGetter;
-
-impl ChronoGetter for BaseNodeGetter {
-    fn get_duration(&self, _state: &AppState) -> Option<Duration> {
-        None
-    }
-
-    fn get_label(&self, state: &AppState) -> &str {
-        if state.state.config.session.is_base_node_active() {
-            "Pause"
-        } else {
-            "Start node"
-        }
-    }
-}
-
 pub struct BaseNodeWidget {
     status: StatusLine<BaseNodeStatus>,
-    button: ChronoButton<BaseNodeGetter>,
 }
 
 impl BaseNodeWidget {
     pub fn new() -> Self {
         Self {
             status: StatusLine::new(BaseNodeStatus::default()),
-            button: ChronoButton::new(BaseNodeGetter, BUTTON),
         }
     }
 
-    pub fn toggle_base_node(&mut self, state: &mut AppState) {
+    pub fn toggle_base_node(state: &mut AppState) {
         let session = &mut state.state.config.session;
         session.base_layer_active = !session.base_layer_active;
         state.update_state();
@@ -111,23 +83,8 @@ impl Input for BaseNodeWidget {
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if let KeyEvent(key) = event {
             if key.code == KeyCode::Char('b') && key.modifiers.contains(KeyModifiers::CONTROL) {
-                self.toggle_base_node(state);
+                Self::toggle_base_node(state);
                 return Some(());
-            }
-        }
-        if state.focus_on == focus::BASE_NODE {
-            match event.pass() {
-                Pass::Up | Pass::Prev => {
-                    state.focus_on(focus::MERGED_MINING);
-                },
-                Pass::Down | Pass::Next => {
-                    state.focus_on(focus::WALLET);
-                },
-                Pass::Enter | Pass::Space => {
-                    self.toggle_base_node(state);
-                    return Some(());
-                },
-                _ => {},
             }
         }
         None
@@ -138,8 +95,8 @@ impl<B: Backend> Component<B> for BaseNodeWidget {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Base Node [Ctrl-B]"), state.focus_on == focus::BASE_NODE)
-            .padding(Padding::new(1, 1, 1, 1));
+        let node_active = state.state.config.session.is_base_node_active();
+        let block = block_with_title(Some("Base Node [Ctrl-B]"), node_active).padding(Padding::new(1, 1, 1, 1));
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
 
@@ -151,6 +108,5 @@ impl<B: Backend> Component<B> for BaseNodeWidget {
             .split(inner_rect);
 
         self.status.draw(f, h_chunks[0], state);
-        self.button.draw(f, h_chunks[2], state);
     }
 }

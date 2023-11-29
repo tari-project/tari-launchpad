@@ -30,14 +30,14 @@ pub struct LaunchpadSession {
 
     pub base_layer_active: bool,
     pub wallet_layer_active: bool,
-    pub mining_layer_active: bool,
+    pub sha3x_layer_active: bool,
     pub merge_layer_active: bool,
     pub monitoring_layer_active: bool,
 
     pub tor_active: bool,
     pub base_node_active: bool,
     pub wallet_active: bool,
-    pub miner_active: bool,
+    pub sha3x_active: bool,
 
     pub mmproxy_active: bool,
     pub xmrig_active: bool,
@@ -57,7 +57,7 @@ impl LaunchpadSession {
             self.tor_active ||
             self.is_base_node_active() ||
             self.is_wallet_active() ||
-            self.is_miner_active() ||
+            self.is_sha3x_active() ||
             self.is_mmproxy_active()
     }
 
@@ -73,13 +73,13 @@ impl LaunchpadSession {
         self.all_active ||
             self.wallet_layer_active ||
             self.wallet_active ||
-            self.is_miner_active() ||
+            self.is_sha3x_active() ||
             self.merge_layer_active
     }
 
     /// Indicates which states signal that the SHA3x miner should be active
-    pub fn is_miner_active(&self) -> bool {
-        self.all_active || self.mining_layer_active || self.miner_active
+    pub fn is_sha3x_active(&self) -> bool {
+        self.all_active || self.sha3x_layer_active || self.sha3x_active
     }
 
     pub fn is_mmproxy_active(&self) -> bool {

@@ -33,8 +33,6 @@ macro_rules! focus_id {
 
 pub static TERMINATION: Focus = focus_id!();
 pub static ROOT: Focus = focus_id!();
-pub static TARI_MINING: Focus = focus_id!();
-pub static MERGED_MINING: Focus = focus_id!();
 pub static BASE_NODE: Focus = focus_id!();
 
 pub static WALLET: Focus = focus_id!();
