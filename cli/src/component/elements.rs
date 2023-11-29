@@ -27,9 +27,9 @@ use ratatui::{
     widgets::{Block, Borders},
 };
 
-pub fn block_with_title(title: Option<&str>, focus: bool) -> Block<'_> {
-    let color = if focus { Color::LightGreen } else { Color::White };
-    let border_style = if focus {
+pub fn block_with_title(title: Option<&str>, highlight: bool) -> Block<'_> {
+    let color = if highlight { Color::LightGreen } else { Color::White };
+    let border_style = if highlight {
         Style::default().fg(color).add_modifier(Modifier::BOLD)
     } else {
         Style::default().fg(color).add_modifier(Modifier::DIM)

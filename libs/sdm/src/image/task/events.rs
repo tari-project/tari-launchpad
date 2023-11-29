@@ -33,7 +33,7 @@ use crate::{
 
 impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     pub fn process_event_impl(&mut self, event: Event) -> Result<(), Error> {
-        log::debug!("Image event triggered. Image: {} Event: {event:?}", self.image_name);
+        log::trace!("Image event triggered. Image: {} Event: {event:?}", self.image_name);
         match event {
             Event::Created => self.on_created(),
             Event::PullingProgress(value) => self.on_pulling_progress(value),

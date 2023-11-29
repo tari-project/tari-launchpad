@@ -21,8 +21,12 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::{collections::VecDeque, fmt::Display};
+use std::{
+    collections::{HashMap, VecDeque},
+    fmt::Display,
+};
 
+use log::*;
 use serde::{Deserialize, Serialize};
 use tari_common_types::tari_address::TariAddress;
 use thiserror::Error;
@@ -73,6 +77,12 @@ pub struct WalletState {
     pub active: bool,
     pub balance: Option<WalletBalance>,
     pub transactions: VecDeque<WalletTransaction>,
+    // The set of transactions that have been mined in the current session, but not confirmed yet.
+    pub mined_transactions: HashMap<String, WalletTransaction>,
+    // The sum total of XTR confirmed mined in this session.
+    pub session_confirmed_mined: u64,
+    // The sum total of XTR pending mined in this session.
+    pub session_pending: u64,
 }
 
 impl Default for WalletState {
@@ -82,6 +92,9 @@ impl Default for WalletState {
             active: false,
             balance: None,
             transactions: VecDeque::with_capacity(HISTORY_LIMIT),
+            mined_transactions: HashMap::new(),
+            session_confirmed_mined: 0,
+            session_pending: 0,
         }
     }
 }
@@ -113,9 +126,80 @@ impl WalletState {
                 if self.transactions.len() >= HISTORY_LIMIT {
                     self.transactions.pop_back();
                 }
+                self.check_mined_transactions(&trans);
                 self.transactions.push_front(trans);
             },
         }
+    }
+
+    // The mining flow goes like this:
+    // 1. The wallet sends a coinbase transaction to the miner. This generates a tx with an id. If you're doing both
+    // MM and SHA3 mining, you'll get one tx for each, at the same block height.
+    // 2. The miner starts mining. If a block is found elsewhere, a `cancelled` tx is sent. We should remove the
+    // tx from the list of mined transactions.
+    // 3. If the miner finds a block, it sends a `mined` tx. We can now provisionally add this to our mining
+    // balance.
+    // 4. After 3 confirmations, we get a `confirmed` tx. We can now add this to our confirmed balance.
+    //
+    // If event is "received", it means we're mining against that block. We should add this, because when the wallet
+    // starts up, there will be many 'cancellation' messages that are stale, potentially screwing up our session
+    // balance.
+    // If the event is "cancelled", then we should remove the tx from the list of mined transactions, and deduct
+    // the pending balance, if the tx was "Mined Unconfirmed".
+    // If event is "mined", then we have N confirmations, and we can lock the balance in.
+    // If the event is "confirmed", then we're one-step close to being "mined"
+    fn check_mined_transactions(&mut self, tx: &WalletTransaction) {
+        if !(tx.is_coinbase && tx.direction == "Inbound") {
+            return;
+        }
+        let tx_id = tx.tx_id.clone();
+        match tx.event.as_str() {
+            "received" => {
+                debug!("🤑 Sent new coinbase for mining coinbase. {}", tx.message);
+                if let Some(old_tx) = self.mined_transactions.get(&tx_id) {
+                    debug!("Replaced another transaction with the same id. {old_tx:?}");
+                }
+            },
+            "confirmed" => {
+                if !self.mined_transactions.contains_key(&tx_id) {
+                    debug!("Ignoring confirmed tx as a stale transaction. {tx:?}");
+                    return;
+                }
+                let old_tx = self.mined_transactions.insert(tx_id, tx.clone()).unwrap();
+                if old_tx.event == "received" {
+                    info!("✔️ Got first confirmation on a new block. {old_tx:?}");
+                    self.session_pending += tx.amount;
+                }
+            },
+            "mined" => {
+                debug!("Found mined block. {}", tx.message);
+                if !self.mined_transactions.contains_key(&tx_id) {
+                    debug!("Ignoring mined tx as a stale transaction. {tx:?}");
+                    return;
+                }
+                let old_tx = self.mined_transactions.insert(tx_id, tx.clone()).unwrap();
+                if old_tx.event == "confirmed" {
+                    debug!("Moving pending amount into confirmed. Replacing {old_tx:?}");
+                    self.session_pending = self.session_pending.saturating_sub(old_tx.amount);
+                }
+                if old_tx.event == "received" {
+                    info!("🤔 Got a 'mined' status before any 'confirmed'. {old_tx:?}");
+                }
+                self.session_confirmed_mined += tx.amount;
+                info!("💰💰💰 New block mined. {}", tx.message);
+            },
+            "cancelled" => {
+                info!("😞 Cancelled. {}", tx.message);
+                if let Some(old_tx) = self.mined_transactions.remove(&tx_id) {
+                    if ["mined", "confirmed"].contains(&old_tx.event.as_str()) {
+                        debug!("Removed transaction from mined list, and adjusting pending balance {old_tx:?}");
+                        self.session_pending = self.session_pending.saturating_sub(old_tx.amount);
+                    }
+                }
+            },
+            _ => {},
+        }
+        trace!("[Wallet gRPC] Transaction info. {tx:?}");
     }
 }
 

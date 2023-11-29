@@ -97,7 +97,7 @@ impl TestState {
                     // Try to store initial amount of funds
                     if self.set_init_funds() {
                         self.inner.change_session(|session| {
-                            session.miner_active = true;
+                            session.sha3x_active = true;
                         })?;
                         self.status = Status::MiningActivated;
                     }
@@ -117,7 +117,7 @@ impl TestState {
                         session.tor_active = false;
                         session.base_node_active = false;
                         session.wallet_active = false;
-                        session.miner_active = false;
+                        session.sha3x_active = false;
                     })?;
                     self.status = Status::ContainersDeactivated;
                 }

@@ -67,7 +67,7 @@ impl ManagedContainer for TariSha3Miner {
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;
-        Some(session.is_miner_active())
+        Some(session.is_sha3x_active())
     }
 
     fn args(&self, args: &mut Args) {

@@ -38,7 +38,6 @@ pub enum AppEvent {
     SendAction(WalletAction),
     SettingsChanged,
     UpdateState,
-    Redraw,
 }
 
 pub struct AppState {
@@ -82,11 +81,6 @@ impl AppState {
 
     pub fn terminate(&mut self) {
         self.terminate = true;
-    }
-
-    pub fn redraw(&mut self) {
-        let event = AppEvent::Redraw;
-        self.events_queue.push_front(event);
     }
 
     pub fn update_state(&mut self) {
@@ -143,7 +137,6 @@ impl AppState {
                     let action = Action::Action(LaunchpadAction::SaveSettings(settings));
                     self.bus_tx.send(action)?;
                 },
-                AppEvent::Redraw => {},
             }
         }
         Ok(())
