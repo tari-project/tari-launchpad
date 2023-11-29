@@ -18,7 +18,6 @@ use crate::{
         ComponentEvent,
         ComponentEvent::KeyEvent,
         Input,
-        Pass,
     },
     state::AppState,
 };
@@ -64,14 +63,6 @@ impl Input for MiningPanel {
                 Self::toggle_sha3_mining(state);
                 return Some(());
             }
-        }
-        match event.pass() {
-            Pass::Tick => {
-                if state.state.config.session.is_sha3x_active() {
-                    state.redraw();
-                }
-            },
-            _ => {},
         }
         None
     }
