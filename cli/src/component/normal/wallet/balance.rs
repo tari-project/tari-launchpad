@@ -26,7 +26,8 @@ use std::borrow::Cow;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
-    widgets::{Padding, Row, Table},
+    text::Text,
+    widgets::{Padding, Paragraph, Row, Table},
 };
 use tari_launchpad_protocol::tari_format::TariFormat;
 
@@ -78,6 +79,12 @@ impl<B: Backend> Component<B> for BalanceWidget {
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
 
+        let h_constraints = [Constraint::Percentage(50), Constraint::Percentage(50)];
+        let h_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(h_constraints)
+            .split(inner_rect);
+
         let constraints = [
             Constraint::Length(4),
             // Constraint::Percentage(50),
@@ -88,7 +95,7 @@ impl<B: Backend> Component<B> for BalanceWidget {
         let v_chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints(constraints)
-            .split(inner_rect);
+            .split(h_chunks[0]);
 
         let mut available = None;
         let mut incoming = None;
@@ -109,6 +116,13 @@ impl<B: Backend> Component<B> for BalanceWidget {
         let table = Table::new(rows)
             .widths(&[Constraint::Percentage(40), Constraint::Percentage(60)])
             .column_spacing(2);
+
+        let help = Paragraph::new(Text::from(
+            "\
+                To access the full-featured console\nwallet, open a new terminal and run\n\ndocker attach \
+             stagenet_minotari_console_wallet\n\n",
+        ));
+        f.render_widget(help, h_chunks[1]);
         f.render_widget(table, v_chunks[0]);
     }
 }
