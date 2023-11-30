@@ -115,7 +115,7 @@ monerod_url = [ # stagenet
 ]
 base_node_grpc_address = "/dns4/base_node/tcp/18142"
 console_wallet_grpc_address = "/dns4/wallet/tcp/18143"
-listener_address = "/dns4/mm_proxy/tcp/18081"
+listener_address = "/dns4/tari_mm_proxy/tcp/18081"
 submit_to_origin = true
 monerod_username = ""
 monerod_password = ""
