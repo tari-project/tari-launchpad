@@ -98,7 +98,10 @@ impl ManagedContainer for TariBaseNode {
 
     fn args(&self, args: &mut Args) {
         args.set("--log-config", "/var/tari/config/log4rs.yml");
-        // args.flag("-n");
+        // An id file is only generated if `--init` or `-n` is specified. But the node exits immediately if `--init` is
+        // specified. So for now, we must run in non-interactive mode to have launchpad work.
+        // args.flag("--init");
+        args.flag("--n");
         args.set("--watch", "status");
     }
 
@@ -106,7 +109,6 @@ impl ManagedContainer for TariBaseNode {
         if let Some(settings) = self.settings.as_ref() {
             settings.add_common(envs);
             settings.add_tor("BASE_NODE", envs);
-            // envs.set("WAIT_FOR_TOR", 10);
             envs.set(
                 "TARI_BASE_NODE__DATA_DIR",
                 format!("/blockchain/{}", settings.tari_network.lower_case()),
