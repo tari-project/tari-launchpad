@@ -101,7 +101,7 @@ impl ManagedContainer for TariBaseNode {
         // An id file is only generated if `--init` or `-n` is specified. But the node exits immediately if `--init` is
         // specified. So for now, we must run in non-interactive mode to have launchpad work.
         // args.flag("--init");
-        args.flag("--n");
+        args.flag("-n");
         args.set("--watch", "status");
     }
 
