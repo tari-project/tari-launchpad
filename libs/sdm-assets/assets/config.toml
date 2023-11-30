@@ -28,8 +28,8 @@ identity_file = "/var/tari/base_node/config/nextnet/tari_base_node_id.json"
 grpc_server_deny_methods = []
 
 [base_node.p2p]
-#auxiliary_tcp_listener_address = "/dns4/base_node/tcp/18189"
-auxiliary_tcp_listener_address = "/ip4/0.0.0.0/tcp/18189"
+auxiliary_tcp_listener_address = "/dns4/base_node/tcp/18189"
+#auxiliary_tcp_listener_address = "/ip4/0.0.0.0/tcp/18189"
 user_agent = "Launchpad base node"
 
 [base_node.p2p.transport]
@@ -92,7 +92,7 @@ socks_address_override = "/dns4/tor/tcp/9050"
 control_address = "/dns4/tor/tcp/9051"
 # When these peer addresses are encountered when dialing another peer, the tor proxy is bypassed and the connection is
 # made directly over TCP. /ip4, /ip6, /dns, /dns4 and /dns6 are supported. (e.g. ["/dns4/my-foo-base-node/tcp/9998"])
-proxy_bypass_addresses = ["/dns4/wallet/tcp/18188"]
+proxy_bypass_addresses = ["/dns4/base_node/tcp/18189", "/ip4/127.0.0.1/tcp/18189", "/dns4/localhost/tcp/18189"]
 proxy_bypass_for_outbound_tcp = true
 
 [wallet.p2p.transport.tcp]
