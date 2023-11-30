@@ -26,7 +26,7 @@ use std::path::PathBuf;
 use anyhow::Error;
 use log::*;
 use tari_launchpad_protocol::{
-    container::{TaskDelta, TaskId},
+    container::{TaskDelta, TaskId, TaskProgress, TaskState, TaskStatus},
     launchpad::{Action, LaunchpadAction, LaunchpadDelta, LaunchpadState, Reaction},
     settings::PersistentSettings,
 };
@@ -209,6 +209,20 @@ impl LaunchpadWorker {
         Ok(())
     }
 
+    fn apply_progress_update(&mut self, task_id: &TaskId, progress: &TaskProgress) {
+        self.state
+            .containers
+            .entry(task_id.clone())
+            .and_modify(|state| {
+                state.status = TaskStatus::Progress(progress.clone());
+            })
+            .or_insert_with(|| {
+                let mut state = TaskState::new(false);
+                state.status = TaskStatus::Progress(progress.clone());
+                state
+            });
+    }
+
     fn apply_delta(&mut self, delta: LaunchpadDelta) {
         self.state.apply(delta.clone());
         let reaction = Reaction::Delta(delta);
@@ -258,6 +272,9 @@ impl LaunchpadWorker {
                 }
                 if report.task_id == images::TariBaseNode::id() {
                     self.check_node_grpc(&delta);
+                }
+                if let TaskDelta::UpdateStatus(TaskStatus::Progress(progress)) = &delta {
+                    self.apply_progress_update(&report.task_id, progress);
                 }
                 let delta = LaunchpadDelta::TaskDelta {
                     id: report.task_id,

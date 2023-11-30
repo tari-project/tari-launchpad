@@ -161,6 +161,13 @@ impl TaskStatus {
     pub fn is_failed(&self) -> bool {
         matches!(self, Self::Failed(_))
     }
+
+    pub fn progress(&self) -> Option<String> {
+        match self {
+            Self::Progress(progress) => Some(format!("{} -{}%", progress.stage, progress.pct)),
+            _ => None,
+        }
+    }
 }
 
 impl fmt::Display for TaskStatus {

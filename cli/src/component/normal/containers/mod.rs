@@ -81,7 +81,7 @@ impl<B: Backend> Component<B> for ContainersScene {
                 let col_1 = Cow::Borrowed(task_id.as_ref());
                 let mut col_2 = Cow::Borrowed("-");
                 let mut col_3 = Cow::Borrowed("-");
-                let mut col_4 = Cow::Borrowed("Inactive");
+                let mut col_4 = Cow::Owned(task_state.status.progress().unwrap_or_else(|| "Inactive".to_string()));
                 if task_state.status.is_started() {
                     if let Some(stat_data) = task_state.stats.last() {
                         let cpu_usage = task_state.stats.last_cpu().unwrap_or_default();
