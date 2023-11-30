@@ -147,7 +147,7 @@ impl WalletState {
     // If the event is "cancelled", then we should remove the tx from the list of mined transactions, and deduct
     // the pending balance, if the tx was "Mined Unconfirmed".
     // If event is "mined", then we have N confirmations, and we can lock the balance in.
-    // If the event is "confirmed", then we're one-step close to being "mined"
+    // If the event is "confirmation", then we're one-step close to being "mined"
     fn check_mined_transactions(&mut self, tx: &WalletTransaction) {
         if !(tx.is_coinbase && tx.direction == "Inbound") {
             return;
@@ -156,11 +156,11 @@ impl WalletState {
         match tx.event.as_str() {
             "received" => {
                 debug!("🤑 Sent new coinbase for mining coinbase. {}", tx.message);
-                if let Some(old_tx) = self.mined_transactions.get(&tx_id) {
+                if let Some(old_tx) = self.mined_transactions.insert(tx_id, tx.clone()) {
                     debug!("Replaced another transaction with the same id. {old_tx:?}");
                 }
             },
-            "confirmed" => {
+            "confirmation" => {
                 if !self.mined_transactions.contains_key(&tx_id) {
                     debug!("Ignoring confirmed tx as a stale transaction. {tx:?}");
                     return;
@@ -178,7 +178,7 @@ impl WalletState {
                     return;
                 }
                 let old_tx = self.mined_transactions.insert(tx_id, tx.clone()).unwrap();
-                if old_tx.event == "confirmed" {
+                if old_tx.event == "confirmation" {
                     debug!("Moving pending amount into confirmed. Replacing {old_tx:?}");
                     self.session_pending = self.session_pending.saturating_sub(old_tx.amount);
                 }
@@ -191,7 +191,7 @@ impl WalletState {
             "cancelled" => {
                 info!("😞 Cancelled. {}", tx.message);
                 if let Some(old_tx) = self.mined_transactions.remove(&tx_id) {
-                    if ["mined", "confirmed"].contains(&old_tx.event.as_str()) {
+                    if ["mined", "confirmation"].contains(&old_tx.event.as_str()) {
                         debug!("Removed transaction from mined list, and adjusting pending balance {old_tx:?}");
                         self.session_pending = self.session_pending.saturating_sub(old_tx.amount);
                     }
@@ -199,7 +199,7 @@ impl WalletState {
             },
             _ => {},
         }
-        trace!("[Wallet gRPC] Transaction info. {tx:?}");
+        debug!("[Wallet gRPC] Transaction info. {tx:?}");
     }
 }
 
