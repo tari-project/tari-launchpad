@@ -116,13 +116,22 @@ impl<B: Backend> Component<B> for BalanceWidget {
         let table = Table::new(rows)
             .widths(&[Constraint::Percentage(40), Constraint::Percentage(60)])
             .column_spacing(2);
-
-        let help = Paragraph::new(Text::from(
-            "\
+        let interactive = state
+            .state
+            .config
+            .settings
+            .as_ref()
+            .and_then(|lps| lps.saved_settings.wallet.as_ref())
+            .map(|w| w.interactive)
+            .unwrap_or_default();
+        if interactive && state.state.config.session.is_wallet_active() {
+            let help = Paragraph::new(Text::from(
+                "\
                 To access the full-featured console\nwallet, open a new terminal and run\n\ndocker attach \
-             stagenet_minotari_console_wallet\n\n",
-        ));
-        f.render_widget(help, h_chunks[1]);
+                 stagenet_minotari_console_wallet\n\n",
+            ));
+            f.render_widget(help, h_chunks[1]);
+        }
         f.render_widget(table, v_chunks[0]);
     }
 }

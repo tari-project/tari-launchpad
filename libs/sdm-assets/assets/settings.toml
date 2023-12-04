@@ -1,6 +1,9 @@
 # Local settings for launchpad
 tari_network = "Stagenet"
 
+[base_node]
+interactive = false
+
 [sha3_miner]
 num_mining_threads = 1
 
@@ -17,3 +20,5 @@ monero_mining_address = "5AJ8FwQge4UjT9Gbj4zn7yYcnpVQzzkqr636pKto59jQcu85CFsuYVe
 
 [wallet]
 password = "tari"
+interactive = false
+clear_peer_db = true
