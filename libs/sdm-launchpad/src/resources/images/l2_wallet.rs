@@ -25,7 +25,7 @@ use std::ops::Deref;
 
 use anyhow::Error;
 use async_trait::async_trait;
-use log::{debug, error};
+use log::*;
 use tari_app_grpc::tari_rpc::{ConnectivityStatus, Empty};
 use tari_launchpad_protocol::container::TaskProgress;
 use tari_sdm::{
@@ -67,6 +67,27 @@ pub struct TariWallet {
     identity: Option<WalletIdentity>,
 }
 
+impl TariWallet {
+    fn delete_peer_db(&self) {
+        // Only called when settings is Some(.)
+        let settings = self
+            .settings
+            .as_ref()
+            .expect("`delete_peer_db` must only be called if `self.settings.is_some()`");
+        let peer_db_path = settings
+            .data_directory
+            .join("wallet")
+            .join(settings.tari_network.lower_case())
+            .join("peer_db");
+        if peer_db_path.exists() {
+            match std::fs::remove_dir_all(peer_db_path) {
+                Ok(_) => info!("Deleted peer_db"),
+                Err(e) => error!("Failed to delete peer_db: {e}"),
+            }
+        }
+    }
+}
+
 impl ManagedTask for TariWallet {
     fn id() -> TaskId {
         "Wallet".into()
@@ -98,8 +119,13 @@ impl ManagedContainer for TariWallet {
         self.settings = ConnectionSettings::try_extract(config);
         self.wallet = config.settings.as_ref().and_then(|s| s.saved_settings.wallet.clone());
         let session = &self.settings.as_ref()?.session;
-        self.wallet.as_ref()?;
-        Some(session.is_wallet_active())
+        self.wallet.as_ref().map(|wallet| {
+            // Addressing Issue https://github.com/tari-project/tari/issues/5998. Can be removed once fixed.
+            if wallet.clear_peer_db {
+                self.delete_peer_db();
+            }
+            session.is_wallet_active()
+        })
     }
 
     fn on_event(&mut self, event: LaunchpadInnerEvent) {
@@ -127,7 +153,14 @@ impl ManagedContainer for TariWallet {
         args.set("--log-config", "/var/tari/config/log4rs.yml");
         args.set("--seed-words-file", "/var/tari/config/seed_words.txt");
         args.flag("--enable-grpc");
-        // args.flag("-n");
+        let non_interactive = if let Some(WalletConfig { interactive, .. }) = self.wallet.as_ref() {
+            !interactive
+        } else {
+            true
+        };
+        if non_interactive {
+            args.flag("-n");
+        }
     }
 
     fn envs(&self, envs: &mut Envs) {

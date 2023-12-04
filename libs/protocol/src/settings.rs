@@ -33,12 +33,29 @@ http://xmr-lux.boldsuck.org:38081,\
 http://singapore.node.xmr.pm:38081";
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
-pub struct BaseNodeConfig {}
+pub struct BaseNodeConfig {
+    /// Should node be started in interactive mode.
+    pub interactive: bool,
+}
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct WalletConfig {
     /// The password to de/en-crypt the wallet database
     pub password: String,
+    /// Should the peer DB be deleted before starting up. Issue: https://github.com/tari-project/tari/issues/5998
+    pub clear_peer_db: bool,
+    /// Should wallet be started in interactive mode.
+    pub interactive: bool,
+}
+
+impl Default for WalletConfig {
+    fn default() -> Self {
+        WalletConfig {
+            password: String::new(),
+            clear_peer_db: true,
+            interactive: false,
+        }
+    }
 }
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]

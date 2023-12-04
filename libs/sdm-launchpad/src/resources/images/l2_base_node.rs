@@ -25,7 +25,7 @@ use anyhow::Error;
 use async_trait::async_trait;
 use log::debug;
 use tari_base_node_grpc_client::{grpc, BaseNodeGrpcClient};
-use tari_launchpad_protocol::container::TaskProgress;
+use tari_launchpad_protocol::{container::TaskProgress, settings::BaseNodeConfig};
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
     image::{
@@ -58,6 +58,7 @@ use crate::resources::{
 #[derive(Debug, Default)]
 pub struct TariBaseNode {
     settings: Option<ConnectionSettings>,
+    config: BaseNodeConfig,
 }
 
 impl ManagedTask for TariBaseNode {
@@ -87,7 +88,13 @@ impl ManagedContainer for TariBaseNode {
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
         debug!("Reconfiguring base node");
-        self.settings = ConnectionSettings::try_extract(config?);
+        let config = config?;
+        self.config = config
+            .settings
+            .as_ref()
+            .and_then(|s| s.saved_settings.base_node.clone())
+            .unwrap_or_default();
+        self.settings = ConnectionSettings::try_extract(config);
         let session = &self.settings.as_ref()?.session;
         Some(session.is_base_node_active())
     }
@@ -98,11 +105,10 @@ impl ManagedContainer for TariBaseNode {
 
     fn args(&self, args: &mut Args) {
         args.set("--log-config", "/var/tari/config/log4rs.yml");
-        // An id file is only generated if `--init` or `-n` is specified. But the node exits immediately if `--init` is
-        // specified. So for now, we must run in non-interactive mode to have launchpad work.
-        // args.flag("--init");
-        args.flag("-n");
         args.set("--watch", "status");
+        if !self.config.interactive {
+            args.flag("-n");
+        }
     }
 
     fn envs(&self, envs: &mut Envs) {
