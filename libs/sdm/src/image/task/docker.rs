@@ -413,30 +413,7 @@ impl Converter<EventMessage, Event> for EventConv {
 // FIXME: This might be replaceable by std::fs::canonicalize, but I don't have a windows machine to check
 fn canonicalize<P: AsRef<Path>>(path: P) -> String {
     #[cfg(target_os = "windows")]
-    let path = format!(
-        "//{}",
-        path.as_ref()
-            .iter()
-            .filter_map(|part| {
-                use std::{ffi::OsStr, path};
-
-                use regex::Regex;
-
-                if part == OsStr::new(&path::MAIN_SEPARATOR.to_string()) {
-                    None
-                } else {
-                    let drive = Regex::new(r"(?P<letter>[A-Za-z]):").unwrap();
-                    let part = part.to_string_lossy().to_string();
-                    if drive.is_match(part.as_str()) {
-                        Some(drive.replace(part.as_str(), "$letter").to_lowercase())
-                    } else {
-                        Some(part)
-                    }
-                }
-            })
-            .collect::<Vec<String>>()
-            .join("/")
-    );
+    let path = path.as_ref().to_string_lossy().to_string();
     #[cfg(target_os = "macos")]
     let path = format!("/host_mnt{}", path.as_ref().to_string_lossy());
     #[cfg(target_os = "linux")]
