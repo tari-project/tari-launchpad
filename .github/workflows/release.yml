@@ -12,6 +12,10 @@ name: Release
       - 'build-*'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   builds:
     strategy:
@@ -26,26 +30,32 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Node.js setup
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
           cache: 'yarn'
 
       - name: Rust setup (native)
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
 
+      - name: Rust setup (Linux/aarch64)
+        if: startsWith(runner.os,'Linux')
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          target: aarch64-unknown-linux-gnu
+
       - name: Rust setup (macOS/aarch64)
         if: startsWith(runner.os,'macOS')
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
           target: aarch64-apple-darwin
-          override: true
 
       - name: Cache cargo files and outputs
         uses: Swatinem/rust-cache@v2
