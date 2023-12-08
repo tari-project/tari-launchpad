@@ -21,13 +21,10 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use ratatui::{
-    backend::Backend,
-    layout::{Constraint, Direction, Layout, Rect},
-};
+use ratatui::{backend::Backend, layout::Rect};
 
 use crate::{
-    component::{elements::block_with_title, widgets::LabeledInput, Component, ComponentEvent, Frame, Input, Pass},
+    component::{elements::block_with_title, Component, ComponentEvent, Frame, Input, Pass},
     focus_id,
     state::{
         focus::{self, Focus},
@@ -38,15 +35,11 @@ use crate::{
 pub static WALLET_SETTINGS: Focus = focus_id!();
 static WALLET_ID: Focus = focus_id!();
 
-pub struct WalletSettings {
-    wallet_id: LabeledInput,
-}
+pub struct WalletSettings {}
 
 impl WalletSettings {
     pub fn new() -> Self {
-        Self {
-            wallet_id: LabeledInput::new("Tari Wallet ID (address)", WALLET_ID),
-        }
+        Self {}
     }
 }
 
@@ -64,18 +57,6 @@ impl Input for WalletSettings {
                 },
                 _ => {},
             }
-        } else if state.focus_on == WALLET_ID {
-            let released = self.wallet_id.is_released();
-            match event.pass() {
-                Pass::Up | Pass::Down | Pass::Leave if released => {
-                    state.focus_on(WALLET_SETTINGS);
-                },
-                _ => {
-                    self.wallet_id.on_event(event, state);
-                },
-            }
-        } else {
-            //
         }
         None
     }
@@ -86,15 +67,6 @@ impl<B: Backend> Component<B> for WalletSettings {
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
         let block = block_with_title(Some("Wallet Settings"), state.focus_on == WALLET_SETTINGS);
-        let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
-        let constraints = [Constraint::Length(3), Constraint::Min(0)];
-        let chunks = Layout::default()
-            .vertical_margin(1)
-            .horizontal_margin(3)
-            .direction(Direction::Vertical)
-            .constraints(constraints)
-            .split(inner_rect);
-        self.wallet_id.draw(f, chunks[0], state);
     }
 }
