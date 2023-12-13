@@ -1,3 +1,10 @@
+# Tari Launchpad - Text edition
+Currently, the Tauri UI is not working, as an interim solution, a text version is available with:
+```text
+   $ cargo run --bin tari-lp-cli
+```
+This will build/run the text based version that can run launchpad. 
+
 # Tari Launchpad - Tauri edition
 
 a.k.a. _Tari one-click miner_.
