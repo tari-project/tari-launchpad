@@ -37,15 +37,14 @@ impl BaseNodeStatus {
         let chain_height = Span::raw(format!("Height: {:<5}", node_status.chain_height));
         let peer_count = Span::raw(format!("   Peers: {:3}", node_status.peer_count));
         let top_line = Line::from(vec![sync_state, chain_height, peer_count]);
-        let (public_key, emoji_id) = node_status
+        let public_key = node_status
             .identity
             .as_ref()
             .cloned()
-            .map(|id| (id.public_key, id.emoji_id))
-            .unwrap_or_else(|| ("-".into(), "-".into()));
+            .map(|id| (id.public_key))
+            .unwrap_or_else(|| ("-".into()));
         let mid_line = Line::from(format!("Public key: {public_key}"));
-        let bottom_line = Line::from(format!("Emoji ID: {emoji_id}"));
-        Text::from(vec![top_line, mid_line, bottom_line])
+        Text::from(vec![top_line, mid_line])
     }
 }
 
