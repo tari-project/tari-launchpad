@@ -21,41 +21,19 @@ ARG RUST_TARGET
 ARG RUST_VERSION
 ARG OS_BASE
 
-# Disable Prompt During Packages Installation
-ARG DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && \
-    apt-get --no-install-recommends install -y \
-      apt-transport-https \
-      bash \
-      ca-certificates \
-      curl \
-      gpg \
-      less \
-      libreadline-dev \
-      libsqlite3-0 \
-      openssl \
-      cargo \
-      clang \
-      gcc-aarch64-linux-gnu \
-      g++-aarch64-linux-gnu \
-      cmake
-
 ARG ARCH=native
 #ARG FEATURES=avx2
-ARG FEATURES=safe
-ENV RUSTFLAGS="-C target_cpu=$ARCH"
-ENV ROARING_ARCH=$ARCH
+ARG FEATURES="safe,grpc"
+
+#ENV RUSTFLAGS="-C target_cpu=$ARCH"
+#ENV ROARING_ARCH=$ARCH
+
 ENV CARGO_HTTP_MULTIPLEXING=false
 
 ARG VERSION=1.0.1
 ARG APP_NAME=wallet
 ARG APP_EXEC=minotari_console_wallet
 ARG TARI_NETWORK
-
-RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ] && [ "${ARCH}" = "native" ] ; then \
-      echo "!! Cross-compile and native ARCH not a good idea !! " ; \
-    fi
 
 WORKDIR /tari
 
@@ -72,21 +50,17 @@ COPY infrastructure infrastructure
 COPY meta meta
 COPY buildtools/deps_only buildtools/deps_only
 COPY integration_tests integration_tests
+COPY scripts scripts
 
-RUN if [ "${TARGETARCH}" = "arm64" ] && [ "${BUILDARCH}" != "${TARGETARCH}" ] ; then \
-      # Hardcoded ARM64 envs for cross-compiling - FixMe soon
-      export BUILD_TARGET="aarch64-unknown-linux-gnu/" && \
-      export RUST_TARGET="--target=aarch64-unknown-linux-gnu" && \
-      export ARCH=generic && \
-      export FEATURES=safe && \
-      export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc && \
-      export CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc && \
-      export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++ && \
-      export BINDGEN_EXTRA_CLANG_ARGS="--sysroot /usr/aarch64-linux-gnu/include/" && \
-      export RUSTFLAGS="-C target_cpu=$ARCH" && \
-      export ROARING_ARCH=$ARCH && \
-      rustup target add aarch64-unknown-linux-gnu && \
-      rustup toolchain install stable-aarch64-unknown-linux-gnu --force-non-host ; \
+# Disable Prompt During Packages Installation
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    sh /tari/scripts/install_ubuntu_dependencies.sh
+
+RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ] ; then \
+      # Run script to help setup cross-compile environment
+      . /tari/scripts/cross_compile_tooling.sh ; \
     fi && \
     if [ -n "${RUST_TOOLCHAIN}" ] ; then \
       # Install a non-standard toolchain if it has been requested.
@@ -110,6 +84,9 @@ ARG TARGETVARIANT
 ARG RUST_VERSION
 ARG OS_BASE
 
+ARG ARCH
+ARG FEATURES
+
 ARG VERSION
 
 ARG APP_NAME
@@ -120,7 +97,7 @@ ARG TARI_NETWORK
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get --no-install-recommends install -y \
+    apt-get install --no-install-recommends --assume-yes \
       apt-transport-https \
       bash \
       ca-certificates \
@@ -134,8 +111,9 @@ RUN apt-get update && \
       openssl \
       procps \
       lsof && \
+    # Docker image reduction
     apt-get clean all && \
-    apt-get autoremove -y && \
+    apt-get autoremove --assume-yes && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN groupadd --gid 1000 tari && \
@@ -145,7 +123,10 @@ RUN groupadd --gid 1000 tari && \
 
 ENV dockerfile_version=$VERSION
 ENV dockerfile_build_arch=$BUILDPLATFORM
+ENV dockerfile_arch=$ARCH
+ENV dockerfile_features=$FEATURES
 ENV rust_version=$RUST_VERSION
+
 ENV APP_NAME=${APP_NAME:-wallet}
 ENV APP_EXEC=${APP_EXEC:-minotari_console_wallet}
 ENV TARI_NETWORK=$TARI_NETWORK
