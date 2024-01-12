@@ -1,0 +1,279 @@
+---
+name: Build cli
+
+'on':
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]*'
+    branches:
+      - build-cli-*
+  workflow_dispatch:
+
+env:
+  toolchain: nightly-2023-06-04
+  matrix-json-file: ".github/workflows/build_cli.json"
+  CARGO_HTTP_MULTIPLEXING: false
+  CARGO_UNSTABLE_SPARSE_REGISTRY: true
+  CARGO: cargo
+  # CARGO_OPTIONS: "--verbose"
+  CARGO_OPTIONS: "--release"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  matrix-prep:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Set Matrix
+        id: set-matrix
+        run: |
+          #
+          # build all targets images
+          # matrix=$( jq -s -c .[] ${{ env.matrix-json-file }} )
+          #
+          # build only single target image
+          # matrix_selection=$( jq -c '.[] | select( ."name" == "linux-x86_64" )' ${{ env.matrix-json-file }} )
+          # matrix_selection=$( jq -c '.[] | select( ."runs-on" | startswith("macos") )' ${{ env.matrix-json-file }} )
+          #
+          # buid select target images - build_enabled
+          matrix_selection=$( jq -c '.[] | select( ."build_enabled" != false )' ${{ env.matrix-json-file }} )
+          #
+          # Setup the json build matrix
+          matrix=$(echo ${matrix_selection} | jq -s -c '{"builds": .}')
+          echo $matrix
+          echo $matrix | jq .
+          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
+
+  matrix-check:
+    # Debug matrix
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    needs: matrix-prep
+    steps:
+      - name: Install json2yaml
+        run: |
+          sudo npm install -g json2yaml
+
+      - name: Check matrix definition
+        run: |
+          matrix='${{ needs.matrix-prep.outputs.matrix }}'
+          echo $matrix
+          echo $matrix | jq .
+          echo $matrix | json2yaml
+
+  builds:
+    name: Building ${{ matrix.builds.name }} on ${{ matrix.builds.runs-on }}
+    needs: matrix-prep
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.matrix-prep.outputs.matrix) }}
+
+    runs-on: ${{ matrix.builds.runs-on }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          components: rustfmt, clippy
+          toolchain: ${{ matrix.builds.rust }}
+          targets: ${{ matrix.builds.target }}
+
+      - name: Install Linux dependencies - Ubuntu
+        if: ${{ startsWith(runner.os,'Linux') && ( ! matrix.builds.cross ) }}
+        run: |
+          sudo apt-get update
+          sudo bash scripts/cli/install_ubuntu_dependencies.sh
+          sudo bash scripts/install_ubuntu_dependencies.sh
+
+      - name: Install Linux dependencies - Ubuntu - cross-compile arm64 on x86-64
+        if: ${{ startsWith(runner.os,'Linux') && ( ! matrix.builds.cross ) && matrix.builds.name == 'linux-arm64' }}
+        run: |
+          sudo apt-get update
+          sudo bash scripts/cli/install_ubuntu_dependencies-arm64.sh
+          rustup target add ${{ matrix.builds.target }}
+
+      - name: Install macOS dependencies
+        if: startsWith(runner.os,'macOS')
+        run: |
+          brew install cmake coreutils automake autoconf
+
+      - name: Install Windows dependencies
+        if: startsWith(runner.os,'Windows')
+        run: |
+          vcpkg.exe install sqlite3:x64-windows zlib:x64-windows
+          # Bug in choco - need to install each package individually
+          choco upgrade llvm -y
+          # psutils is out of date
+          # choco upgrade psutils -y
+          choco upgrade openssl -y
+          # Should already be installed
+          # choco upgrade strawberryperl -y
+
+      - name: Set environment variables - Nix
+        if: ${{ ! startsWith(runner.os,'Windows') }}
+        run: |
+          echo "SHARUN=shasum --algorithm 256" >> $GITHUB_ENV
+          echo "CC=gcc" >> $GITHUB_ENV
+          echo "TBN_EXT=" >> $GITHUB_ENV
+          echo "SHELL_EXT=.sh" >> $GITHUB_ENV
+          echo "PLATFORM_SPECIFIC_DIR=linux" >> $GITHUB_ENV
+          echo "TBN_DIST=/dist" >> $GITHUB_ENV
+
+      - name: Set environment variables - macOS
+        if: startsWith(runner.os,'macOS')
+        run: |
+          echo "PLATFORM_SPECIFIC_DIR=osx" >> $GITHUB_ENV
+          echo "LIB_EXT=.dylib" >> $GITHUB_ENV
+
+      - name: Set environment variables - Ubuntu
+        if: startsWith(runner.os,'Linux')
+        run: |
+          echo "LIB_EXT=.so" >> $GITHUB_ENV
+
+      - name: Set environment variables - Windows
+        if: startsWith(runner.os,'Windows')
+        shell: bash
+        run: |
+          # echo "SHARUN=pwsh C:\ProgramData\chocolatey\lib\psutils\tools\psutils-master\shasum.ps1 --algorithm 256" >> $GITHUB_ENV
+          mkdir -p "$GITHUB_WORKSPACE\psutils"
+          curl -v -o "$GITHUB_WORKSPACE\psutils\getopt.ps1" "https://raw.githubusercontent.com/lukesampson/psutils/master/getopt.ps1"
+          curl -v -o "$GITHUB_WORKSPACE\psutils\shasum.ps1" "https://raw.githubusercontent.com/lukesampson/psutils/master/shasum.ps1"
+          echo "SHARUN=pwsh $GITHUB_WORKSPACE\psutils\shasum.ps1 --algorithm 256" >> $GITHUB_ENV
+          echo "TBN_EXT=.exe" >> $GITHUB_ENV
+          echo "LIB_EXT=.dll" >> $GITHUB_ENV
+          echo "SHELL_EXT=.bat" >> $GITHUB_ENV
+          echo "TBN_DIST=\dist" >> $GITHUB_ENV
+          echo "PLATFORM_SPECIFIC_DIR=windows" >> $GITHUB_ENV
+          echo "SQLITE3_LIB_DIR=C:\vcpkg\installed\x64-windows\lib" >> $GITHUB_ENV
+          echo "X86_64_PC_WINDOWS_MSVC_OPENSSL_DIR=C:\Program Files\OpenSSL-Win64" >> $GITHUB_ENV
+          echo "LIBCLANG_PATH=C:\Program Files\LLVM\bin" >> $GITHUB_ENV
+          echo "C:\Strawberry\perl\bin" >> $GITHUB_PATH
+
+      - name: Cache cargo files and outputs
+        if: ${{ ( ! startsWith(github.ref, 'refs/tags/v') ) && ( ! matrix.builds.cross ) }}
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.builds.target }}
+
+      - name: Install and setup cargo cross
+        if: ${{ matrix.builds.cross }}
+        shell: bash
+        run: |
+          cargo install cross
+          echo "CARGO=cross" >> $GITHUB_ENV
+
+      - name: Install and setup cargo-auditable
+        if: ${{ false }}
+        # if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        shell: bash
+        run: |
+          cargo install cargo-auditable
+          echo "CARGO=${{ env.CARGO }} auditable" >> $GITHUB_ENV
+          echo "CARGO_OPTIONS=${{ env.CARGO_OPTIONS }} --release" >> $GITHUB_ENV
+
+      - name: Show command used for Cargo
+        shell: bash
+        run: |
+          echo "cargo command is: ${{ env.CARGO }}"
+          echo "cargo options is: ${{ env.CARGO_OPTIONS }}"
+          echo "cross flag: ${{ matrix.builds.cross }}"
+
+      - name: Build release binaries
+        # can't use bash for windows build, perl openssl breakage
+        # shell: bash
+        run: |
+          ${{ env.CARGO }} build ${{ env.CARGO_OPTIONS }} --target ${{ matrix.builds.target }} --bin tari-lp-cli ${{ matrix.builds.flags }} --locked
+
+      - name: Archive and Checksum Binaries
+        if: ${{ false }}
+        shell: bash
+        run: |
+          echo "Archive ${{ env.BINFILE }} too ${{ env.BINFILE }}.zip"
+          cd "$GITHUB_WORKSPACE${{ env.TBN_DIST }}"
+          echo "Compute files shasum"
+          ${SHARUN} * >> "${{ env.BINFILE }}.sha256"
+          echo "Show the shasum"
+          cat "${{ env.BINFILE }}.sha256"
+          echo "Checksum verification for files is "
+          ${SHARUN} --check "${{ env.BINFILE }}.sha256"
+          7z a "${{ env.BINFILE }}.zip" *
+          echo "Compute archive shasum"
+          ${SHARUN} "${{ env.BINFILE }}.zip" >> "${{ env.BINFILE }}.zip.sha256"
+          echo "Show the shasum"
+          cat "${{ env.BINFILE }}.zip.sha256"
+          echo "Checkum verification archive is "
+          ${SHARUN} --check "${{ env.BINFILE }}.zip.sha256"
+
+      - name: Artifact upload for Archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: "tari-lp-cli-${{ matrix.builds.name }}"
+          path: "${{ github.workspace }}/target/${{ matrix.builds.target }}/release/tari-lp-cli${{ env.TBN_EXT }}"
+
+      - name: Sync dist to S3 - Bash
+        continue-on-error: true # Don't break if s3 upload fails
+        if: ${{ env.AWS_SECRET_ACCESS_KEY != '' && matrix.builds.runs-on != 'self-hosted' }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DEST_DIR: "${{ env.S3_DEST_OVERRIDE }}${{ env.PLATFORM_SPECIFIC_DIR }}/${{ env.TARI_NETWORK_DIR }}/"
+          S3CMD: "cp"
+          S3OPTIONS: '--recursive --exclude "*" --include "*.zip*" --include "*.pkg*" --include "*installer.exe*"'
+        shell: bash
+        run: |
+          echo "Starting upload ... ${{ env.MTS_SOURCE }}"
+          ls -al ${{ env.MTS_SOURCE }}
+
+          aws --version
+
+          aws s3 ${{ env.S3CMD }} --region ${{ secrets.AWS_REGION }} \
+            "${{ env.MTS_SOURCE }}" \
+            s3://${{ secrets.AWS_S3_BUCKET }}/${{ env.DEST_DIR }} \
+            ${{ env.S3OPTIONS }}
+
+          if [[ "${{ github.ref }}" =~ refs\/tags\/v* ]]; then
+            echo "Copy tags to latest s3"
+            aws s3 ${{ env.S3CMD }} --region ${{ secrets.AWS_REGION }} \
+              "${{ env.MTS_SOURCE }}" \
+              s3://${{ secrets.AWS_S3_BUCKET }}/current/${{ env.DEST_DIR }} \
+              ${{ env.S3OPTIONS }}
+
+            aws s3 rm --region ${{ secrets.AWS_REGION }} \
+              s3://${{ secrets.AWS_S3_BUCKET }}/latest/${{ env.DEST_DIR }} \
+              --recursive --include "*"
+
+            aws s3 ${{ env.S3CMD }} --region ${{ secrets.AWS_REGION }} \
+              "${{ env.MTS_SOURCE }}" \
+              s3://${{ secrets.AWS_S3_BUCKET }}/latest/${{ env.DEST_DIR }} \
+              ${{ env.S3OPTIONS }}
+          fi
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: builds
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "tari_*/**/*"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+          draft: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          replacesArtifacts: true
