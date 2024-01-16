@@ -7,14 +7,14 @@ repository = "https://github.com/tari-project/tari-launchpad"
 edition = "2021"
 
 [dependencies]
-tari_app_grpc = { git = "https://github.com/tari-project/tari", tag = "v0.51.0-pre.4" }
-tari_base_node_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v0.51.0-pre.4" }
-tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v0.51.0-pre.4" }
+minotari_app_grpc = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.1" }
+minotari_node_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.1" }
+tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.1" }
 tari_launchpad_protocol = { path = "../protocol" }
 tari_sdm_assets = { path = "../sdm-assets" }
 tari_sdm = { path = "../sdm" }
-tari_wallet_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v0.51.0-pre.4" }
-tari_utilities = "0.4.10"
+minotari_wallet_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.1" }
+tari_utilities = "0.7.0"
 openssl = { version = "0.10.55", features = ["vendored"] }
 
 anyhow = "1.0.72"
@@ -29,6 +29,6 @@ tauri = { version = "=1.2.5", features = ["api-all", "cli", "macos-private-api"]
 thiserror = "1.0.44"
 tor-hash-passwd = "1.0.1"
 tokio = "1.29.1"
-toml = "0.7.6"
-tonic = "0.6.2"
+toml = "0.8.8"
+tonic = { version = "0.6.2", features = ["tls"] }
 chrono = "0.4.31"

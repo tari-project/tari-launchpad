@@ -9,7 +9,7 @@ services:
       - ${DATA_FOLDER}/tor:/etc/tor/
 
   base_node:
-    image: quay.io/tarilabs/tari_base_node:latest
+    image: ghcr.io/tari-project/minotari_node:latest-stagenet
     build:
       context: ./../../..
       dockerfile: applications/launchpad/docker_rig/base_node.Dockerfile
@@ -36,7 +36,7 @@ services:
     tty: true
 
   wallet:
-    image: quay.io/tarilabs/tari_console_wallet:latest
+    image: ghcr.io/tari-project/minotari_console_wallet:latest-stagenet
     build:
       context: ./../../..
       dockerfile: applications/launchpad/docker_rig/console_wallet.Dockerfile
@@ -64,7 +64,7 @@ services:
     #tty: true
 
   sha3_miner:
-    image: quay.io/tarilabs/tari_sha3_miner:latest
+    image: ghcr.io/tari-project/minotari_sha3_miner:latest-stagenet
     build:
       context: ./../../..
       dockerfile: applications/launchpad/docker_rig/sha3_miner.Dockerfile
@@ -89,7 +89,7 @@ services:
       - ${DATA_FOLDER}:/var/tari/
 
   xmrig:
-    image: quay.io/tarilabs/xmrig:latest
+    image: ghcr.io/tari-project/xmrig:latest
     build:
       context: .
       dockerfile: xmrig.Dockerfile
@@ -112,7 +112,7 @@ services:
       - ${DATA_FOLDER}/xmrig:/var/xmrig/
 
   monerod:
-    image: quay.io/tarilabs/monerod:latest
+    image: ghcr.io/tari-project/monerod:latest
     build:
       context: .
       dockerfile: monerod.Dockerfile
@@ -131,7 +131,7 @@ services:
       - "--${MONERO_NETWORK:-mainnet}"
 
   mm_proxy:
-    image: quay.io/tarilabs/tari_mm_proxy:latest
+    image: ghcr.io/tari-project/minotari_merge_mining_proxy:latest
     build:
       context: ./../../..
       dockerfile: applications/launchpad/docker_rig/mm_proxy.Dockerfile

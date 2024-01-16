@@ -23,13 +23,7 @@
 
 use anyhow::Error;
 use futures::StreamExt;
-use tari_common_types::tari_address::TariAddress;
-use tari_launchpad_protocol::{
-    launchpad::{LaunchpadDelta, Reaction},
-    wallet::{MyIdentity, WalletAction, WalletBalance, WalletDelta, WalletTransaction},
-};
-use tari_utilities::hex::Hex;
-use tari_wallet_grpc_client::{
+use minotari_wallet_grpc_client::{
     grpc::{
         Empty,
         GetAddressResponse,
@@ -40,6 +34,12 @@ use tari_wallet_grpc_client::{
     },
     WalletGrpcClient,
 };
+use tari_common_types::tari_address::TariAddress;
+use tari_launchpad_protocol::{
+    launchpad::{LaunchpadDelta, Reaction},
+    wallet::{MyIdentity, WalletAction, WalletBalance, WalletDelta, WalletTransaction},
+};
+use tari_utilities::hex::Hex;
 use tokio::{
     select,
     sync::mpsc::{self, error::TryRecvError},
@@ -162,11 +162,11 @@ impl WalletGrpcWorker {
                 tx_id: value.tx_id,
                 // source_pk: value.source_pk,
                 // dest_pk: value.dest_pk,
-                status: value.status,
+                status: value.status.clone(),
                 direction: value.direction,
                 amount: value.amount,
                 message: value.message,
-                is_coinbase: value.is_coinbase,
+                is_coinbase: &value.status == "11" || &value.status == "12" || &value.status == "13",
             };
             let delta = WalletDelta::LogTransaction(wt);
             self.send_update(delta)?;

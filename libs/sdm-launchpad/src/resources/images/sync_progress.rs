@@ -22,8 +22,8 @@
 
 use std::time::{Duration, Instant};
 
+use minotari_app_grpc::tari_rpc::{SyncProgressResponse, SyncState};
 use serde::Serialize;
-use tari_app_grpc::tari_rpc::{SyncProgressResponse, SyncState};
 
 pub const BLOCKS_SYNC_EXPECTED_TIME: Duration = Duration::from_secs(4 * 3600);
 pub const HEADERS_SYNC_EXPECTED_TIME: Duration = Duration::from_secs(2 * 3600);

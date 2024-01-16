@@ -213,6 +213,6 @@ pub struct StatsData {
 
 impl StatsData {
     pub fn get_mem_pct(&self) -> f32 {
-        self.mem_usage.get_bytes() as f32 * 100.0 / self.mem_limit.get_bytes() as f32
+        self.mem_usage.as_u128() as f32 * 100.0 / self.mem_limit.as_u128() as f32
     }
 }

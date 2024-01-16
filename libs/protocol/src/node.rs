@@ -1,8 +1,8 @@
 // // Copyright 2023. The Tari Project
 // // SPDX-License-Identifier: BSD-3-Clause
 
+use minotari_node_grpc_client::grpc::NodeIdentity;
 use serde::{Deserialize, Serialize};
-use tari_base_node_grpc_client::grpc::NodeIdentity;
 use tari_common_types::{emoji::EmojiId, types::PublicKey};
 use tari_utilities::byte_array::ByteArray;
 
@@ -18,7 +18,7 @@ impl TryFrom<NodeIdentity> for BaseNodeAddress {
     type Error = InvalidPublicKey;
 
     fn try_from(value: NodeIdentity) -> Result<Self, Self::Error> {
-        let public_key = PublicKey::from_bytes(&value.public_key).map_err(|e| InvalidPublicKey(e.to_string()))?;
+        let public_key = PublicKey::from_vec(&value.public_key).map_err(|e| InvalidPublicKey(e.to_string()))?;
         let emoji_id = EmojiId::from_public_key(&public_key).to_string();
         Ok(BaseNodeAddress {
             public_key: public_key.to_string(),

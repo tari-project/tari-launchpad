@@ -61,7 +61,7 @@ impl ManagedContainer for TariSha3Miner {
     }
 
     fn tag(&self) -> &str {
-        "0.52"
+        "latest-stagenet"
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {

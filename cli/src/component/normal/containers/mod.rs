@@ -23,6 +23,7 @@
 
 use std::{borrow::Cow, cell::RefCell};
 
+use byte_unit::UnitType;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Layout, Rect},
@@ -86,7 +87,7 @@ impl<B: Backend> Component<B> for ContainersScene {
                     if let Some(stat_data) = task_state.stats.last() {
                         let cpu_usage = task_state.stats.last_cpu().unwrap_or_default();
                         let usage = format!("{:.2} %", cpu_usage);
-                        let mem = stat_data.mem_usage.get_appropriate_unit(false).to_string();
+                        let mem = stat_data.mem_usage.get_appropriate_unit(UnitType::Decimal).to_string();
                         col_2 = Cow::Owned(usage);
                         col_3 = Cow::Owned(mem);
                         col_4 = Cow::Owned(task_state.status.to_string());

@@ -23,9 +23,10 @@
 
 use std::{ops::Deref, path::PathBuf};
 
-use anyhow::Error;
+use anyhow::{anyhow, Error};
+use minotari_node_grpc_client::grpc::NodeIdentity;
+use minotari_wallet_grpc_client::grpc::GetIdentityResponse;
 use serde::Serialize;
-use tari_base_node_grpc_client::grpc::NodeIdentity;
 use tari_common_types::{emoji::EmojiId, types::PublicKey};
 use tari_launchpad_protocol::session::LaunchpadSession;
 pub use tari_launchpad_protocol::{
@@ -34,7 +35,6 @@ pub use tari_launchpad_protocol::{
 };
 use tari_sdm::{config::ManagedProtocol, image::Envs};
 use tari_utilities::{hex::Hex, ByteArray};
-use tari_wallet_grpc_client::grpc::GetIdentityResponse;
 
 #[derive(Debug)]
 pub struct LaunchpadProtocol;
@@ -72,7 +72,7 @@ impl TryFrom<NodeIdentity> for BaseNodeIdentity {
     type Error = Error;
 
     fn try_from(value: NodeIdentity) -> Result<Self, Self::Error> {
-        let public_key = PublicKey::from_bytes(&value.public_key)?;
+        let public_key = PublicKey::from_vec(&value.public_key).map_err(|_| anyhow!("PublicKey failed to parse"))?;
         // TODO: Implement `Serialize` for `EmojiId`
         let emoji_id = EmojiId::from_public_key(&public_key).to_string();
         Ok(BaseNodeIdentity {
@@ -97,7 +97,7 @@ impl TryFrom<GetIdentityResponse> for WalletIdentity {
     type Error = Error;
 
     fn try_from(value: GetIdentityResponse) -> Result<Self, Self::Error> {
-        let public_key = PublicKey::from_bytes(&value.public_key)?;
+        let public_key = PublicKey::from_vec(&value.public_key).map_err(|_| anyhow!("PublicKey failed to parse"))?;
         let emoji_id = EmojiId::from_public_key(&public_key).to_string();
         Ok(WalletIdentity {
             public_key: value.public_key,

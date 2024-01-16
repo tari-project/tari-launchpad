@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use anyhow::Error;
-use tari_app_grpc::tari_rpc::{
+use minotari_app_grpc::tari_rpc::{
     base_node_client::BaseNodeClient,
     BaseNodeState,
     Empty,
