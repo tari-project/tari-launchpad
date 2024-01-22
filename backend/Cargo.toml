@@ -45,7 +45,7 @@ derivative = "2.2.0"
 # Forcing this version due to conflicts in dependencies
 sqlx-core = { version = "=0.5.7" }
 tauri-plugin-sql = { git = "https://github.com/tauri-apps/plugins-workspace", features = ["sqlite"], branch = "v1" }
-tonic = { version = "0.6.2", features = ["tls"] }
+tonic = { version = "0.8.3", features = ["tls"] }
 hex = "0.4.3"
 reqwest = { version = "0.11.16", features = ["json"] }
 

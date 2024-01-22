@@ -35,7 +35,6 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
 };
 use send_funds::SendFundsWidget;
-pub use send_funds::SEND_FUNDS;
 
 use crate::{
     component::{Component, ComponentEvent, Frame, Input},

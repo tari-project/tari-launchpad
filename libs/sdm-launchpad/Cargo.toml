@@ -7,13 +7,13 @@ repository = "https://github.com/tari-project/tari-launchpad"
 edition = "2021"
 
 [dependencies]
-minotari_app_grpc = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.1" }
-minotari_node_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.1" }
-tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.1" }
+minotari_app_grpc = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
+minotari_node_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
+tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
 tari_launchpad_protocol = { path = "../protocol" }
 tari_sdm_assets = { path = "../sdm-assets" }
 tari_sdm = { path = "../sdm" }
-minotari_wallet_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.1" }
+minotari_wallet_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
 tari_utilities = "0.7.0"
 openssl = { version = "0.10.55", features = ["vendored"] }
 
@@ -30,5 +30,5 @@ thiserror = "1.0.44"
 tor-hash-passwd = "1.0.1"
 tokio = "1.29.1"
 toml = "0.8.8"
-tonic = { version = "0.6.2", features = ["tls"] }
+tonic = { version = "0.8.3", features = ["tls"] }
 chrono = "0.4.31"

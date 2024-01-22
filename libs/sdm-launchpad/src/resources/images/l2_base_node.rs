@@ -83,7 +83,7 @@ impl ManagedContainer for TariBaseNode {
     }
 
     fn tag(&self) -> &str {
-        "latest-stagenet"
+        "latest-nextnet"
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {

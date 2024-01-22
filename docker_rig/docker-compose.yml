@@ -9,7 +9,7 @@ services:
       - ${DATA_FOLDER}/tor:/etc/tor/
 
   base_node:
-    image: ghcr.io/tari-project/minotari_node:latest-stagenet
+    image: ghcr.io/tari-project/minotari_node:latest-nextnet
     build:
       context: ./../../..
       dockerfile: applications/launchpad/docker_rig/base_node.Dockerfile
@@ -36,7 +36,7 @@ services:
     tty: true
 
   wallet:
-    image: ghcr.io/tari-project/minotari_console_wallet:latest-stagenet
+    image: ghcr.io/tari-project/minotari_console_wallet:latest-nextnet
     build:
       context: ./../../..
       dockerfile: applications/launchpad/docker_rig/console_wallet.Dockerfile
@@ -64,7 +64,7 @@ services:
     #tty: true
 
   sha3_miner:
-    image: ghcr.io/tari-project/minotari_sha3_miner:latest-stagenet
+    image: ghcr.io/tari-project/minotari_sha3_miner:latest-nextnet
     build:
       context: ./../../..
       dockerfile: applications/launchpad/docker_rig/sha3_miner.Dockerfile
