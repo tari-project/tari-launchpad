@@ -198,9 +198,11 @@ impl Do<TermEvent> for Dashboard {
             TermEvent::Event(event) => {
                 if let Event::Key(key) = event {
                     // Don't process key down events, only key up, otherwise repeat rate is too high.
+                    #[cfg(windows)]
                     if key.kind != crossterm::event::KeyEventKind::Release {
                         return Ok(());
                     }
+
                     let state = self.state.as_mut().ok_or_else(|| DashboardError::State)?;
                     self.main_view.on_event(key.into(), state);
                     let changed = state.process_events();
