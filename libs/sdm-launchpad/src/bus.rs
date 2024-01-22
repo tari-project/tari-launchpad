@@ -83,7 +83,8 @@ impl LaunchpadWorker {
         in_rx: mpsc::UnboundedReceiver<Action>,
         out_tx: mpsc::UnboundedSender<Reaction>,
     ) -> Result<(), Error> {
-        let mut scope = SdmScope::connect("stagenet")?;
+        // TODO: This should respect the configured network and not be hardcoded
+        let mut scope = SdmScope::connect("nextnet")?;
         scope.add_network(networks::LocalNet::default())?;
         scope.add_volume(volumes::SharedVolume::default())?;
         scope.add_volume(volumes::SharedGrafanaVolume::default())?;

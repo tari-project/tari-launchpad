@@ -1,8 +1,8 @@
 # Config for launchpad v1.0.0
 [base_node]
-network = "stagenet"
+network = "nextnet"
 grpc_address = "/ip4/0.0.0.0/tcp/18142"
-override_from = "stagenet"
+override_from = "nextnet"
 grpc_enabled = true
 
 [base_node.storage]
