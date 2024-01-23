@@ -50,6 +50,7 @@ COPY infrastructure infrastructure
 COPY meta meta
 COPY buildtools/deps_only buildtools/deps_only
 COPY integration_tests integration_tests
+COPY hash_domains hash_domains
 COPY scripts scripts
 
 # Disable Prompt During Packages Installation
