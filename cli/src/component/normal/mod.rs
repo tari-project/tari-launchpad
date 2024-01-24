@@ -24,14 +24,12 @@
 mod base_node;
 pub mod containers;
 mod mining;
-mod wallet;
 
 use mining::MiningPanel;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
-use wallet::WalletScene;
 
 use crate::{
     component::{
@@ -47,7 +45,6 @@ use crate::{
 pub struct NormalScene {
     mining_panel: MiningPanel,
     base_node_widget: BaseNodeWidget,
-    wallet_scene: WalletScene,
     containers_scene: ContainersScene,
 }
 
@@ -56,7 +53,6 @@ impl NormalScene {
         Self {
             mining_panel: MiningPanel::new(),
             base_node_widget: BaseNodeWidget::new(),
-            wallet_scene: WalletScene::new(),
             containers_scene: ContainersScene::new(),
         }
     }
@@ -68,7 +64,6 @@ impl Input for NormalScene {
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         self.base_node_widget.on_event(event, state);
         self.mining_panel.on_event(event, state);
-        self.wallet_scene.on_event(event, state);
         None
     }
 }
@@ -99,6 +94,5 @@ impl<B: Backend> Component<B> for NormalScene {
         self.containers_scene.draw(f, windows[1], state);
         self.mining_panel.draw(f, panels[0], state);
         self.base_node_widget.draw(f, panels[1], state);
-        self.wallet_scene.draw(f, panels[2], state);
     }
 }

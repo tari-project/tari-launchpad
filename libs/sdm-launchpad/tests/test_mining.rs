@@ -59,7 +59,7 @@ struct TestState {
 impl TestState {
     fn initialize() -> Result<Self, Error> {
         let inner = TestStateInner::setup(1200)?;
-        let wallet_containers = vec![images::Tor::id(), images::TariBaseNode::id(), images::TariWallet::id()];
+        let wallet_containers = vec![images::Tor::id(), images::TariBaseNode::id()];
         let mining_containers = vec![images::TariSha3Miner::id()];
         Ok(Self {
             initial_funds: 0,

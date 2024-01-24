@@ -26,7 +26,7 @@ use tari_sdm::{
     image::{Args, Envs, ManagedContainer, Mounts, Networks, Volumes},
 };
 
-use super::{TariBaseNode, TariWallet, DEFAULT_REGISTRY, GENERAL_VOLUME};
+use super::{TariBaseNode, DEFAULT_REGISTRY, GENERAL_VOLUME};
 use crate::resources::{
     config::{ConnectionSettings, LaunchpadConfig, LaunchpadProtocol},
     images::VAR_TARI_PATH,
@@ -45,7 +45,7 @@ impl ManagedTask for TariSha3Miner {
     }
 
     fn deps() -> Vec<TaskId> {
-        vec![TariBaseNode::id(), TariWallet::id(), LocalNet::id(), SharedVolume::id()]
+        vec![TariBaseNode::id(), LocalNet::id(), SharedVolume::id()]
     }
 }
 
@@ -86,7 +86,6 @@ impl ManagedContainer for TariSha3Miner {
                 ),
                 "/dns4/base_node/tcp/18142",
             );
-            envs.set("TARI_WALLET__GRPC_ADDRESS", "/dns4/wallet/tcp/18143");
         }
         envs.set("SHELL", "/bin/bash");
         envs.set("TERM", "linux");

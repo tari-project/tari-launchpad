@@ -29,13 +29,11 @@ use anyhow::Error;
 pub use focus::Focus;
 use tari_launchpad_protocol::{
     launchpad::{Action, LaunchpadAction, LaunchpadState},
-    wallet::WalletAction,
 };
 use tari_sdm_launchpad::bus::BusTx;
 
 pub enum AppEvent {
     SetFocus(Focus),
-    SendAction(WalletAction),
     SettingsChanged,
     UpdateState,
 }
@@ -57,11 +55,6 @@ impl AppState {
             state,
             terminate: false,
         }
-    }
-
-    pub fn send_action(&mut self, action: WalletAction) {
-        let event = AppEvent::SendAction(action);
-        self.events_queue.push_front(event);
     }
 
     pub fn is_terminated(&mut self) -> bool {
@@ -109,11 +102,6 @@ impl AppState {
             match event {
                 AppEvent::SetFocus(value) => {
                     self.focus_on = value;
-                },
-                AppEvent::SendAction(action) => {
-                    let action = LaunchpadAction::WalletAction(action);
-                    let action = Action::Action(action);
-                    self.bus_tx.send(action)?;
                 },
                 AppEvent::UpdateState => {
                     let new_session = self.state.config.session.clone();

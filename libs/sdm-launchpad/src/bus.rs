@@ -42,7 +42,6 @@ use crate::{
         networks,
         volumes,
     },
-    wallet_grpc::WalletGrpc,
 };
 
 pub type BusTx = mpsc::UnboundedSender<Action>;
@@ -71,8 +70,6 @@ pub struct LaunchpadWorker {
     in_rx: mpsc::UnboundedReceiver<Action>,
     // TODO: Share the sender with the wallet
     out_tx: mpsc::UnboundedSender<Reaction>,
-    wallet_task_id: TaskId,
-    wallet_grpc: Option<WalletGrpc>,
     node_grpc: Option<NodeGrpc>,
 }
 
@@ -91,7 +88,6 @@ impl LaunchpadWorker {
 
         scope.add_image(images::Tor::default())?;
         scope.add_image(images::TariBaseNode::default())?;
-        scope.add_image(images::TariWallet::default())?;
         scope.add_image(images::TariSha3Miner::default())?;
 
         scope.add_image(images::Loki::default())?;
@@ -108,8 +104,6 @@ impl LaunchpadWorker {
             scope,
             in_rx,
             out_tx,
-            wallet_task_id: images::TariWallet::id(),
-            wallet_grpc: None,
             node_grpc: None,
         };
         worker.entrypoint().await;
@@ -198,11 +192,6 @@ impl LaunchpadWorker {
                 let config = self.state.config.clone();
                 self.scope.set_config(Some(config))?;
             },
-            LaunchpadAction::WalletAction(action) => {
-                if let Some(grpc) = self.wallet_grpc.as_mut() {
-                    grpc.send_action(action)?;
-                }
-            },
             LaunchpadAction::SaveSettings(settings) => {
                 self.save_settings(settings).await?;
             },
@@ -268,9 +257,6 @@ impl LaunchpadWorker {
                 self.apply_delta(state);
             },
             Report::Delta(delta) => {
-                if report.task_id == self.wallet_task_id {
-                    self.check_wallet_grpc(&delta);
-                }
                 if report.task_id == images::TariBaseNode::id() {
                     self.check_node_grpc(&delta);
                 }
@@ -286,24 +272,6 @@ impl LaunchpadWorker {
             Report::Extras(_) => {},
         }
         Ok(())
-    }
-
-    // Only called if the task is the wallet task
-    fn check_wallet_grpc(&mut self, delta: &TaskDelta) {
-        if let TaskDelta::UpdateStatus(status) = delta {
-            if status.is_active() {
-                if self.wallet_grpc.is_none() {
-                    let grpc = WalletGrpc::new(self.out_tx.clone());
-                    self.wallet_grpc = Some(grpc);
-                }
-            } else {
-                // Detaches grpc instances that closes a channel
-                if self.wallet_grpc.is_some() {
-                    self.wallet_grpc.take();
-                    // TODO: Send a delta about grpc
-                }
-            }
-        }
     }
 
     // Only called if the task is the base node task

@@ -23,7 +23,6 @@
 
 mod l1_tor;
 mod l2_base_node;
-mod l2_wallet;
 mod l3_miner;
 mod l5_mmproxy;
 mod l5_xmrig;
@@ -34,7 +33,6 @@ mod sync_progress;
 
 pub use l1_tor::Tor;
 pub use l2_base_node::TariBaseNode;
-pub use l2_wallet::TariWallet;
 pub use l3_miner::TariSha3Miner;
 pub use l5_mmproxy::MmProxy;
 pub use l5_xmrig::XMRig;

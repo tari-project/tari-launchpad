@@ -38,26 +38,6 @@ pub struct BaseNodeConfig {
     pub interactive: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct WalletConfig {
-    /// The password to de/en-crypt the wallet database
-    pub password: String,
-    /// Should the peer DB be deleted before starting up. Issue: https://github.com/tari-project/tari/issues/5998
-    pub clear_peer_db: bool,
-    /// Should wallet be started in interactive mode.
-    pub interactive: bool,
-}
-
-impl Default for WalletConfig {
-    fn default() -> Self {
-        WalletConfig {
-            password: String::new(),
-            clear_peer_db: true,
-            interactive: false,
-        }
-    }
-}
-
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct XmRigConfig {
     /// The address that will accept Monero mining rewards
@@ -112,8 +92,6 @@ pub struct PersistentSettings {
     pub tari_network: TariNetwork,
     /// Base node configuration.
     pub base_node: Option<BaseNodeConfig>,
-    /// Wallet configuration settings
-    pub wallet: Option<WalletConfig>,
     /// SHA3x miner settings
     pub sha3_miner: Option<Sha3MinerConfig>,
     /// Merge-mining proxy settings
@@ -131,10 +109,6 @@ impl PersistentSettings {
         self.base_node = Some(BaseNodeConfig::default());
     }
 
-    pub fn new_wallet_settings(&mut self) {
-        self.wallet = Some(WalletConfig::default());
-    }
-
     pub fn new_sha3_miner_settings(&mut self) {
         self.sha3_miner = Some(Sha3MinerConfig::default());
     }
@@ -145,15 +119,6 @@ impl PersistentSettings {
 
     pub fn new_xmrig_settings(&mut self) {
         self.xmrig = Some(XmRigConfig::default());
-    }
-
-    pub fn set_wallet_password<S: Into<String>>(&mut self, password: S) {
-        if self.wallet.is_none() {
-            self.new_wallet_settings();
-        }
-        if let Some(w) = self.wallet.as_mut() {
-            w.password = password.into()
-        };
     }
 
     pub fn set_monero_mining_address<S: Into<String>>(&mut self, address: S) {
