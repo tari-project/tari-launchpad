@@ -38,18 +38,10 @@ impl<B: Backend> Component<B> for SessionStatWidget {
     }
 }
 
-fn calculate_stats(state: &AppState) -> SessionStats {
-    let session = &state.state.wallet;
-    let total_confirmed = TariFormat::from(session.session_confirmed_mined);
-    let total_pending = TariFormat::from(session.session_pending);
-    let blocks_mined = session
-        .mined_transactions
-        .values()
-        .filter(|tx| tx.event == "mined")
-        .count() as u64;
+fn calculate_stats(_state: &AppState) -> SessionStats {
     SessionStats {
-        total_confirmed,
-        total_pending,
-        blocks_mined,
+        total_confirmed: 0.into(),
+        total_pending: 0.into(),
+        blocks_mined: 0,
     }
 }
