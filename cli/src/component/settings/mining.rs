@@ -49,12 +49,14 @@ pub static MINING_SETTINGS: Focus = focus_id!();
 static MONERO_ADDRESS: Focus = focus_id!();
 static SHA_THREADS: Focus = focus_id!();
 static MONERO_URL: Focus = focus_id!();
+static WALLET_PAYMENT_ADDRESS: Focus = focus_id!();
 
 pub struct MiningSettings {
     expert_sep: Separator,
     monero_address: LabeledInput,
-    sha_threads: LabeledInput<usize>,
     monero_url: LabeledInput,
+    sha_threads: LabeledInput<usize>,
+    wallet_payment_address: LabeledInput,
 }
 
 impl MiningSettings {
@@ -62,14 +64,19 @@ impl MiningSettings {
         Self {
             expert_sep: Separator::new("Expert", []),
             monero_address: LabeledInput::new("Monero mining address", MONERO_ADDRESS),
-            sha_threads: LabeledInput::new_with_value("SHA3 threads", SHA_THREADS, 2),
             monero_url: LabeledInput::new("Monero node URL", MONERO_URL),
+            sha_threads: LabeledInput::new_with_value("SHA3 threads", SHA_THREADS, 2),
+            wallet_payment_address: LabeledInput::new("Wallet payment address", WALLET_PAYMENT_ADDRESS),
         }
     }
 
     pub fn check_for_updated_settings(&mut self, state: &mut AppState) {
         let mut should_write = false;
         if let Some(LaunchpadSettings { saved_settings, .. }) = &mut state.state.config.settings {
+            if let Some(v) = self.wallet_payment_address.fetch_new_value() {
+                saved_settings.set_wallet_payment_address(v);
+                should_write = true;
+            }
             if let Some(v) = self.monero_url.fetch_new_value() {
                 saved_settings.set_monerod_url(v);
                 should_write = true;
@@ -158,11 +165,27 @@ impl Input for MiningSettings {
                     state.focus_on(SHA_THREADS);
                 },
                 Pass::Down if released => {
-                    state.focus_on(MINING_SETTINGS);
+                    state.focus_on(WALLET_PAYMENT_ADDRESS);
                 },
                 _ => {
                     self.monero_url.on_event(event, state);
                 },
+            }
+        } else if state.focus_on == WALLET_PAYMENT_ADDRESS {
+            let released = self.wallet_payment_address.is_released();
+                match event.pass() {
+                    Pass::Leave if released => {
+                        state.focus_on(MINING_SETTINGS);
+                    },
+                    Pass::Up if released => {
+                        state.focus_on(MONERO_URL);
+                    },
+                    Pass::Down if released => {
+                        state.focus_on(MINING_SETTINGS);
+                    },
+                    _ => {
+                        self.wallet_payment_address.on_event(event, state);
+                    },
             }
         } else {
             //
@@ -184,6 +207,7 @@ impl<B: Backend> Component<B> for MiningSettings {
             Constraint::Length(3),
             Constraint::Length(3),
             Constraint::Length(3),
+            Constraint::Length(3),
             Constraint::Min(0),
         ];
         let chunks = Layout::default()
@@ -196,5 +220,6 @@ impl<B: Backend> Component<B> for MiningSettings {
         self.monero_address.draw(f, chunks[1], state);
         self.sha_threads.draw(f, chunks[2], state);
         self.monero_url.draw(f, chunks[3], state);
+        self.wallet_payment_address.draw(f, chunks[4], state);
     }
 }

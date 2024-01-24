@@ -21,6 +21,8 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+use log::{info, warn};
+use tari_common_types::tari_address::TariAddress;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
     image::{Args, Envs, ManagedContainer, Mounts, Networks, Volumes},
@@ -34,9 +36,19 @@ use crate::resources::{
     volumes::SharedVolume,
 };
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct TariSha3Miner {
     settings: Option<ConnectionSettings>,
+    wallet_payment_address: Option<TariAddress>,
+}
+
+impl Default for TariSha3Miner {
+    fn default() -> Self {
+        TariSha3Miner {
+            settings: None,
+            wallet_payment_address: None,
+        }
+    }
 }
 
 impl ManagedTask for TariSha3Miner {
@@ -67,7 +79,20 @@ impl ManagedContainer for TariSha3Miner {
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;
-        Some(session.is_sha3x_active())
+
+        self.wallet_payment_address = match config?.settings {
+            Some(ref settings) if settings.saved_settings.sha3_miner.is_none() => {
+                info!("No Sha3 Miner settings found for the container configuration. Falling back on defaults.");
+                None
+            }
+            Some(ref settings) => settings.saved_settings.sha3_miner.clone()?.wallet_payment_address,
+            None => {
+                warn!("The settings configuration for the Sha3 Miner config is empty");
+                None
+            }
+        };
+
+        Some(self.wallet_payment_address.is_some() && session.is_sha3x_active())
     }
 
     fn args(&self, args: &mut Args) {
@@ -91,6 +116,10 @@ impl ManagedContainer for TariSha3Miner {
         envs.set("TERM", "linux");
         envs.set("APP_NAME", "minotari_sha3_miner");
         envs.set("APP_EXEC", "minotari_miner");
+
+        if let Some(payment_address) = self.wallet_payment_address.as_ref() {
+            envs.set("TARI_MINER__WALLET_PAYMENT_ADDRESS", payment_address.to_hex());
+        }
     }
 
     fn networks(&self, networks: &mut Networks) {
