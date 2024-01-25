@@ -120,72 +120,72 @@ impl Input for MiningSettings {
             match event.pass() {
                 Pass::Up | Pass::Leave => {
                     state.focus_on(focus::ROOT);
-                },
+                }
                 Pass::Down | Pass::Enter => {
                     state.focus_on(MONERO_ADDRESS);
-                },
-                _ => {},
+                }
+                _ => {}
             }
         } else if state.focus_on == MONERO_ADDRESS {
             let released = self.monero_address.is_released();
             match event.pass() {
                 Pass::Up | Pass::Leave if released => {
                     state.focus_on(MINING_SETTINGS);
-                },
+                }
                 Pass::Down if released => {
                     state.focus_on(SHA_THREADS);
-                },
+                }
                 _ => {
                     self.monero_address.on_event(event, state);
-                },
+                }
             }
         } else if state.focus_on == SHA_THREADS {
             let released = self.sha_threads.is_released();
             match event.pass() {
                 Pass::Leave if released => {
                     state.focus_on(MINING_SETTINGS);
-                },
+                }
                 Pass::Up if released => {
                     state.focus_on(MONERO_ADDRESS);
-                },
+                }
                 Pass::Down if released => {
                     state.focus_on(MONERO_URL);
-                },
+                }
                 _ => {
                     self.sha_threads.on_event(event, state);
-                },
+                }
             }
         } else if state.focus_on == MONERO_URL {
             let released = self.monero_url.is_released();
             match event.pass() {
                 Pass::Leave if released => {
                     state.focus_on(MINING_SETTINGS);
-                },
+                }
                 Pass::Up if released => {
                     state.focus_on(SHA_THREADS);
-                },
+                }
                 Pass::Down if released => {
                     state.focus_on(WALLET_PAYMENT_ADDRESS);
-                },
+                }
                 _ => {
                     self.monero_url.on_event(event, state);
-                },
+                }
             }
         } else if state.focus_on == WALLET_PAYMENT_ADDRESS {
             let released = self.wallet_payment_address.is_released();
-                match event.pass() {
-                    Pass::Leave if released => {
-                        state.focus_on(MINING_SETTINGS);
-                    },
-                    Pass::Up if released => {
-                        state.focus_on(MONERO_URL);
-                    },
-                    Pass::Down if released => {
-                        state.focus_on(MINING_SETTINGS);
-                    },
-                    _ => {
-                        self.wallet_payment_address.on_event(event, state);
-                    },
+            match event.pass() {
+                Pass::Leave if released => {
+                    state.focus_on(MINING_SETTINGS);
+                }
+                Pass::Up if released => {
+                    state.focus_on(MONERO_URL);
+                }
+                Pass::Down if released => {
+                    state.focus_on(MINING_SETTINGS);
+                }
+                _ => {
+                    self.wallet_payment_address.on_event(event, state);
+                }
             }
         } else {
             //

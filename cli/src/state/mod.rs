@@ -27,9 +27,7 @@ use std::collections::VecDeque;
 
 use anyhow::Error;
 pub use focus::Focus;
-use tari_launchpad_protocol::{
-    launchpad::{Action, LaunchpadAction, LaunchpadState},
-};
+use tari_launchpad_protocol::launchpad::{Action, LaunchpadAction, LaunchpadState};
 use tari_sdm_launchpad::bus::BusTx;
 
 pub enum AppEvent {
@@ -102,13 +100,13 @@ impl AppState {
             match event {
                 AppEvent::SetFocus(value) => {
                     self.focus_on = value;
-                },
+                }
                 AppEvent::UpdateState => {
                     let new_session = self.state.config.session.clone();
                     let event = LaunchpadAction::ChangeSession(new_session);
                     let action = Action::Action(event);
                     self.bus_tx.send(action)?;
-                },
+                }
                 AppEvent::SettingsChanged => {
                     let settings = self
                         .state
@@ -124,7 +122,7 @@ impl AppState {
                         })?;
                     let action = Action::Action(LaunchpadAction::SaveSettings(settings));
                     self.bus_tx.send(action)?;
-                },
+                }
             }
         }
         Ok(())

@@ -36,19 +36,10 @@ use crate::resources::{
     volumes::SharedVolume,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct TariSha3Miner {
     settings: Option<ConnectionSettings>,
     wallet_payment_address: Option<TariAddress>,
-}
-
-impl Default for TariSha3Miner {
-    fn default() -> Self {
-        TariSha3Miner {
-            settings: None,
-            wallet_payment_address: None,
-        }
-    }
 }
 
 impl ManagedTask for TariSha3Miner {
@@ -84,12 +75,12 @@ impl ManagedContainer for TariSha3Miner {
             Some(ref settings) if settings.saved_settings.sha3_miner.is_none() => {
                 info!("No Sha3 Miner settings found for the container configuration. Falling back on defaults.");
                 None
-            }
+            },
             Some(ref settings) => settings.saved_settings.sha3_miner.clone()?.wallet_payment_address,
             None => {
                 warn!("The settings configuration for the Sha3 Miner config is empty");
                 None
-            }
+            },
         };
 
         Some(self.wallet_payment_address.is_some() && session.is_sha3x_active())

@@ -49,7 +49,7 @@ pub struct XmRigConfig {
 pub struct Sha3MinerConfig {
     /// The number of threads to employ for SHA3 mining
     pub num_mining_threads: usize,
-    pub wallet_payment_address: Option<TariAddress>
+    pub wallet_payment_address: Option<TariAddress>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
