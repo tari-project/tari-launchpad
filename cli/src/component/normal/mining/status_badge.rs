@@ -57,7 +57,8 @@ impl<G> Input for StatusBadge<G> {
 }
 
 impl<B: Backend, G> Component<B> for StatusBadge<G>
-where G: StatusGetter
+where
+    G: StatusGetter,
 {
     type State = AppState;
 

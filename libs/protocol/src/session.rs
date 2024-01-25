@@ -53,28 +53,28 @@ impl LaunchpadSession {
     }
 
     pub fn is_tor_active(&self) -> bool {
-        self.all_active ||
-            self.tor_active ||
-            self.is_base_node_active() ||
-            self.is_wallet_active() ||
-            self.is_sha3x_active() ||
-            self.is_mmproxy_active()
+        self.all_active
+            || self.tor_active
+            || self.is_base_node_active()
+            || self.is_wallet_active()
+            || self.is_sha3x_active()
+            || self.is_mmproxy_active()
     }
 
     pub fn is_base_node_active(&self) -> bool {
-        self.all_active ||
-            self.base_layer_active ||
-            self.base_node_active ||
-            self.is_wallet_active() ||
-            self.merge_layer_active
+        self.all_active
+            || self.base_layer_active
+            || self.base_node_active
+            || self.is_wallet_active()
+            || self.merge_layer_active
     }
 
     pub fn is_wallet_active(&self) -> bool {
-        self.all_active ||
-            self.wallet_layer_active ||
-            self.wallet_active ||
-            self.is_sha3x_active() ||
-            self.merge_layer_active
+        self.all_active
+            || self.wallet_layer_active
+            || self.wallet_active
+            || self.is_sha3x_active()
+            || self.merge_layer_active
     }
 
     /// Indicates which states signal that the SHA3x miner should be active

@@ -84,7 +84,9 @@ impl<S: TaskStatusChecker> SdmStatus<S> {
     }
 
     pub fn update<F>(&mut self, func: F)
-    where F: FnOnce(&mut S) {
+    where
+        F: FnOnce(&mut S),
+    {
         func(&mut self.status);
     }
 

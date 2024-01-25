@@ -71,7 +71,9 @@ impl<W: Widget> PodScope<W> {
     }
 
     pub fn event<IN>(&self, msg: W::Msg) -> Callback<IN>
-    where W::Msg: Clone {
+    where
+        W::Msg: Clone,
+    {
         self.scope.callback(move |_: IN| Msg::WidgetMsg(msg.clone()))
     }
 }

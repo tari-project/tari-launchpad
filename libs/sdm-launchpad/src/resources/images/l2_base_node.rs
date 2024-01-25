@@ -30,23 +30,12 @@ use tari_sdm::{
     ids::{ManagedTask, TaskId},
     image::{
         checker::{CheckerContext, CheckerEvent, ContainerChecker},
-        Args,
-        Envs,
-        ManagedContainer,
-        Mounts,
-        Networks,
-        Ports,
-        Volumes,
+        Args, Envs, ManagedContainer, Mounts, Networks, Ports, Volumes,
     },
 };
 
 use super::{
-    sync_progress::SyncProgress,
-    Tor,
-    BLOCKCHAIN_PATH,
-    BLOCKCHAIN_VOLUME,
-    DEFAULT_REGISTRY,
-    GENERAL_VOLUME,
+    sync_progress::SyncProgress, Tor, BLOCKCHAIN_PATH, BLOCKCHAIN_VOLUME, DEFAULT_REGISTRY, GENERAL_VOLUME,
     VAR_TARI_PATH,
 };
 use crate::resources::{

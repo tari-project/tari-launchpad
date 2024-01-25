@@ -34,7 +34,9 @@ pub struct Timeout {
 
 impl Timeout {
     pub fn spawn<M>(duration: Duration, notifier: Notifier<M>) -> Self
-    where M: Clone + Send + 'static {
+    where
+        M: Clone + Send + 'static,
+    {
         let task = Task::spawn(async move {
             time::sleep(duration).await;
             if let Err(err) = notifier.notify() {
@@ -52,7 +54,9 @@ pub struct Interval {
 
 impl Interval {
     pub fn spawn<M>(duration: Duration, notifier: Notifier<M>) -> Self
-    where M: Clone + Send + 'static {
+    where
+        M: Clone + Send + 'static,
+    {
         let task = Task::spawn(async move {
             loop {
                 time::sleep(duration).await;

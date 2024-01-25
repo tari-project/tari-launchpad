@@ -34,10 +34,7 @@ use ratatui::{
 use crate::{
     component::{
         normal::{base_node::BaseNodeWidget, containers::ContainersScene},
-        Component,
-        ComponentEvent,
-        Frame,
-        Input,
+        Component, ComponentEvent, Frame, Input,
     },
     state::AppState,
 };

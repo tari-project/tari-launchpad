@@ -104,7 +104,9 @@ impl<C: ManagedProtocol> SdmScope<C> {
     }
 
     pub fn add_image<I>(&mut self, entry: I) -> Result<(), Error>
-    where I: ManagedContainer<Protocol = C> + ManagedTask {
+    where
+        I: ManagedContainer<Protocol = C> + ManagedTask,
+    {
         // TODO: DRY!
         let entry = Box::new(entry);
         let inner = ImageTask::new(&self.scope, entry);
@@ -119,7 +121,9 @@ impl<C: ManagedProtocol> SdmScope<C> {
     }
 
     pub fn add_network<N>(&mut self, entry: N) -> Result<(), Error>
-    where N: ManagedNetwork<Protocol = C> + ManagedTask {
+    where
+        N: ManagedNetwork<Protocol = C> + ManagedTask,
+    {
         // TODO: DRY!
         let entry = Box::new(entry);
         let inner = NetworkTask::new(&self.scope, entry);
@@ -134,7 +138,9 @@ impl<C: ManagedProtocol> SdmScope<C> {
     }
 
     pub fn add_volume<V>(&mut self, entry: V) -> Result<(), Error>
-    where V: ManagedVolume<Protocol = C> + ManagedTask {
+    where
+        V: ManagedVolume<Protocol = C> + ManagedTask,
+    {
         // TODO: DRY!
         let entry = Box::new(entry);
         let inner = VolumeTask::new(&self.scope, entry);

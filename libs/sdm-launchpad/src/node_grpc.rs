@@ -5,12 +5,7 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use minotari_app_grpc::tari_rpc::{
-    base_node_client::BaseNodeClient,
-    BaseNodeState,
-    Empty,
-    NetworkStatusResponse,
-    NodeIdentity,
-    TipInfoResponse,
+    base_node_client::BaseNodeClient, BaseNodeState, Empty, NetworkStatusResponse, NodeIdentity, TipInfoResponse,
 };
 use tari_launchpad_protocol::{
     errors::ErrorRecord,

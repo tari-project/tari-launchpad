@@ -62,7 +62,7 @@ favorite text editor instead.
 Logs and configuration files are stored in 
 * MacOs: `~/Library/Caches/tari-launchpad/log/{network}/{app}/log`,
 * Linux: `~/.cache/tari-launchpad/log/{network}/{app}/log`,
-* Windows: `???`
+* Windows: `C:\Users\{user}\AppData\Local\tari-launchpad`
 
 You can edit the log configuration, `{network}/config/log4rs.yml` to change the log level, output etc. Changes are 
 picked up on the fly and take effect within 30s.

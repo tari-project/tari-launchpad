@@ -38,9 +38,7 @@ use crate::{
     node_grpc::NodeGrpc,
     resources::{
         config::{LaunchpadProtocol, LaunchpadSettings},
-        images,
-        networks,
-        volumes,
+        images, networks, volumes,
     },
 };
 

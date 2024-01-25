@@ -51,7 +51,8 @@ pub struct AppTabs<T> {
 }
 
 impl<T> AppTabs<T>
-where T: IntoEnumIterator
+where
+    T: IntoEnumIterator,
 {
     pub fn new() -> Self {
         Self {
@@ -89,7 +90,8 @@ impl<T> AppTabs<T> {
 }
 
 impl<T> Input for AppTabs<T>
-where T: TabGetter
+where
+    T: TabGetter,
 {
     type Output = ();
 

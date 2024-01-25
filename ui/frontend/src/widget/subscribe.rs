@@ -105,7 +105,8 @@ trait Listener<T: State>: Send + Sync {
 }
 
 impl<T: State, M> Listener<T> for mpsc::UnboundedSender<M>
-where M: FromDelta<T> + Send
+where
+    M: FromDelta<T> + Send,
 {
     fn send(&self, delta: &T::Delta) {
         if let Some(event) = M::from_delta(delta) {
@@ -169,7 +170,9 @@ impl<T: State> SharedStateExtern<T> {
     }
 
     pub(super) fn register<W: Widget>(&self, ctx: &PodScope<W>) -> Connected<T>
-    where W::Msg: FromDelta<T> {
+    where
+        W::Msg: FromDelta<T>,
+    {
         let mut inner = self.inner.write().unwrap();
         let listener = Connector::spawn_for(ctx);
         let idx = inner.listeners.insert(listener);
@@ -197,7 +200,9 @@ struct Connector<W: Widget> {
 
 impl<W: Widget> Connector<W> {
     fn spawn_for<T: State>(link: &PodScope<W>) -> Box<dyn Listener<T>>
-    where W::Msg: FromDelta<T> {
+    where
+        W::Msg: FromDelta<T>,
+    {
         let (tx, rx) = mpsc::unbounded();
         let this = Self {
             link: link.clone(),
