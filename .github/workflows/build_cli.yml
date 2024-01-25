@@ -12,7 +12,7 @@ name: Build cli
   workflow_dispatch:
 
 env:
-  toolchain: nightly-2023-06-04
+  toolchain: stable
   matrix-json-file: ".github/workflows/build_cli.json"
   CARGO_HTTP_MULTIPLEXING: false
   CARGO_UNSTABLE_SPARSE_REGISTRY: true
