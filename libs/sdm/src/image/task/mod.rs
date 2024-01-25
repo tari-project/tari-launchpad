@@ -167,7 +167,7 @@ pub enum Event {
     Started,
     Killed,
     Terminated,
-    CheckerEvent(CheckerEvent),
+    CheckerProgress(CheckerEvent),
 }
 
 impl TaskEvent for Event {}

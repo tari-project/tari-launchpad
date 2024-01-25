@@ -42,7 +42,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
             Event::Started => self.on_started(),
             Event::Killed => self.on_killed(),
             Event::Terminated => self.on_terminated(),
-            Event::CheckerEvent(event) => self.on_checker_event(event),
+            Event::CheckerProgress(event) => self.on_checker_event(event),
         }
     }
 
