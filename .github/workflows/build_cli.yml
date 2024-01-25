@@ -225,6 +225,25 @@ jobs:
           echo "BINFILE=${BINFILE}" >> $GITHUB_ENV
           echo "BINFILE=${BINFILE}" >> $GITHUB_OUTPUT
 
+      - name: Extra macOS preparation
+        if: startsWith(runner.os,'macOS') && ${{ env.MACOS_KEYCHAIN_PASS != '' }}
+        continue-on-error: true
+        env:
+          MACOS_KEYCHAIN_PASS: ${{ secrets.MACOS_KEYCHAIN_PASS }}
+          MACOS_APPLICATION_ID: ${{ secrets.MACOS_APPLICATION_ID }}
+          MACOS_APPLICATION_CERT: ${{ secrets.MACOS_APPLICATION_CERT }}
+          MACOS_APPLICATION_PASS: ${{ secrets.MACOS_APPLICATION_PASS }}
+        run: |
+          security create-keychain -p $MACOS_KEYCHAIN_PASS build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p $MACOS_KEYCHAIN_PASS build.keychain
+          echo $MACOS_APPLICATION_CERT | base64 --decode > application.p12
+          security import application.p12 -k build.keychain -P $MACOS_APPLICATION_PASS -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_KEYCHAIN_PASS build.keychain
+          codesign --options runtime --force --verify --verbose --timestamp \
+            --sign "Developer ID Application: $MACOS_APPLICATION_ID" "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli"
+          codesign --verify --deep --display --verbose=4 "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli"
+
       - name: Archive and Checksum Binaries
         shell: bash
         run: |
