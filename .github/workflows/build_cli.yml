@@ -7,6 +7,8 @@ name: Build cli
       - 'v[0-9]+.[0-9]+.[0-9]*'
     branches:
       - build-cli-*
+      - main
+      - nextnet
   workflow_dispatch:
 
 env:
@@ -17,7 +19,6 @@ env:
   CARGO: cargo
   # CARGO_OPTIONS: "--verbose"
   CARGO_OPTIONS: "--release"
-  # tari_launchpad_{network}_{network_version}
   TBN_FILENAME: "tari_launchpad_cli"
 
 concurrency:
@@ -75,8 +76,10 @@ jobs:
     name: Building ${{ matrix.builds.name }} on ${{ matrix.builds.runs-on }}
     needs: matrix-prep
     outputs:
+      LAUNCHPAD_VERSION: ${{ steps.set-tari-vars.outputs.LAUNCHPAD_VERSION }}
       TARI_NETWORK_DIR: ${{ steps.set-tari-vars.outputs.TARI_NETWORK_DIR }}
       TARI_NETWORK_VERSION: ${{ steps.set-tari-vars.outputs.TARI_NETWORK_VERSION }}
+
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.matrix-prep.outputs.matrix) }}
@@ -98,9 +101,12 @@ jobs:
         id: set-tari-vars
         shell: bash
         run: |
-          # multiNet based on git branch
-          echo "TARI_NETWORK_DIR=${{ github.ref_name }}" >> $GITHUB_ENV
-          echo "TARI_NETWORK_DIR=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          LAUNCHPAD_VERSION=v$(awk -F ' = ' '$1 ~ /version/ { gsub(/["]/, "", $2); printf("%s",$2) }' "$GITHUB_WORKSPACE/cli/Cargo.toml")
+          echo "LAUNCHPAD_VERSION=${LAUNCHPAD_VERSION}" >> $GITHUB_ENV
+          echo "LAUNCHPAD_VERSION=${LAUNCHPAD_VERSION}" >> $GITHUB_OUTPUT
+          TARI_NETWORK_DIR=$(awk -F ' = ' '$1 ~ /tari_network/ { gsub(/["]/, "", $2); printf("%s",tolower($2)) }' "$GITHUB_WORKSPACE/libs/sdm-assets/assets/settings.toml")
+          echo "TARI_NETWORK_DIR=${TARI_NETWORK_DIR}" >> $GITHUB_ENV
+          echo "TARI_NETWORK_DIR=${TARI_NETWORK_DIR}" >> $GITHUB_OUTPUT
           TARI_NETWORK_VERSION=$(cargo tree -p tari-lp-cli -i tari_core --locked | head -n1 | cut -d " " -f 2)
           echo "TARI_NETWORK_VERSION=${TARI_NETWORK_VERSION}" >> $GITHUB_ENV
           echo "TARI_NETWORK_VERSION=${TARI_NETWORK_VERSION}" >> $GITHUB_OUTPUT
@@ -122,7 +128,7 @@ jobs:
       - name: Install macOS dependencies
         if: startsWith(runner.os,'macOS')
         run: |
-          brew install cmake coreutils automake autoconf
+          brew install cmake coreutils automake autoconf protobuf
 
       - name: Install Windows dependencies
         if: startsWith(runner.os,'Windows')
@@ -135,6 +141,7 @@ jobs:
           choco upgrade openssl -y
           # Should already be installed
           # choco upgrade strawberryperl -y
+          choco upgrade protoc -y
 
       - name: Set environment variables - Nix
         if: ${{ ! startsWith(runner.os,'Windows') }}
@@ -142,20 +149,16 @@ jobs:
           echo "SHARUN=shasum --algorithm 256" >> $GITHUB_ENV
           echo "CC=gcc" >> $GITHUB_ENV
           echo "TBN_EXT=" >> $GITHUB_ENV
-          echo "SHELL_EXT=.sh" >> $GITHUB_ENV
-          echo "PLATFORM_SPECIFIC_DIR=linux" >> $GITHUB_ENV
-          echo "TBN_DIST=/dist" >> $GITHUB_ENV
 
       - name: Set environment variables - macOS
         if: startsWith(runner.os,'macOS')
         run: |
           echo "PLATFORM_SPECIFIC_DIR=osx" >> $GITHUB_ENV
-          echo "LIB_EXT=.dylib" >> $GITHUB_ENV
 
       - name: Set environment variables - Ubuntu
         if: startsWith(runner.os,'Linux')
         run: |
-          echo "LIB_EXT=.so" >> $GITHUB_ENV
+          echo "PLATFORM_SPECIFIC_DIR=linux" >> $GITHUB_ENV
 
       - name: Set environment variables - Windows
         if: startsWith(runner.os,'Windows')
@@ -167,9 +170,6 @@ jobs:
           curl -v -o "$GITHUB_WORKSPACE\psutils\shasum.ps1" "https://raw.githubusercontent.com/lukesampson/psutils/master/shasum.ps1"
           echo "SHARUN=pwsh $GITHUB_WORKSPACE\psutils\shasum.ps1 --algorithm 256" >> $GITHUB_ENV
           echo "TBN_EXT=.exe" >> $GITHUB_ENV
-          echo "LIB_EXT=.dll" >> $GITHUB_ENV
-          echo "SHELL_EXT=.bat" >> $GITHUB_ENV
-          echo "TBN_DIST=\dist" >> $GITHUB_ENV
           echo "PLATFORM_SPECIFIC_DIR=windows" >> $GITHUB_ENV
           echo "SQLITE3_LIB_DIR=C:\vcpkg\installed\x64-windows\lib" >> $GITHUB_ENV
           echo "X86_64_PC_WINDOWS_MSVC_OPENSSL_DIR=C:\Program Files\OpenSSL-Win64" >> $GITHUB_ENV
@@ -218,7 +218,7 @@ jobs:
       - name: Setup BINFILE Env
         shell: bash
         run: |
-          BINFILE="${TBN_FILENAME}-${TARI_NETWORK_DIR}-${TARI_NETWORK_VERSION}-${{ matrix.builds.name }}${TBN_EXT}"
+          BINFILE="${TBN_FILENAME}-${LAUNCHPAD_VERSION}-${TARI_NETWORK_DIR}-${TARI_NETWORK_VERSION}-${{ matrix.builds.name }}${TBN_EXT}"
           echo "Bin env is ${BINFILE}"
           echo "BINFILE=${BINFILE}" >> $GITHUB_ENV
 
@@ -251,10 +251,10 @@ jobs:
           path: ${{ github.workspace }}/dist/
 
   create-release:
-    # if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     needs: builds
     env:
+      LAUNCHPAD_VERSION: ${{ needs.builds.outputs.LAUNCHPAD_VERSION }}
       TARI_NETWORK_DIR: ${{ needs.builds.outputs.TARI_NETWORK_DIR }}
       TARI_NETWORK_VERSION: ${{ needs.builds.outputs.TARI_NETWORK_VERSION }}
 
@@ -274,19 +274,22 @@ jobs:
           # set -xo pipefail
           sudo apt-get update
           sudo apt-get --no-install-recommends --assume-yes install dos2unix
+          CHECHSUM_FN="${{ env.TBN_FILENAME }}-${{ env.LAUNCHPAD_VERSION }}-${{ env.TARI_NETWORK_VERSION }}.txt.sha256-unsigned"
+          echo "With checksum file ${CHECHSUM_FN}"
           ls -alhtR
-          if [ -f "${{ env.TBN_FILENAME }}-${{ env.TARI_NETWORK_VERSION }}.txt.sha256-unsigned" ] ; then
-            rm -fv "${{ env.TBN_FILENAME }}-${{ env.TARI_NETWORK_VERSION }}.txt.sha256-unsigned"
+          if [ -f "${CHECHSUM_FN}" ] ; then
+            rm -fv "${CHECHSUM_FN}"
           fi
           # Merge all sha256 files into one
-          find . -name "*.sha256" -type f -print | xargs cat >> "${{ env.TBN_FILENAME }}-${{ env.TARI_NETWORK_VERSION }}.txt.sha256-unsigned"
-          dos2unix --quiet "${{ env.TBN_FILENAME }}-${{ env.TARI_NETWORK_VERSION }}.txt.sha256-unsigned"
-          cat "${{ env.TBN_FILENAME }}-${{ env.TARI_NETWORK_VERSION }}.txt.sha256-unsigned"
-          sha256sum --ignore-missing --check "${{ env.TBN_FILENAME }}-${{ env.TARI_NETWORK_VERSION }}.txt.sha256-unsigned"
+          find . -name "*.sha256" -type f -print | xargs cat >> "${CHECHSUM_FN}"
+          # Clean up file - CR/LF
+          dos2unix --quiet "${CHECHSUM_FN}"
+          cat "${CHECHSUM_FN}"
+          sha256sum --ignore-missing --check "${CHECHSUM_FN}"
           ls -alhtR
 
       - name: Create release
-        if: ${{ false }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         uses: ncipollo/release-action@v1
         with:
           artifacts: "tari_*/**/*"
@@ -299,12 +302,12 @@ jobs:
 
       - name: Sync assets to S3
         continue-on-error: true # Don't break if s3 upload fails
-        # if: ${{ env.AWS_SECRET_ACCESS_KEY != '' && matrix.builds.runs-on != 'self-hosted' }}
+        if: ${{ env.AWS_SECRET_ACCESS_KEY != '' && matrix.builds.runs-on != 'self-hosted' }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           S3CMD: "cp"
-          S3OPTIONS: '--recursive --exclude "*" --include "*.sha256*" --include "*.zip*" --include "*.pkg*" --include "*installer.exe*"'
+          S3OPTIONS: '--recursive --exclude "*" --include "*.sha256*" --include "*.zip*" --include "*.pkg*" --include "*.exe*"'
         shell: bash
         working-directory: ${{ env.TBN_FILENAME }}
         run: |
