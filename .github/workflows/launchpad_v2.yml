@@ -19,7 +19,7 @@ jobs:
       ./.github/workflows/reusable-ci-jobs.yml
     with:
       lints: true
-      toolchain: "nightly-2023-06-03"
+      toolchain: "stable"
       build-tari: true
       build-launchpad-fe: true
       check-ffi: false

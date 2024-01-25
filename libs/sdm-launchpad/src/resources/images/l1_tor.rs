@@ -31,11 +31,7 @@ use tari_sdm::{
     ids::{ManagedTask, TaskId},
     image::{
         checker::{CheckerContext, CheckerEvent, ContainerChecker},
-        Args,
-        Envs,
-        ManagedContainer,
-        Networks,
-        Ports,
+        Args, Envs, ManagedContainer, Networks, Ports,
     },
 };
 use tor_hash_passwd::EncryptedKey;

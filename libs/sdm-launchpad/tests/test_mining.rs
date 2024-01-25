@@ -109,8 +109,9 @@ impl TestState {
             Status::ContainersDeactivated => {
                 if self
                     .inner
-                    .check_containers(&self.wallet_containers, TaskStatus::is_inactive) &&
-                    self.inner
+                    .check_containers(&self.wallet_containers, TaskStatus::is_inactive)
+                    && self
+                        .inner
                         .check_containers(&self.mining_containers, TaskStatus::is_inactive)
                 {
                     return Ok(true);

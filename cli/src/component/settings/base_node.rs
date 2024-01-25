@@ -30,11 +30,7 @@ use crate::{
     component::{
         elements::block_with_title,
         widgets::{LabeledInput, Separator},
-        Component,
-        ComponentEvent,
-        Frame,
-        Input,
-        Pass,
+        Component, ComponentEvent, Frame, Input, Pass,
     },
     focus_id,
     state::{

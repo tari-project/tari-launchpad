@@ -33,10 +33,7 @@ use crate::{
         header::{mode::Mode, Header},
         normal::NormalScene,
         settings::SettingsScene,
-        Component,
-        ComponentEvent,
-        Input,
-        Pass,
+        Component, ComponentEvent, Input, Pass,
     },
     state::{focus, AppState},
 };

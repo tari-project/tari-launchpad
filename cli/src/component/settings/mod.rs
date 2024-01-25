@@ -41,10 +41,7 @@ use strum::{Display, EnumCount, EnumIter, FromRepr};
 use crate::{
     component::{
         tabs::{AppTabs, TabGetter},
-        Component,
-        ComponentEvent,
-        Frame,
-        Input,
+        Component, ComponentEvent, Frame, Input,
     },
     state::{focus, AppState, Focus},
 };

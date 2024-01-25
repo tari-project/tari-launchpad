@@ -64,7 +64,9 @@ impl<A: Actor> Address<A> {
     }
 
     pub fn interrupt(&mut self) -> Result<(), SendError>
-    where A: Do<Interrupt> {
+    where
+        A: Do<Interrupt>,
+    {
         self.send(Interrupt)
     }
 

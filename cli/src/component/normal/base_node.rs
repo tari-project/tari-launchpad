@@ -13,11 +13,9 @@ use crate::{
     component::{
         elements::block_with_title,
         widgets::status_line::{StatusLine, StatusReportGetter},
-        Component,
-        ComponentEvent,
+        Component, ComponentEvent,
         ComponentEvent::KeyEvent,
-        Frame,
-        Input,
+        Frame, Input,
     },
     state::AppState,
 };

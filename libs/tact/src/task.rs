@@ -37,7 +37,9 @@ impl Drop for Task {
 
 impl Task {
     pub fn spawn<T>(fut: T) -> Self
-    where T: Future<Output = ()> + Send + 'static {
+    where
+        T: Future<Output = ()> + Send + 'static,
+    {
         let handle = tokio::spawn(fut);
         Self { handle }
     }

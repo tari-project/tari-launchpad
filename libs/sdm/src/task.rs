@@ -214,7 +214,8 @@ pub struct SdmTaskRunner<R: RunnableTask> {
 }
 
 impl<R: RunnableTask> SdmTaskRunner<R>
-where TaskContext<R>: RunnableContext<R>
+where
+    TaskContext<R>: RunnableContext<R>,
 {
     pub fn new<M: ManagedTask>(
         req_tx: broadcast::Sender<ControlEvent<R::Protocol>>,

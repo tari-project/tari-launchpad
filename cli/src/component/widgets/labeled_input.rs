@@ -104,7 +104,8 @@ pub struct LabeledInput<T: Eq + FromStr = String> {
 }
 
 impl<T> LabeledInput<T>
-where T: Eq + FromStr + ToString
+where
+    T: Eq + FromStr + ToString,
 {
     pub fn new(label: impl ToString, focus: Focus) -> Self {
         Self::new_with_filter(label, focus, |_| true)

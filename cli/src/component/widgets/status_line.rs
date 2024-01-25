@@ -36,7 +36,8 @@ impl<T> Input for StatusLine<T> {
 }
 
 impl<B: Backend, T> Component<B> for StatusLine<T>
-where T: StatusReportGetter
+where
+    T: StatusReportGetter,
 {
     type State = AppState;
 

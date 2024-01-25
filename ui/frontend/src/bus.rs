@@ -25,8 +25,7 @@ use anyhow::{anyhow, Error};
 use serde::Deserialize;
 use tari_launchpad_protocol::{
     launchpad::{Action, LaunchpadAction, Reaction},
-    ACTIONS,
-    REACTIONS,
+    ACTIONS, REACTIONS,
 };
 use wasm_bindgen::prelude::{wasm_bindgen, Closure, JsValue};
 

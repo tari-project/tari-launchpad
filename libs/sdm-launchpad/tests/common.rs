@@ -54,7 +54,9 @@ pub struct TestStateInner {
 
 impl TestStateInner {
     pub fn check_containers<F>(&self, ids: &[TaskId], func: F) -> bool
-    where F: Fn(&TaskStatus) -> bool {
+    where
+        F: Fn(&TaskStatus) -> bool,
+    {
         if let Some(state) = self.state.as_ref() {
             ids.iter()
                 .map(move |id| {
@@ -85,7 +87,9 @@ impl TestStateInner {
     }
 
     pub fn change_session<F>(&mut self, func: F) -> Result<(), Error>
-    where F: FnOnce(&mut LaunchpadSession) {
+    where
+        F: FnOnce(&mut LaunchpadSession),
+    {
         let state = self.state.as_ref().ok_or(TestError::NoState)?;
         let mut new_session = state.config.session.clone();
         func(&mut new_session);
