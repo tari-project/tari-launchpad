@@ -7,6 +7,7 @@ name: Build cli
       - 'v[0-9]+.[0-9]+.[0-9]*'
     branches:
       - build-cli-*
+      - main
       - nextnet
   workflow_dispatch:
 
@@ -18,7 +19,6 @@ env:
   CARGO: cargo
   # CARGO_OPTIONS: "--verbose"
   CARGO_OPTIONS: "--release"
-  # tari_launchpad_{network}_{network_version}
   TBN_FILENAME: "tari_launchpad_cli"
 
 concurrency:
@@ -101,7 +101,7 @@ jobs:
         id: set-tari-vars
         shell: bash
         run: |
-          LAUNCHPAD_VERSION=$(awk -F ' = ' '$1 ~ /version/ { gsub(/["]/, "", $2); printf("%s",$2) }' "$GITHUB_WORKSPACE/cli/Cargo.toml")
+          LAUNCHPAD_VERSION=v$(awk -F ' = ' '$1 ~ /version/ { gsub(/["]/, "", $2); printf("%s",$2) }' "$GITHUB_WORKSPACE/cli/Cargo.toml")
           echo "LAUNCHPAD_VERSION=${LAUNCHPAD_VERSION}" >> $GITHUB_ENV
           echo "LAUNCHPAD_VERSION=${LAUNCHPAD_VERSION}" >> $GITHUB_OUTPUT
           TARI_NETWORK_DIR=$(awk -F ' = ' '$1 ~ /tari_network/ { gsub(/["]/, "", $2); printf("%s",tolower($2)) }' "$GITHUB_WORKSPACE/libs/sdm-assets/assets/settings.toml")
@@ -149,18 +149,16 @@ jobs:
           echo "SHARUN=shasum --algorithm 256" >> $GITHUB_ENV
           echo "CC=gcc" >> $GITHUB_ENV
           echo "TBN_EXT=" >> $GITHUB_ENV
-          echo "PLATFORM_SPECIFIC_DIR=linux" >> $GITHUB_ENV
 
       - name: Set environment variables - macOS
         if: startsWith(runner.os,'macOS')
         run: |
           echo "PLATFORM_SPECIFIC_DIR=osx" >> $GITHUB_ENV
-          echo "LIB_EXT=.dylib" >> $GITHUB_ENV
 
       - name: Set environment variables - Ubuntu
         if: startsWith(runner.os,'Linux')
         run: |
-          echo "LIB_EXT=.so" >> $GITHUB_ENV
+          echo "PLATFORM_SPECIFIC_DIR=linux" >> $GITHUB_ENV
 
       - name: Set environment variables - Windows
         if: startsWith(runner.os,'Windows')
@@ -253,7 +251,6 @@ jobs:
           path: ${{ github.workspace }}/dist/
 
   create-release:
-    # if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     needs: builds
     env:
