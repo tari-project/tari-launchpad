@@ -253,7 +253,7 @@ impl TariNetwork {
 /// Default network is Esme. This will change after mainnet launch
 impl Default for TariNetwork {
     fn default() -> Self {
-        Self::Stagenet
+        Self::Nextnet
     }
 }
 

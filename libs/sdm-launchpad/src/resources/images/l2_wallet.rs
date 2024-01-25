@@ -26,7 +26,8 @@ use std::ops::Deref;
 use anyhow::Error;
 use async_trait::async_trait;
 use log::*;
-use tari_app_grpc::tari_rpc::{ConnectivityStatus, Empty};
+use minotari_app_grpc::tari_rpc::{ConnectivityStatus, Empty};
+use minotari_wallet_grpc_client::{grpc::GetIdentityRequest, WalletGrpcClient};
 use tari_launchpad_protocol::container::TaskProgress;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
@@ -41,7 +42,6 @@ use tari_sdm::{
         Volumes,
     },
 };
-use tari_wallet_grpc_client::{grpc::GetIdentityRequest, WalletGrpcClient};
 
 use super::{TariBaseNode, Tor, DEFAULT_REGISTRY, GENERAL_VOLUME};
 use crate::resources::{
@@ -110,7 +110,7 @@ impl ManagedContainer for TariWallet {
     }
 
     fn tag(&self) -> &str {
-        "0.52"
+        "latest-nextnet"
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {

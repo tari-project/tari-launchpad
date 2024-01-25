@@ -24,7 +24,7 @@
 use anyhow::Error;
 use async_trait::async_trait;
 use log::debug;
-use tari_base_node_grpc_client::{grpc, BaseNodeGrpcClient};
+use minotari_node_grpc_client::{grpc, BaseNodeGrpcClient};
 use tari_launchpad_protocol::{container::TaskProgress, settings::BaseNodeConfig};
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
@@ -83,7 +83,7 @@ impl ManagedContainer for TariBaseNode {
     }
 
     fn tag(&self) -> &str {
-        "0.52"
+        "latest-nextnet"
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
@@ -186,7 +186,7 @@ impl ContainerChecker<LaunchpadProtocol> for Checker {
 
         let response = client.get_sync_progress(grpc::Empty {}).await?.into_inner();
         log::trace!("Sync progress: {:?}", response);
-        let done = matches!(response.state(), tari_app_grpc::tari_rpc::SyncState::Done);
+        let done = matches!(response.state(), minotari_app_grpc::tari_rpc::SyncState::Done);
         self.progress.update(response);
         let info = self.progress.progress_info();
         log::trace!("Progress updated !common::progress={}", info.block_progress);

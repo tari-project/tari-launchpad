@@ -23,7 +23,7 @@ tari_utilities = { git = "https://github.com/tari-project/tari_utilities.git", t
 tari_sdm_launchpad = { path = "../libs/sdm-launchpad", features = ["tauri"] }
 
 anyhow = "1.0.70"
-bollard = "0.14.0"
+bollard = "0.15.0"
 chrono = "0.4.24"
 config = "0.13.3"
 derive_more = "0.99.17"
@@ -33,9 +33,9 @@ log = "0.4.17"
 rand = "0.8.5"
 serde_json = "1.0.95"
 serde = { version = "1.0.159", features = ["derive"] }
-strum = { version = "0.24.1", features = ["derive"] }
+strum = { version = "0.25.0", features = ["derive"] }
 tauri = { version = "=1.2.5", features = ["api-all", "cli", "macos-private-api"] }
-toml = "0.7.3"
+toml = "0.8.8"
 tor-hash-passwd = "1.0.1"
 thiserror = "1.0.40"
 tokio = { version = "1.27.0", features = ["sync"] }
@@ -45,7 +45,7 @@ derivative = "2.2.0"
 # Forcing this version due to conflicts in dependencies
 sqlx-core = { version = "=0.5.7" }
 tauri-plugin-sql = { git = "https://github.com/tauri-apps/plugins-workspace", features = ["sqlite"], branch = "v1" }
-tonic = "0.6.2"
+tonic = { version = "0.8.3", features = ["tls"] }
 hex = "0.4.3"
 reqwest = { version = "0.11.16", features = ["json"] }
 

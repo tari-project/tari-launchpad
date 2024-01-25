@@ -64,7 +64,7 @@ impl ManagedContainer for MmProxy {
     }
 
     fn tag(&self) -> &str {
-        "0.52"
+        "latest-nextnet"
     }
 
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {

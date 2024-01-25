@@ -55,7 +55,7 @@ impl<P: ManagedProtocol> CheckerContext<P> {
 
     /// Reports the task about the progress.
     pub fn report(&self, event: CheckerEvent) -> Result<(), Error> {
-        let event = Event::CheckerEvent(event);
+        let event = Event::CheckerProgress(event);
         self.sender.send_direct(event)
     }
 

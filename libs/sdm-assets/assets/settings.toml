@@ -1,5 +1,5 @@
 # Local settings for launchpad
-tari_network = "Stagenet"
+tari_network = "Nextnet"
 
 [base_node]
 interactive = false
