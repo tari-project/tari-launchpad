@@ -226,7 +226,7 @@ jobs:
           echo "BINFILE=${BINFILE}" >> $GITHUB_OUTPUT
 
       - name: Extra macOS preparation
-        if: startsWith(runner.os,'macOS') && ${{ env.MACOS_KEYCHAIN_PASS != '' }}
+        if: ${{ startsWith(runner.os,'macOS') && env.MACOS_KEYCHAIN_PASS != '' }}
         continue-on-error: true
         env:
           MACOS_KEYCHAIN_PASS: ${{ secrets.MACOS_KEYCHAIN_PASS }}
