@@ -80,12 +80,12 @@ impl ManagedContainer for MmProxy {
                 let defaults = MmProxyConfig::default();
                 debug!("MM proxy default container configuration: {:?}", defaults);
                 Some(defaults)
-            }
+            },
             Some(ref settings) => settings.saved_settings.mm_proxy.clone(),
             None => {
                 warn!("The settings configuration for the MM proxy config is empty");
                 None
-            }
+            },
         };
         Some(self.mm_proxy.is_none() || session.is_mmproxy_active())
     }

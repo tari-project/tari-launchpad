@@ -23,8 +23,8 @@
 
 mod common;
 
-use std::thread;
-use std::time::Duration;
+use std::{thread, time::Duration};
+
 use anyhow::Error;
 use common::TestStateInner;
 use tari_launchpad_protocol::container::TaskStatus;
