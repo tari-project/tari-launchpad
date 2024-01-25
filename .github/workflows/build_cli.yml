@@ -79,6 +79,7 @@ jobs:
       LAUNCHPAD_VERSION: ${{ steps.set-tari-vars.outputs.LAUNCHPAD_VERSION }}
       TARI_NETWORK_DIR: ${{ steps.set-tari-vars.outputs.TARI_NETWORK_DIR }}
       TARI_NETWORK_VERSION: ${{ steps.set-tari-vars.outputs.TARI_NETWORK_VERSION }}
+      BINFILE: ${{ steps.set-binfile.outputs.BINFILE }}
 
     strategy:
       fail-fast: false
@@ -216,11 +217,32 @@ jobs:
           ${{ matrix.builds.flags }} --locked
 
       - name: Setup BINFILE Env
+        id: set-binfile
         shell: bash
         run: |
           BINFILE="${TBN_FILENAME}-${LAUNCHPAD_VERSION}-${TARI_NETWORK_DIR}-${TARI_NETWORK_VERSION}-${{ matrix.builds.name }}${TBN_EXT}"
           echo "Bin env is ${BINFILE}"
           echo "BINFILE=${BINFILE}" >> $GITHUB_ENV
+          echo "BINFILE=${BINFILE}" >> $GITHUB_OUTPUT
+
+      - name: Extra macOS preparation
+        if: startsWith(runner.os,'macOS') && ${{ env.MACOS_KEYCHAIN_PASS != '' }}
+        continue-on-error: true
+        env:
+          MACOS_KEYCHAIN_PASS: ${{ secrets.MACOS_KEYCHAIN_PASS }}
+          MACOS_APPLICATION_ID: ${{ secrets.MACOS_APPLICATION_ID }}
+          MACOS_APPLICATION_CERT: ${{ secrets.MACOS_APPLICATION_CERT }}
+          MACOS_APPLICATION_PASS: ${{ secrets.MACOS_APPLICATION_PASS }}
+        run: |
+          security create-keychain -p $MACOS_KEYCHAIN_PASS build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p $MACOS_KEYCHAIN_PASS build.keychain
+          echo $MACOS_APPLICATION_CERT | base64 --decode > application.p12
+          security import application.p12 -k build.keychain -P $MACOS_APPLICATION_PASS -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_KEYCHAIN_PASS build.keychain
+          codesign --options runtime --force --verify --verbose --timestamp \
+            --sign "Developer ID Application: $MACOS_APPLICATION_ID" "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli"
+          codesign --verify --deep --display --verbose=4 "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli"
 
       - name: Archive and Checksum Binaries
         shell: bash
@@ -230,6 +252,7 @@ jobs:
           mkdir -vp "${GITHUB_WORKSPACE}/dist/"
           cd "${GITHUB_WORKSPACE}/dist/"
           cp -v "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli${{ env.TBN_EXT }}" ${{ env.BINFILE }}
+          chmod +x ${{ env.BINFILE }}
           echo "Compute files shasum"
           ${SHARUN} * >> "${{ env.BINFILE }}.sha256"
           echo "Show the shasum"
@@ -257,6 +280,7 @@ jobs:
       LAUNCHPAD_VERSION: ${{ needs.builds.outputs.LAUNCHPAD_VERSION }}
       TARI_NETWORK_DIR: ${{ needs.builds.outputs.TARI_NETWORK_DIR }}
       TARI_NETWORK_VERSION: ${{ needs.builds.outputs.TARI_NETWORK_VERSION }}
+      BINFILE: ${{ needs.builds.outputs.BINFILE }}
 
     steps:
       - name: Download binaries
@@ -307,7 +331,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           S3CMD: "cp"
-          S3OPTIONS: '--recursive --exclude "*" --include "*.sha256*" --include "*.zip*" --include "*.pkg*" --include "*.exe*"'
+          S3OPTIONS: '--recursive --include "*"'
         shell: bash
         working-directory: ${{ env.TBN_FILENAME }}
         run: |
@@ -326,6 +350,7 @@ jobs:
           fi
           if ls ${{ env.TBN_FILENAME }}*macos* > /dev/null 2>&1 ; then
             mkdir -p "osx/${{ env.TARI_NETWORK_DIR }}/"
+            chmod +x ${{ env.BINFILE }}
             mv -v ${{ env.TBN_FILENAME }}*macos* "osx/${{ env.TARI_NETWORK_DIR }}/"
           fi
           if ls ${{ env.TBN_FILENAME }}*windows* > /dev/null 2>&1 ; then
