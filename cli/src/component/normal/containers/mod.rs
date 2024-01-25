@@ -121,7 +121,6 @@ fn containers() -> Vec<TaskId> {
     vec![
         images::Tor::id(),
         images::TariBaseNode::id(),
-        images::TariWallet::id(),
         images::TariSha3Miner::id(),
         images::MmProxy::id(),
         images::XMRig::id(),

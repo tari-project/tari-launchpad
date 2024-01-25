@@ -101,7 +101,6 @@ listener_address = "/dns4/wallet/tcp/18188"
 
 [miner]
 base_node_grpc_address = "/dns4/base_node/tcp/18142"
-wallet_grpc_address = "/dns4/wallet/tcp/18143"
 mine_on_tip_only = true
 num_mining_threads = 4
 
@@ -114,7 +113,6 @@ monerod_url = [ # stagenet
     "http://singapore.node.xmr.pm:38081",
 ]
 base_node_grpc_address = "/dns4/base_node/tcp/18142"
-console_wallet_grpc_address = "/dns4/wallet/tcp/18143"
 listener_address = "/dns4/tari_mm_proxy/tcp/18081"
 submit_to_origin = true
 monerod_username = ""

@@ -1,6 +1,6 @@
 [package]
 name = "tari_launchpad"
-version = "0.32.5"
+version = "1.2.0"
 description = "A unified user interface for a Tari node, wallet and miner, with a focus on ease-of-use and UX."
 authors = ["The Tari Development Community"]
 license = "BSD-3-Clause"

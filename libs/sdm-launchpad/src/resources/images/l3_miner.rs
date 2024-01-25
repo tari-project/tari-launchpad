@@ -21,12 +21,14 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+use log::{info, warn};
+use tari_common_types::tari_address::TariAddress;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
     image::{Args, Envs, ManagedContainer, Mounts, Networks, Volumes},
 };
 
-use super::{TariBaseNode, TariWallet, DEFAULT_REGISTRY, GENERAL_VOLUME};
+use super::{TariBaseNode, DEFAULT_REGISTRY, GENERAL_VOLUME};
 use crate::resources::{
     config::{ConnectionSettings, LaunchpadConfig, LaunchpadProtocol},
     images::VAR_TARI_PATH,
@@ -37,6 +39,7 @@ use crate::resources::{
 #[derive(Debug, Default)]
 pub struct TariSha3Miner {
     settings: Option<ConnectionSettings>,
+    wallet_payment_address: Option<TariAddress>,
 }
 
 impl ManagedTask for TariSha3Miner {
@@ -45,7 +48,7 @@ impl ManagedTask for TariSha3Miner {
     }
 
     fn deps() -> Vec<TaskId> {
-        vec![TariBaseNode::id(), TariWallet::id(), LocalNet::id(), SharedVolume::id()]
+        vec![TariBaseNode::id(), LocalNet::id(), SharedVolume::id()]
     }
 }
 
@@ -67,7 +70,20 @@ impl ManagedContainer for TariSha3Miner {
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;
-        Some(session.is_sha3x_active())
+
+        self.wallet_payment_address = match config?.settings {
+            Some(ref settings) if settings.saved_settings.sha3_miner.is_none() => {
+                info!("No Sha3 Miner settings found for the container configuration. Falling back on defaults.");
+                None
+            },
+            Some(ref settings) => settings.saved_settings.sha3_miner.clone()?.wallet_payment_address,
+            None => {
+                warn!("The settings configuration for the Sha3 Miner config is empty");
+                None
+            },
+        };
+
+        Some(self.wallet_payment_address.is_some() && session.is_sha3x_active())
     }
 
     fn args(&self, args: &mut Args) {
@@ -86,12 +102,15 @@ impl ManagedContainer for TariSha3Miner {
                 ),
                 "/dns4/base_node/tcp/18142",
             );
-            envs.set("TARI_WALLET__GRPC_ADDRESS", "/dns4/wallet/tcp/18143");
         }
         envs.set("SHELL", "/bin/bash");
         envs.set("TERM", "linux");
         envs.set("APP_NAME", "minotari_sha3_miner");
         envs.set("APP_EXEC", "minotari_miner");
+
+        if let Some(payment_address) = self.wallet_payment_address.as_ref() {
+            envs.set("TARI_MINER__WALLET_PAYMENT_ADDRESS", payment_address.to_hex());
+        }
     }
 
     fn networks(&self, networks: &mut Networks) {

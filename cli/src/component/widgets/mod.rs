@@ -21,15 +21,11 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-mod chrono_button;
-mod dialog;
 mod label;
 mod labeled_input;
 mod separator;
 pub mod status_line;
 
-pub use chrono_button::{ChronoButton, ChronoGetter};
-pub use dialog::ModalDialog;
 pub use label::Label;
 pub use labeled_input::LabeledInput;
 pub use separator::Separator;

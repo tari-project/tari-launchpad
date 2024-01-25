@@ -26,7 +26,6 @@ mod docker;
 mod logs;
 mod mining;
 mod security;
-mod wallet;
 
 use base_node::BaseNodeSettings;
 use docker::DockerSettings;
@@ -38,7 +37,6 @@ use ratatui::{
 };
 use security::SecuritySettings;
 use strum::{Display, EnumCount, EnumIter, FromRepr};
-use wallet::WalletSettings;
 
 use crate::{
     component::{
@@ -54,7 +52,6 @@ use crate::{
 #[derive(Debug, EnumCount, EnumIter, FromRepr, Clone, Copy, Display)]
 pub enum SettingsTabs {
     Mining,
-    Wallet,
     BaseNode,
     Docker,
     Logs,
@@ -65,7 +62,6 @@ impl TabGetter for SettingsTabs {
     fn focus_to(&self, _: &AppState) -> Focus {
         match self {
             Self::Mining => mining::MINING_SETTINGS,
-            Self::Wallet => wallet::WALLET_SETTINGS,
             Self::BaseNode => base_node::BASE_NODE_SETTINGS,
             Self::Docker => docker::DOCKER_SETTINGS,
             Self::Logs => logs::LOGS_SETTINGS,
@@ -77,7 +73,6 @@ impl TabGetter for SettingsTabs {
 pub struct SettingsScene {
     settings_tabs: AppTabs<SettingsTabs>,
     mining_settings: MiningSettings,
-    wallet_settings: WalletSettings,
     base_node_settings: BaseNodeSettings,
     docker_settings: DockerSettings,
     logs_settings: LogsSettings,
@@ -89,7 +84,6 @@ impl SettingsScene {
         Self {
             settings_tabs: AppTabs::new(),
             mining_settings: MiningSettings::new(),
-            wallet_settings: WalletSettings::new(),
             base_node_settings: BaseNodeSettings::new(),
             docker_settings: DockerSettings::new(),
             logs_settings: LogsSettings::new(),
@@ -106,9 +100,6 @@ impl Input for SettingsScene {
         match self.settings_tabs.selected() {
             SettingsTabs::Mining => {
                 self.mining_settings.on_event(event, state);
-            },
-            SettingsTabs::Wallet => {
-                self.wallet_settings.on_event(event, state);
             },
             SettingsTabs::BaseNode => {
                 self.base_node_settings.on_event(event, state);
@@ -140,9 +131,6 @@ impl<B: Backend> Component<B> for SettingsScene {
         match self.settings_tabs.selected() {
             SettingsTabs::Mining => {
                 self.mining_settings.draw(f, chunks[1], state);
-            },
-            SettingsTabs::Wallet => {
-                self.wallet_settings.draw(f, chunks[1], state);
             },
             SettingsTabs::BaseNode => {
                 self.base_node_settings.draw(f, chunks[1], state);

@@ -24,6 +24,7 @@
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
+use tari_common_types::tari_address::TariAddress;
 use thiserror::Error;
 
 pub const DEFAULT_MONEROD_URL: &str = "http://stagenet.xmr-tw.org:38081,\
@@ -38,26 +39,6 @@ pub struct BaseNodeConfig {
     pub interactive: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct WalletConfig {
-    /// The password to de/en-crypt the wallet database
-    pub password: String,
-    /// Should the peer DB be deleted before starting up. Issue: https://github.com/tari-project/tari/issues/5998
-    pub clear_peer_db: bool,
-    /// Should wallet be started in interactive mode.
-    pub interactive: bool,
-}
-
-impl Default for WalletConfig {
-    fn default() -> Self {
-        WalletConfig {
-            password: String::new(),
-            clear_peer_db: true,
-            interactive: false,
-        }
-    }
-}
-
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct XmRigConfig {
     /// The address that will accept Monero mining rewards
@@ -68,6 +49,7 @@ pub struct XmRigConfig {
 pub struct Sha3MinerConfig {
     /// The number of threads to employ for SHA3 mining
     pub num_mining_threads: usize,
+    pub wallet_payment_address: Option<TariAddress>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -81,6 +63,8 @@ pub struct MmProxyConfig {
     pub monero_password: String,
     /// If true, provide the monero username and password to the daemon. Otherwise those strings are ignored.
     pub monero_use_auth: bool,
+
+    pub wallet_payment_address: Option<TariAddress>,
 }
 
 impl Default for MmProxyConfig {
@@ -90,6 +74,7 @@ impl Default for MmProxyConfig {
             monero_username: String::new(),
             monero_password: String::new(),
             monero_use_auth: false,
+            wallet_payment_address: None,
         }
     }
 }
@@ -112,8 +97,6 @@ pub struct PersistentSettings {
     pub tari_network: TariNetwork,
     /// Base node configuration.
     pub base_node: Option<BaseNodeConfig>,
-    /// Wallet configuration settings
-    pub wallet: Option<WalletConfig>,
     /// SHA3x miner settings
     pub sha3_miner: Option<Sha3MinerConfig>,
     /// Merge-mining proxy settings
@@ -131,10 +114,6 @@ impl PersistentSettings {
         self.base_node = Some(BaseNodeConfig::default());
     }
 
-    pub fn new_wallet_settings(&mut self) {
-        self.wallet = Some(WalletConfig::default());
-    }
-
     pub fn new_sha3_miner_settings(&mut self) {
         self.sha3_miner = Some(Sha3MinerConfig::default());
     }
@@ -145,15 +124,6 @@ impl PersistentSettings {
 
     pub fn new_xmrig_settings(&mut self) {
         self.xmrig = Some(XmRigConfig::default());
-    }
-
-    pub fn set_wallet_password<S: Into<String>>(&mut self, password: S) {
-        if self.wallet.is_none() {
-            self.new_wallet_settings();
-        }
-        if let Some(w) = self.wallet.as_mut() {
-            w.password = password.into()
-        };
     }
 
     pub fn set_monero_mining_address<S: Into<String>>(&mut self, address: S) {
@@ -180,6 +150,24 @@ impl PersistentSettings {
         }
         if let Some(m) = self.mm_proxy.as_mut() {
             m.monerod_url = url.into()
+        }
+    }
+
+    pub fn set_wallet_payment_address<S: Into<String>>(&mut self, payment_address: S) {
+        let address = TariAddress::from_hex(&payment_address.into()).ok();
+
+        if self.sha3_miner.is_none() {
+            self.new_sha3_miner_settings();
+        }
+        if let Some(s) = self.sha3_miner.as_mut() {
+            s.wallet_payment_address = address.clone()
+        }
+
+        if self.mm_proxy.is_none() {
+            self.new_mm_proxy_settings();
+        }
+        if let Some(m) = self.mm_proxy.as_mut() {
+            m.wallet_payment_address = address
         }
     }
 }

@@ -31,7 +31,7 @@ use tari_common_types::{emoji::EmojiId, types::PublicKey};
 use tari_launchpad_protocol::session::LaunchpadSession;
 pub use tari_launchpad_protocol::{
     config::LaunchpadConfig,
-    settings::{LaunchpadSettings, TariNetwork, WalletConfig},
+    settings::{LaunchpadSettings, TariNetwork},
 };
 use tari_sdm::{config::ManagedProtocol, image::Envs};
 use tari_utilities::{hex::Hex, ByteArray};

@@ -33,7 +33,6 @@ use crate::{
     node::{NodeDelta, NodeState},
     session::LaunchpadSession,
     settings::{LaunchpadSettings, PersistentSettings},
-    wallet::{WalletAction, WalletDelta, WalletState},
 };
 
 /// An action sent from UI to the backend.
@@ -46,7 +45,6 @@ pub enum Action {
 pub enum LaunchpadAction {
     Connect,
     ChangeSession(LaunchpadSession),
-    WalletAction(WalletAction),
     SaveSettings(PersistentSettings),
 }
 
@@ -57,7 +55,6 @@ pub enum LaunchpadDelta {
     TaskAdded { id: TaskId, state: TaskState },
     TaskDelta { id: TaskId, delta: TaskDelta },
     NodeDelta(NodeDelta),
-    WalletDelta(WalletDelta),
     AddError(ErrorRecord),
 }
 
@@ -65,7 +62,6 @@ pub enum LaunchpadDelta {
 pub struct LaunchpadState {
     pub config: LaunchpadConfig,
     pub containers: HashMap<TaskId, TaskState>,
-    pub wallet: WalletState,
     pub node: NodeState,
     pub errors: Frame<ErrorRecord>,
 }
@@ -75,7 +71,6 @@ impl Default for LaunchpadState {
         Self {
             config: LaunchpadConfig::default(),
             containers: HashMap::new(),
-            wallet: WalletState::default(),
             node: NodeState::default(),
             errors: Frame::new(30),
         }
@@ -107,9 +102,6 @@ impl LaunchpadState {
                 if let Some(state) = self.containers.get_mut(&id) {
                     state.apply(delta);
                 }
-            },
-            WalletDelta(delta) => {
-                self.wallet.apply(delta);
             },
             AddError(error) => {
                 self.errors.push(error);

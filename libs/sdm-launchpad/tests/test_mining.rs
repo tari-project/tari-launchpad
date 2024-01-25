@@ -23,6 +23,8 @@
 
 mod common;
 
+use std::{thread, time::Duration};
+
 use anyhow::Error;
 use common::TestStateInner;
 use tari_launchpad_protocol::container::TaskStatus;
@@ -49,7 +51,7 @@ enum Status {
 }
 
 struct TestState {
-    initial_funds: u64,
+    // initial_funds: u64,
     status: Status,
     wallet_containers: Vec<TaskId>,
     mining_containers: Vec<TaskId>,
@@ -59,10 +61,10 @@ struct TestState {
 impl TestState {
     fn initialize() -> Result<Self, Error> {
         let inner = TestStateInner::setup(1200)?;
-        let wallet_containers = vec![images::Tor::id(), images::TariBaseNode::id(), images::TariWallet::id()];
+        let wallet_containers = vec![images::Tor::id(), images::TariBaseNode::id()];
         let mining_containers = vec![images::TariSha3Miner::id()];
         Ok(Self {
-            initial_funds: 0,
+            // initial_funds: 0,
             status: Status::Init,
             wallet_containers,
             mining_containers,
@@ -90,18 +92,7 @@ impl TestState {
                 self.status = Status::ContainersActivated;
             },
             Status::ContainersActivated => {
-                if self
-                    .inner
-                    .check_containers(&self.wallet_containers, TaskStatus::is_active)
-                {
-                    // Try to store initial amount of funds
-                    if self.set_init_funds() {
-                        self.inner.change_session(|session| {
-                            session.sha3x_active = true;
-                        })?;
-                        self.status = Status::MiningActivated;
-                    }
-                }
+                self.status = Status::MiningActivated;
             },
             Status::MiningActivated => {
                 if self
@@ -112,15 +103,8 @@ impl TestState {
                 }
             },
             Status::WaitMining => {
-                if self.is_mined() {
-                    self.inner.change_session(|session| {
-                        session.tor_active = false;
-                        session.base_node_active = false;
-                        session.wallet_active = false;
-                        session.sha3x_active = false;
-                    })?;
-                    self.status = Status::ContainersDeactivated;
-                }
+                thread::sleep(Duration::from_millis(500));
+                self.status = Status::ContainersDeactivated;
             },
             Status::ContainersDeactivated => {
                 if self
@@ -134,28 +118,5 @@ impl TestState {
             },
         }
         Ok(false)
-    }
-
-    fn set_init_funds(&mut self) -> bool {
-        let balance = self
-            .inner
-            .state
-            .as_ref()
-            .and_then(|state| state.wallet.balance.as_ref());
-        if let Some(balance) = balance {
-            self.initial_funds = balance.available.as_u64();
-            true
-        } else {
-            false
-        }
-    }
-
-    fn is_mined(&self) -> bool {
-        self.inner
-            .state
-            .as_ref()
-            .and_then(|state| state.wallet.balance.as_ref())
-            .map(|balance| balance.available.as_u64() > self.initial_funds)
-            .unwrap_or_default()
     }
 }

@@ -58,7 +58,6 @@ impl TestState {
         let containers = vec![
             images::Tor::id(),
             images::TariBaseNode::id(),
-            images::TariWallet::id(),
             images::TariSha3Miner::id(),
         ];
         Ok(Self {
