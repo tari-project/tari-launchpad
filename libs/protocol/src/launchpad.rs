@@ -42,6 +42,7 @@ pub enum Action {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", content = "payload")]
 pub enum LaunchpadAction {
     Connect,
     ChangeSession(LaunchpadSession),
