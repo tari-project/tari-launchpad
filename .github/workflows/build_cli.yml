@@ -20,6 +20,7 @@ env:
   # CARGO_OPTIONS: "--verbose"
   CARGO_OPTIONS: "--release"
   TBN_FILENAME: "tari_launchpad_cli"
+  TBN_BUNDLE_ID_BASE: "com.tarilabs"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -221,9 +222,10 @@ jobs:
         shell: bash
         run: |
           BINFILE="${TBN_FILENAME}-${LAUNCHPAD_VERSION}-${TARI_NETWORK_DIR}-${TARI_NETWORK_VERSION}-${{ matrix.builds.name }}${TBN_EXT}"
-          echo "Bin env is ${BINFILE}"
           echo "BINFILE=${BINFILE}" >> $GITHUB_ENV
           echo "BINFILE=${BINFILE}" >> $GITHUB_OUTPUT
+          SHORT_FILENAME="${{ env.TBN_FILENAME }}-${{ matrix.builds.name }}${{ env.TBN_EXT }}"
+          echo "SHORT_FILENAME=${SHORT_FILENAME}" >> $GITHUB_ENV
 
       - name: Extra macOS preparation
         if: ${{ startsWith(runner.os,'macOS') && env.MACOS_KEYCHAIN_PASS != '' }}
@@ -241,6 +243,7 @@ jobs:
           security import application.p12 -k build.keychain -P $MACOS_APPLICATION_PASS -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_KEYCHAIN_PASS build.keychain
           codesign --options runtime --force --verify --verbose --timestamp \
+            --identifier "${{ env.TBN_BUNDLE_ID_BASE }}.${{ env.TBN_FILENAME }}" \
             --sign "Developer ID Application: $MACOS_APPLICATION_ID" "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli"
           codesign --verify --deep --display --verbose=4 "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli"
 
@@ -248,24 +251,26 @@ jobs:
         shell: bash
         run: |
           # set -xo pipefail
-          echo "Archive ${{ env.BINFILE }} too ${{ env.BINFILE }}.zip"
+          echo "Archive ${{ env.SHORT_FILENAME }} too ${{ env.BINFILE }}.zip"
           mkdir -vp "${GITHUB_WORKSPACE}/dist/"
           cd "${GITHUB_WORKSPACE}/dist/"
-          cp -v "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli${{ env.TBN_EXT }}" ${{ env.BINFILE }}
-          chmod +x ${{ env.BINFILE }}
+          cp -v "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli${{ env.TBN_EXT }}" "${{ env.SHORT_FILENAME }}"
+          chmod +x "${{ env.SHORT_FILENAME }}"
           echo "Compute files shasum"
-          ${SHARUN} * >> "${{ env.BINFILE }}.sha256"
+          ${SHARUN} * >> "${{ env.SHORT_FILENAME }}.sha256"
           echo "Show the shasum"
-          cat "${{ env.BINFILE }}.sha256"
+          cat "${{ env.SHORT_FILENAME }}.sha256"
           echo "Checksum verification for files is "
-          ${SHARUN} --check "${{ env.BINFILE }}.sha256"
-#          7z a "${{ env.BINFILE }}.zip" *
-#          echo "Compute archive shasum"
-#          ${SHARUN} "${{ env.BINFILE }}.zip" >> "${{ env.BINFILE }}.zip.sha256"
-#          echo "Show the shasum"
-#          cat "${{ env.BINFILE }}.zip.sha256"
-#          echo "Checksum verification archive is "
-#          ${SHARUN} --check "${{ env.BINFILE }}.zip.sha256"
+          ${SHARUN} --check "${{ env.SHORT_FILENAME }}.sha256"
+          # Move files into archive
+          7z a -sdel "${{ env.BINFILE }}.zip" *
+          echo "Compute archive shasum"
+          ${SHARUN} "${{ env.BINFILE }}.zip" >> "${{ env.BINFILE }}.zip.sha256"
+          echo "Show the shasum"
+          cat "${{ env.BINFILE }}.zip.sha256"
+          echo "Checksum verification archive is "
+          ${SHARUN} --check "${{ env.BINFILE }}.zip.sha256"
+          ls -alhtR
 
       - name: Artifact upload for Archive
         uses: actions/upload-artifact@v4
@@ -298,7 +303,7 @@ jobs:
           # set -xo pipefail
           sudo apt-get update
           sudo apt-get --no-install-recommends --assume-yes install dos2unix
-          CHECHSUM_FN="${{ env.TBN_FILENAME }}-${{ env.LAUNCHPAD_VERSION }}-${{ env.TARI_NETWORK_VERSION }}.txt.sha256-unsigned"
+          CHECHSUM_FN="${{ env.TBN_FILENAME }}-${{ env.LAUNCHPAD_VERSION }}-${{ env.TARI_NETWORK_VERSION }}.sha256-unsigned.txt"
           echo "With checksum file ${CHECHSUM_FN}"
           ls -alhtR
           if [ -f "${CHECHSUM_FN}" ] ; then
@@ -350,7 +355,6 @@ jobs:
           fi
           if ls ${{ env.TBN_FILENAME }}*macos* > /dev/null 2>&1 ; then
             mkdir -p "osx/${{ env.TARI_NETWORK_DIR }}/"
-            chmod +x ${{ env.BINFILE }}
             mv -v ${{ env.TBN_FILENAME }}*macos* "osx/${{ env.TARI_NETWORK_DIR }}/"
           fi
           if ls ${{ env.TBN_FILENAME }}*windows* > /dev/null 2>&1 ; then
