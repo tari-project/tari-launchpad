@@ -259,13 +259,15 @@ jobs:
           cat "${{ env.BINFILE }}.sha256"
           echo "Checksum verification for files is "
           ${SHARUN} --check "${{ env.BINFILE }}.sha256"
-#          7z a "${{ env.BINFILE }}.zip" *
-#          echo "Compute archive shasum"
-#          ${SHARUN} "${{ env.BINFILE }}.zip" >> "${{ env.BINFILE }}.zip.sha256"
-#          echo "Show the shasum"
-#          cat "${{ env.BINFILE }}.zip.sha256"
-#          echo "Checksum verification archive is "
-#          ${SHARUN} --check "${{ env.BINFILE }}.zip.sha256"
+          # Move files into archive
+          7z a -sdel "${{ env.BINFILE }}.zip" *
+          echo "Compute archive shasum"
+          ${SHARUN} "${{ env.BINFILE }}.zip" >> "${{ env.BINFILE }}.zip.sha256"
+          echo "Show the shasum"
+          cat "${{ env.BINFILE }}.zip.sha256"
+          echo "Checksum verification archive is "
+          ${SHARUN} --check "${{ env.BINFILE }}.zip.sha256"
+          ls -alhtR
 
       - name: Artifact upload for Archive
         uses: actions/upload-artifact@v4
@@ -298,7 +300,7 @@ jobs:
           # set -xo pipefail
           sudo apt-get update
           sudo apt-get --no-install-recommends --assume-yes install dos2unix
-          CHECHSUM_FN="${{ env.TBN_FILENAME }}-${{ env.LAUNCHPAD_VERSION }}-${{ env.TARI_NETWORK_VERSION }}.txt.sha256-unsigned"
+          CHECHSUM_FN="${{ env.TBN_FILENAME }}-${{ env.LAUNCHPAD_VERSION }}-${{ env.TARI_NETWORK_VERSION }}.sha256-unsigned.txt"
           echo "With checksum file ${CHECHSUM_FN}"
           ls -alhtR
           if [ -f "${CHECHSUM_FN}" ] ; then
@@ -350,7 +352,6 @@ jobs:
           fi
           if ls ${{ env.TBN_FILENAME }}*macos* > /dev/null 2>&1 ; then
             mkdir -p "osx/${{ env.TARI_NETWORK_DIR }}/"
-            chmod +x ${{ env.BINFILE }}
             mv -v ${{ env.TBN_FILENAME }}*macos* "osx/${{ env.TARI_NETWORK_DIR }}/"
           fi
           if ls ${{ env.TBN_FILENAME }}*windows* > /dev/null 2>&1 ; then
