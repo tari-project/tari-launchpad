@@ -224,7 +224,7 @@ jobs:
           BINFILE="${TBN_FILENAME}-${LAUNCHPAD_VERSION}-${TARI_NETWORK_DIR}-${TARI_NETWORK_VERSION}-${{ matrix.builds.name }}${TBN_EXT}"
           echo "BINFILE=${BINFILE}" >> $GITHUB_ENV
           echo "BINFILE=${BINFILE}" >> $GITHUB_OUTPUT
-          SHORT_FILENAME="${{ env.TBN_FILENAME }}${{ matrix.builds.name }}${{ env.TBN_EXT }}"
+          SHORT_FILENAME="${{ env.TBN_FILENAME }}-${{ matrix.builds.name }}${{ env.TBN_EXT }}"
           echo "SHORT_FILENAME=${SHORT_FILENAME}" >> $GITHUB_ENV
 
       - name: Extra macOS preparation
