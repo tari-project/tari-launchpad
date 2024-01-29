@@ -20,6 +20,7 @@ env:
   # CARGO_OPTIONS: "--verbose"
   CARGO_OPTIONS: "--release"
   TBN_FILENAME: "tari_launchpad_cli"
+  TBN_BUNDLE_ID_BASE: "com.tarilabs"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -221,9 +222,10 @@ jobs:
         shell: bash
         run: |
           BINFILE="${TBN_FILENAME}-${LAUNCHPAD_VERSION}-${TARI_NETWORK_DIR}-${TARI_NETWORK_VERSION}-${{ matrix.builds.name }}${TBN_EXT}"
-          echo "Bin env is ${BINFILE}"
           echo "BINFILE=${BINFILE}" >> $GITHUB_ENV
           echo "BINFILE=${BINFILE}" >> $GITHUB_OUTPUT
+          SHORT_FILENAME="${{ env.TBN_FILENAME }}${{ matrix.builds.name }}${{ env.TBN_EXT }}"
+          echo "SHORT_FILENAME=${SHORT_FILENAME}" >> $GITHUB_ENV
 
       - name: Extra macOS preparation
         if: ${{ startsWith(runner.os,'macOS') && env.MACOS_KEYCHAIN_PASS != '' }}
@@ -241,6 +243,7 @@ jobs:
           security import application.p12 -k build.keychain -P $MACOS_APPLICATION_PASS -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_KEYCHAIN_PASS build.keychain
           codesign --options runtime --force --verify --verbose --timestamp \
+            --identifier "${{ env.TBN_BUNDLE_ID_BASE }}.${{ env.TBN_FILENAME }}" \
             --sign "Developer ID Application: $MACOS_APPLICATION_ID" "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli"
           codesign --verify --deep --display --verbose=4 "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli"
 
@@ -248,17 +251,17 @@ jobs:
         shell: bash
         run: |
           # set -xo pipefail
-          echo "Archive ${{ env.BINFILE }} too ${{ env.BINFILE }}.zip"
+          echo "Archive ${{ env.SHORT_FILENAME }} too ${{ env.BINFILE }}.zip"
           mkdir -vp "${GITHUB_WORKSPACE}/dist/"
           cd "${GITHUB_WORKSPACE}/dist/"
-          cp -v "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli${{ env.TBN_EXT }}" ${{ env.BINFILE }}
-          chmod +x ${{ env.BINFILE }}
+          cp -v "${GITHUB_WORKSPACE}/target/${{ matrix.builds.target }}/release/tari-lp-cli${{ env.TBN_EXT }}" "${{ env.SHORT_FILENAME }}"
+          chmod +x "${{ env.SHORT_FILENAME }}"
           echo "Compute files shasum"
-          ${SHARUN} * >> "${{ env.BINFILE }}.sha256"
+          ${SHARUN} * >> "${{ env.SHORT_FILENAME }}.sha256"
           echo "Show the shasum"
-          cat "${{ env.BINFILE }}.sha256"
+          cat "${{ env.SHORT_FILENAME }}.sha256"
           echo "Checksum verification for files is "
-          ${SHARUN} --check "${{ env.BINFILE }}.sha256"
+          ${SHARUN} --check "${{ env.SHORT_FILENAME }}.sha256"
           # Move files into archive
           7z a -sdel "${{ env.BINFILE }}.zip" *
           echo "Compute archive shasum"
