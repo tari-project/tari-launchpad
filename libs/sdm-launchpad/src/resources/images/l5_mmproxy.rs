@@ -49,7 +49,7 @@ impl ManagedTask for MmProxy {
     }
 
     fn deps() -> Vec<TaskId> {
-        vec![LocalNet::id()]
+        vec![TariBaseNode::id(), LocalNet::id(), SharedVolume::id()]
     }
 }
 
