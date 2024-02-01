@@ -133,7 +133,7 @@ impl LaunchpadWorker {
             .map_err(|e| warn!("Can't read the settings file: {e}"))
             .ok()?;
         toml::from_str::<PersistentSettings>(data.as_str())
-            .map_err(|e| error!("{} is not valid TOML. {e}", path.to_string_lossy()))
+            .map_err(|e| warn!("{} is not valid TOML. {e}", path.to_string_lossy()))
             .ok()
     }
 

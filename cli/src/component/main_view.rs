@@ -67,6 +67,7 @@ impl Input for MainView {
             state.focus_on(focus::TERMINATION);
             state.update_state();
         } else if matches!(event, ComponentEvent::StateChanged) {
+            self.normal_scene.on_event(event, state);
             self.settings_scene.on_event(event, state);
         } else {
             self.header.on_event(event, state);
