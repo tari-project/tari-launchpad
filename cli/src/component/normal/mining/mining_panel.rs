@@ -2,37 +2,45 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 use crossterm::event::KeyCode;
-use ratatui::{
-    prelude::*,
-    widgets::{Block, BorderType, Borders, Padding},
-};
+use log::warn;
+use ratatui::prelude::*;
+use tari_launchpad_protocol::settings::LaunchpadSettings;
 
+use crate::component::elements::block_with_title;
+use crate::component::Pass;
+use crate::state::{focus, Focus};
 use crate::{
     component::{
         normal::mining::{
             helpers::{MergeMiningStatus, ShaMiningStatus},
-            session_stats::SessionStatWidget,
             status_badge::StatusBadge,
         },
+        widgets::LabeledInput,
         Component, ComponentEvent,
         ComponentEvent::KeyEvent,
         Input,
     },
+    focus_id,
     state::AppState,
 };
 
+static MONERO_ADDRESS: Focus = focus_id!();
+static WALLET_PAYMENT_ADDRESS: Focus = focus_id!();
+
 pub struct MiningPanel {
     mm_status: StatusBadge<MergeMiningStatus>,
+    monero_address: LabeledInput,
     sha3_status: StatusBadge<ShaMiningStatus>,
-    session_stats: SessionStatWidget,
+    wallet_payment_address: LabeledInput,
 }
 
 impl MiningPanel {
     pub fn new() -> Self {
         Self {
             mm_status: StatusBadge::new(MergeMiningStatus),
+            monero_address: LabeledInput::new("Monero mining address", MONERO_ADDRESS),
             sha3_status: StatusBadge::new(ShaMiningStatus),
-            session_stats: SessionStatWidget,
+            wallet_payment_address: LabeledInput::new("Wallet payment address", WALLET_PAYMENT_ADDRESS),
         }
     }
 
@@ -47,12 +55,82 @@ impl MiningPanel {
         session.sha3x_layer_active = !session.sha3x_layer_active;
         state.update_state();
     }
+
+    pub fn check_for_updated_settings(&mut self, state: &mut AppState) {
+        let mut should_write = false;
+        if let Some(LaunchpadSettings { saved_settings, .. }) = &mut state.state.config.settings {
+            if let Some(v) = self.wallet_payment_address.fetch_new_value() {
+                saved_settings.set_wallet_payment_address(v);
+                should_write = true;
+            }
+            if let Some(addr) = self.monero_address.fetch_new_value() {
+                saved_settings.set_monero_mining_address(addr);
+                should_write = true;
+            }
+        } else {
+            warn!("The app state does not have a settings instance configured, so we cannot update the saved settings");
+        }
+        if should_write {
+            state.update_settings();
+        }
+    }
 }
 
 impl Input for MiningPanel {
     type Output = ();
 
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
+        if let ComponentEvent::StateChanged = event {
+            if let Some(settings) = &state.state.config.settings {
+                if let Some(conf) = &settings.saved_settings.xmrig {
+                    let value = conf.monero_mining_address.clone();
+                    self.monero_address.set(value);
+                }
+                if let Some(conf) = &settings.saved_settings.sha3_miner {
+                    if let Some(wallet_payment_address) = conf.wallet_payment_address.clone() {
+                        self.wallet_payment_address.set(wallet_payment_address.to_string());
+                    }
+                }
+            }
+        }
+
+        if state.focus_on == focus::BASE_NODE {
+            match event.pass() {
+                Pass::Down | Pass::Enter => {
+                    state.focus_on(MONERO_ADDRESS);
+                },
+                _ => {},
+            }
+        } else if state.focus_on == MONERO_ADDRESS {
+            let released = self.monero_address.is_released();
+            match event.pass() {
+                Pass::Up | Pass::Leave if released => {
+                    state.focus_on(focus::BASE_NODE);
+                },
+                Pass::Down if released => {
+                    state.focus_on(WALLET_PAYMENT_ADDRESS);
+                },
+                _ => {
+                    self.monero_address.on_event(event, state);
+                },
+            }
+        } else if state.focus_on == WALLET_PAYMENT_ADDRESS {
+            let released = self.wallet_payment_address.is_released();
+            match event.pass() {
+                Pass::Leave if released => {
+                    state.focus_on(focus::BASE_NODE);
+                },
+                Pass::Up if released => {
+                    state.focus_on(MONERO_ADDRESS);
+                },
+                _ => {
+                    self.wallet_payment_address.on_event(event, state);
+                },
+            }
+        } else {
+            // Nadda
+        }
+
         if let KeyEvent(key) = event {
             if key.code == KeyCode::Char('m') || key.code == KeyCode::Char('M') {
                 Self::toggle_merge_mining(state);
@@ -63,6 +141,9 @@ impl Input for MiningPanel {
                 return Some(());
             }
         }
+
+        self.check_for_updated_settings(state);
+
         None
     }
 }
@@ -71,15 +152,18 @@ impl<B: Backend> Component<B> for MiningPanel {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let mining = state.state.config.session.is_sha3x_active() || state.state.config.session.is_xmrig_active();
-        let block = title_block(mining);
+        let block = block_with_title(
+            Some("Mining"),
+            state.state.config.session.is_sha3x_active() || state.state.config.session.is_xmrig_active(),
+        );
         let inner_rect = block.inner(rect);
 
         let v_constraints = [
+            Constraint::Length(3), // Monero address
+            Constraint::Length(3), // Wallet Payment address
+            Constraint::Max(1),    // stretch
             Constraint::Length(1), // Merged mining status
             Constraint::Length(1), // SHA3x mining status
-            Constraint::Max(1),    // stretch
-            Constraint::Length(5), // Session stats
         ];
         let v_chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -87,21 +171,9 @@ impl<B: Backend> Component<B> for MiningPanel {
             .split(inner_rect);
 
         f.render_widget(block, rect);
-        self.mm_status.draw(f, v_chunks[0], state);
-        self.sha3_status.draw(f, v_chunks[1], state);
-        self.session_stats.draw(f, v_chunks[3], state);
+        self.monero_address.draw(f, v_chunks[0], state);
+        self.wallet_payment_address.draw(f, v_chunks[1], state);
+        self.mm_status.draw(f, v_chunks[2], state);
+        self.sha3_status.draw(f, v_chunks[3], state);
     }
-}
-
-fn title_block(highlight: bool) -> Block<'static> {
-    let mut border_style = Style::default().add_modifier(Modifier::BOLD);
-    if highlight {
-        border_style = border_style.fg(Color::Green);
-    }
-    Block::default()
-        .border_type(BorderType::Thick)
-        .border_style(border_style)
-        .borders(Borders::ALL)
-        .padding(Padding::uniform(1))
-        .title("Mining")
 }

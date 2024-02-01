@@ -71,11 +71,9 @@ impl<B: Backend> Component<B> for NormalScene {
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
         let window_constraints = [Constraint::Percentage(60), Constraint::Percentage(40)];
         let panel_constraints = [
-            Constraint::Length(17), // miners
+            Constraint::Length(27), // miners
             Constraint::Length(10), // base node
-            Constraint::Length(16), // wallet
             Constraint::Min(0),
-            Constraint::Length(3),
         ];
 
         let windows = Layout::default()
