@@ -92,6 +92,7 @@ impl Input for MiningPanel {
                     }
                 }
             }
+            return None;
         }
 
         if state.focus_on == focus::BASE_NODE {
@@ -131,6 +132,8 @@ impl Input for MiningPanel {
             // Nadda
         }
 
+        self.check_for_updated_settings(state);
+
         if let KeyEvent(key) = event {
             if key.code == KeyCode::Char('m') || key.code == KeyCode::Char('M') {
                 Self::toggle_merge_mining(state);
@@ -141,8 +144,6 @@ impl Input for MiningPanel {
                 return Some(());
             }
         }
-
-        self.check_for_updated_settings(state);
 
         None
     }

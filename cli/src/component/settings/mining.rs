@@ -69,10 +69,6 @@ impl MiningSettings {
     pub fn check_for_updated_settings(&mut self, state: &mut AppState) {
         let mut should_write = false;
         if let Some(LaunchpadSettings { saved_settings, .. }) = &mut state.state.config.settings {
-            if let Some(v) = self.wallet_payment_address.fetch_new_value() {
-                saved_settings.set_wallet_payment_address(v);
-                should_write = true;
-            }
             if let Some(v) = self.monero_url.fetch_new_value() {
                 saved_settings.set_monerod_url(v);
                 should_write = true;
@@ -83,6 +79,10 @@ impl MiningSettings {
             }
             if let Some(v) = self.sha_threads.fetch_new_value() {
                 saved_settings.set_num_mining_threads(*v);
+                should_write = true;
+            }
+            if let Some(v) = self.wallet_payment_address.fetch_new_value() {
+                saved_settings.set_wallet_payment_address(v);
                 should_write = true;
             }
         } else {
@@ -107,6 +107,11 @@ impl Input for MiningSettings {
                 if let Some(conf) = &settings.saved_settings.mm_proxy {
                     let value = conf.monerod_url.clone();
                     self.monero_url.set(value);
+                }
+                if let Some(conf) = &settings.saved_settings.sha3_miner {
+                    if let Some(wallet_payment_address) = &conf.wallet_payment_address {
+                        self.wallet_payment_address.set(wallet_payment_address.to_string());
+                    }
                 }
             }
             return None;

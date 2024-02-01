@@ -81,36 +81,21 @@ use_libtor = false
 # This is set internally by launchpad when the base node starts
 # custom_base_node = "none"
 
-[wallet.p2p]
-
-[wallet.p2p.transport]
-type = "tor"
-
-[wallet.p2p.transport.tor]
-control_auth = "password=tari"
-socks_address_override = "/dns4/tor/tcp/9050"
-control_address = "/dns4/tor/tcp/9051"
-# When these peer addresses are encountered when dialing another peer, the tor proxy is bypassed and the connection is
-# made directly over TCP. /ip4, /ip6, /dns, /dns4 and /dns6 are supported. (e.g. ["/dns4/my-foo-base-node/tcp/9998"])
-proxy_bypass_addresses = ["/dns4/base_node/tcp/18189", "/ip4/127.0.0.1/tcp/18189", "/dns4/localhost/tcp/18189"]
-proxy_bypass_for_outbound_tcp = true
-
-[wallet.p2p.transport.tcp]
-#listener_address = "/dns4/wallet/tcp/18188"
-listener_address = "/dns4/wallet/tcp/18188"
-
 [miner]
 base_node_grpc_address = "/dns4/base_node/tcp/18142"
 mine_on_tip_only = true
 num_mining_threads = 4
 
 [merge_mining_proxy]
-monerod_url = [ # stagenet
-    "http://stagenet.xmr-tw.org:38081",
-    "http://stagenet.community.xmr.to:38081",
-    "http://monero-stagenet.exan.tech:38081",
-    "http://xmr-lux.boldsuck.org:38081",
-    "http://singapore.node.xmr.pm:38081",
+monerod_url = [ # mainnet
+    # more reliable
+    "http://xmr.support:18081",
+    "http://node1.xmr-tw.org:18081",
+    "http://xmr.nthrow.nyc:18081",
+    # not so reliable
+    "http://node.xmrig.com:18081",
+    "http://monero.exan.tech:18081",
+    "http://18.132.124.81:18081",
 ]
 base_node_grpc_address = "/dns4/base_node/tcp/18142"
 listener_address = "/dns4/tari_mm_proxy/tcp/18081"

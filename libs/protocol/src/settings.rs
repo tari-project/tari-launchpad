@@ -22,16 +22,11 @@
 //
 
 use std::path::PathBuf;
+use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use tari_common_types::tari_address::TariAddress;
 use thiserror::Error;
-
-pub const DEFAULT_MONEROD_URL: &str = "http://stagenet.xmr-tw.org:38081,\
-http://stagenet.community.xmr.to:38081,\
-http://monero-stagenet.exan.tech:38081,\
-http://xmr-lux.boldsuck.org:38081,\
-http://singapore.node.xmr.pm:38081";
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct BaseNodeConfig {
@@ -52,7 +47,7 @@ pub struct Sha3MinerConfig {
     pub wallet_payment_address: Option<TariAddress>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct MmProxyConfig {
     /// A URL specifying the Monero daemon to connect to
     pub monerod_url: String,
@@ -65,18 +60,6 @@ pub struct MmProxyConfig {
     pub monero_use_auth: bool,
 
     pub wallet_payment_address: Option<TariAddress>,
-}
-
-impl Default for MmProxyConfig {
-    fn default() -> Self {
-        MmProxyConfig {
-            monerod_url: DEFAULT_MONEROD_URL.to_string(),
-            monero_username: String::new(),
-            monero_password: String::new(),
-            monero_use_auth: false,
-            wallet_payment_address: None,
-        }
-    }
 }
 
 impl MmProxyConfig {
@@ -154,7 +137,7 @@ impl PersistentSettings {
     }
 
     pub fn set_wallet_payment_address<S: Into<String>>(&mut self, payment_address: S) {
-        let address = TariAddress::from_hex(&payment_address.into()).ok();
+        let address = TariAddress::from_str(&payment_address.into()).ok();
 
         if self.sha3_miner.is_none() {
             self.new_sha3_miner_settings();
@@ -238,7 +221,7 @@ impl TariNetwork {
     }
 }
 
-/// Default network is Esme. This will change after mainnet launch
+/// Default network is Nextnet. This will change after mainnet launch
 impl Default for TariNetwork {
     fn default() -> Self {
         Self::Nextnet

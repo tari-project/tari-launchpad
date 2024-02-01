@@ -32,6 +32,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
+use crate::state::AppEvent::UpdateState;
 use crate::{
     component::{widgets::Label, Component, ComponentEvent, Frame, Input},
     state::{AppState, Focus},
@@ -214,6 +215,7 @@ where
                         KeyCode::Esc | KeyCode::Enter => {
                             self.input_mode = false;
                             self.update_value(FromStr::from_str(&self.content));
+                            state.events_queue.push_back(UpdateState);
                         },
                         _ => {},
                     }

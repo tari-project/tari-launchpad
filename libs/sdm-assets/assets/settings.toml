@@ -6,7 +6,6 @@ interactive = false
 
 [sha3_miner]
 num_mining_threads = 1
-wallet_payment_address = ""
 
 [mm_proxy]
 # You can specify multiple monerod instances here, separated by commas
@@ -18,4 +17,3 @@ monero_use_auth = false
 [xmrig]
 # Replace this with your own Monero wallet address
 monero_mining_address = "5AJ8FwQge4UjT9Gbj4zn7yYcnpVQzzkqr636pKto59jQcu85CFsuYVeFgbhUdRpiPjUCkA4sQtWApUzCyTMmSigFG2hDo48"
-wallet_payment_address = ""
