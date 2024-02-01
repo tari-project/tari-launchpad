@@ -33,6 +33,7 @@ macro_rules! focus_id {
 
 pub static TERMINATION: Focus = focus_id!();
 pub static ROOT: Focus = focus_id!();
+
 pub static BASE_NODE: Focus = focus_id!();
 
 pub static LOGS_TABLE: Focus = focus_id!();
