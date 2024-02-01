@@ -22,6 +22,7 @@
 //
 
 use std::env;
+use std::process::Command;
 
 use anyhow::{Context, Error};
 use tact::Actor;
@@ -30,8 +31,12 @@ use tari_sdm_assets::configurator::Configurator;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let output = Command::new("docker").arg("version").output().unwrap();
-    let running = if output.stderr.is_empty() { true } else { false };
+    let output = Command::new("docker").arg("version").output();
+    let running = if output.is_ok() && output.unwrap().stderr.is_empty() {
+        true
+    } else {
+        false
+    };
     if !running {
         println!("Docker is not running!!");
         println!("Please open docker or install docker if not installed");
