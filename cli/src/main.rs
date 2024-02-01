@@ -30,6 +30,14 @@ use tari_sdm_assets::configurator::Configurator;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
+    let output = Command::new("docker").arg("version").output().unwrap();
+    let running = if output.stderr.is_empty() { true } else { false };
+    if !running {
+        println!("Docker is not running!!");
+        println!("Please open docker or install docker if not installed");
+        println!("To install go to: https://www.docker.com/products/docker-desktop/");
+        return Ok(());
+    }
     let mut configurator = Configurator::init()?;
     configurator.init_configuration(false).await?;
 
