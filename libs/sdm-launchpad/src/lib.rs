@@ -29,5 +29,4 @@ mod node_grpc;
 pub mod resources;
 #[cfg(feature = "tauri")]
 pub mod tauri;
-
 pub use bus::LaunchpadBus;

@@ -31,10 +31,10 @@ use tari_sdm::{
 };
 
 use super::{TariBaseNode, DEFAULT_REGISTRY, GENERAL_VOLUME, VAR_TARI_PATH};
-use crate::resources::volumes::SharedVolume;
 use crate::resources::{
     config::{ConnectionSettings, LaunchpadConfig, LaunchpadProtocol},
     networks::LocalNet,
+    volumes::SharedVolume,
 };
 
 #[derive(Debug, Default)]
