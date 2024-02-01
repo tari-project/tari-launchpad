@@ -22,6 +22,7 @@
 //
 
 use std::path::PathBuf;
+use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use tari_common_types::tari_address::TariAddress;
@@ -136,7 +137,7 @@ impl PersistentSettings {
     }
 
     pub fn set_wallet_payment_address<S: Into<String>>(&mut self, payment_address: S) {
-        let address = TariAddress::from_hex(&payment_address.into()).ok();
+        let address = TariAddress::from_str(&payment_address.into()).ok();
 
         if self.sha3_miner.is_none() {
             self.new_sha3_miner_settings();
