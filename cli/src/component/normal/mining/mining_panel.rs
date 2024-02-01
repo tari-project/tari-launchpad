@@ -127,6 +127,8 @@ impl Input for MiningPanel {
                     self.wallet_payment_address.on_event(event, state);
                 },
             }
+        } else {
+            // Nadda
         }
 
         if let KeyEvent(key) = event {
@@ -159,9 +161,9 @@ impl<B: Backend> Component<B> for MiningPanel {
         let v_constraints = [
             Constraint::Length(3), // Monero address
             Constraint::Length(3), // Wallet Payment address
+            Constraint::Max(1),    // stretch
             Constraint::Length(1), // Merged mining status
             Constraint::Length(1), // SHA3x mining status
-            Constraint::Max(1),    // stretch
         ];
         let v_chunks = Layout::default()
             .direction(Direction::Vertical)
