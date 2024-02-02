@@ -1,5 +1,5 @@
 {
-  "name": "tfuckup",
+  "name": "tari-launchpad-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,6 +10,10 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.13",
+    "@mui/material": "^5.14.13",
     "@tauri-apps/api": "^1.5.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -18,8 +22,8 @@
     "@tauri-apps/cli": "^1.5.8",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@vitejs/plugin-react": "^4.0.3",
     "typescript": "^5.0.2",
-    "vite": "^5.0.11"
+    "vite": "^4.4.5"
   }
 }

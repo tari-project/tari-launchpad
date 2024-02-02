@@ -74,6 +74,7 @@ button {
 button:hover {
   border-color: #396cd8;
 }
+
 button:active {
   border-color: #396cd8;
   background-color: #e8e8e8;
@@ -103,7 +104,48 @@ button {
     color: #ffffff;
     background-color: #0f0f0f98;
   }
+
   button:active {
     background-color: #0f0f0f69;
   }
+}
+
+
+
+/* ========================================= */
+
+
+.center-container {
+  display: grid;
+  place-items: center;
+  /* height: 100vh; */
+}
+
+
+.bob-button {
+  width: 80px;
+  height: 80px;
+  padding: 60px;
+  border-radius: 50%;
+  box-shadow: 10px 14px 28px rgba(35, 11, 73, 1);
+  background-color: rgba(255, 255, 255, 0.04);
+  /* You can change the color as per your preference */
+  color: #fff;
+  /* Text color */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  /* Remove underline for anchor tags */
+  cursor: pointer;
+  outline: none;
+  /* Remove the default focus outline */
+  border: 2px solid rgba(255, 255, 255, 0.10);
+  /* Remove the default border */
+}
+
+/* Hover effect */
+.bob-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  /* Change the color on hover */
 }
