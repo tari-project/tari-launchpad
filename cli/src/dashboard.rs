@@ -40,7 +40,10 @@ use tari_sim_launchpad::bus::{BusTx, LaunchpadBus};
 use thiserror::Error;
 
 use crate::{
-    component::{Component, ComponentEvent, Input, MainView, TerminationView},
+    component::{
+        display_docker_notice, is_docker_running, wait_for_keypress, Component, ComponentEvent, Input, MainView,
+        TerminationView,
+    },
     events::{EventHandle, TermEvent},
     state::{focus, AppState},
 };
@@ -107,6 +110,25 @@ impl Actor for Dashboard {
         let addr = ctx.address().clone();
         let handle = EventHandle::new(addr);
         self.event_handle = Some(handle);
+
+        if !is_docker_running() {
+            let msg = "\nThe Docker process is not detected.\nPlease ensure it is installed and running.\n\n'Ctrl Q' \
+                       to quit.";
+            if self
+                .terminal
+                .as_mut()
+                .unwrap()
+                .draw(|f| display_docker_notice(f, "Docker Not Running!", msg))
+                .is_err()
+            {
+                println!("{}", msg);
+            }
+
+            wait_for_keypress();
+            println!();
+            println!();
+            std::process::exit(0);
+        }
 
         self.connect_to_bus()?;
 

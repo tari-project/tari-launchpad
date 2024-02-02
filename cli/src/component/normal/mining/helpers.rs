@@ -12,7 +12,7 @@ impl StatusGetter for MergeMiningStatus {
         if state.state.config.session.merge_layer_active {
             ("⚒️  Press [M] to stop Merge Mining", Color::Green)
         } else {
-            ("Press [M] to start Merge mining", Color::Gray)
+            ("Press [M] to start Merge mining   ", Color::Gray)
         }
     }
 }
@@ -24,7 +24,7 @@ impl StatusGetter for ShaMiningStatus {
         if state.state.config.session.sha3x_layer_active {
             ("⚒️  Press [T] to stop SHA3X mining", Color::Yellow)
         } else {
-            ("Press [T] to start SHA3X mining", Color::Gray)
+            ("Press [T] to start SHA3X mining   ", Color::Gray)
         }
     }
 }

@@ -21,8 +21,10 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+pub mod docker_detect;
 mod label;
 mod labeled_input;
+pub mod popup;
 mod separator;
 pub mod status_line;
 

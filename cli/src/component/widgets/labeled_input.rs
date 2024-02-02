@@ -32,10 +32,9 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
-use crate::state::AppEvent::UpdateState;
 use crate::{
     component::{widgets::Label, Component, ComponentEvent, Frame, Input},
-    state::{AppState, Focus},
+    state::{AppEvent::UpdateState, AppState, Focus},
 };
 
 pub enum Value<T> {

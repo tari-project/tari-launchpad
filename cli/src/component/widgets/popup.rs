@@ -1,4 +1,4 @@
-// Copyright 2022. The Tari Project
+// Copyright 2023. The Tari Project
 //
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
 // following conditions are met:
@@ -21,12 +21,38 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#[cfg(feature = "tauri")]
-pub mod api;
-pub mod bus;
+use derive_setters::Setters;
+use ratatui::{
+    buffer::Buffer,
+    layout::Rect,
+    prelude::{Line, Style, Text},
+    widgets::{Block, Borders, Clear, Paragraph, Widget, Wrap},
+};
 
-mod node_grpc;
-pub mod resources;
-#[cfg(feature = "tauri")]
-pub mod tauri;
-pub use bus::LaunchpadBus;
+#[derive(Debug, Default, Setters)]
+pub struct Popup<'a> {
+    #[setters(into)]
+    title: Line<'a>,
+    #[setters(into)]
+    content: Text<'a>,
+    border_style: Style,
+    title_style: Style,
+    style: Style,
+}
+
+impl Widget for Popup<'_> {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        // Ensure that all cells under the popup are cleared to avoid leaking content
+        Clear.render(area, buf);
+        let block = Block::new()
+            .title(self.title)
+            .title_style(self.title_style)
+            .borders(Borders::ALL)
+            .border_style(self.border_style);
+        Paragraph::new(self.content)
+            .wrap(Wrap { trim: true })
+            .style(self.style)
+            .block(block)
+            .render(area, buf);
+    }
+}

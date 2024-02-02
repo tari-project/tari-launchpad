@@ -31,12 +31,12 @@ mod settings;
 mod tabs;
 mod termination;
 mod widgets;
-
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use derive_more::From;
 pub use main_view::MainView;
 use ratatui::{backend::Backend, layout::Rect, Frame};
 pub use termination::TerminationView;
+pub use widgets::docker_detect::{display_docker_notice, is_docker_running, wait_for_keypress};
 
 use crate::state::AppState;
 

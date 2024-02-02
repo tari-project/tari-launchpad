@@ -33,6 +33,7 @@ use crate::{
         header::{mode::Mode, Header},
         normal::NormalScene,
         settings::SettingsScene,
+        widgets::docker_detect::is_docker_running,
         Component, ComponentEvent, Input, Pass,
     },
     state::{focus, AppState},
@@ -66,6 +67,10 @@ impl Input for MainView {
             state.terminate();
             state.focus_on(focus::TERMINATION);
             state.update_state();
+
+            if !is_docker_running() {
+                std::process::exit(0);
+            }
         } else if matches!(event, ComponentEvent::StateChanged) {
             self.normal_scene.on_event(event, state);
             self.settings_scene.on_event(event, state);

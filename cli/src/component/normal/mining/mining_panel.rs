@@ -6,11 +6,9 @@ use log::warn;
 use ratatui::prelude::*;
 use tari_launchpad_protocol::settings::LaunchpadSettings;
 
-use crate::component::elements::block_with_title;
-use crate::component::Pass;
-use crate::state::{focus, Focus};
 use crate::{
     component::{
+        elements::block_with_title,
         normal::mining::{
             helpers::{MergeMiningStatus, ShaMiningStatus},
             status_badge::StatusBadge,
@@ -18,10 +16,10 @@ use crate::{
         widgets::LabeledInput,
         Component, ComponentEvent,
         ComponentEvent::KeyEvent,
-        Input,
+        Input, Pass,
     },
     focus_id,
-    state::AppState,
+    state::{focus, AppState, Focus},
 };
 
 static MONERO_ADDRESS: Focus = focus_id!();
