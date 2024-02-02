@@ -13,7 +13,8 @@ import PauseIcon from '@mui/icons-material/Pause';
 import Logo from "./assets/Logo";
 
 function App() {
-  const [appState, setAppState] = useState({});
+  const [appState, setAppState]: [any, any] = useState({});
+  const [containers, setContainers]: [any, any] = useState({});
   const [isMining, setIsMining] = useState(false);
   // const [logs, setLogs] = useState("");
   const [shaMiningEnabled, setShaMiningEnabled] = useState(true);
@@ -93,6 +94,12 @@ function App() {
   //   emit("tari://actions", { "Action": { type: "ChangeSession", payload: stateSession } });
   // }
 
+  function normalizeContainer(container: any) {
+    return {
+      ...container,
+      status: printStatus(container.status)
+    }
+  }
 
   listen("tari://reactions", (event) => {
 
@@ -100,8 +107,23 @@ function App() {
     console.log(payload);
     if (payload?.State !== undefined) {
       setAppState(payload?.State);
-      setIsMining(payload?.State?.config?.session?.merge_layer_active || payload?.State?.config?.session?.sha3x_layer_active);
-      setIsChangingMining(false);
+      let newContainers: any = { ...containers };
+      if (payload?.State?.containers !== undefined) {
+        // We have to do this because some supersmart developer 
+        // used strings as keys with spaces in them
+        newContainers.tor = normalizeContainer(payload?.State?.containers["Tor"]);
+        newContainers.baseNode = normalizeContainer(payload?.State?.containers["Base Node"]);
+        newContainers.sha3Miner = normalizeContainer(payload?.State?.containers["Sha3Miner"]);
+        newContainers.sharedVolume = normalizeContainer(payload?.State?.containers["SharedVolume"]);
+        newContainers.mmProxy = normalizeContainer(payload?.State?.containers["MM proxy"]);
+        newContainers.loki = normalizeContainer(payload?.State?.containers["Loki"]);
+        newContainers.grafana = normalizeContainer(payload?.State?.containers["Grafana"]);
+        newContainers.xmrig = normalizeContainer(payload?.State?.containers["Xmrig"]);
+        setContainers(newContainers);
+
+        setIsMining(payload?.State?.config?.session?.merge_layer_active || payload?.State?.config?.session?.sha3x_layer_active);
+        setIsChangingMining(false);
+      }
     }
     if (payload?.Delta !== undefined) {
       if (payload?.Delta.UpdateSession) {
@@ -113,25 +135,53 @@ function App() {
       }
       if (payload?.Delta.TaskDelta) {
         let delta: any = payload?.Delta.TaskDelta?.delta;
+        console.log("delta.Updatssssss");
+        console.log(delta.UpdateStatus)
         if (delta.UpdateStatus) {
-          let newState: any = appState;
+          let newState: any = { ...appState };
           console.log(delta.UpdateStatus);
+          let id = payload?.Delta.TaskDelta?.id;
           if (delta.UpdateStatus) {
-            console.log("Setting status for " + payload?.Delta.TaskDelta?.id + " to " + delta.UpdateStatus);
+            console.log("Setting status for " + id + " to " + delta.UpdateStatus);
             newState.containers[payload?.Delta.TaskDelta?.id].status = delta.UpdateStatus;
             // if (delta.UpdateStatus?.Progress) {
             // newState.containers[payload?.Delta.TaskDelta?.id].status = delta.UpdateStatus?.Progress?.stage;
             // setAppState(newState);
             // }
             setAppState(newState);
+            let newContainers: any = {
+              ...containers
+            };
+            if (id === "Tor") {
+              newContainers.tor.status = printStatus(delta.UpdateStatus);
+            }
+            if (id === "Base Node") {
+              newContainers.baseNode.status = printStatus(delta.UpdateStatus);
+            }
+            if (id === "Sha3Miner") {
+              newContainers.sha3Miner.status = printStatus(delta.UpdateStatus);
+            }
+            if (id === "SharedVolume") {
+              newContainers.sharedVolume.status = printStatus(delta.UpdateStatus);
+            }
+            if (id === "MM proxy") {
+              newContainers.mmProxy.status = printStatus(delta.UpdateStatus);
+            }
+            if (id === "Loki") {
+              newContainers.loki.status = printStatus(delta.UpdateStatus);
+            }
+            if (id === "Grafana") {
+              newContainers.grafana.status = printStatus(delta.UpdateStatus);
+            }
+            if (id === "Xmrig") {
+              newContainers.xmrig.status = printStatus(delta.UpdateStatus);
+            }
+            setContainers(newContainers);
           }
         }
       }
-      // console.log("Don't know what todo with delta");
-      // alert(logs);
-      // setLogs(logs + "\n" + JSON.stringify(payload?.Delta));
     }
-  })
+  });
 
   const col1 = 6;
   const col2 = 3;
@@ -140,8 +190,9 @@ function App() {
   // const col5 = 1;
   // const col6 = 1;
 
-  let state: any = appState;
-  let containers: any = state.containers;
+  // let state: any = appState;
+  //  let containers: any = state.containers;
+  console.log(containers);
 
   return (
     <>
@@ -208,7 +259,7 @@ function App() {
                           <TypographyData > Merge Mining with Monero</TypographyData>
                         </Grid>
                         <Grid item xs={col2} md={col2} lg={col2}>
-                          <TypographyData >{containers ? printStatus(containers["Xmrig"]?.status) : "..."}</TypographyData>
+                          <TypographyData >{containers ? containers.xmrig?.status : "..."}</TypographyData>
                         </Grid>
                         <Grid item xs={col3} md={col3} lg={col3}>
                           <Switch checked={mergeMiningEnabled} onChange={toggleMergeMiningEnabled} />
@@ -220,7 +271,7 @@ function App() {
                           <TypographyData >SHA3</TypographyData>
                         </Grid>
                         <Grid item xs={col2} md={col2} lg={col2}>
-                          <TypographyData >{containers ? printStatus(containers["Sha3Miner"]?.status) : "..."}</TypographyData>
+                          <TypographyData >{containers ? containers?.sha3Miner?.status : "..."}</TypographyData>
                         </Grid>
                         <Grid item xs={col3} md={col3} lg={col3}>
                           <Switch checked={shaMiningEnabled} onChange={toggleShaMiningEnabled} />
@@ -263,7 +314,7 @@ function App() {
                     <TypographyData >tor</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers ? printStatus(containers["Tor"]?.status) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.tor?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -274,7 +325,7 @@ function App() {
                     <TypographyData >minotari node</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers ? printStatus(containers["Base Node"]?.status) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.baseNode?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -284,7 +335,7 @@ function App() {
                     <TypographyData >sha3 miner</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers ? printStatus(containers["Sha3Miner"]?.status) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.sha3Miner?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -295,7 +346,7 @@ function App() {
                     <TypographyData >shard volume</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers ? printStatus(containers["SharedVolume"]?.status) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.sharedVolume?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -305,7 +356,7 @@ function App() {
                     <TypographyData >merge mining proxy</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers ? printStatus(containers["MM proxy"]?.status) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.mmProxy?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -315,7 +366,7 @@ function App() {
                     <TypographyData >loki</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{printStatus(containers?.Loki?.status)}</TypographyData>
+                    <TypographyData >{containers?.loki?.status}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -325,7 +376,7 @@ function App() {
                     <TypographyData >grafana</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{printStatus(containers?.Grafana?.status)}</TypographyData>
+                    <TypographyData >{containers?.grafana?.status}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -335,13 +386,13 @@ function App() {
                     <TypographyData >xmrig</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{printStatus(containers?.Xmrig?.status)}</TypographyData>
+                    <TypographyData >{containers?.xmrig?.status}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
-                    <TypographyData>Sync Status: Height: {state?.node?.chain_height} Status: {state?.node?.sync_status}</TypographyData>
+                    <TypographyData>Sync Status: Height: {appState?.node?.chain_height} Status: {appState?.node?.sync_status}</TypographyData>
                   </Grid>
 
                   {/* </GradientPaper> */}
