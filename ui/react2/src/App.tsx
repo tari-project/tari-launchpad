@@ -4,12 +4,13 @@ import { useState } from "react";
 // import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 import { emit, listen } from '@tauri-apps/api/event'
-import { Container, CssBaseline, Grid, ThemeProvider } from "@mui/material";
+import { Container, CssBaseline, Divider, Grid, ThemeProvider, Typography } from "@mui/material";
 import { createTheme, useTheme } from '@mui/material/styles';
-import { componentSettings, dark } from './theme/tokens'
-import { GradientPaper } from './components/StyledComponents';
+import { componentSettings, light, dark } from './theme/tokens'
+import { GradientPaper, TypographyData } from './components/StyledComponents';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
+import Logo from "./assets/Logo";
 
 function App() {
   const [_greetMsg, _setGreetMsg] = useState("");
@@ -17,6 +18,11 @@ function App() {
   const [appState, setAppState] = useState({});
   const [isMining, setIsMining] = useState(false);
   const [logs, setLogs] = useState("");
+
+  // const lightTheme = createTheme({
+  //   ...light,
+  //   ...componentSettings,
+  // });
 
   const darkTheme = createTheme({
     ...dark,
@@ -61,62 +67,129 @@ function App() {
     }
   })
 
+  const col1 = 8;
+  const col2 = 3;
+  // const col3 = 2;
+  // const col4 = 3;
+  // const col5 = 1;
+  // const col6 = 1;
+
   return (
     <>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <Grid container spacing={0} className="main-bg">
           <Container >
-            <Grid container spacing={3} style={{
+            <Grid container spacing={3} pt={4}>
+              <Grid item xs={12} md={12} lg={12}>
+                <Logo />
+              </Grid>
+            </Grid>
+            <Grid container spacing={6} style={{
               paddingTop: theme.spacing(4),
               paddingBottom: theme.spacing(6),
             }}>
               <Grid item xs={12} md={12} lg={12}>
-                <GradientPaper>
+                {/* <GradientPaper> */}
 
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} md={12} lg={12} className="center-container">
-                      <button id="bigOlButton" className="bob-button" onClick={() => mergeMine()}>
-                        {/* <Icon>play_circle</Icon> */}
-                        {isMining ? <PauseIcon /> : <PlayArrowIcon fontSize="large" />}
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={12} lg={12} className="center-container">
+                    <button id="bigOlButton" className="bob-button" onClick={() => mergeMine()}>
+                      {/* <Icon>play_circle</Icon> */}
+                      {isMining ? <PauseIcon /> : <PlayArrowIcon fontSize="large" />}
 
-                      </button>
-                    </Grid>
-
+                    </button>
                   </Grid>
 
-                </GradientPaper>
+                </Grid>
+              </Grid>
+              <Grid item xs={12} md={12} lg={12}>
+                <Grid container spacing={3}>
+                  <Grid item xs={3} md={3} lg={3} > </Grid>
+                  <Grid item xs={6} md={6} lg={6} pt={20} >
+                    <GradientPaper >
+
+                      <Grid container spacing={3}>
+                        <Grid item xs={col1} md={col1} lg={col1}>
+                          <Typography variant="body2">Algorithm</Typography>
+                        </Grid>
+                        <Grid item xs={col2} md={col2} lg={col2}>
+                          <Typography variant="body2">Status</Typography>
+                        </Grid>
+                      </Grid>
+                      <Grid container spacing={3}>
+                        <Grid item xs={12} md={12} lg={12} >
+                          <Divider color={theme.palette.background.paper} />
+                        </Grid>
+                        <Grid item xs={col1} md={col1} lg={col1}>
+                          <TypographyData >Merge Mining with Monero</TypographyData>
+                        </Grid>
+                        <Grid item xs={col2} md={col2} lg={col2}>
+                          <TypographyData >{isMining ? "Mining" : "Idle"}</TypographyData>
+                        </Grid>
+                        <Grid item xs={12} md={12} lg={12} >
+                          <Divider color={theme.palette.background.paper} />
+                        </Grid>
+                        <Grid item xs={col1} md={col1} lg={col1}>
+                          <TypographyData >SHA3</TypographyData>
+                        </Grid>
+                        <Grid item xs={col2} md={col2} lg={col2}>
+                          <TypographyData >{isMining ? "Mining" : "Idle"}</TypographyData>
+                        </Grid>
+                      </Grid>
+                    </GradientPaper>
+                  </Grid>
+                  <Grid item xs={3} md={3} lg={3} > </Grid>
+                </Grid>
+
+
+
+                {/* </GradientPaper> */}
               </Grid>
             </Grid>
 
-            {/* <div >
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    greet();
-                  }}
-                >
-                  <button type="submit">Connect</button>
-                </form>
-
-                <div>
-                  <button id="bigOlButton" className="bob-button" onClick={() => mergeMine()}>
-              {isMining ? <PauseIcon /> : <PlayArrowIcon fontSize="large" />}
-
-            </button>
-            <button id="bigOlButton" onClick={() => shaMine()}>Sha Mine You Fools!</button>
-          </div>
-          <div>
-            <textarea id="bigOlTextArea" value={logs} readOnly={true} rows={10} cols={100}></textarea>
-          </div>
-
-        </div> */}
 
 
           </Container >
 
+
+          {/* </ThemeProvider >
+
+      <ThemeProvider theme={darkTheme}> */}
+          <Grid item xs={12} md={12} lg={12}>
+            <Grid container spacing={3}>
+              <Grid item xs={3} md={3} lg={3} > </Grid>
+              <Grid item xs={6} md={6} lg={6} pt={20} >
+                <GradientPaper >
+
+                  <Grid container spacing={3}>
+                    <Grid item xs={col1} md={col1} lg={col1}>
+                      <Typography variant="body2">Container</Typography>
+                    </Grid>
+                    <Grid item xs={col2} md={col2} lg={col2}>
+                      <Typography variant="body2">CPU</Typography>
+                    </Grid>
+                  </Grid>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={12} lg={12} >
+                      <Divider color={theme.palette.background.paper} />
+                    </Grid>
+                    <Grid item xs={col1} md={col1} lg={col1}>
+                      <TypographyData >Tor</TypographyData>
+                    </Grid>
+                    <Grid item xs={col2} md={col2} lg={col2}>
+                      <TypographyData >{isMining ? "Mining" : "Idle"}</TypographyData>
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={12} >
+                      <Divider color={theme.palette.background.paper} />
+                    </Grid>
+                  </Grid>
+                </GradientPaper>
+              </Grid>
+            </Grid>
+          </Grid>
         </Grid >
-      </ThemeProvider >
+      </ThemeProvider>
     </>
   );
 }

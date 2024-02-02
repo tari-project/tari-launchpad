@@ -33,6 +33,7 @@ a {
 .main-bg {
   background-image: url('../assets/images/bg-gradient.png');
   background-color: #0c0c0e;
+  height: 100vh;
 }
 
 .topbar-item-value {
