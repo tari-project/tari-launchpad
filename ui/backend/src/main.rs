@@ -24,10 +24,20 @@
 #![cfg_attr(all(not(debug_assertions), target_os = "windows"), windows_subsystem = "windows")]
 
 use anyhow::Error;
+use tauri::Manager;
 
 fn main() -> Result<(), Error> {
     tauri::Builder::default()
-        .setup(tari_sdm_launchpad::tauri::bus_setup)
+        .setup(|app| {
+            #[cfg(debug_assertions)] // only include this code on debug builds
+            {
+                let window = app.get_window("main").unwrap();
+                window.open_devtools();
+                window.close_devtools();
+            }
+
+            tari_sdm_launchpad::tauri::bus_setup(app)
+        })
         .run(tauri::generate_context!())?;
     Ok(())
 }
