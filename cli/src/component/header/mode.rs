@@ -66,7 +66,7 @@ impl Input for ModeSelector {
         if let ComponentEvent::KeyEvent(key) = event {
             if key.modifiers.contains(KeyModifiers::CONTROL) {
                 match key.code {
-                    KeyCode::Char('n') => {
+                    KeyCode::Char('h') => {
                         self.mode = Mode::Normal;
                         state.focus_on(focus::BASE_NODE);
                     },
@@ -100,7 +100,7 @@ impl<B: Backend> Component<B> for ModeSelector {
             }
         };
         let line = Line::from(vec![
-            Span::styled("(N)ormal", style_for(Mode::Normal)),
+            Span::styled("(H)ome", style_for(Mode::Normal)),
             Span::raw(" | "),
             Span::styled("(L)ogs", style_for(Mode::Logs)),
             Span::raw(" | "),
