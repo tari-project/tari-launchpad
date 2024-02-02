@@ -27,7 +27,6 @@ mod labeled_input;
 pub mod popup;
 mod separator;
 pub mod status_line;
-
 pub use label::Label;
 pub use labeled_input::LabeledInput;
 pub use separator::Separator;
