@@ -93,6 +93,13 @@ function App() {
       setIsChangingMining(false);
     }
     if (payload?.Delta !== undefined) {
+      if (payload?.Delta.UpdateSession) {
+        let newState: any = appState;
+        newState.config.session = payload?.Delta.UpdateSession;
+        setIsChangingMining(false);
+        setAppState(newState);
+        setIsMining(newState.config?.session?.merge_layer_active || newState.config?.session?.sha3x_layer_active);
+      }
       // console.log("Don't know what todo with delta");
       // alert(logs);
       // setLogs(logs + "\n" + JSON.stringify(payload?.Delta));
@@ -174,7 +181,7 @@ function App() {
                           <TypographyData > Merge Mining with Monero</TypographyData>
                         </Grid>
                         <Grid item xs={col2} md={col2} lg={col2}>
-                          <TypographyData >{isMining ? "Mining" : "Idle"}</TypographyData>
+                          <TypographyData >{containers ? containers["Xmrig"]?.status : "..."}</TypographyData>
                         </Grid>
                         <Grid item xs={col3} md={col3} lg={col3}>
                           <Switch checked={mergeMiningEnabled} onChange={toggleMergeMiningEnabled} />
@@ -186,7 +193,7 @@ function App() {
                           <TypographyData >SHA3</TypographyData>
                         </Grid>
                         <Grid item xs={col2} md={col2} lg={col2}>
-                          <TypographyData >{isMining ? "Mining" : "Idle"}</TypographyData>
+                          <TypographyData >{containers ? containers["Sha3Miner"]?.status : "..."}</TypographyData>
                         </Grid>
                         <Grid item xs={col3} md={col3} lg={col3}>
                           <Switch checked={shaMiningEnabled} onChange={toggleShaMiningEnabled} />
