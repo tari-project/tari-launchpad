@@ -38,6 +38,8 @@ use crate::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Mode {
     Normal,
+    Logs,
+    #[allow(dead_code)]
     Expert,
     Settings,
 }
@@ -68,8 +70,8 @@ impl Input for ModeSelector {
                         self.mode = Mode::Normal;
                         state.focus_on(focus::BASE_NODE);
                     },
-                    KeyCode::Char('e') => {
-                        self.mode = Mode::Expert;
+                    KeyCode::Char('l') => {
+                        self.mode = Mode::Logs;
                         state.focus_on(focus::ROOT);
                     },
                     KeyCode::Char('s') => {
@@ -100,7 +102,7 @@ impl<B: Backend> Component<B> for ModeSelector {
         let line = Line::from(vec![
             Span::styled("(N)ormal", style_for(Mode::Normal)),
             Span::raw(" | "),
-            Span::styled("(E)xpert", style_for(Mode::Expert)),
+            Span::styled("(L)ogs", style_for(Mode::Logs)),
             Span::raw(" | "),
             Span::styled("(S)ettings", style_for(Mode::Settings)),
         ]);
