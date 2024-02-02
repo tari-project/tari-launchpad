@@ -112,13 +112,23 @@ impl Actor for Dashboard {
         self.event_handle = Some(handle);
 
         if !is_docker_running() {
-            let msg = "\nThe Docker process is not detected.\nPlease ensure it is installed and running.\n\n'Ctrl Q' \
-                       to quit.";
+            #[cfg(target_os = "macos")]
+            let url = "https://docs.docker.com/desktop/install/mac-install/";
+            #[cfg(target_os = "windows")]
+            let url = "https://docs.docker.com/desktop/install/windows-install/";
+            #[cfg(target_os = "linux")]
+            let url = "https://docs.docker.com/engine/install/ubuntu/";
+
+            let msg = format!(
+                "\nThe Docker process is not detected.\nIs it installed and running?\n\
+            Download docker at {url}\n\
+            'Ctrl Q' to quit."
+            );
             if self
                 .terminal
                 .as_mut()
                 .unwrap()
-                .draw(|f| display_docker_notice(f, "Docker Not Running!", msg))
+                .draw(|f| display_docker_notice(f, "Docker Not Running!", &msg))
                 .is_err()
             {
                 println!("{}", msg);
