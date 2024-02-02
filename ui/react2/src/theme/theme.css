@@ -18,7 +18,7 @@ body {
   font-family: 'AvenirMedium', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f7 !important;
+  background-color: #0c0c0e !important;
 }
 
 code {
@@ -33,7 +33,7 @@ a {
 .main-bg {
   background-image: url('../assets/images/bg-gradient.png');
   background-color: #0c0c0e;
-  height: 100vh;
+  /* height: 100vh; */
 }
 
 .topbar-item-value {

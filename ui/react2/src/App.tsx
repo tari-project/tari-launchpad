@@ -4,7 +4,7 @@ import { useState } from "react";
 // import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 import { emit, listen } from '@tauri-apps/api/event'
-import { Container, CssBaseline, Divider, Grid, ThemeProvider, Typography } from "@mui/material";
+import { Container, CssBaseline, Divider, Grid, Switch, ThemeProvider, Typography } from "@mui/material";
 import { createTheme, useTheme } from '@mui/material/styles';
 import { componentSettings, light, dark } from './theme/tokens'
 import { GradientPaper, TypographyData } from './components/StyledComponents';
@@ -67,9 +67,9 @@ function App() {
     }
   })
 
-  const col1 = 8;
+  const col1 = 6;
   const col2 = 3;
-  // const col3 = 2;
+  const col3 = 1;
   // const col4 = 3;
   // const col5 = 1;
   // const col6 = 1;
@@ -99,6 +99,9 @@ function App() {
                       {isMining ? <PauseIcon /> : <PlayArrowIcon fontSize="large" />}
 
                     </button>
+                    <Typography pt={2} variant="body2">
+                      {isMining ? "Pause" : "Start Mining"}
+                    </Typography>
                   </Grid>
 
                 </Grid>
@@ -116,16 +119,22 @@ function App() {
                         <Grid item xs={col2} md={col2} lg={col2}>
                           <Typography variant="body2">Status</Typography>
                         </Grid>
+                        <Grid item xs={col3} md={col3} lg={col3}>
+                          <Typography variant="body2">Enabled</Typography>
+                        </Grid>
                       </Grid>
                       <Grid container spacing={3}>
                         <Grid item xs={12} md={12} lg={12} >
                           <Divider color={theme.palette.background.paper} />
                         </Grid>
                         <Grid item xs={col1} md={col1} lg={col1}>
-                          <TypographyData >Merge Mining with Monero</TypographyData>
+                          <TypographyData > Merge Mining with Monero</TypographyData>
                         </Grid>
                         <Grid item xs={col2} md={col2} lg={col2}>
                           <TypographyData >{isMining ? "Mining" : "Idle"}</TypographyData>
+                        </Grid>
+                        <Grid item xs={col3} md={col3} lg={col3}>
+                          <Switch />
                         </Grid>
                         <Grid item xs={12} md={12} lg={12} >
                           <Divider color={theme.palette.background.paper} />
@@ -135,6 +144,9 @@ function App() {
                         </Grid>
                         <Grid item xs={col2} md={col2} lg={col2}>
                           <TypographyData >{isMining ? "Mining" : "Idle"}</TypographyData>
+                        </Grid>
+                        <Grid item xs={col3} md={col3} lg={col3}>
+                          <Switch />
                         </Grid>
                       </Grid>
                     </GradientPaper>
@@ -160,31 +172,35 @@ function App() {
             <Grid container spacing={3}>
               <Grid item xs={3} md={3} lg={3} > </Grid>
               <Grid item xs={6} md={6} lg={6} pt={20} >
-                <GradientPaper >
+                {/* <GradientPaper > */}
 
-                  <Grid container spacing={3}>
-                    <Grid item xs={col1} md={col1} lg={col1}>
-                      <Typography variant="body2">Container</Typography>
-                    </Grid>
-                    <Grid item xs={col2} md={col2} lg={col2}>
-                      <Typography variant="body2">CPU</Typography>
-                    </Grid>
+
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={12} lg={12} >
+                    <Typography variant="h4" style={{ textAlign: "center" }}>System Information</Typography>
                   </Grid>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} md={12} lg={12} >
-                      <Divider color={theme.palette.background.paper} />
-                    </Grid>
-                    <Grid item xs={col1} md={col1} lg={col1}>
-                      <TypographyData >Tor</TypographyData>
-                    </Grid>
-                    <Grid item xs={col2} md={col2} lg={col2}>
-                      <TypographyData >{isMining ? "Mining" : "Idle"}</TypographyData>
-                    </Grid>
-                    <Grid item xs={12} md={12} lg={12} >
-                      <Divider color={theme.palette.background.paper} />
-                    </Grid>
+                  <Grid item xs={col1} md={col1} lg={col1}>
+                    <Typography variant="body2">Container</Typography>
                   </Grid>
-                </GradientPaper>
+                  <Grid item xs={col2} md={col2} lg={col2}>
+                    <Typography variant="body2">CPU</Typography>
+                  </Grid>
+                </Grid>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={12} lg={12} >
+                    <Divider color={theme.palette.background.paper} />
+                  </Grid>
+                  <Grid item xs={col1} md={col1} lg={col1}>
+                    <TypographyData >Tor</TypographyData>
+                  </Grid>
+                  <Grid item xs={col2} md={col2} lg={col2}>
+                    <TypographyData >{isMining ? "Mining" : "Idle"}</TypographyData>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={12} >
+                    <Divider color={theme.palette.background.paper} />
+                  </Grid>
+                </Grid>
+                {/* </GradientPaper> */}
               </Grid>
             </Grid>
           </Grid>
