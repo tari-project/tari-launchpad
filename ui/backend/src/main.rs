@@ -23,10 +23,24 @@
 
 #![cfg_attr(all(not(debug_assertions), target_os = "windows"), windows_subsystem = "windows")]
 
-use anyhow::Error;
+use anyhow::{Context, Error};
+use std::env;
+use tari_sdm_assets::configurator::Configurator;
 use tauri::Manager;
 
 fn main() -> Result<(), Error> {
+    tauri::async_runtime::block_on(async {
+        let mut configurator = Configurator::init().unwrap();
+        configurator.init_configuration(false).await.unwrap();
+
+        let workdir = configurator.base_path();
+        env::set_current_dir(workdir).unwrap();
+
+        log4rs::init_file("config/log4rs-cli.yml", Default::default())
+            .context("Can't read a logs configuration file")
+            .unwrap();
+    });
+
     tauri::Builder::default()
         .setup(|app| {
             #[cfg(debug_assertions)] // only include this code on debug builds

@@ -5413,10 +5413,12 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "log",
+ "log4rs 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell",
  "serde",
  "serde_json",
  "tari_launchpad_protocol",
+ "tari_sdm_assets",
  "tari_sdm_launchpad",
  "tauri",
  "tauri-build",

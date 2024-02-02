@@ -183,52 +183,69 @@ function App() {
             ...containers
           };
           if (id === "Tor") {
-            let last_cpu = newContainers.tor.stats?.cpu_usage;
-            let last_system_cpu = newContainers.tor.stats?.system_cpu_usage;
-            newContainers.tor.stats = delta.StatsRecord;
-            newContainers.tor.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            console.log(delta.StatsRecord);
+            if (delta.StatsRecord.timestamp !== newContainers.tor.stats?.timestamp) {
+              let last_cpu = newContainers.tor.stats?.cpu_usage;
+              let last_system_cpu = newContainers.tor.stats?.system_cpu_usage;
+              newContainers.tor.stats = delta.StatsRecord;
+              newContainers.tor.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            }
           }
           if (id === "Base Node") {
-            let last_cpu = newContainers.baseNode.stats?.cpu_usage;
-            let last_system_cpu = newContainers.baseNode.stats?.system_cpu_usage;
-            newContainers.baseNode.stats = delta.StatsRecord;
-            newContainers.baseNode.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            if (delta.StatsRecord.timestamp !== newContainers.baseNode.stats?.timestamp) {
+              let last_cpu = newContainers.baseNode.stats?.cpu_usage;
+              let last_system_cpu = newContainers.baseNode.stats?.system_cpu_usage;
+              newContainers.baseNode.stats = delta.StatsRecord;
+              newContainers.baseNode.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            }
           }
           if (id === "Sha3Miner") {
-            let last_cpu = newContainers.sha3Miner.stats?.cpu_usage;
-            let last_system_cpu = newContainers.sha3Miner.stats?.system_cpu_usage;
-            newContainers.sha3Miner.stats = delta.StatsRecord;
-            newContainers.sha3Miner.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            if (delta.StatsRecord.timestamp !== newContainers.sha3Miner.stats?.timestamp) {
+              let last_cpu = newContainers.sha3Miner.stats?.cpu_usage;
+              let last_system_cpu = newContainers.sha3Miner.stats?.system_cpu_usage;
+              newContainers.sha3Miner.stats = delta.StatsRecord;
+              newContainers.sha3Miner.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            }
           }
           if (id === "SharedVolume") {
-            let last_cpu = newContainers.sharedVolume.stats?.cpu_usage;
-            let last_system_cpu = newContainers.sharedVolume.stats?.system_cpu_usage;
-            newContainers.sharedVolume.stats = delta.StatsRecord;
-            newContainers.sharedVolume.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            if (delta.StatsRecord.timestamp !== newContainers.sharedVolume.stats?.timestamp) {
+              let last_cpu = newContainers.sharedVolume.stats?.cpu_usage;
+              let last_system_cpu = newContainers.sharedVolume.stats?.system_cpu_usage;
+              newContainers.sharedVolume.stats = delta.StatsRecord;
+              newContainers.sharedVolume.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            }
           }
           if (id === "MM proxy") {
-            let last_cpu = newContainers.mmProxy.stats?.cpu_usage;
-            let last_system_cpu = newContainers.mmProxy.stats?.system_cpu_usage;
-            newContainers.mmProxy.stats = delta.StatsRecord;
-            newContainers.mmProxy.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            if (delta.StatsRecord.timestamp !== newContainers.mmProxy.stats?.timestamp) {
+              let last_cpu = newContainers.mmProxy.stats?.cpu_usage;
+              let last_system_cpu = newContainers.mmProxy.stats?.system_cpu_usage;
+              newContainers.mmProxy.stats = delta.StatsRecord;
+              newContainers.mmProxy.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            }
           }
           if (id === "Loki") {
-            let last_cpu = newContainers.loki.stats?.cpu_usage;
-            let last_system_cpu = newContainers.loki.stats?.system_cpu_usage;
-            newContainers.loki.stats = delta.StatsRecord;
-            newContainers.loki.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            if (delta.StatsRecord.timestamp !== newContainers.loki.stats?.timestamp) {
+              let last_cpu = newContainers.loki.stats?.cpu_usage;
+              let last_system_cpu = newContainers.loki.stats?.system_cpu_usage;
+              newContainers.loki.stats = delta.StatsRecord;
+              newContainers.loki.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            }
           }
           if (id === "Grafana") {
-            let last_cpu = newContainers.grafana.stats?.cpu_usage;
-            let last_system_cpu = newContainers.grafana.stats?.system_cpu_usage;
-            newContainers.grafana.stats = delta.StatsRecord;
-            newContainers.grafana.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            if (delta.StatsRecord.timestamp !== newContainers.grafana.stats?.timestamp) {
+              let last_cpu = newContainers.grafana.stats?.cpu_usage;
+              let last_system_cpu = newContainers.grafana.stats?.system_cpu_usage;
+              newContainers.grafana.stats = delta.StatsRecord;
+              newContainers.grafana.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            }
           }
           if (id === "Xmrig") {
-            let last_cpu = newContainers.xmrig.stats?.cpu_usage;
-            let last_system_cpu = newContainers.xmrig.stats?.system_cpu_usage;
-            newContainers.xmrig.stats = delta.StatsRecord;
-            newContainers.xmrig.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            if (delta.StatsRecord.timestamp !== newContainers.xmrig.stats?.timestamp) {
+              let last_cpu = newContainers.xmrig.stats?.cpu_usage;
+              let last_system_cpu = newContainers.xmrig.stats?.system_cpu_usage;
+              newContainers.xmrig.stats = delta.StatsRecord;
+              newContainers.xmrig.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+            }
           }
           setContainers(newContainers);
         }
@@ -377,7 +394,7 @@ function App() {
                     <TypographyData >{containers ? containers.tor?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.tor?.stats?.cpu : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.tor?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -391,7 +408,7 @@ function App() {
                     <TypographyData >{containers ? containers.baseNode?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.baseNode?.stats?.cpu : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.baseNode?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -404,7 +421,7 @@ function App() {
                     <TypographyData >{containers ? containers.sha3Miner?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.sha3Miner?.stats?.cpu : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.sha3Miner?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -418,7 +435,7 @@ function App() {
                     <TypographyData >{containers ? containers.sharedVolume?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.sharedVolume?.stats?.cpu : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.sharedVolume?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -431,7 +448,7 @@ function App() {
                     <TypographyData >{containers ? containers.mmProxy?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.mmProxy?.stats?.cpu : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.mmProxy?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -444,7 +461,7 @@ function App() {
                     <TypographyData >{containers?.loki?.status}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.loki?.stats?.cpu : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.loki?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -457,7 +474,7 @@ function App() {
                     <TypographyData >{containers?.grafana?.status}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.grafana?.stats?.cpu : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.grafana?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -470,7 +487,7 @@ function App() {
                     <TypographyData >{containers?.xmrig?.status}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.xmrig?.stats?.cpu : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.xmrig?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
