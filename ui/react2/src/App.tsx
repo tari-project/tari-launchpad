@@ -75,6 +75,17 @@ function App() {
   }
 
 
+  function printStatus(status: any) {
+    if (status === undefined) {
+      return "..."
+    }
+    // Some clever developer thought it was a good idea sometimes to return a string and sometimes an object
+    if (status.hasOwnProperty("Progress")) {
+      return status.Progress.stage;
+    }
+    return status;
+  }
+
   // async function shaMine() {
   //   let state: any = appState;
   //   let stateSession = { ...state?.config?.session };
@@ -99,6 +110,22 @@ function App() {
         setIsChangingMining(false);
         setAppState(newState);
         setIsMining(newState.config?.session?.merge_layer_active || newState.config?.session?.sha3x_layer_active);
+      }
+      if (payload?.Delta.TaskDelta) {
+        let delta: any = payload?.Delta.TaskDelta?.delta;
+        if (delta.UpdateStatus) {
+          let newState: any = appState;
+          console.log(delta.UpdateStatus);
+          if (delta.UpdateStatus) {
+            console.log("Setting status for " + payload?.Delta.TaskDelta?.id + " to " + delta.UpdateStatus);
+            newState.containers[payload?.Delta.TaskDelta?.id].status = delta.UpdateStatus;
+            // if (delta.UpdateStatus?.Progress) {
+            // newState.containers[payload?.Delta.TaskDelta?.id].status = delta.UpdateStatus?.Progress?.stage;
+            // setAppState(newState);
+            // }
+            setAppState(newState);
+          }
+        }
       }
       // console.log("Don't know what todo with delta");
       // alert(logs);
@@ -181,7 +208,7 @@ function App() {
                           <TypographyData > Merge Mining with Monero</TypographyData>
                         </Grid>
                         <Grid item xs={col2} md={col2} lg={col2}>
-                          <TypographyData >{containers ? containers["Xmrig"]?.status : "..."}</TypographyData>
+                          <TypographyData >{containers ? printStatus(containers["Xmrig"]?.status) : "..."}</TypographyData>
                         </Grid>
                         <Grid item xs={col3} md={col3} lg={col3}>
                           <Switch checked={mergeMiningEnabled} onChange={toggleMergeMiningEnabled} />
@@ -193,7 +220,7 @@ function App() {
                           <TypographyData >SHA3</TypographyData>
                         </Grid>
                         <Grid item xs={col2} md={col2} lg={col2}>
-                          <TypographyData >{containers ? containers["Sha3Miner"]?.status : "..."}</TypographyData>
+                          <TypographyData >{containers ? printStatus(containers["Sha3Miner"]?.status) : "..."}</TypographyData>
                         </Grid>
                         <Grid item xs={col3} md={col3} lg={col3}>
                           <Switch checked={shaMiningEnabled} onChange={toggleShaMiningEnabled} />
@@ -236,7 +263,7 @@ function App() {
                     <TypographyData >tor</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers ? containers["Tor"]?.status : "..."}</TypographyData>
+                    <TypographyData >{containers ? printStatus(containers["Tor"]?.status) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -247,7 +274,7 @@ function App() {
                     <TypographyData >minotari node</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers ? containers["Base Node"]?.status : "..."}</TypographyData>
+                    <TypographyData >{containers ? printStatus(containers["Base Node"]?.status) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -257,7 +284,7 @@ function App() {
                     <TypographyData >sha3 miner</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers ? containers["Sha3Miner"]?.status : "..."}</TypographyData>
+                    <TypographyData >{containers ? printStatus(containers["Sha3Miner"]?.status) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -268,7 +295,7 @@ function App() {
                     <TypographyData >shard volume</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers ? containers["SharedVolume"]?.status : "..."}</TypographyData>
+                    <TypographyData >{containers ? printStatus(containers["SharedVolume"]?.status) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -278,7 +305,7 @@ function App() {
                     <TypographyData >merge mining proxy</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers ? containers["MM proxy"]?.status : "..."}</TypographyData>
+                    <TypographyData >{containers ? printStatus(containers["MM proxy"]?.status) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -288,7 +315,7 @@ function App() {
                     <TypographyData >loki</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers?.Loki?.status}</TypographyData>
+                    <TypographyData >{printStatus(containers?.Loki?.status)}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -298,7 +325,7 @@ function App() {
                     <TypographyData >grafana</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers?.Grafana?.status}</TypographyData>
+                    <TypographyData >{printStatus(containers?.Grafana?.status)}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -308,7 +335,7 @@ function App() {
                     <TypographyData >xmrig</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
-                    <TypographyData >{containers?.Xmrig?.status}</TypographyData>
+                    <TypographyData >{printStatus(containers?.Xmrig?.status)}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
