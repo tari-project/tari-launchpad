@@ -27,6 +27,7 @@ use ratatui::{
     Frame,
 };
 
+use crate::component::expert::logs::LogsScene;
 use crate::{
     component::{
         expert::ExpertScene,
@@ -42,6 +43,7 @@ use crate::{
 pub struct MainView {
     header: Header,
     normal_scene: NormalScene,
+    logs_scene: LogsScene,
     expert_scene: ExpertScene,
     settings_scene: SettingsScene,
 }
@@ -51,6 +53,7 @@ impl MainView {
         Self {
             header: Header::new(),
             normal_scene: NormalScene::new(),
+            logs_scene: LogsScene::new(),
             expert_scene: ExpertScene::new(),
             settings_scene: SettingsScene::new(),
         }
@@ -80,6 +83,9 @@ impl Input for MainView {
                 Mode::Normal => {
                     self.normal_scene.on_event(event, state);
                 },
+                Mode::Logs => {
+                    self.logs_scene.on_event(event, state);
+                },
                 Mode::Expert => {
                     self.expert_scene.on_event(event, state);
                 },
@@ -105,6 +111,9 @@ impl<B: Backend> Component<B> for MainView {
         match self.header.mode_selector.selected() {
             Mode::Normal => {
                 self.normal_scene.draw(f, chunks[1], state);
+            },
+            Mode::Logs => {
+                self.logs_scene.draw(f, chunks[1], state);
             },
             Mode::Expert => {
                 self.expert_scene.draw(f, chunks[1], state);

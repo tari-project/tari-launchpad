@@ -23,19 +23,15 @@
 
 mod base_node;
 mod docker;
-mod logs;
 mod mining;
-mod security;
 
 use base_node::BaseNodeSettings;
 use docker::DockerSettings;
-use logs::LogsSettings;
 use mining::MiningSettings;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
-use security::SecuritySettings;
 use strum::{Display, EnumCount, EnumIter, FromRepr};
 
 use crate::{
@@ -43,7 +39,7 @@ use crate::{
         tabs::{AppTabs, TabGetter},
         Component, ComponentEvent, Frame, Input,
     },
-    state::{focus, AppState, Focus},
+    state::{AppState, Focus},
 };
 
 #[derive(Debug, EnumCount, EnumIter, FromRepr, Clone, Copy, Display)]
@@ -51,8 +47,6 @@ pub enum SettingsTabs {
     Mining,
     BaseNode,
     Docker,
-    Logs,
-    Security,
 }
 
 impl TabGetter for SettingsTabs {
@@ -61,8 +55,6 @@ impl TabGetter for SettingsTabs {
             Self::Mining => mining::MINING_SETTINGS,
             Self::BaseNode => base_node::BASE_NODE_SETTINGS,
             Self::Docker => docker::DOCKER_SETTINGS,
-            Self::Logs => logs::LOGS_SETTINGS,
-            _ => focus::ROOT,
         }
     }
 }
@@ -72,8 +64,6 @@ pub struct SettingsScene {
     mining_settings: MiningSettings,
     base_node_settings: BaseNodeSettings,
     docker_settings: DockerSettings,
-    logs_settings: LogsSettings,
-    security_settings: SecuritySettings,
 }
 
 impl SettingsScene {
@@ -83,8 +73,6 @@ impl SettingsScene {
             mining_settings: MiningSettings::new(),
             base_node_settings: BaseNodeSettings::new(),
             docker_settings: DockerSettings::new(),
-            logs_settings: LogsSettings::new(),
-            security_settings: SecuritySettings::new(),
         }
     }
 }
@@ -103,12 +91,6 @@ impl Input for SettingsScene {
             },
             SettingsTabs::Docker => {
                 self.docker_settings.on_event(event, state);
-            },
-            SettingsTabs::Logs => {
-                self.logs_settings.on_event(event, state);
-            },
-            SettingsTabs::Security => {
-                self.security_settings.on_event(event, state);
             },
         }
         None
@@ -134,12 +116,6 @@ impl<B: Backend> Component<B> for SettingsScene {
             },
             SettingsTabs::Docker => {
                 self.docker_settings.draw(f, chunks[1], state);
-            },
-            SettingsTabs::Logs => {
-                self.logs_settings.draw(f, chunks[1], state);
-            },
-            SettingsTabs::Security => {
-                self.security_settings.draw(f, chunks[1], state);
             },
         }
     }

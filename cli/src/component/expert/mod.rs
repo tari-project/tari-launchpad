@@ -22,7 +22,7 @@
 //
 
 mod errors;
-mod logs;
+pub mod logs;
 
 use errors::ErrorsScene;
 use logs::LogsScene;
