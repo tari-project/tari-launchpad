@@ -34,7 +34,7 @@ use ratatui::{
 
 use crate::{
     component::{widgets::Label, Component, ComponentEvent, Frame, Input},
-    state::{AppEvent::UpdateState, AppState, Focus},
+    state::{AppState, Focus},
 };
 
 pub enum Value<T> {
@@ -214,7 +214,7 @@ where
                         KeyCode::Esc | KeyCode::Enter => {
                             self.input_mode = false;
                             self.update_value(FromStr::from_str(&self.content));
-                            state.events_queue.push_back(UpdateState);
+                            state.update_state();
                         },
                         _ => {},
                     }

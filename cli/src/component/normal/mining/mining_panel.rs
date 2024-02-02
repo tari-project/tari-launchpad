@@ -6,6 +6,7 @@ use log::warn;
 use ratatui::prelude::*;
 use tari_launchpad_protocol::settings::LaunchpadSettings;
 
+use crate::component::widgets::popup::Popup;
 use crate::{
     component::{
         elements::block_with_title,
@@ -30,6 +31,7 @@ pub struct MiningPanel {
     monero_address: LabeledInput,
     sha3_status: StatusBadge<ShaMiningStatus>,
     wallet_payment_address: LabeledInput,
+    show_popup: bool,
 }
 
 impl MiningPanel {
@@ -39,6 +41,7 @@ impl MiningPanel {
             monero_address: LabeledInput::new("Monero mining address", MONERO_ADDRESS),
             sha3_status: StatusBadge::new(ShaMiningStatus),
             wallet_payment_address: LabeledInput::new("Wallet payment address", WALLET_PAYMENT_ADDRESS),
+            show_popup: false,
         }
     }
 
@@ -69,6 +72,7 @@ impl MiningPanel {
             warn!("The app state does not have a settings instance configured, so we cannot update the saved settings");
         }
         if should_write {
+            self.show_popup = false;
             state.update_settings();
         }
     }
@@ -134,10 +138,37 @@ impl Input for MiningPanel {
 
         if let KeyEvent(key) = event {
             if key.code == KeyCode::Char('m') || key.code == KeyCode::Char('M') {
+                if let Some(settings) = &state.state.config.settings {
+                    if let Some(conf) = &settings.saved_settings.sha3_miner {
+                        if conf.wallet_payment_address.is_none() {
+                            self.show_popup = true;
+                            state.update_state();
+                            return None;
+                        }
+                        if let Some(conf) = &settings.saved_settings.xmrig {
+                            let value = conf.monero_mining_address.clone();
+                            if value.is_empty() {
+                                self.show_popup = true;
+                                state.update_state();
+                                return None;
+                            }
+                        }
+                    }
+                }
+
                 Self::toggle_merge_mining(state);
                 return Some(());
             }
             if key.code == KeyCode::Char('t') || key.code == KeyCode::Char('T') {
+                if let Some(settings) = &state.state.config.settings {
+                    if let Some(conf) = &settings.saved_settings.sha3_miner {
+                        if conf.wallet_payment_address.is_none() {
+                            self.show_popup = true;
+                            state.update_state();
+                            return None;
+                        }
+                    }
+                }
                 Self::toggle_sha3_mining(state);
                 return Some(());
             }
@@ -174,5 +205,14 @@ impl<B: Backend> Component<B> for MiningPanel {
         self.wallet_payment_address.draw(f, v_chunks[1], state);
         self.mm_status.draw(f, v_chunks[2], state);
         self.sha3_status.draw(f, v_chunks[3], state);
+        if self.show_popup {
+            let popup = Popup::default()
+                .content("You need to enter wallet information before you can start mining.")
+                .style(Style::new().yellow())
+                .title("Missing wallet information")
+                .title_style(Style::new().white().bold())
+                .border_style(Style::new().red());
+            f.render_widget(popup, v_chunks[4]);
+        }
     }
 }
