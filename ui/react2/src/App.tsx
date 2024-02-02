@@ -104,9 +104,10 @@ function App() {
   listen("tari://reactions", (event) => {
 
     let payload: any = event.payload;
-    console.log(payload);
+    // console.log(payload);
     if (payload?.State !== undefined) {
       setAppState(payload?.State);
+      console.log(payload?.State);
       let newContainers: any = { ...containers };
       if (payload?.State?.containers !== undefined) {
         // We have to do this because some supersmart developer 
@@ -135,49 +136,105 @@ function App() {
       }
       if (payload?.Delta.TaskDelta) {
         let delta: any = payload?.Delta.TaskDelta?.delta;
-        console.log("delta.Updatssssss");
-        console.log(delta.UpdateStatus)
+        let id = payload?.Delta.TaskDelta?.id;
         if (delta.UpdateStatus) {
           let newState: any = { ...appState };
-          console.log(delta.UpdateStatus);
-          let id = payload?.Delta.TaskDelta?.id;
-          if (delta.UpdateStatus) {
-            console.log("Setting status for " + id + " to " + delta.UpdateStatus);
-            newState.containers[payload?.Delta.TaskDelta?.id].status = delta.UpdateStatus;
-            // if (delta.UpdateStatus?.Progress) {
-            // newState.containers[payload?.Delta.TaskDelta?.id].status = delta.UpdateStatus?.Progress?.stage;
-            // setAppState(newState);
-            // }
-            setAppState(newState);
-            let newContainers: any = {
-              ...containers
-            };
-            if (id === "Tor") {
-              newContainers.tor.status = printStatus(delta.UpdateStatus);
-            }
-            if (id === "Base Node") {
-              newContainers.baseNode.status = printStatus(delta.UpdateStatus);
-            }
-            if (id === "Sha3Miner") {
-              newContainers.sha3Miner.status = printStatus(delta.UpdateStatus);
-            }
-            if (id === "SharedVolume") {
-              newContainers.sharedVolume.status = printStatus(delta.UpdateStatus);
-            }
-            if (id === "MM proxy") {
-              newContainers.mmProxy.status = printStatus(delta.UpdateStatus);
-            }
-            if (id === "Loki") {
-              newContainers.loki.status = printStatus(delta.UpdateStatus);
-            }
-            if (id === "Grafana") {
-              newContainers.grafana.status = printStatus(delta.UpdateStatus);
-            }
-            if (id === "Xmrig") {
-              newContainers.xmrig.status = printStatus(delta.UpdateStatus);
-            }
-            setContainers(newContainers);
+          // console.log(delta.UpdateStatus);
+
+          newState.containers[payload?.Delta.TaskDelta?.id].status = delta.UpdateStatus;
+          // if (delta.UpdateStatus?.Progress) {
+          // newState.containers[payload?.Delta.TaskDelta?.id].status = delta.UpdateStatus?.Progress?.stage;
+          // setAppState(newState);
+          // }
+          setAppState(newState);
+          let newContainers: any = {
+            ...containers
+          };
+          if (id === "Tor") {
+            newContainers.tor.status = printStatus(delta.UpdateStatus);
           }
+          if (id === "Base Node") {
+            newContainers.baseNode.status = printStatus(delta.UpdateStatus);
+          }
+          if (id === "Sha3Miner") {
+            newContainers.sha3Miner.status = printStatus(delta.UpdateStatus);
+          }
+          if (id === "SharedVolume") {
+            newContainers.sharedVolume.status = printStatus(delta.UpdateStatus);
+          }
+          if (id === "MM proxy") {
+            newContainers.mmProxy.status = printStatus(delta.UpdateStatus);
+          }
+          if (id === "Loki") {
+            newContainers.loki.status = printStatus(delta.UpdateStatus);
+          }
+          if (id === "Grafana") {
+            newContainers.grafana.status = printStatus(delta.UpdateStatus);
+          }
+          if (id === "Xmrig") {
+            newContainers.xmrig.status = printStatus(delta.UpdateStatus);
+          }
+          setContainers(newContainers);
+
+        }
+        // stats records
+        if (delta.StatsRecord) {
+          let newContainers: any = {
+            ...containers
+          };
+          if (id === "Tor") {
+            let last_cpu = newContainers.tor.stats?.cpu_usage;
+            let last_system_cpu = newContainers.tor.stats?.system_cpu_usage;
+            newContainers.tor.stats = delta.StatsRecord;
+            newContainers.tor.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+          }
+          if (id === "Base Node") {
+            let last_cpu = newContainers.baseNode.stats?.cpu_usage;
+            let last_system_cpu = newContainers.baseNode.stats?.system_cpu_usage;
+            newContainers.baseNode.stats = delta.StatsRecord;
+            newContainers.baseNode.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+          }
+          if (id === "Sha3Miner") {
+            let last_cpu = newContainers.sha3Miner.stats?.cpu_usage;
+            let last_system_cpu = newContainers.sha3Miner.stats?.system_cpu_usage;
+            newContainers.sha3Miner.stats = delta.StatsRecord;
+            newContainers.sha3Miner.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+          }
+          if (id === "SharedVolume") {
+            let last_cpu = newContainers.sharedVolume.stats?.cpu_usage;
+            let last_system_cpu = newContainers.sharedVolume.stats?.system_cpu_usage;
+            newContainers.sharedVolume.stats = delta.StatsRecord;
+            newContainers.sharedVolume.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+          }
+          if (id === "MM proxy") {
+            let last_cpu = newContainers.mmProxy.stats?.cpu_usage;
+            let last_system_cpu = newContainers.mmProxy.stats?.system_cpu_usage;
+            newContainers.mmProxy.stats = delta.StatsRecord;
+            newContainers.mmProxy.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+          }
+          if (id === "Loki") {
+            let last_cpu = newContainers.loki.stats?.cpu_usage;
+            let last_system_cpu = newContainers.loki.stats?.system_cpu_usage;
+            newContainers.loki.stats = delta.StatsRecord;
+            newContainers.loki.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+          }
+          if (id === "Grafana") {
+            let last_cpu = newContainers.grafana.stats?.cpu_usage;
+            let last_system_cpu = newContainers.grafana.stats?.system_cpu_usage;
+            newContainers.grafana.stats = delta.StatsRecord;
+            newContainers.grafana.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+          }
+          if (id === "Xmrig") {
+            let last_cpu = newContainers.xmrig.stats?.cpu_usage;
+            let last_system_cpu = newContainers.xmrig.stats?.system_cpu_usage;
+            newContainers.xmrig.stats = delta.StatsRecord;
+            newContainers.xmrig.stats.cpu = (delta.StatsRecord.cpu_usage - last_cpu) / (delta.StatsRecord.system_cpu_usage - last_system_cpu) * 100;
+          }
+          setContainers(newContainers);
+        }
+        if (!delta.UpdateStatus && !delta.StatsRecord && !delta.LogRecord) {
+          // No need for log records at this point
+          console.log("Unknown delta: " + JSON.stringify(delta));
         }
       }
     }
@@ -192,7 +249,7 @@ function App() {
 
   // let state: any = appState;
   //  let containers: any = state.containers;
-  console.log(containers);
+  // console.log(containers);
 
   return (
     <>
@@ -304,6 +361,9 @@ function App() {
                   <Grid item xs={col2} md={col2} lg={col2}>
                     <Typography variant="body2">Status</Typography>
                   </Grid>
+                  <Grid item xs={col2} md={col3} lg={col3}>
+                    <Typography variant="body2">CPU</Typography>
+                  </Grid>
                 </Grid>
                 <Grid container spacing={3}>
                   <Grid item xs={12} md={12} lg={12} >
@@ -316,6 +376,9 @@ function App() {
                   <Grid item xs={col2} md={col2} lg={col2}>
                     <TypographyData >{containers ? containers.tor?.status : "..."}</TypographyData>
                   </Grid>
+                  <Grid item xs={col3} md={col3} lg={col3}>
+                    <TypographyData >{containers ? containers.tor?.stats?.cpu : "..."}</TypographyData>
+                  </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
                   </Grid>
@@ -327,6 +390,9 @@ function App() {
                   <Grid item xs={col2} md={col2} lg={col2}>
                     <TypographyData >{containers ? containers.baseNode?.status : "..."}</TypographyData>
                   </Grid>
+                  <Grid item xs={col3} md={col3} lg={col3}>
+                    <TypographyData >{containers ? containers.baseNode?.stats?.cpu : "..."}</TypographyData>
+                  </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
                   </Grid>
@@ -337,16 +403,22 @@ function App() {
                   <Grid item xs={col2} md={col2} lg={col2}>
                     <TypographyData >{containers ? containers.sha3Miner?.status : "..."}</TypographyData>
                   </Grid>
+                  <Grid item xs={col3} md={col3} lg={col3}>
+                    <TypographyData >{containers ? containers.sha3Miner?.stats?.cpu : "..."}</TypographyData>
+                  </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
                   </Grid>
 
                   {/* SharedVolume */}
                   <Grid item xs={col1} md={col1} lg={col1}>
-                    <TypographyData >shard volume</TypographyData>
+                    <TypographyData >shared volume</TypographyData>
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
                     <TypographyData >{containers ? containers.sharedVolume?.status : "..."}</TypographyData>
+                  </Grid>
+                  <Grid item xs={col3} md={col3} lg={col3}>
+                    <TypographyData >{containers ? containers.sharedVolume?.stats?.cpu : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -358,6 +430,9 @@ function App() {
                   <Grid item xs={col2} md={col2} lg={col2}>
                     <TypographyData >{containers ? containers.mmProxy?.status : "..."}</TypographyData>
                   </Grid>
+                  <Grid item xs={col3} md={col3} lg={col3}>
+                    <TypographyData >{containers ? containers.mmProxy?.stats?.cpu : "..."}</TypographyData>
+                  </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
                   </Grid>
@@ -367,6 +442,9 @@ function App() {
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
                     <TypographyData >{containers?.loki?.status}</TypographyData>
+                  </Grid>
+                  <Grid item xs={col3} md={col3} lg={col3}>
+                    <TypographyData >{containers ? containers.loki?.stats?.cpu : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -378,6 +456,9 @@ function App() {
                   <Grid item xs={col2} md={col2} lg={col2}>
                     <TypographyData >{containers?.grafana?.status}</TypographyData>
                   </Grid>
+                  <Grid item xs={col3} md={col3} lg={col3}>
+                    <TypographyData >{containers ? containers.grafana?.stats?.cpu : "..."}</TypographyData>
+                  </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
                   </Grid>
@@ -387,6 +468,9 @@ function App() {
                   </Grid>
                   <Grid item xs={col2} md={col2} lg={col2}>
                     <TypographyData >{containers?.xmrig?.status}</TypographyData>
+                  </Grid>
+                  <Grid item xs={col3} md={col3} lg={col3}>
+                    <TypographyData >{containers ? containers.xmrig?.stats?.cpu : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
