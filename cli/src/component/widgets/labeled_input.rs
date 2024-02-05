@@ -233,7 +233,7 @@ impl<B: Backend, T: Eq + FromStr> Component<B> for LabeledInput<T> {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let constraints = [Constraint::Percentage(40), Constraint::Percentage(60)];
+        let constraints = [Constraint::Percentage(25), Constraint::Percentage(75)];
         let h_chunks = Layout::default()
             .direction(Direction::Horizontal)
             .constraints(constraints)

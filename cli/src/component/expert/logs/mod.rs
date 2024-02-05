@@ -94,9 +94,9 @@ impl<B: Backend> Component<B> for LogsScene {
             .header(header)
             .widths(&[
                 Constraint::Percentage(10),
-                Constraint::Percentage(10),
-                Constraint::Percentage(10),
-                Constraint::Percentage(70),
+                Constraint::Percentage(6),
+                Constraint::Percentage(4),
+                Constraint::Percentage(80),
             ])
             .column_spacing(2);
         f.render_widget(table, rects[0]);
