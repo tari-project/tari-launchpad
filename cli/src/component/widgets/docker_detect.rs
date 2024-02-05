@@ -27,7 +27,11 @@ use crate::component::{widgets::popup::Popup, Frame};
 
 pub fn is_docker_running() -> bool {
     match std::process::Command::new("docker").arg("version").output() {
-        Ok(output) => output.stderr.is_empty(),
+        Ok(output) => {
+            let is_wsl2_error =
+                String::from_utf8_lossy(&output.stdout).contains("The command 'docker' could not be found");
+            output.stderr.is_empty() && !is_wsl2_error
+        },
         Err(_) => false,
     }
 }
@@ -36,8 +40,8 @@ pub fn display_docker_notice<B: Backend>(f: &mut Frame<B>, title: &str, msg: &st
     let popup_area = Rect {
         x: 4,
         y: 2,
-        width: 50,
-        height: 8,
+        width: 80,
+        height: 10,
     };
     let popup = Popup::default()
         .content(msg)
