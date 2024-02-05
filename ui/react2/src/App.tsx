@@ -394,7 +394,7 @@ function App() {
                     <TypographyData >{containers ? containers.tor?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.tor?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.tor?.stats?.cpu?.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -408,7 +408,7 @@ function App() {
                     <TypographyData >{containers ? containers.baseNode?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.baseNode?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.baseNode?.stats?.cpu?.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -421,7 +421,7 @@ function App() {
                     <TypographyData >{containers ? containers.sha3Miner?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.sha3Miner?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.sha3Miner?.stats?.cpu?.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -435,7 +435,7 @@ function App() {
                     <TypographyData >{containers ? containers.sharedVolume?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.sharedVolume?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.sharedVolume?.stats?.cpu?.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -448,7 +448,7 @@ function App() {
                     <TypographyData >{containers ? containers.mmProxy?.status : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.mmProxy?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.mmProxy?.stats?.cpu?.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -461,7 +461,7 @@ function App() {
                     <TypographyData >{containers?.loki?.status}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.loki?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.loki?.stats?.cpu?.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -474,7 +474,7 @@ function App() {
                     <TypographyData >{containers?.grafana?.status}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.grafana?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.grafana?.stats?.cpu?.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />
@@ -487,7 +487,7 @@ function App() {
                     <TypographyData >{containers?.xmrig?.status}</TypographyData>
                   </Grid>
                   <Grid item xs={col3} md={col3} lg={col3}>
-                    <TypographyData >{containers ? containers.xmrig?.stats?.cpu.toPrecision(2) : "..."}</TypographyData>
+                    <TypographyData >{containers ? containers.xmrig?.stats?.cpu?.toPrecision(2) : "..."}</TypographyData>
                   </Grid>
                   <Grid item xs={12} md={12} lg={12} >
                     <Divider color={theme.palette.background.paper} />

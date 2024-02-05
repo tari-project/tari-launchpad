@@ -38,15 +38,12 @@ pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
             let res = serde_json::from_str(payload);
             match res {
                 Ok(incoming) => {
-                    dbg!(&incoming);
                     log::trace!("Incoming event: {:?}", incoming);
                     if let Err(err) = in_tx.send(incoming) {
                         log::error!("Can't forward an incoming event: {:?}", err);
                     }
                 },
                 Err(err) => {
-                    dbg!("Err");
-                    dbg!(&err);
                     log::error!("Can't parse incoming event: {}", err);
                 },
             }

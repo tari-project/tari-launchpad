@@ -43,11 +43,11 @@ fn main() -> Result<(), Error> {
 
     tauri::Builder::default()
         .setup(|app| {
-            #[cfg(debug_assertions)] // only include this code on debug builds
+            // #[cfg(debug_assertions)] // only include this code on debug builds
             {
                 let window = app.get_window("main").unwrap();
                 window.open_devtools();
-                window.close_devtools();
+                //  window.close_devtools();
             }
 
             tari_sdm_launchpad::tauri::bus_setup(app)

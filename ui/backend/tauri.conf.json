@@ -5,7 +5,7 @@
   },
   "build": {
     "beforeDevCommand": "yarn dev",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "yarn --cwd react2 build",
     "devPath": "http://localhost:1420",
     "distDir": "../react2/dist"
   },
@@ -29,7 +29,8 @@
       "icon": [
         "../../backend/icons/favicon-32x32.png",
         "../../backend/icons/apple-icon-120x120.png",
-        "../../backend/icons/android-icon-192x192.png"
+        "../../backend/icons/android-icon-192x192.png",
+        "icons/icon.ico"
       ],
       "resources": [
         "../../backend/assets/*"
