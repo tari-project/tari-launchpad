@@ -66,17 +66,17 @@ impl<B: Backend> Component<B> for LegendWidget {
         let items_per_column = (command_items.len() as f32 / 3.0).ceil() as usize;
 
         // Split the items into three columns
-        let column1_items = command_items.iter().take(items_per_column).cloned().collect::<Vec<_>>();
+        let column1_items = command_items.iter().take(items_per_column).copied().collect::<Vec<_>>();
         let column2_items = command_items
             .iter()
             .skip(items_per_column)
             .take(items_per_column)
-            .cloned()
+            .copied()
             .collect::<Vec<_>>();
         let column3_items = command_items
             .iter()
             .skip(2 * items_per_column)
-            .cloned()
+            .copied()
             .collect::<Vec<_>>();
 
         let layout = Layout::default()
