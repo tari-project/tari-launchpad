@@ -246,7 +246,9 @@ impl Do<TermEvent> for Dashboard {
                 ctx.do_next(Redraw)?;
             },
             TermEvent::End => {
+                log::debug!("[Shutdown] `TermEvent::End` received");
                 ctx.shutdown();
+                tokio::time::sleep(Duration::from_secs(10)).await;
             },
         }
         Ok(())
@@ -268,7 +270,10 @@ impl Do<Tick> for Dashboard {
             ctx.do_next(Redraw)?;
         }
         if state.is_terminated() {
+            log::debug!("[Shutdown] Containers' state is terminated");
             self.stop_the_app()?;
+            ctx.shutdown();
+            tokio::time::sleep(Duration::from_secs(10)).await;
         }
         Ok(())
     }

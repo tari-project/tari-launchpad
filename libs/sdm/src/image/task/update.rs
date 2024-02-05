@@ -95,41 +95,124 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         );
         let state = self.container_state().await;
         match state {
-            ContainerState::Running => {
+            ContainerState::Running | ContainerState::Restarting => {
                 log::debug!(
-                    "[Clean dangling] Container {} is running. Terminating it.",
-                    self.inner.container_name
+                    "[Clean dangling] Container `{}` is `{:?}`. Trying to stop it.",
+                    self.inner.container_name,
+                    state
                 );
+                self.try_stop_container(None).await?;
                 self.try_kill_container().await?;
                 self.status.set(Status::WaitContainerKilled);
             },
-            ContainerState::NotRunning => {
+            ContainerState::Paused => {
                 log::debug!(
-                    "[Clean dangling] Container {} is not running. Removing it.",
-                    self.inner.container_name
+                    "[Clean dangling] Container `{}` is `{:?}`. Trying to stop it.",
+                    self.inner.container_name,
+                    state
+                );
+                self.try_unpause_container().await?;
+                self.try_stop_container(None).await?;
+                self.try_kill_container().await?;
+                self.status.set(Status::WaitContainerKilled);
+            },
+            ContainerState::Exited | ContainerState::Empty | ContainerState::Created => {
+                log::debug!(
+                    "[Clean dangling] Container `{}` is `{:?}`. Trying to remove it.",
+                    self.inner.container_name,
+                    state
                 );
                 self.try_remove_container().await?;
                 self.status.set(Status::WaitContainerRemoved);
             },
-            ContainerState::NotFound => {
+            ContainerState::Dead | ContainerState::Removing => {
                 log::debug!(
-                    "[Clean dangling] Container {} doesn't exist.",
-                    self.inner.container_name
+                    "[Clean dangling] Container `{}` is `{:?}`. Doing nothing.",
+                    self.inner.container_name,
+                    state
                 );
                 self.status.set(Status::Idle);
-                self.update_task_status(TaskStatus::Inactive)?;
             },
         }
+        self.update_task_status(TaskStatus::Inactive)?;
         Ok(())
     }
 
     async fn do_wait_container_killed(&mut self) -> Result<(), Error> {
-        // TODO: Wait interval
+        let state = self.container_state().await;
+        log::debug!(
+            "[Clean dangling] `do_wait_container_killed` for container `{}` enter state: `{:?}`",
+            self.inner.container_name,
+            state
+        );
+        let mut count = 0;
+        loop {
+            tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+            let state = self.container_state().await;
+            log::debug!(
+                "[Clean dangling] `do_wait_container_killed` for container `{}` state: `{:?}`",
+                self.inner.container_name,
+                state
+            );
+            if state == ContainerState::Dead {
+                break;
+            }
+            if count >= 30 {
+                // 3 seconds
+                log::warn!(
+                    "[Clean dangling] Container `{}` did not stop in time. Trying to terminate it.",
+                    self.inner.container_name
+                );
+                let _ = self.try_kill_container().await;
+                let _ = self.try_remove_container().await;
+                break;
+            }
+            count += 1;
+        }
+        let state = self.container_state().await;
+        log::debug!(
+            "[Clean dangling] `do_wait_container_killed` for container `{}`, exit state: `{:?}`",
+            self.inner.container_name,
+            state
+        );
         Ok(())
     }
 
     async fn do_wait_container_removed(&mut self) -> Result<(), Error> {
-        // TODO: Wait interval
+        let state = self.container_state().await;
+        log::debug!(
+            "[Clean dangling] `do_wait_container_removed` for container `{}`, enter state: `{:?}`",
+            self.inner.container_name,
+            state
+        );
+        let mut count = 0;
+        loop {
+            tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+            let state = self.container_state().await;
+            log::debug!(
+                "[Clean dangling] `do_wait_container_removed` for container `{}` state: `{:?}`",
+                self.inner.container_name,
+                state
+            );
+            if state == ContainerState::Removing || state == ContainerState::Dead {
+                break;
+            }
+            if count >= 30 {
+                // 3 seconds
+                log::warn!(
+                    "[Clean dangling] Container {} was not removed in time.",
+                    self.inner.container_name
+                );
+                break;
+            }
+            count += 1;
+        }
+        let state = self.container_state().await;
+        log::debug!(
+            "[Clean dangling] `do_wait_container_removed` for container `{}`, exit status: `{:?}`",
+            self.inner.container_name,
+            state
+        );
         Ok(())
     }
 

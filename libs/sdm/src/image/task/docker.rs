@@ -24,6 +24,8 @@
 use std::{collections::HashMap, path::Path};
 
 use anyhow::{anyhow, Error};
+use bollard::container::StopContainerOptions;
+use bollard::models::ContainerStateStatusEnum;
 use bollard::{
     container::{
         Config, CreateContainerOptions, LogOutput, LogsOptions, NetworkingConfig, RemoveContainerOptions,
@@ -32,8 +34,8 @@ use bollard::{
     errors::Error as BollardError,
     image::{CreateImageOptions, RemoveImageOptions},
     models::{
-        ContainerInspectResponse, CreateImageInfo, EndpointSettings, EventMessage, EventMessageTypeEnum, HostConfig,
-        Mount as BollardMount, MountTypeEnum, PortBinding, PortMap,
+        CreateImageInfo, EndpointSettings, EventMessage, EventMessageTypeEnum, HostConfig, Mount as BollardMount,
+        MountTypeEnum, PortBinding, PortMap,
     },
     system::EventsOptions,
 };
@@ -83,15 +85,34 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         let res = self.driver.inspect_container(&self.inner.container_name, None).await;
         // log::trace!("State of container {}: {:?}", self.inner.container_name, res);
         match res {
-            Ok(ContainerInspectResponse { state: Some(state), .. }) => {
-                if state.running.unwrap_or_default() {
-                    ContainerState::Running
-                } else {
-                    ContainerState::NotRunning
-                }
+            Ok(ref response) => response.state.clone().map_or(
+                {
+                    log::warn!("State of container {}: {:?}", self.inner.container_name, res);
+                    ContainerState::Dead
+                },
+                |state| {
+                    state.status.map_or(
+                        {
+                            log::warn!("State of container {}: {:?}", self.inner.container_name, res);
+                            ContainerState::Dead
+                        },
+                        |status| match status {
+                            ContainerStateStatusEnum::EMPTY => ContainerState::Empty,
+                            ContainerStateStatusEnum::CREATED => ContainerState::Created,
+                            ContainerStateStatusEnum::RUNNING => ContainerState::Running,
+                            ContainerStateStatusEnum::PAUSED => ContainerState::Paused,
+                            ContainerStateStatusEnum::RESTARTING => ContainerState::Restarting,
+                            ContainerStateStatusEnum::REMOVING => ContainerState::Removing,
+                            ContainerStateStatusEnum::EXITED => ContainerState::Exited,
+                            ContainerStateStatusEnum::DEAD => ContainerState::Dead,
+                        },
+                    )
+                },
+            ),
+            Err(ref e) => {
+                log::warn!("State of container {}: {:?} ({})", self.inner.container_name, res, e);
+                ContainerState::Dead
             },
-            Ok(_) => ContainerState::NotRunning,
-            Err(_) => ContainerState::NotFound,
         }
     }
 
@@ -194,6 +215,16 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         self.driver
             .kill_container::<String>(&self.inner.container_name, None)
             .await?;
+        Ok(())
+    }
+
+    pub async fn try_stop_container(&mut self, options: Option<StopContainerOptions>) -> Result<(), Error> {
+        self.driver.stop_container(&self.inner.container_name, options).await?;
+        Ok(())
+    }
+
+    pub async fn try_unpause_container(&mut self) -> Result<(), Error> {
+        self.driver.unpause_container(&self.inner.container_name).await?;
         Ok(())
     }
 

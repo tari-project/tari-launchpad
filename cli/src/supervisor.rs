@@ -23,6 +23,7 @@
 
 use anyhow::Error;
 use async_trait::async_trait;
+use std::time::Duration;
 use tact::{Actor, ActorContext, Address, Do};
 
 use crate::dashboard::{Dashboard, DashboardEvent};
@@ -49,8 +50,10 @@ impl Do<DashboardEvent> for Supervisor {
     async fn handle(&mut self, event: DashboardEvent, ctx: &mut ActorContext<Self>) -> Result<(), Self::Error> {
         match event {
             DashboardEvent::Terminated => {
+                log::debug!("[Shutdown] `DashboardEvent::Terminatedd` received");
                 self.dashboard.take();
                 ctx.shutdown();
+                tokio::time::sleep(Duration::from_secs(10)).await;
             },
         }
         Ok(())

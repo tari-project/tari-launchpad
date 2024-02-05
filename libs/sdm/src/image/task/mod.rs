@@ -153,9 +153,14 @@ impl Default for Status {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ContainerState {
+    Empty,
+    Created,
     Running,
-    NotRunning,
-    NotFound,
+    Paused,
+    Restarting,
+    Removing,
+    Exited,
+    Dead,
 }
 
 #[derive(Debug)]
