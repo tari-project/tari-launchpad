@@ -27,12 +27,14 @@ use ratatui::{
     Frame,
 };
 
+use crate::component::expert::logs::LogsScene;
 use crate::{
     component::{
         expert::ExpertScene,
         header::{mode::Mode, Header},
         normal::NormalScene,
         settings::SettingsScene,
+        widgets::docker_detect::is_docker_running,
         Component, ComponentEvent, Input, Pass,
     },
     state::{focus, AppState},
@@ -41,6 +43,7 @@ use crate::{
 pub struct MainView {
     header: Header,
     normal_scene: NormalScene,
+    logs_scene: LogsScene,
     expert_scene: ExpertScene,
     settings_scene: SettingsScene,
 }
@@ -50,6 +53,7 @@ impl MainView {
         Self {
             header: Header::new(),
             normal_scene: NormalScene::new(),
+            logs_scene: LogsScene::new(),
             expert_scene: ExpertScene::new(),
             settings_scene: SettingsScene::new(),
         }
@@ -66,6 +70,10 @@ impl Input for MainView {
             state.terminate();
             state.focus_on(focus::TERMINATION);
             state.update_state();
+
+            if !is_docker_running() {
+                std::process::exit(0);
+            }
         } else if matches!(event, ComponentEvent::StateChanged) {
             self.normal_scene.on_event(event, state);
             self.settings_scene.on_event(event, state);
@@ -74,6 +82,9 @@ impl Input for MainView {
             match self.header.mode_selector.selected() {
                 Mode::Normal => {
                     self.normal_scene.on_event(event, state);
+                },
+                Mode::Logs => {
+                    self.logs_scene.on_event(event, state);
                 },
                 Mode::Expert => {
                     self.expert_scene.on_event(event, state);
@@ -100,6 +111,9 @@ impl<B: Backend> Component<B> for MainView {
         match self.header.mode_selector.selected() {
             Mode::Normal => {
                 self.normal_scene.draw(f, chunks[1], state);
+            },
+            Mode::Logs => {
+                self.logs_scene.draw(f, chunks[1], state);
             },
             Mode::Expert => {
                 self.expert_scene.draw(f, chunks[1], state);

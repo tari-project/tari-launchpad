@@ -32,7 +32,6 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
-use crate::state::AppEvent::UpdateState;
 use crate::{
     component::{widgets::Label, Component, ComponentEvent, Frame, Input},
     state::{AppState, Focus},
@@ -215,7 +214,7 @@ where
                         KeyCode::Esc | KeyCode::Enter => {
                             self.input_mode = false;
                             self.update_value(FromStr::from_str(&self.content));
-                            state.events_queue.push_back(UpdateState);
+                            state.update_state();
                         },
                         _ => {},
                     }
@@ -234,7 +233,7 @@ impl<B: Backend, T: Eq + FromStr> Component<B> for LabeledInput<T> {
     type State = AppState;
 
     fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let constraints = [Constraint::Percentage(40), Constraint::Percentage(60)];
+        let constraints = [Constraint::Percentage(25), Constraint::Percentage(75)];
         let h_chunks = Layout::default()
             .direction(Direction::Horizontal)
             .constraints(constraints)

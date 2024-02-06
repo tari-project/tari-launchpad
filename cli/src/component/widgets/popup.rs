@@ -21,51 +21,38 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use ratatui::{backend::Backend, layout::Rect};
-
-use crate::{
-    component::{elements::block_with_title, Component, ComponentEvent, Frame, Input, Pass},
-    focus_id,
-    state::{
-        focus::{self, Focus},
-        AppState,
-    },
+use derive_setters::Setters;
+use ratatui::{
+    buffer::Buffer,
+    layout::Rect,
+    prelude::{Line, Style, Text},
+    widgets::{Block, Borders, Clear, Paragraph, Widget, Wrap},
 };
 
-pub static SECURITY_SETTINGS: Focus = focus_id!();
-
-pub struct SecuritySettings {}
-
-impl SecuritySettings {
-    pub fn new() -> Self {
-        Self {}
-    }
+#[derive(Debug, Default, Setters)]
+pub struct Popup<'a> {
+    #[setters(into)]
+    title: Line<'a>,
+    #[setters(into)]
+    content: Text<'a>,
+    border_style: Style,
+    title_style: Style,
+    style: Style,
 }
 
-impl Input for SecuritySettings {
-    type Output = ();
-
-    fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
-        if state.focus_on == SECURITY_SETTINGS {
-            match event.pass() {
-                Pass::Up | Pass::Leave => {
-                    state.focus_on(focus::ROOT);
-                },
-                Pass::Down | Pass::Enter => {
-                    // TODO:
-                },
-                _ => {},
-            }
-        }
-        None
-    }
-}
-
-impl<B: Backend> Component<B> for SecuritySettings {
-    type State = AppState;
-
-    fn draw(&self, f: &mut Frame<B>, rect: Rect, state: &Self::State) {
-        let block = block_with_title(Some("Security Settings"), state.focus_on == SECURITY_SETTINGS);
-        f.render_widget(block, rect);
+impl Widget for Popup<'_> {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        // Ensure that all cells under the popup are cleared to avoid leaking content
+        Clear.render(area, buf);
+        let block = Block::new()
+            .title(self.title)
+            .title_style(self.title_style)
+            .borders(Borders::ALL)
+            .border_style(self.border_style);
+        Paragraph::new(self.content)
+            .wrap(Wrap { trim: true })
+            .style(self.style)
+            .block(block)
+            .render(area, buf);
     }
 }
