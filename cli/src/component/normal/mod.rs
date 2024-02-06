@@ -23,6 +23,7 @@
 
 mod base_node;
 pub mod containers;
+mod legend_widget;
 mod mining;
 
 use mining::MiningPanel;
@@ -31,6 +32,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
 };
 
+use crate::component::normal::legend_widget::LegendWidget;
 use crate::{
     component::{
         normal::{base_node::BaseNodeWidget, containers::ContainersScene},
@@ -43,6 +45,7 @@ pub struct NormalScene {
     mining_panel: MiningPanel,
     base_node_widget: BaseNodeWidget,
     containers_scene: ContainersScene,
+    legend_widget: LegendWidget,
 }
 
 impl NormalScene {
@@ -51,6 +54,7 @@ impl NormalScene {
             mining_panel: MiningPanel::new(),
             base_node_widget: BaseNodeWidget::new(),
             containers_scene: ContainersScene::new(),
+            legend_widget: LegendWidget::new(),
         }
     }
 }
@@ -73,6 +77,7 @@ impl<B: Backend> Component<B> for NormalScene {
         let panel_constraints = [
             Constraint::Length(15), // miners
             Constraint::Length(10), // base node
+            Constraint::Length(8),  // help
             Constraint::Min(0),
         ];
 
@@ -89,5 +94,6 @@ impl<B: Backend> Component<B> for NormalScene {
         self.containers_scene.draw(f, windows[1], state);
         self.mining_panel.draw(f, panels[0], state);
         self.base_node_widget.draw(f, panels[1], state);
+        self.legend_widget.draw(f, panels[2], state);
     }
 }
