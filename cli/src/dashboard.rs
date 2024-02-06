@@ -120,9 +120,9 @@ impl Actor for Dashboard {
             let url = "https://docs.docker.com/engine/install/ubuntu/";
 
             let msg = format!(
-                "\nThe Docker process is not detected.\nIs it installed and running?\n\
-            Download docker at {url}\n\
-            'Ctrl Q' to quit."
+                "\nThe Docker process is not detected.\nIs it installed and running?\n\n\
+            Download docker at {url}\n\n\
+            Press any key to quit."
             );
             if self
                 .terminal
