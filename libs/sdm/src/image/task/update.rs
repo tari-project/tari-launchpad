@@ -125,13 +125,21 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
                 self.try_remove_container().await?;
                 self.status.set(Status::WaitContainerRemoved);
             },
-            ContainerState::Dead | ContainerState::Removing => {
+            ContainerState::NotFound | ContainerState::Dead | ContainerState::Removing => {
                 log::debug!(
                     "[Clean dangling] Container `{}` is `{:?}`. Doing nothing.",
                     self.inner.container_name,
                     state
                 );
                 self.status.set(Status::Idle);
+            },
+            ContainerState::ErrorStateNotDefined | ContainerState::ErrorStatusNotDefined => {
+                log::debug!(
+                    "[Clean dangling] Container `{}` is `{:?}`. Retry cleaning up.",
+                    self.inner.container_name,
+                    state
+                );
+                self.status.set(Status::CleanDangling);
             },
         }
         self.update_task_status(TaskStatus::Inactive)?;
@@ -154,17 +162,17 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
                 self.inner.container_name,
                 state
             );
-            if state == ContainerState::Dead {
+            if state == ContainerState::NotFound || state == ContainerState::Dead {
+                self.status.set(Status::Idle);
                 break;
             }
             if count >= 30 {
                 // 3 seconds
                 log::warn!(
-                    "[Clean dangling] Container `{}` did not stop in time. Trying to terminate it.",
+                    "[Clean dangling] Container `{}` did not stop in time. Retry cleaning up.",
                     self.inner.container_name
                 );
-                let _ = self.try_kill_container().await;
-                let _ = self.try_remove_container().await;
+                self.status.set(Status::CleanDangling);
                 break;
             }
             count += 1;
@@ -194,15 +202,17 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
                 self.inner.container_name,
                 state
             );
-            if state == ContainerState::Removing || state == ContainerState::Dead {
+            if state == ContainerState::NotFound || state == ContainerState::Dead || state == ContainerState::Removing {
+                self.status.set(Status::Idle);
                 break;
             }
             if count >= 30 {
                 // 3 seconds
                 log::warn!(
-                    "[Clean dangling] Container {} was not removed in time.",
+                    "[Clean dangling] Container {} was not removed in time. Retry cleaning up.",
                     self.inner.container_name
                 );
+                self.status.set(Status::CleanDangling);
                 break;
             }
             count += 1;

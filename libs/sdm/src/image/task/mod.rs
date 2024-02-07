@@ -161,6 +161,9 @@ pub enum ContainerState {
     Removing,
     Exited,
     Dead,
+    ErrorStatusNotDefined,
+    ErrorStateNotDefined,
+    NotFound,
 }
 
 #[derive(Debug)]

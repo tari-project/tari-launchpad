@@ -83,20 +83,11 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
 
     pub async fn container_state(&mut self) -> ContainerState {
         let res = self.driver.inspect_container(&self.inner.container_name, None).await;
-        // log::trace!("State of container {}: {:?}", self.inner.container_name, res);
         match res {
-            Ok(ref response) => response.state.clone().map_or(
-                {
-                    log::warn!("State of container {}: {:?}", self.inner.container_name, res);
-                    ContainerState::Dead
-                },
-                |state| {
-                    state.status.map_or(
-                        {
-                            log::warn!("State of container {}: {:?}", self.inner.container_name, res);
-                            ContainerState::Dead
-                        },
-                        |status| match status {
+            Ok(ref response) => {
+                if let Some(state) = response.state.clone() {
+                    if let Some(status) = state.status {
+                        match status {
                             ContainerStateStatusEnum::EMPTY => ContainerState::Empty,
                             ContainerStateStatusEnum::CREATED => ContainerState::Created,
                             ContainerStateStatusEnum::RUNNING => ContainerState::Running,
@@ -105,14 +96,25 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
                             ContainerStateStatusEnum::REMOVING => ContainerState::Removing,
                             ContainerStateStatusEnum::EXITED => ContainerState::Exited,
                             ContainerStateStatusEnum::DEAD => ContainerState::Dead,
-                        },
-                    )
-                },
-            ),
-            Err(ref e) => {
-                log::warn!("State of container {}: {:?} ({})", self.inner.container_name, res, e);
-                ContainerState::Dead
+                        }
+                    } else {
+                        log::error!(
+                            "Status of container `{}` not defined: {:?}",
+                            self.inner.container_name,
+                            res
+                        );
+                        ContainerState::ErrorStatusNotDefined
+                    }
+                } else {
+                    log::error!(
+                        "State of container `{}` not defined: {:?}",
+                        self.inner.container_name,
+                        res
+                    );
+                    ContainerState::ErrorStateNotDefined
+                }
             },
+            Err(_) => ContainerState::NotFound,
         }
     }
 
