@@ -137,7 +137,7 @@ impl Actor for Dashboard {
             wait_for_keypress();
             println!();
             println!();
-            std::process::exit(0);
+            self.finalize(ctx).await?;
         }
 
         self.connect_to_bus()?;
@@ -147,6 +147,7 @@ impl Actor for Dashboard {
     }
 
     async fn finalize(&mut self, _ctx: &mut ActorContext<Self>) -> Result<(), Error> {
+        // Here ctx
         disable_raw_mode()?;
         let mut terminal = self.terminal.take().ok_or_else(|| DashboardError::Terminal)?;
         execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
