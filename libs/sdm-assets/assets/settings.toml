@@ -15,5 +15,5 @@ monero_password = ""
 monero_use_auth = false
 
 [xmrig]
-# Replace this with your own Monero wallet address
-monero_mining_address = "888tNkZrPN6JsEgekjMnABU4TBzc2Dt29EPAvkRxbANsAnjyPbb3iQ1YBRk1UXcdRsiKc9dhwMVgN5S9cQUiyoogDavup3H"
+# Replace this with your own Monero wallet address (example from https://www.getmonero.org/2021/06/24/general-fund-2020-2021-report.html)
+monero_mining_address = "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A"
