@@ -33,7 +33,6 @@ pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
 
     let in_tx = bus.incoming;
     let _id = app.listen_global(ACTIONS, move |event| {
-        println!("New Event");
         if let Some(payload) = event.payload() {
             let res = serde_json::from_str(payload);
             match res {
