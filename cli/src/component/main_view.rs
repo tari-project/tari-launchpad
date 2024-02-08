@@ -73,16 +73,16 @@ impl Input for MainView {
             state.update_state();
 
             // Spawn a new thread to exit the process after 30s if it has not already exited
-            if !is_docker_running() {
-                let _ = disable_raw_mode();
-                std::process::exit(0);
-            } else {
+            if is_docker_running() {
                 std::thread::spawn(|| {
                     std::thread::sleep(std::time::Duration::from_secs(60));
                     log::warn!("The process did not stop cleanly. Terminating it.");
-                    let _ = disable_raw_mode();
+                    let _unused = disable_raw_mode();
                     std::process::exit(0);
                 });
+            } else {
+                let _unused = disable_raw_mode();
+                std::process::exit(0);
             }
         } else if matches!(event, ComponentEvent::StateChanged) {
             self.normal_scene.on_event(event, state);
