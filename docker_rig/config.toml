@@ -6,8 +6,8 @@ override_from = "stagenet"
 grpc_enabled = true
 
 [base_node.storage]
-# pruning_horizon = 10_080
-# pruning_interval = 50
+pruning_horizon = 1_440 # 2 days
+pruning_interval = 50
 track_reorgs = true
 
 
