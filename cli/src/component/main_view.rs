@@ -21,6 +21,7 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+use crossterm::terminal::disable_raw_mode;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
@@ -71,7 +72,16 @@ impl Input for MainView {
             state.focus_on(focus::TERMINATION);
             state.update_state();
 
-            if !is_docker_running() {
+            // Spawn a new thread to exit the process after 30s if it has not already exited
+            if is_docker_running() {
+                std::thread::spawn(|| {
+                    std::thread::sleep(std::time::Duration::from_secs(60));
+                    log::warn!("The process did not stop cleanly. Terminating it.");
+                    let _unused = disable_raw_mode();
+                    std::process::exit(0);
+                });
+            } else {
+                let _unused = disable_raw_mode();
                 std::process::exit(0);
             }
         } else if matches!(event, ComponentEvent::StateChanged) {
