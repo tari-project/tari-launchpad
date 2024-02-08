@@ -269,6 +269,7 @@ impl Do<Tick> for Dashboard {
         }
         if state.is_terminated() {
             self.stop_the_app()?;
+            ctx.shutdown();
         }
         Ok(())
     }
