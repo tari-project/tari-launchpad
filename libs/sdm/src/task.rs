@@ -249,7 +249,6 @@ where
             requests_receiver: Some(req_rx),
             requests_sender: req_tx,
             context,
-            // next_update: Instant::now(),
             dependencies,
             ready_to_use: false,
         }
