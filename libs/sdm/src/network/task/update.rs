@@ -40,12 +40,14 @@ impl<C: ManagedProtocol> TaskContext<NetworkTask<C>> {
     }
 
     async fn do_initial_state(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Network] `do_initial_state`");
         self.update_task_status(TaskStatus::Inactive)?;
         self.status.set(Status::Cleanup);
         Ok(())
     }
 
     async fn do_cleanup(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Network] `do_cleanup`");
         if self.network_exists().await {
             self.try_remove_network().await?;
             self.status.set(Status::WaitRemoving);
@@ -58,10 +60,12 @@ impl<C: ManagedProtocol> TaskContext<NetworkTask<C>> {
     }
 
     async fn do_wait_removing(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Network] `do_wait_removing`");
         Ok(())
     }
 
     async fn do_inactive(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Network] `do_inactive`");
         if self.should_be_active() {
             self.try_create_network().await?;
             self.status.set(Status::WaitCreating);
@@ -71,10 +75,12 @@ impl<C: ManagedProtocol> TaskContext<NetworkTask<C>> {
     }
 
     async fn do_wait_creating(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Network] `do_wait_creating`");
         Ok(())
     }
 
     async fn do_active(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Network] `do_active`");
         if !self.should_be_active() {
             self.status.set(Status::Cleanup);
         }
