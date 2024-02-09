@@ -56,6 +56,10 @@ impl<C: ManagedProtocol> TaskContext<VolumeTask<C>> {
     }
 
     async fn do_wait_creating(&mut self) -> Result<(), Error> {
+        if self.volume_exists().await {
+            self.status.set(Status::Active);
+            self.update_task_status(TaskStatus::Active)?;
+        }
         Ok(())
     }
 

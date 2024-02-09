@@ -281,6 +281,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn do_wait_container_started(&mut self) -> Result<(), Error> {
+        dbg!("do_wait_container_started");
         Ok(())
     }
 

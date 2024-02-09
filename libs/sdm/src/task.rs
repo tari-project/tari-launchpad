@@ -37,7 +37,7 @@ use tari_launchpad_protocol::{
 use tokio::{
     select,
     sync::{broadcast, mpsc},
-    time::{sleep, Duration, Instant},
+    time::{self, sleep, Duration, Instant},
 };
 use tokio_stream::wrappers::{BroadcastStream, UnboundedReceiverStream};
 
@@ -152,6 +152,7 @@ impl<E, P: ManagedProtocol> TaskSender<E, P> {
     pub fn send_stats(&self, record: StatsData) -> Result<(), Error> {
         let delta = TaskDelta::StatsRecord(record);
         let report = Report::Delta(delta);
+        dbg!(self.task_id.clone(), &report);
         self.send_report(report)
     }
 
@@ -265,7 +266,7 @@ where
     pub async fn routine(&mut self) -> Result<(), Error> {
         self.check_dependencies();
         self.initialize().await?;
-        let interval = Duration::from_millis(1_000);
+        let interval = Duration::from_millis(1000);
         let events_receiver = self.events_receiver.take().unwrap();
         let mut events = UnboundedReceiverStream::new(events_receiver);
         let requests_receiver = self.requests_receiver.take().unwrap();
@@ -273,6 +274,8 @@ where
         loop {
             select! {
                 _ = sleep(interval) => {
+                    self.notify_dependants();
+                    self.update().await;
                     // log::trace!("Checking the scope by interval");
                 }
                 event = events.next() => {
@@ -292,8 +295,7 @@ where
                     }
                 }
             }
-            self.update().await;
-            self.notify_dependants();
+            // self.update().await;
         }
         Ok(())
     }
@@ -399,7 +401,9 @@ where
         loop {
             let now = Instant::now();
             if self.next_update > now {
-                continue;
+                //time::sleep(self.next_update - now).await;
+                //continue;
+                break;
             }
             self.context.status.check_fallback();
             self.context.status.reset_has_work_flag();
@@ -411,6 +415,8 @@ where
             }
             if !self.context.status.has_work() {
                 break;
+            } else {
+                dbg!(&self.context.inner.name(), "has no work");
             }
         }
     }

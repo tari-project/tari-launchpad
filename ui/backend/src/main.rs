@@ -24,9 +24,15 @@
 #![cfg_attr(all(not(debug_assertions), target_os = "windows"), windows_subsystem = "windows")]
 
 use anyhow::{Context, Error};
-use std::env;
+use std::{env, thread, time::Duration};
+use tari_launchpad_protocol::{
+    launchpad::{Action, LaunchpadAction},
+    session::LaunchpadSession,
+};
 use tari_sdm_assets::configurator::Configurator;
-use tauri::Manager;
+use tari_sdm_launchpad::bus;
+use tauri::{Manager, RunEvent};
+use tokio::sync::mpsc::UnboundedSender;
 
 fn main() -> Result<(), Error> {
     tauri::async_runtime::block_on(async {
@@ -41,9 +47,9 @@ fn main() -> Result<(), Error> {
             .unwrap();
     });
 
-    tauri::Builder::default()
+    let app = tauri::Builder::default()
         .setup(|app| {
-            // #[cfg(debug_assertions)] // only include this code on debug builds
+            #[cfg(debug_assertions)] // only include this code on debug builds
             {
                 let window = app.get_window("main").unwrap();
                 window.open_devtools();
@@ -52,6 +58,28 @@ fn main() -> Result<(), Error> {
 
             tari_sdm_launchpad::tauri::bus_setup(app)
         })
-        .run(tauri::generate_context!())?;
+        .build(tauri::generate_context!())?;
+
+    app.run(|app_handle, event| match event {
+        tauri::RunEvent::ExitRequested { api, .. } => {
+            let bus_requester = app_handle.state::<UnboundedSender<Action>>();
+            let mut new_session = LaunchpadSession::default();
+            new_session.stop_all();
+            bus_requester
+                .send(Action::Action(LaunchpadAction::ChangeSession(new_session)))
+                .unwrap();
+
+            api.prevent_exit();
+            app_handle.listen_global("tari:://reactions", move |event| {
+                dbg!(event);
+            });
+            dbg!("Time to close");
+            thread::sleep(Duration::from_secs(3));
+            app_handle.exit(1);
+
+            //api.prevent_close();
+        },
+        _ => {},
+    });
     Ok(())
 }

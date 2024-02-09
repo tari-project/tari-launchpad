@@ -31,7 +31,7 @@ pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
     let handle = app.handle();
     let bus = LaunchpadBus::start()?;
 
-    let in_tx = bus.incoming;
+    let in_tx = bus.incoming.clone();
     let _id = app.listen_global(ACTIONS, move |event| {
         if let Some(payload) = event.payload() {
             let res = serde_json::from_str(payload);
@@ -49,13 +49,17 @@ pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
         }
     });
 
+    let in_tx_clone = bus.incoming.clone();
     let mut out_rx = bus.outgoing;
     tauri::async_runtime::spawn(async move {
         while let Some(event) = out_rx.recv().await {
+            dbg!(event.clone());
             handle.emit_all(REACTIONS, event)?;
         }
         Ok::<(), Error>(())
     });
+
+    app.manage(in_tx_clone);
 
     Ok(())
 }
