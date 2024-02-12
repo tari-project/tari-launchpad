@@ -123,6 +123,12 @@ impl TaskProgress {
     }
 }
 
+impl fmt::Display for TaskProgress {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} 0 {}%", self.stage, self.pct)
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum TaskStatus {
     Inactive,

@@ -25,7 +25,8 @@ use anyhow::Error;
 use async_trait::async_trait;
 use log::debug;
 use minotari_node_grpc_client::{grpc, BaseNodeGrpcClient};
-use tari_launchpad_protocol::{container::TaskProgress, settings::BaseNodeConfig};
+use tari_launchpad_protocol::container::TaskProgress;
+use tari_launchpad_protocol::settings::BaseNodeConfig;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
     image::{
@@ -38,6 +39,7 @@ use super::{
     sync_progress::SyncProgress, Tor, BLOCKCHAIN_PATH, BLOCKCHAIN_VOLUME, DEFAULT_REGISTRY, GENERAL_VOLUME,
     VAR_TARI_PATH,
 };
+use crate::resources::images::sync_progress::SyncType;
 use crate::resources::{
     config::{ConnectionSettings, LaunchpadConfig, LaunchpadInnerEvent, LaunchpadProtocol},
     networks::LocalNet,
@@ -175,18 +177,20 @@ impl ContainerChecker<LaunchpadProtocol> for Checker {
 
         let response = client.get_sync_progress(grpc::Empty {}).await?.into_inner();
         log::trace!("Sync progress: {:?}", response);
-        let done = matches!(response.state(), minotari_app_grpc::tari_rpc::SyncState::Done);
         self.progress.update(response);
-        let info = self.progress.progress_info();
-        log::trace!("Progress updated !common::progress={}", info.block_progress);
-        let progress = TaskProgress {
-            pct: info.block_progress as u8,
-            stage: "Syncing blockchain...".into(),
-        };
-        ctx.report(CheckerEvent::Progress(progress)).ok();
-        if done {
-            self.ready = true;
-            ctx.report(CheckerEvent::Ready).ok();
+
+        let progress = TaskProgress::from(&self.progress);
+        log::trace!("Progress updated !common::progress={}", progress);
+
+        match self.progress.sync_type {
+            SyncType::Header | SyncType::Block => {
+                ctx.report(CheckerEvent::Progress(progress)).ok();
+            },
+            SyncType::Done => {
+                self.ready = true;
+                ctx.report(CheckerEvent::Ready).ok();
+            },
+            _ => {},
         }
         Ok(())
     }
