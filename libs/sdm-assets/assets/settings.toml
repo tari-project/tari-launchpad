@@ -5,7 +5,7 @@ tari_network = "Nextnet"
 interactive = false
 
 [sha3_miner]
-num_mining_threads = 1
+num_mining_threads = 8
 
 [mm_proxy]
 # You can specify multiple monerod instances here, separated by commas
@@ -17,3 +17,5 @@ monero_use_auth = false
 [xmrig]
 # Replace this with your own Monero wallet address (example from https://www.getmonero.org/2021/06/24/general-fund-2020-2021-report.html)
 monero_mining_address = "44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A"
+# No value or a value of 0 will let XMRig use auto config, otherwise the provided value will be used
+#num_mining_threads = 0

@@ -21,6 +21,9 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+use serde::{Deserialize, Serialize};
+use std::str::FromStr;
+
 pub mod config;
 pub mod container;
 pub mod errors;
@@ -37,3 +40,28 @@ pub mod tari_format;
 
 pub const ACTIONS: &str = "tari://actions";
 pub const REACTIONS: &str = "tari://reactions";
+
+#[derive(Eq, PartialEq, Debug, Serialize, Deserialize, Clone, Default)]
+pub struct OptionUsizeWrapper(pub Option<usize>);
+
+// Implement FromStr for the newtype wrapper
+impl FromStr for OptionUsizeWrapper {
+    type Err = std::num::ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.is_empty() {
+            Ok(OptionUsizeWrapper(Some(0)))
+        } else {
+            s.parse().map(|num| OptionUsizeWrapper(Some(num)))
+        }
+    }
+}
+
+impl std::fmt::Display for OptionUsizeWrapper {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.0 {
+            Some(value) => write!(f, "{}", value),
+            None => write!(f, ""),
+        }
+    }
+}

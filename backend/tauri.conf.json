@@ -11,7 +11,7 @@
   },
   "tauri": {
     "cli": {
-      "description": "A simple single-click UI to launch a Tari node, wallet and miner",
+      "description": "A simple single-click UI to launch a Tari node and miner",
       "args": [
         {
           "short": "c",

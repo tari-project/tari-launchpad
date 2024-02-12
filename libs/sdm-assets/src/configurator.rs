@@ -138,7 +138,6 @@ impl Configurator {
         // images
         self.create_sub_dir(&base_dir, "tor").await?;
         self.create_sub_dir(&base_dir, "base_node").await?;
-        self.create_sub_dir(&base_dir, "wallet").await?;
         self.create_sub_dir(&base_dir, "xmrig").await?;
         self.create_sub_dir(&base_dir, "sha3_miner").await?;
         self.create_sub_dir(&base_dir, "mm_proxy").await?;

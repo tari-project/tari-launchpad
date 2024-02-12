@@ -37,6 +37,7 @@ use crate::{
     state::{AppState, Focus},
 };
 
+#[derive(Debug)]
 pub enum Value<T> {
     // No value is set
     Empty,
@@ -103,6 +104,7 @@ pub struct LabeledInput<T: Eq + FromStr = String> {
     validator: Box<dyn CharValidator>,
 }
 
+// Define a newtype wrapper for Option<usize>
 impl<T> LabeledInput<T>
 where
     T: Eq + FromStr + ToString,
@@ -140,16 +142,11 @@ where
     /// Update the value held in this input field, if the value has changed.
     pub fn update_value<E: ToString>(&mut self, value: Result<T, E>) {
         match value {
-            Ok(new_value) => {
-                let replace = self.value().map(|v| *v != new_value).unwrap_or(true); // covers empty and invalid cases
-                if replace {
-                    self.value = Value::New { value: new_value };
-                }
-            },
+            Ok(new_value) => self.value = Value::New { value: new_value },
             Err(err) => {
                 self.value = Value::Invalid {
                     reason: err.to_string(),
-                };
+                }
             },
         }
     }
@@ -165,18 +162,22 @@ where
             let old = mem::replace(&mut self.value, Value::Empty);
             let value = old.into_inner();
             let _unused = mem::replace(&mut self.value, Value::Valid { value });
-            self.value().ok()
+            if let Ok(val) = self.value() {
+                val
+            } else {
+                None
+            }
         } else {
             None
         }
     }
 
-    pub fn value(&self) -> Result<&T, Error> {
+    pub fn value(&self) -> Result<Option<&T>, Error> {
         match &self.value {
-            Value::Valid { value } => Ok(value),
-            Value::New { value } => Ok(value),
+            Value::Valid { value } => Ok(Some(value)),
+            Value::New { value } => Ok(Some(value)),
             Value::Invalid { reason } => Err(Error::msg(reason.to_owned())),
-            Value::Empty => Err(Error::msg("Value is empty")),
+            Value::Empty => Ok(None),
         }
     }
 }

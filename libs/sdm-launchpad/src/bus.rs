@@ -235,7 +235,7 @@ impl LaunchpadWorker {
         path.push("config");
         path.push("settings.toml");
         debug!("Stored settings: {new_settings:?}");
-        let data = toml::to_string(&new_settings).unwrap();
+        let data = toml::to_string(&new_settings).map_err(|e| Error::msg(format!("Can't save the settings: {e}")))?;
         tokio::fs::write(path, data).await?;
         if let Some(settings) = self.state.config.settings.as_mut() {
             // We just checked that this exists above

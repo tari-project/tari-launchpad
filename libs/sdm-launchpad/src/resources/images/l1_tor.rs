@@ -68,6 +68,10 @@ impl ManagedContainer for Tor {
         "tor"
     }
 
+    fn tag(&self) -> &str {
+        "latest-nextnet"
+    }
+
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
         debug!("Reconfiguring Tor");
         self.settings = ConnectionSettings::try_extract(config?);

@@ -55,16 +55,4 @@ ENV dockerfile_version=$VERSION
 ENV dockerfile_build_arch=$BUILDPLATFORM
 ENV xmrig_version=$XMRIG_VERSION
 
-RUN echo -e "\
-{\
-    \"autosave\": true,\
-    \"cpu\": true,\
-    \"opencl\": false,\
-    \"cuda\": false,\
-    \"pools\": [ \
-    { \"coin\": \"monero\", \"url\": \"127.0.0.1:18081\", \"user\": \"44\", \"daemon\": true }\
-    ]\
-}\
-" > /home/tari/.xmrig.json
-
 ENTRYPOINT [ "/usr/local/bin/xmrig" ]
