@@ -38,12 +38,14 @@ impl<C: ManagedProtocol> TaskContext<VolumeTask<C>> {
     }
 
     async fn do_initial_state(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Volume] `do_initial_state`");
         self.update_task_status(TaskStatus::Inactive)?;
         self.status.set(Status::Checking);
         Ok(())
     }
 
     async fn do_checking(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Volume] `do_checking`");
         if self.volume_exists().await {
             self.status.set(Status::Active);
             self.update_task_status(TaskStatus::Active)?;
@@ -56,10 +58,12 @@ impl<C: ManagedProtocol> TaskContext<VolumeTask<C>> {
     }
 
     async fn do_wait_creating(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Volume] `do_wait_creating`");
         Ok(())
     }
 
     async fn do_active(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Volume] `do_active`");
         if !self.should_be_active() {
             // self.status.set(Status::Checking);
         }
