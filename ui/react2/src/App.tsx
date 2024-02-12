@@ -12,6 +12,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import Logo from "./assets/Logo";
 import { exit } from "@tauri-apps/api/process";
+import { open } from '@tauri-apps/api/shell';
 
 function App() {
   const [appState, setAppState]: [any, any] = useState({});
@@ -289,6 +290,10 @@ function App() {
     }
   }
 
+  async function openDockerInstall(evt: any) {
+    evt.preventDefault();
+    open("https://docs.docker.com/engine/install/");
+  }
 
 
   const col1 = 6;
@@ -549,7 +554,7 @@ function App() {
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             Tari Launchpad requires Docker to be running. Please start Docker and try again.
-            If you don't have Docker installed, you can download it from <a href="https://docs.docker.com/engine/install/">here</a>.
+            If you don't have Docker installed, you can download it from <a onClick={(evt) => openDockerInstall(evt)} href="#">here</a>.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
