@@ -193,6 +193,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
             volumes: Some(volumes),
             cmd: Some(args.build()),
             host_config: Some(HostConfig {
+                auto_remove: Some(true),
                 binds: Some(vec![]),
                 network_mode: Some("bridge".to_string()),
                 port_bindings: Some(ports_map(&ports)),

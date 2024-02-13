@@ -24,6 +24,7 @@ use std::time::{Duration, Instant};
 
 use minotari_app_grpc::tari_rpc::{SyncProgressResponse, SyncState};
 use serde::Serialize;
+use tari_launchpad_protocol::container::TaskProgress;
 
 pub const BLOCKS_SYNC_EXPECTED_TIME: Duration = Duration::from_secs(4 * 3600);
 pub const HEADERS_SYNC_EXPECTED_TIME: Duration = Duration::from_secs(2 * 3600);
@@ -49,7 +50,7 @@ pub struct SyncProgressInfo {
 }
 
 pub struct SyncProgress {
-    sync_type: SyncType,
+    pub sync_type: SyncType,
     header_sync: ItemCount,
     blocks_sync: ItemCount,
 }
@@ -201,16 +202,27 @@ impl SyncProgress {
     pub fn total_sync_time(&self) -> Duration {
         self.header_sync.total_sync_time() + self.blocks_sync.total_sync_time()
     }
+}
 
-    pub fn progress_info(&self) -> SyncProgressInfo {
-        SyncProgressInfo {
-            sync_type: self.sync_type.clone(),
-            header_progress: (self.header_sync.progress() * 100.0) as u64,
-            block_progress: (self.blocks_sync.progress() * 100.0) as u64,
-            total_blocks: self.blocks_sync.total_items,
-            estimated_time_sec: self.estimated_time_remaining().as_secs(),
-            done: self.is_done(),
-            sync_time_sec: self.total_sync_time().as_secs(),
+impl From<&SyncProgress> for TaskProgress {
+    fn from(value: &SyncProgress) -> Self {
+        match value.sync_type {
+            SyncType::Startup => TaskProgress {
+                pct: 0,
+                stage: "Starting...".to_string(),
+            },
+            SyncType::Block => TaskProgress {
+                pct: (value.blocks_sync.progress() * 100.0) as u8,
+                stage: "Syncing blockchain...".to_string(),
+            },
+            SyncType::Header => TaskProgress {
+                pct: (value.header_sync.progress() * 100.0) as u8,
+                stage: "Syncing headers...".to_string(),
+            },
+            SyncType::Done => TaskProgress {
+                pct: 100,
+                stage: "Complete".to_string(),
+            },
         }
     }
 }

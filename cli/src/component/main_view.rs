@@ -72,7 +72,7 @@ impl Input for MainView {
             state.focus_on(focus::TERMINATION);
             state.update_state();
 
-            // Spawn a new thread to exit the process after 30s if it has not already exited
+            // Spawn a new thread to exit the process as a failsafe if the process does not close normally
             if is_docker_running() {
                 std::thread::spawn(|| {
                     std::thread::sleep(std::time::Duration::from_secs(60));

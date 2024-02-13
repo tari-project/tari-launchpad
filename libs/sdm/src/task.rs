@@ -208,7 +208,6 @@ pub struct SdmTaskRunner<R: RunnableTask> {
     requests_receiver: Option<broadcast::Receiver<ControlEvent<R::Protocol>>>,
     requests_sender: broadcast::Sender<ControlEvent<R::Protocol>>,
     context: TaskContext<R>,
-    next_update: Instant,
     /// Waits when these dependencies started.
     dependencies: HashMap<TaskId, bool>,
     ready_to_use: bool,
@@ -251,7 +250,6 @@ where
             requests_receiver: Some(req_rx),
             requests_sender: req_tx,
             context,
-            next_update: Instant::now(),
             dependencies,
             ready_to_use: false,
         }
@@ -274,11 +272,19 @@ where
         loop {
             select! {
                 _ = sleep(interval) => {
-                    self.notify_dependants();
-                    self.update().await;
+                    trace!(
+                        "[Routine loop] !{}::update={:?} ... interval",
+                        self.context.name(),
+                        self.context.status.get()
+                    );
                     // log::trace!("Checking the scope by interval");
                 }
                 event = events.next() => {
+                    trace!(
+                        "[Routine loop] !{}::update={:?} ... events",
+                        self.context.name(),
+                        self.context.status.get()
+                    );
                     if let Some(event) = event {
                         self.process_event(event);
                     } else {
@@ -287,6 +293,11 @@ where
                     }
                 }
                 req = requests.next() => {
+                    trace!(
+                        "[Routine loop] !{}::update={:?} ... requests",
+                        self.context.name(),
+                        self.context.status.get()
+                    );
                     if let Some(Ok(req)) = req {
                         self.process_request(req);
                     } else {
@@ -393,24 +404,16 @@ where
     }
 
     pub async fn update(&mut self) {
-        trace!(
-            "Update with the state !{}::update={:?}",
-            self.context.name(),
-            self.context.status.get()
-        );
         loop {
-            let now = Instant::now();
-            if self.next_update > now {
-                //time::sleep(self.next_update - now).await;
-                //continue;
-                break;
-            }
+            trace!(
+                "[Update event] !{}::update={:?} ... update(loop entry)",
+                self.context.name(),
+                self.context.status.get()
+            );
             self.context.status.check_fallback();
             self.context.status.reset_has_work_flag();
             if let Err(err) = self.context.update().await {
                 error!("Update error: {}", err);
-                self.next_update = now + Duration::from_secs(5);
-                // TODO: Set a fallback? and reset it when succeed?
                 break;
             }
             if !self.context.status.has_work() {

@@ -47,6 +47,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn do_initial_state(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Image] `do_initial_state` {}", self.inner.image_name);
         self.update_task_status(TaskStatus::Inactive)?;
 
         log::debug!("Checking image {} ...", self.inner.image_name);
@@ -77,6 +78,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn do_pulling(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Image] `do_pulling` {}", self.inner.image_name);
         if self.image_exists().await {
             // Just loaded, container can't be exist
             self.status.set(Status::Idle);
@@ -89,6 +91,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     /// manually in docker. If the container is still running, we'll try and kill it first, otherwise we'll just
     /// remove it.
     async fn do_clean_dangling(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Image] `do_clean_dangling` {}", self.inner.image_name);
         log::debug!(
             "[Clean dangling] Checking for dangling instance of container {} ...",
             self.inner.container_name
@@ -147,6 +150,10 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn do_wait_container_killed(&mut self) -> Result<(), Error> {
+        log::trace!(
+            "[Update event: Image] `do_wait_container_killed` {}",
+            self.inner.image_name
+        );
         let state = self.container_state().await;
         log::debug!(
             "[Clean dangling] `do_wait_container_killed` for container `{}` enter state: `{:?}`",
@@ -187,6 +194,10 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn do_wait_container_removed(&mut self) -> Result<(), Error> {
+        log::trace!(
+            "[Update event: Image] `do_wait_container_removed` {}",
+            self.inner.image_name
+        );
         let state = self.container_state().await;
         log::debug!(
             "[Clean dangling] `do_wait_container_removed` for container `{}`, enter state: `{:?}`",
@@ -227,10 +238,12 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn abort(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Image] `abort` {}", self.inner.image_name);
         Ok(())
     }
 
     async fn do_idle(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Image] `do_idle` {}", self.inner.image_name);
         if self.force_pull {
             self.force_pull = false;
             self.status.set(Status::DropImage);
@@ -249,6 +262,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn do_create_container(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Image] `do_create_container` {}", self.inner.image_name);
         log::debug!("Trying to create container {} ...", self.inner.container_name);
         // TODO: Process the result as well
         self.try_create_container().await?;
@@ -257,11 +271,16 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn do_wait_container_created(&mut self) -> Result<(), Error> {
+        log::trace!(
+            "[Update event: Image] `do_wait_container_created` {}",
+            self.inner.image_name
+        );
         // TODO: Check timeout
         Ok(())
     }
 
     async fn do_start_container(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Image] `do_start_container` {}", self.inner.image_name);
         if let Err(err) = self.try_start_container().await {
             self.sender().send_error(err.to_string())?;
             self.try_remove_container().await?;
@@ -274,6 +293,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn do_active(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Image] `do_active` {}", self.inner.image_name);
         if !self.should_be_active() || self.should_be_restarted() {
             self.status.set(Status::CleanDangling);
         }
@@ -281,11 +301,15 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     async fn do_wait_container_started(&mut self) -> Result<(), Error> {
-        dbg!("do_wait_container_started");
+        log::trace!(
+            "[Update event: Image] `do_wait_container_started` {}",
+            self.inner.image_name
+        );
         Ok(())
     }
 
     async fn do_drop_image(&mut self) -> Result<(), Error> {
+        log::trace!("[Update event: Image] `do_drop_image` {}", self.inner.image_name);
         self.try_remove_image().await
     }
 }
