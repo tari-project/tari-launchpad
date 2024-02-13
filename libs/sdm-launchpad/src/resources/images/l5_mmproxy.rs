@@ -111,10 +111,7 @@ impl ManagedContainer for MmProxy {
             envs.set("TARI_MERGE_MINING_PROXY__MONEROD_USE_AUTH", config.monero_use_auth());
 
             if let Some(payment_address) = config.wallet_payment_address.as_ref() {
-                envs.set(
-                    "TARI_MERGE_MINING_PROXY__WALLET_PAYMENT_ADDRESS",
-                    payment_address.to_hex(),
-                );
+                envs.set("TARI_MERGE_MINING_PROXY__WALLET_PAYMENT_ADDRESS", payment_address);
             }
         }
     }

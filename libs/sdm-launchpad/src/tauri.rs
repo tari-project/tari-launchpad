@@ -43,6 +43,7 @@ pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
                     }
                 },
                 Err(err) => {
+                    dbg!(&err);
                     log::error!("Can't parse incoming event: {}", err);
                 },
             }
@@ -53,7 +54,6 @@ pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
     let mut out_rx = bus.outgoing;
     tauri::async_runtime::spawn(async move {
         while let Some(event) = out_rx.recv().await {
-            dbg!(event.clone());
             handle.emit_all(REACTIONS, event)?;
         }
         Ok::<(), Error>(())

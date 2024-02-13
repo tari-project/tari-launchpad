@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 // import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 import { emit, listen } from '@tauri-apps/api/event'
-import { Button, CircularProgress, Container, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Grid, Switch, ThemeProvider, Typography } from "@mui/material";
+import { Button, CircularProgress, Container, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Grid, IconButton, Switch, TextField, ThemeProvider, Typography } from "@mui/material";
 import { createTheme, useTheme } from '@mui/material/styles';
 import { componentSettings, dark } from './theme/tokens'
 import { GradientPaper, TypographyData } from './components/StyledComponents';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
+import SettingsIcon from '@mui/icons-material/Settings';
 import Logo from "./assets/Logo";
 import { exit } from "@tauri-apps/api/process";
 import { open } from '@tauri-apps/api/shell';
@@ -23,6 +24,9 @@ function App() {
   const [mergeMiningEnabled, setMergeMiningEnabled] = useState(true);
   const [isChangingMining, setIsChangingMining] = useState(false);
   const [openDockerWarning, setOpenDockerWarning] = useState(false);
+  const [openSettings, setOpenSettings] = useState(false);
+  const [tariAddress, setTariAddress] = useState("");
+
 
   const darkTheme = createTheme({
     ...dark,
@@ -40,7 +44,14 @@ function App() {
 
   // This only happens onces
   useEffect(() => {
-    emit("tari://actions", { "Action": { type: "Connect" } });
+    // wait for listener to have been set up
+    setTimeout(() => {
+      emit("tari://actions", { "Action": { type: "Connect" } });
+    }, 5000);
+
+    // setInterval(function () {
+    //   emit("tari://actions", { "Action": { type: "Connect" } });
+    // }, 1000);
   }, []);
 
   // this needs to happen every state refresh
@@ -49,7 +60,7 @@ function App() {
     let unlisten = (async () => await listen("tari://reactions", (event) => {
 
       let payload: any = event.payload;
-      //console.log(event);
+      // console.log(event);
       if (payload?.State !== undefined) {
         setAppState(payload?.State);
         //  console.log(payload?.State);
@@ -77,12 +88,15 @@ function App() {
 
           setIsMining(payload?.State?.config?.session?.merge_layer_active || payload?.State?.config?.session?.sha3x_layer_active);
           setIsChangingMining(false);
+          setTariAddress(appState?.config?.settings?.saved_settings?.mm_proxy.wallet_payment_address ||
+            appState?.config?.settings?.saved_settings?.sha3_miner?.wallet_payment_address || "");
         }
       }
       if (payload?.Delta !== undefined) {
         if (payload?.Delta.UpdateSession) {
           let newState: any = appState;
           newState.config.session = payload?.Delta.UpdateSession;
+          console.log(newState);
           setIsChangingMining(false);
           setAppState(newState);
           setIsMining(newState.config?.session?.merge_layer_active || newState.config?.session?.sha3x_layer_active);
@@ -90,7 +104,7 @@ function App() {
         if (payload?.Delta.TaskDelta) {
 
           let delta: any = payload?.Delta.TaskDelta?.delta;
-          console.log(delta);
+          // console.log(delta);
           let id = payload?.Delta.TaskDelta?.id;
           if (delta.UpdateStatus) {
             let newState: any = { ...appState };
@@ -259,6 +273,26 @@ function App() {
     await exit(1);
   };
 
+  function handleSettingsClose(save: boolean) {
+    if (save) {
+      let state: any = appState;
+      console.log(state);
+      let settings = { ...state?.config?.settings?.saved_settings };
+
+      settings.mm_proxy.wallet_payment_address = tariAddress;
+      settings.sha3_miner.wallet_payment_address = tariAddress;
+      emit("tari://actions", { "Action": { type: "SaveSettings", payload: settings } });
+    }
+    else {
+      setTariAddress(appState?.config?.settings?.saved_settings?.mm_proxy.wallet_payment_address ||
+        appState?.config?.settings?.saved_settings?.sha3_miner?.wallet_payment_address || "");
+    }
+    setOpenSettings(false);
+  }
+
+  function handleTariAddressChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setTariAddress(event.target.value);
+  }
 
   function printStatus(status: any) {
     if (status === undefined) {
@@ -314,8 +348,13 @@ function App() {
         <Grid container spacing={0} className="main-bg">
           <Container >
             <Grid container spacing={3} pt={4}>
-              <Grid item xs={12} md={12} lg={12}>
+              <Grid item xs={11} md={11} lg={11}>
                 <Logo />
+              </Grid>
+              <Grid item xs={1} md={1} lg={1}>
+                <IconButton onClick={() => setOpenSettings(true)}>
+                  <SettingsIcon />
+                </IconButton>
               </Grid>
             </Grid>
             <Grid container spacing={6} style={{
@@ -559,6 +598,32 @@ function App() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDockerClose}>Exit</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openSettings}
+        onClose={() => handleSettingsClose(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description">
+        <DialogTitle id="alert-dialog-title">Settings</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+
+            <TextField
+              label="Tari Address"
+              style={{
+                width: 300,
+              }}
+              value={tariAddress}
+              onChange={handleTariAddressChange}
+              size="small"
+            />
+
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleSettingsClose(true)}>Save</Button>
+          <Button onClick={() => handleSettingsClose(false)}>Exit</Button>
         </DialogActions>
       </Dialog>
     </>
