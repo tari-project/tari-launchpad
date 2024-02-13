@@ -306,7 +306,8 @@ where
                     }
                 }
             }
-            // self.update().await;
+            self.update().await;
+            self.notify_dependants();
         }
         Ok(())
     }

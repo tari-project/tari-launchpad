@@ -46,8 +46,9 @@ function App() {
   useEffect(() => {
     // wait for listener to have been set up
     setTimeout(() => {
+      console.log("Connecting");
       emit("tari://actions", { "Action": { type: "Connect" } });
-    }, 5000);
+    }, 1000);
 
     // setInterval(function () {
     //   emit("tari://actions", { "Action": { type: "Connect" } });
@@ -329,6 +330,11 @@ function App() {
     open("https://docs.docker.com/engine/install/");
   }
 
+  function handleOpenSettings() {
+    setTariAddress(appState?.config?.settings?.saved_settings?.mm_proxy.wallet_payment_address ||
+      appState?.config?.settings?.saved_settings?.sha3_miner?.wallet_payment_address || "");
+    setOpenSettings(true);
+  }
 
   const col1 = 6;
   const col2 = 3;
@@ -352,7 +358,7 @@ function App() {
                 <Logo />
               </Grid>
               <Grid item xs={1} md={1} lg={1}>
-                <IconButton onClick={() => setOpenSettings(true)}>
+                <IconButton onClick={() => handleOpenSettings()}>
                   <SettingsIcon />
                 </IconButton>
               </Grid>
