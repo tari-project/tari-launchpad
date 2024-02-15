@@ -90,8 +90,9 @@ impl MiningSettings {
                 should_write = true;
             }
             if let Some(v) = self.wallet_payment_address.fetch_new_value() {
-                saved_settings.set_wallet_payment_address(v);
-                should_write = true;
+                if saved_settings.set_wallet_payment_address(v).is_ok() {
+                    should_write = true;
+                }
             }
         } else {
             warn!("The app state does not have a settings instance configured, so we cannot update the saved settings");
