@@ -95,7 +95,6 @@ impl ManagedContainer for TariBaseNode {
     }
 
     fn args(&self, args: &mut Args) {
-        args.set("--log-config", "/var/tari/config/log4rs.yml");
         args.set("--watch", "status");
         if !self.config.interactive {
             args.flag("-n");

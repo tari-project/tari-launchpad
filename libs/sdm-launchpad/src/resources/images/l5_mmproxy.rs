@@ -91,10 +91,6 @@ impl ManagedContainer for MmProxy {
         Some(self.mm_proxy.is_none() || session.is_mmproxy_active())
     }
 
-    fn args(&self, args: &mut Args) {
-        args.set("--log-config", "/var/tari/config/log4rs.yml");
-    }
-
     fn envs(&self, envs: &mut Envs) {
         if let Some(settings) = self.settings.as_ref() {
             settings.add_common(envs);
