@@ -27,9 +27,9 @@
       "targets": "all",
       "identifier": "com.tari.launchpad",
       "icon": [
-        "../../backend/icons/favicon-32x32.png",
-        "../../backend/icons/apple-icon-120x120.png",
-        "../../backend/icons/android-icon-192x192.png",
+        "icons/favicon-32x32.png",
+        "icons/apple-icon-120x120.png",
+        "icons/android-icon-192x192.png",
         "icons/icon.ico"
       ],
       "resources": [
