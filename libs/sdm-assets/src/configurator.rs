@@ -118,28 +118,11 @@ impl Configurator {
             .await?;
         self.store_file(&config_dir, &SETTINGS_TOML, new_config_dir || overwrite)
             .await?;
-        // self.store_file(&config_dir, &DEFAULTS_INI, new_config_dir || overwrite)
-        //     .await?;
-        // self.store_file(&config_dir, &LOKI_YML, new_config_dir || overwrite)
-        //     .await?;
-        // self.store_file(&config_dir, &PROMTAIL_YML, new_config_dir || overwrite)
-        //     .await?;
-        // self.store_file(&config_dir, &PROVISION_YML, new_config_dir || overwrite)
-        //     .await?;
 
-        let new_log_dir = self.create_sub_dir(&base_dir, "log").await?;
+        let new_log_dir = self.create_dir(base_dir.join("log")).await?;
         self.store_file(&config_dir, &LOG4RS_CLI_YML, new_log_dir || overwrite)
             .await?;
 
-        // TODO: Use `enum` here...
-        // images
-        self.create_sub_dir(&base_dir, "tor").await?;
-        self.create_sub_dir(&base_dir, "base_node").await?;
-        self.create_sub_dir(&base_dir, "xmrig").await?;
-        self.create_sub_dir(&base_dir, "sha3_miner").await?;
-        self.create_sub_dir(&base_dir, "mm_proxy").await?;
-        self.create_sub_dir(&base_dir, "monerod").await?;
-        self.create_sub_dir(&base_dir, "grafana").await?;
         Ok(())
     }
 }

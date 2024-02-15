@@ -13,18 +13,15 @@ track_reorgs = true
 
 [igor.base_node]
 network = "igor"
-base_node_identity_file = "/var/tari/base_node/config/igor/tar_base_node_id.json"
 # Uncomment all gRPC server methods that should be denied default (only active when `grpc_enabled = true`)
 grpc_server_deny_methods = []
 
 [stagenet.base_node]
-identity_file = "/var/tari/base_node/config/stagenet/tari_base_node_id.json"
 # Uncomment all gRPC server methods that should be denied default (only active when `grpc_enabled = true`)
 grpc_server_deny_methods = []
 
 
 [nextnet.base_node]
-identity_file = "/var/tari/base_node/config/nextnet/tari_base_node_id.json"
 grpc_server_deny_methods = []
 
 [base_node.p2p]

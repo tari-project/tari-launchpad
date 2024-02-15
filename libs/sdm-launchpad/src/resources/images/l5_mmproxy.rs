@@ -27,7 +27,7 @@ use log::*;
 use tari_launchpad_protocol::settings::MmProxyConfig;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
-    image::{Args, Envs, ManagedContainer, Mounts, Networks, Volumes},
+    image::{Envs, ManagedContainer, Mounts, Networks, Volumes},
 };
 
 use super::{TariBaseNode, DEFAULT_REGISTRY, GENERAL_VOLUME, VAR_TARI_PATH};
@@ -109,6 +109,7 @@ impl ManagedContainer for MmProxy {
             if let Some(payment_address) = config.wallet_payment_address.as_ref() {
                 envs.set("TARI_MERGE_MINING_PROXY__WALLET_PAYMENT_ADDRESS", payment_address);
             }
+            envs.set("TARI_BASE", "/var/tari/");
         }
     }
 

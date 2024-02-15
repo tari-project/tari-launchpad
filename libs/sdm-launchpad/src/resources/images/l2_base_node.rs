@@ -110,6 +110,7 @@ impl ManagedContainer for TariBaseNode {
                 format!("/blockchain/{}", settings.tari_network.lower_case()),
             );
         }
+        envs.set("TARI_BASE", "/var/tari/");
         envs.set("APP_NAME", "base_node");
     }
 
