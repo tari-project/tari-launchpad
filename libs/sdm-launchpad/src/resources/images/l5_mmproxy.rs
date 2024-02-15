@@ -25,6 +25,7 @@ use std::ops::Deref;
 
 use log::*;
 use tari_launchpad_protocol::settings::MmProxyConfig;
+use tari_sdm::image::Ports;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
     image::{Envs, ManagedContainer, Mounts, Networks, Volumes},
@@ -125,5 +126,9 @@ impl ManagedContainer for MmProxy {
         if let Some(settings) = self.settings.as_ref() {
             mounts.bind_path(settings.data_directory.to_string_lossy(), VAR_TARI_PATH);
         }
+    }
+
+    fn ports(&self, ports: &mut Ports) {
+        ports.add(18_081);
     }
 }
