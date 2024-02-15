@@ -21,10 +21,9 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::{path::PathBuf, str::FromStr};
+use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-use tari_common_types::tari_address::TariAddress;
 use thiserror::Error;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]

@@ -30,8 +30,7 @@ use tari_launchpad_protocol::{
     session::LaunchpadSession,
 };
 use tari_sdm_assets::configurator::Configurator;
-use tari_sdm_launchpad::bus;
-use tauri::{Manager, RunEvent};
+use tauri::Manager;
 use tokio::sync::mpsc::UnboundedSender;
 
 fn main() -> Result<(), Error> {
@@ -60,8 +59,8 @@ fn main() -> Result<(), Error> {
         })
         .build(tauri::generate_context!())?;
 
-    app.run(|app_handle, event| match event {
-        tauri::RunEvent::ExitRequested { api, .. } => {
+    app.run(|app_handle, event| {
+        if let tauri::RunEvent::ExitRequested { api, .. } = event {
             let bus_requester = app_handle.state::<UnboundedSender<Action>>();
             let mut new_session = LaunchpadSession::default();
             new_session.stop_all();
@@ -78,8 +77,7 @@ fn main() -> Result<(), Error> {
             app_handle.exit(1);
 
             //api.prevent_close();
-        },
-        _ => {},
+        }
     });
     Ok(())
 }

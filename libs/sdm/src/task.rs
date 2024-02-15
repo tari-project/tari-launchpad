@@ -37,7 +37,7 @@ use tari_launchpad_protocol::{
 use tokio::{
     select,
     sync::{broadcast, mpsc},
-    time::{self, sleep, Duration, Instant},
+    time::{sleep, Duration},
 };
 use tokio_stream::wrappers::{BroadcastStream, UnboundedReceiverStream};
 

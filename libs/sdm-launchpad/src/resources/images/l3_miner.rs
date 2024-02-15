@@ -81,8 +81,7 @@ impl ManagedContainer for TariSha3Miner {
                 .sha3_miner
                 .clone()?
                 .wallet_payment_address
-                .map(|s| TariAddress::from_str(&s).ok())
-                .flatten(),
+                .and_then(|s| TariAddress::from_str(&s).ok()),
             None => {
                 warn!("The settings configuration for the Sha3 Miner config is empty");
                 None
