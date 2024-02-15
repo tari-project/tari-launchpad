@@ -224,8 +224,6 @@ impl LaunchpadWorker {
     }
 
     async fn save_settings(&mut self, new_settings: PersistentSettings) -> Result<(), Error> {
-        dbg!("Saving the settings");
-        dbg!(&new_settings);
         debug!("Saving the settings");
         let mut path = self
             .state

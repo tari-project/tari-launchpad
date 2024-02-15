@@ -152,7 +152,6 @@ impl<E, P: ManagedProtocol> TaskSender<E, P> {
     pub fn send_stats(&self, record: StatsData) -> Result<(), Error> {
         let delta = TaskDelta::StatsRecord(record);
         let report = Report::Delta(delta);
-        dbg!(self.task_id.clone(), &report);
         self.send_report(report)
     }
 
@@ -419,8 +418,6 @@ where
             }
             if !self.context.status.has_work() {
                 break;
-            } else {
-                dbg!(&self.context.inner.name(), "has no work");
             }
         }
     }

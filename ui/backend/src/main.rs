@@ -69,14 +69,8 @@ fn main() -> Result<(), Error> {
                 .unwrap();
 
             api.prevent_exit();
-            app_handle.listen_global("tari:://reactions", move |event| {
-                dbg!(event);
-            });
-            dbg!("Time to close");
             thread::sleep(Duration::from_secs(3));
-            app_handle.exit(1);
-
-            //api.prevent_close();
+            app_handle.exit(0);
         }
     });
     Ok(())

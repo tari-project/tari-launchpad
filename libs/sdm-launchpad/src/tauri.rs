@@ -43,7 +43,6 @@ pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
                     }
                 },
                 Err(err) => {
-                    dbg!(&err);
                     log::error!("Can't parse incoming event: {}", err);
                 },
             }
