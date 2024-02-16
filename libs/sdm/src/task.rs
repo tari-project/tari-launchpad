@@ -263,7 +263,7 @@ where
     pub async fn routine(&mut self) -> Result<(), Error> {
         self.check_dependencies();
         self.initialize().await?;
-        let interval = Duration::from_millis(1_000);
+        let interval = Duration::from_millis(1000);
         let events_receiver = self.events_receiver.take().unwrap();
         let mut events = UnboundedReceiverStream::new(events_receiver);
         let requests_receiver = self.requests_receiver.take().unwrap();

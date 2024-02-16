@@ -1,5 +1,0 @@
-[build]
-target = "index.html"
-#release = true
-dist = "dist"
-public_url = "/"

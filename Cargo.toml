@@ -1,10 +1,4 @@
 [workspace]
 
-members = [
-    "libs/*",
-    "cli",
-    "ui/backend",
-    "ui/frontend",
-]
+members = ["libs/*", "cli", "ui/backend"]
 resolver = "2"
-

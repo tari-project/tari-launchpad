@@ -21,10 +21,9 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::{path::PathBuf, str::FromStr};
+use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-use tari_common_types::tari_address::TariAddress;
 use thiserror::Error;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
@@ -43,7 +42,7 @@ pub struct XmRigConfig {
 pub struct Sha3MinerConfig {
     /// The number of threads to employ for SHA3 mining
     pub num_mining_threads: usize,
-    pub wallet_payment_address: Option<TariAddress>,
+    pub wallet_payment_address: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -58,7 +57,7 @@ pub struct MmProxyConfig {
     /// If true, provide the monero username and password to the daemon. Otherwise those strings are ignored.
     pub monero_use_auth: bool,
 
-    pub wallet_payment_address: Option<TariAddress>,
+    pub wallet_payment_address: Option<String>,
 }
 
 impl MmProxyConfig {
@@ -136,20 +135,21 @@ impl PersistentSettings {
     }
 
     pub fn set_wallet_payment_address<S: Into<String>>(&mut self, payment_address: S) {
-        let address = TariAddress::from_str(&payment_address.into()).ok();
+        //  let address = TariAddress::from_str(&payment_address.into()).ok();
 
+        let address = payment_address.into();
         if self.sha3_miner.is_none() {
             self.new_sha3_miner_settings();
         }
         if let Some(s) = self.sha3_miner.as_mut() {
-            s.wallet_payment_address = address.clone()
+            s.wallet_payment_address = Some(address.clone())
         }
 
         if self.mm_proxy.is_none() {
             self.new_mm_proxy_settings();
         }
         if let Some(m) = self.mm_proxy.as_mut() {
-            m.wallet_payment_address = address
+            m.wallet_payment_address = Some(address)
         }
     }
 }

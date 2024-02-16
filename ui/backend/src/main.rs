@@ -23,11 +23,55 @@
 
 #![cfg_attr(all(not(debug_assertions), target_os = "windows"), windows_subsystem = "windows")]
 
-use anyhow::Error;
+use anyhow::{Context, Error};
+use std::{env, thread, time::Duration};
+use tari_launchpad_protocol::{
+    launchpad::{Action, LaunchpadAction},
+    session::LaunchpadSession,
+};
+use tari_sdm_assets::configurator::Configurator;
+use tauri::Manager;
+use tokio::sync::mpsc::UnboundedSender;
 
 fn main() -> Result<(), Error> {
-    tauri::Builder::default()
-        .setup(tari_sdm_launchpad::tauri::bus_setup)
-        .run(tauri::generate_context!())?;
+    tauri::async_runtime::block_on(async {
+        let mut configurator = Configurator::init().unwrap();
+        configurator.init_configuration(false).await.unwrap();
+
+        let workdir = configurator.base_path();
+        env::set_current_dir(workdir).unwrap();
+
+        log4rs::init_file("config/log4rs-cli.yml", Default::default())
+            .context("Can't read a logs configuration file")
+            .unwrap();
+    });
+
+    let app = tauri::Builder::default()
+        .setup(|app| {
+            #[cfg(debug_assertions)] // only include this code on debug builds
+            {
+                let window = app.get_window("main").unwrap();
+                window.open_devtools();
+                //  window.close_devtools();
+            }
+
+            tari_sdm_launchpad::tauri::bus_setup(app)
+        })
+        .build(tauri::generate_context!())?;
+
+    app.run(|app_handle, event| {
+        if let tauri::RunEvent::ExitRequested { api, .. } = event {
+            let bus_requester = app_handle.state::<UnboundedSender<Action>>();
+            let mut new_session = LaunchpadSession::default();
+            new_session.stop_all();
+            bus_requester
+                .send(Action::Action(LaunchpadAction::ChangeSession(new_session)))
+                .unwrap();
+
+            api.prevent_exit();
+            thread::sleep(Duration::from_secs(3));
+            app_handle.exit(0);
+        }
+    });
     Ok(())
 }

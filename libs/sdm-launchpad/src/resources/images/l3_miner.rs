@@ -21,19 +21,19 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use log::{info, warn};
-use tari_common_types::tari_address::TariAddress;
-use tari_sdm::{
-    ids::{ManagedTask, TaskId},
-    image::{Args, Envs, ManagedContainer, Mounts, Networks, Volumes},
-};
-
 use super::{TariBaseNode, DEFAULT_REGISTRY, GENERAL_VOLUME};
 use crate::resources::{
     config::{ConnectionSettings, LaunchpadConfig, LaunchpadProtocol},
     images::VAR_TARI_PATH,
     networks::LocalNet,
     volumes::SharedVolume,
+};
+use log::{info, warn};
+use std::str::FromStr;
+use tari_common_types::tari_address::TariAddress;
+use tari_sdm::{
+    ids::{ManagedTask, TaskId},
+    image::{Args, Envs, ManagedContainer, Mounts, Networks, Volumes},
 };
 
 #[derive(Debug, Default)]
@@ -76,7 +76,12 @@ impl ManagedContainer for TariSha3Miner {
                 info!("No Sha3 Miner settings found for the container configuration. Falling back on defaults.");
                 None
             },
-            Some(ref settings) => settings.saved_settings.sha3_miner.clone()?.wallet_payment_address,
+            Some(ref settings) => settings
+                .saved_settings
+                .sha3_miner
+                .clone()?
+                .wallet_payment_address
+                .and_then(|s| TariAddress::from_str(&s).ok()),
             None => {
                 warn!("The settings configuration for the Sha3 Miner config is empty");
                 None
