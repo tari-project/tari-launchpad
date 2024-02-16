@@ -23,7 +23,7 @@
 
 use crate::OptionUsizeWrapper;
 use serde::{Deserialize, Serialize};
-use std::{path::PathBuf, str::FromStr};
+use std::path::PathBuf;
 use thiserror::Error;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]

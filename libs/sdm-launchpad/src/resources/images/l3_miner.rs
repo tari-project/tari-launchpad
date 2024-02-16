@@ -79,11 +79,11 @@ impl ManagedContainer for TariSha3Miner {
             },
             Some(ref settings) => (
                 settings
-                .saved_settings
-                .sha3_miner
-                .clone()?
-                .wallet_payment_address
-                .and_then(|s| TariAddress::from_str(&s).ok()),
+                    .saved_settings
+                    .sha3_miner
+                    .clone()?
+                    .wallet_payment_address
+                    .and_then(|s| TariAddress::from_str(&s).ok()),
                 Some(settings.saved_settings.sha3_miner.clone()?.num_mining_threads),
             ),
             None => {

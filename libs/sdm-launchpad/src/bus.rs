@@ -191,7 +191,7 @@ impl LaunchpadWorker {
                 self.scope.set_config(Some(config))?;
             },
             LaunchpadAction::SaveSettings(settings) => {
-                self.save_settings(settings).await?;
+                self.save_settings(*settings).await?;
             },
         }
         Ok(())

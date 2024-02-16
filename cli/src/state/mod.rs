@@ -120,7 +120,7 @@ impl AppState {
                                  configured",
                             )
                         })?;
-                    let action = Action::Action(LaunchpadAction::SaveSettings(settings));
+                    let action = Action::Action(LaunchpadAction::SaveSettings(Box::new(settings)));
                     self.bus_tx.send(action)?;
                 },
             }
