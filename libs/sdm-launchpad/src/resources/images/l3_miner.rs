@@ -119,8 +119,6 @@ impl ManagedContainer for TariSha3Miner {
         envs.set("SHELL", "/bin/bash");
         envs.set("TERM", "linux");
         envs.set("TARI_BASE", "/var/tari/");
-        envs.set("APP_NAME", "minotari_sha3_miner");
-        envs.set("APP_EXEC", "minotari_miner");
 
         if let Some(payment_address) = self.wallet_payment_address.as_ref() {
             envs.set("TARI_MINER__WALLET_PAYMENT_ADDRESS", payment_address.to_hex());

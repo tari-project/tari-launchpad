@@ -111,7 +111,6 @@ impl ManagedContainer for TariBaseNode {
             );
         }
         envs.set("TARI_BASE", "/var/tari/");
-        envs.set("APP_NAME", "base_node");
     }
 
     fn ports(&self, ports: &mut Ports) {

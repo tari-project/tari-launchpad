@@ -96,8 +96,6 @@ impl ManagedContainer for MmProxy {
         if let Some(settings) = self.settings.as_ref() {
             settings.add_common(envs);
         }
-        envs.set("APP_NAME", "mm_proxy");
-        envs.set("APP_EXEC", "minotari_merge_mining_proxy");
         if let Some(config) = self.mm_proxy.as_ref() {
             envs.set("TARI_MERGE_MINING_PROXY__MONEROD_URL", &config.monerod_url);
             envs.set("TARI_MERGE_MINING_PROXY__MONEROD_USERNAME", &config.monero_username);
