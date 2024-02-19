@@ -31,6 +31,7 @@ mod settings;
 mod tabs;
 mod termination;
 mod widgets;
+
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use derive_more::From;
 pub use main_view::MainView;

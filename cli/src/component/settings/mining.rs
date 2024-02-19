@@ -40,10 +40,12 @@ use crate::{
         AppState,
     },
 };
+use tari_launchpad_protocol::OptionUsizeWrapper;
 
 pub static MINING_SETTINGS: Focus = focus_id!();
 static MONERO_ADDRESS: Focus = focus_id!();
 static SHA_THREADS: Focus = focus_id!();
+static RANDOM_X_THREADS: Focus = focus_id!();
 static MONERO_URL: Focus = focus_id!();
 static WALLET_PAYMENT_ADDRESS: Focus = focus_id!();
 
@@ -51,7 +53,8 @@ pub struct MiningSettings {
     expert_sep: Separator,
     monero_address: LabeledInput,
     monero_url: LabeledInput,
-    sha_threads: LabeledInput<usize>,
+    random_x_threads: LabeledInput<OptionUsizeWrapper>,
+    sha3_threads: LabeledInput<usize>,
     wallet_payment_address: LabeledInput,
 }
 
@@ -61,7 +64,8 @@ impl MiningSettings {
             expert_sep: Separator::new("Expert", []),
             monero_address: LabeledInput::new("Monero mining address", MONERO_ADDRESS),
             monero_url: LabeledInput::new("Monero node URL", MONERO_URL),
-            sha_threads: LabeledInput::new_with_value("SHA3 threads", SHA_THREADS, 2),
+            random_x_threads: LabeledInput::new("RandomX threads", RANDOM_X_THREADS),
+            sha3_threads: LabeledInput::new_with_value("SHA3 threads", SHA_THREADS, 8),
             wallet_payment_address: LabeledInput::new("Wallet payment address", WALLET_PAYMENT_ADDRESS),
         }
     }
@@ -77,8 +81,12 @@ impl MiningSettings {
                 saved_settings.set_monero_mining_address(addr);
                 should_write = true;
             }
-            if let Some(v) = self.sha_threads.fetch_new_value() {
-                saved_settings.set_num_mining_threads(*v);
+            if let Some(v) = self.random_x_threads.fetch_new_value() {
+                saved_settings.set_random_x_num_mining_threads(v.clone());
+                should_write = true;
+            }
+            if let Some(v) = self.sha3_threads.fetch_new_value() {
+                saved_settings.set_sha3_num_mining_threads(*v);
                 should_write = true;
             }
             if let Some(v) = self.wallet_payment_address.fetch_new_value() {
@@ -97,12 +105,18 @@ impl MiningSettings {
 impl Input for MiningSettings {
     type Output = ();
 
+    #[allow(clippy::too_many_lines)]
     fn on_event(&mut self, event: ComponentEvent, state: &mut AppState) -> Option<Self::Output> {
         if let ComponentEvent::StateChanged = event {
             if let Some(settings) = &state.state.config.settings {
                 if let Some(conf) = &settings.saved_settings.xmrig {
                     let value = conf.monero_mining_address.clone();
                     self.monero_address.set(value);
+                }
+                if let Some(num) = &settings.saved_settings.xmrig {
+                    if let Some(value) = num.num_mining_threads.clone() {
+                        self.random_x_threads.set(value);
+                    }
                 }
                 if let Some(conf) = &settings.saved_settings.mm_proxy {
                     let value = conf.monerod_url.clone();
@@ -112,6 +126,10 @@ impl Input for MiningSettings {
                     if let Some(wallet_payment_address) = &conf.wallet_payment_address {
                         self.wallet_payment_address.set(wallet_payment_address.to_string());
                     }
+                }
+                if let Some(num) = &settings.saved_settings.sha3_miner {
+                    let value = num.num_mining_threads;
+                    self.sha3_threads.set(value);
                 }
             }
             return None;
@@ -141,7 +159,7 @@ impl Input for MiningSettings {
                 },
             }
         } else if state.focus_on == SHA_THREADS {
-            let released = self.sha_threads.is_released();
+            let released = self.sha3_threads.is_released();
             match event.pass() {
                 Pass::Leave if released => {
                     state.focus_on(MINING_SETTINGS);
@@ -150,10 +168,26 @@ impl Input for MiningSettings {
                     state.focus_on(MONERO_ADDRESS);
                 },
                 Pass::Down if released => {
+                    state.focus_on(RANDOM_X_THREADS);
+                },
+                _ => {
+                    self.sha3_threads.on_event(event, state);
+                },
+            }
+        } else if state.focus_on == RANDOM_X_THREADS {
+            let released = self.random_x_threads.is_released();
+            match event.pass() {
+                Pass::Leave if released => {
+                    state.focus_on(MINING_SETTINGS);
+                },
+                Pass::Up if released => {
+                    state.focus_on(SHA_THREADS);
+                },
+                Pass::Down if released => {
                     state.focus_on(MONERO_URL);
                 },
                 _ => {
-                    self.sha_threads.on_event(event, state);
+                    self.random_x_threads.on_event(event, state);
                 },
             }
         } else if state.focus_on == MONERO_URL {
@@ -209,6 +243,7 @@ impl<B: Backend> Component<B> for MiningSettings {
             Constraint::Length(3),
             Constraint::Length(3),
             Constraint::Length(3),
+            Constraint::Length(3),
             Constraint::Min(0),
         ];
         let chunks = Layout::default()
@@ -219,8 +254,9 @@ impl<B: Backend> Component<B> for MiningSettings {
             .split(inner_rect);
         self.expert_sep.draw(f, chunks[0], state);
         self.monero_address.draw(f, chunks[1], state);
-        self.sha_threads.draw(f, chunks[2], state);
-        self.monero_url.draw(f, chunks[3], state);
-        self.wallet_payment_address.draw(f, chunks[4], state);
+        self.sha3_threads.draw(f, chunks[2], state);
+        self.random_x_threads.draw(f, chunks[3], state);
+        self.monero_url.draw(f, chunks[4], state);
+        self.wallet_payment_address.draw(f, chunks[5], state);
     }
 }

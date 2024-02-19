@@ -89,11 +89,6 @@ loggers:
     appenders:
       - core
     additive: false
-  wallet:
-    level: info
-    appenders:
-      - core
-    additive: false
   tari_miner:
     level: debug
     appenders:

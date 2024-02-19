@@ -22,7 +22,6 @@ services:
       APP_EXEC: tari_base_node
       WAIT_FOR_TOR: ${WAIT_FOR_TOR:-0}
       TARI_NETWORK: ${TARI_NETWORK}
-      TARI_DIBBLER__BASE_NODE__DATA_DIR: "/blockchain/dibbler"
     ports:
       - 18189:18189
       - 18142:18142

@@ -21,9 +21,9 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::path::PathBuf;
-
+use crate::OptionUsizeWrapper;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 use thiserror::Error;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
@@ -36,6 +36,8 @@ pub struct BaseNodeConfig {
 pub struct XmRigConfig {
     /// The address that will accept Monero mining rewards
     pub monero_mining_address: String,
+    /// The number of mining threads to employ
+    pub num_mining_threads: Option<OptionUsizeWrapper>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
@@ -116,7 +118,16 @@ impl PersistentSettings {
         }
     }
 
-    pub fn set_num_mining_threads(&mut self, num_threads: usize) {
+    pub fn set_random_x_num_mining_threads(&mut self, num_threads: OptionUsizeWrapper) {
+        if self.xmrig.is_none() {
+            self.new_xmrig_settings();
+        }
+        if let Some(x) = self.xmrig.as_mut() {
+            x.num_mining_threads = Some(num_threads)
+        }
+    }
+
+    pub fn set_sha3_num_mining_threads(&mut self, num_threads: usize) {
         if self.sha3_miner.is_none() {
             self.new_sha3_miner_settings();
         }

@@ -40,6 +40,7 @@ use tari_sdm::{
 pub struct TariSha3Miner {
     settings: Option<ConnectionSettings>,
     wallet_payment_address: Option<TariAddress>,
+    num_mining_threads: Option<usize>,
 }
 
 impl ManagedTask for TariSha3Miner {
@@ -71,20 +72,23 @@ impl ManagedContainer for TariSha3Miner {
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;
 
-        self.wallet_payment_address = match config?.settings {
+        (self.wallet_payment_address, self.num_mining_threads) = match config?.settings {
             Some(ref settings) if settings.saved_settings.sha3_miner.is_none() => {
                 info!("No Sha3 Miner settings found for the container configuration. Falling back on defaults.");
-                None
+                (None, None)
             },
-            Some(ref settings) => settings
-                .saved_settings
-                .sha3_miner
-                .clone()?
-                .wallet_payment_address
-                .and_then(|s| TariAddress::from_str(&s).ok()),
+            Some(ref settings) => (
+                settings
+                    .saved_settings
+                    .sha3_miner
+                    .clone()?
+                    .wallet_payment_address
+                    .and_then(|s| TariAddress::from_str(&s).ok()),
+                Some(settings.saved_settings.sha3_miner.clone()?.num_mining_threads),
+            ),
             None => {
                 warn!("The settings configuration for the Sha3 Miner config is empty");
-                None
+                (None, None)
             },
         };
 
@@ -98,7 +102,11 @@ impl ManagedContainer for TariSha3Miner {
     fn envs(&self, envs: &mut Envs) {
         if let Some(settings) = self.settings.as_ref() {
             settings.add_common(envs);
-            envs.set("TARI_MINER__NUM_MINING_THREADS", 8); // TODO: Get config num
+            if let Some(value) = self.num_mining_threads.as_ref() {
+                envs.set("TARI_MINER__NUM_MINING_THREADS", value);
+            } else {
+                envs.set("TARI_MINER__NUM_MINING_THREADS", 8);
+            }
             envs.set("TARI_MINER__MINE_ON_TIP_ONLY", 1);
             envs.set(
                 &format!(

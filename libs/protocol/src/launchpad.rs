@@ -46,7 +46,7 @@ pub enum Action {
 pub enum LaunchpadAction {
     Connect,
     ChangeSession(LaunchpadSession),
-    SaveSettings(PersistentSettings),
+    SaveSettings(Box<PersistentSettings>),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

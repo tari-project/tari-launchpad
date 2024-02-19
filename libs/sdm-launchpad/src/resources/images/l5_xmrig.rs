@@ -60,6 +60,10 @@ impl ManagedContainer for XMRig {
         "xmrig"
     }
 
+    fn tag(&self) -> &str {
+        "latest-nextnet"
+    }
+
     fn reconfigure(&mut self, config: Option<&LaunchpadConfig>) -> Option<bool> {
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;
@@ -71,12 +75,24 @@ impl ManagedContainer for XMRig {
     }
 
     fn args(&self, args: &mut Args) {
+        args.set("--config", "/dev/null");
         args.set("--url", "tari_mm_proxy:18081");
         args.set("--user", "${TARI_MONERO_WALLET_ADDRESS}");
         args.set("--coin", "monero");
         args.flag("--daemon");
-        args.set("--log-file", "/var/tari/xmrig/xmrig.log");
+        args.set("--log-file", "/home/tari/xmrig.log");
         args.flag("--verbose");
+        // No value or a value of 0 will let XMRig use auto config, otherwise the provided value will be used
+        if let Some(xmrig) = self.xmrig.as_ref() {
+            if let Some(val) = xmrig.num_mining_threads.clone() {
+                if let Some(num_mining_threads) = val.0 {
+                    if num_mining_threads > 0 {
+                        args.set("--threads", "${TARI_RANDOM_X_NUM_MINING_THREADS}");
+                    }
+                }
+            }
+        }
+        args.set("--asm", "auto");
     }
 
     fn envs(&self, envs: &mut Envs) {
@@ -85,6 +101,14 @@ impl ManagedContainer for XMRig {
         }
         if let Some(xmrig) = self.xmrig.as_ref() {
             envs.set("TARI_MONERO_WALLET_ADDRESS", &xmrig.monero_mining_address);
+
+            if let Some(val) = xmrig.num_mining_threads.clone() {
+                if let Some(num_mining_threads) = val.0 {
+                    if num_mining_threads > 0 {
+                        envs.set("TARI_RANDOM_X_NUM_MINING_THREADS", num_mining_threads);
+                    }
+                }
+            }
         }
     }
 
