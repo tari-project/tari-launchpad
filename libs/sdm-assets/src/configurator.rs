@@ -34,11 +34,6 @@ macro_rules! embed_file {
 
 const CONFIG_TOML: ConfigFile = embed_file!("config.toml");
 const SETTINGS_TOML: ConfigFile = embed_file!("settings.toml");
-const LOGS4RS_YML: ConfigFile = embed_file!("log4rs.yml");
-// const DEFAULTS_INI: ConfigFile = embed_file!("defaults.ini");
-// const LOKI_YML: ConfigFile = embed_file!("loki_config.yml");
-// const PROMTAIL_YML: ConfigFile = embed_file!("promtail.config.yml");
-// const PROVISION_YML: ConfigFile = embed_file!("sources_provision.yml");
 const LOG4RS_CLI_YML: ConfigFile = embed_file!("log4rs-cli.yml");
 
 struct ConfigFile {
@@ -59,25 +54,14 @@ pub struct Configurator {
 impl Configurator {
     pub fn init() -> Result<Self, Error> {
         let cache_dir = dirs_next::cache_dir().ok_or_else(|| Error::msg("No cache dir"))?;
-        let mut data_directory = cache_dir;
-        data_directory.push("tari-launchpad");
         Ok(Self {
-            base_dir: data_directory,
+            base_dir: cache_dir.join("tari-launchpad"),
         })
     }
 
     pub fn base_path(&self) -> &PathBuf {
         &self.base_dir
     }
-
-    // pub async fn read_config(&self) -> Result<LaunchpadConfig, Error> {
-    // let mut path = self.base_dir.clone();
-    // path.push("config");
-    // path.push("config.toml");
-    // let data = fs::read_to_string(&path).await?;
-    // let config = toml::from_str(&data)?;
-    // Ok(config)
-    // }
 
     /// Create directory if it doesn't exist. Returns `true` if the directory was created.
     async fn create_dir<P: AsRef<Path>>(&mut self, folder: P) -> Result<bool, Error> {
@@ -87,12 +71,6 @@ impl Configurator {
             fs::create_dir_all(folder).await?;
             Ok(true)
         }
-    }
-
-    async fn create_sub_dir(&mut self, folder: &Path, sub_path: &str) -> Result<bool, Error> {
-        let mut path = folder.to_path_buf();
-        path.push(sub_path);
-        self.create_dir(sub_path).await
     }
 
     async fn store_file<P: AsRef<Path>>(&mut self, folder: P, file: &ConfigFile, overwrite: bool) -> Result<(), Error> {
@@ -119,30 +97,11 @@ impl Configurator {
             .await?;
         self.store_file(&config_dir, &SETTINGS_TOML, new_config_dir || overwrite)
             .await?;
-        self.store_file(&config_dir, &LOGS4RS_YML, new_config_dir || overwrite)
-            .await?;
-        // self.store_file(&config_dir, &DEFAULTS_INI, new_config_dir || overwrite)
-        //     .await?;
-        // self.store_file(&config_dir, &LOKI_YML, new_config_dir || overwrite)
-        //     .await?;
-        // self.store_file(&config_dir, &PROMTAIL_YML, new_config_dir || overwrite)
-        //     .await?;
-        // self.store_file(&config_dir, &PROVISION_YML, new_config_dir || overwrite)
-        //     .await?;
 
-        let new_log_dir = self.create_sub_dir(&base_dir, "log").await?;
+        let new_log_dir = self.create_dir(base_dir.join("log")).await?;
         self.store_file(&config_dir, &LOG4RS_CLI_YML, new_log_dir || overwrite)
             .await?;
 
-        // TODO: Use `enum` here...
-        // images
-        self.create_sub_dir(&base_dir, "tor").await?;
-        self.create_sub_dir(&base_dir, "base_node").await?;
-        self.create_sub_dir(&base_dir, "xmrig").await?;
-        self.create_sub_dir(&base_dir, "sha3_miner").await?;
-        self.create_sub_dir(&base_dir, "mm_proxy").await?;
-        self.create_sub_dir(&base_dir, "monerod").await?;
-        self.create_sub_dir(&base_dir, "grafana").await?;
         Ok(())
     }
 }

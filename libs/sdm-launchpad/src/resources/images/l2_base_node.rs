@@ -95,7 +95,6 @@ impl ManagedContainer for TariBaseNode {
     }
 
     fn args(&self, args: &mut Args) {
-        args.set("--log-config", "/var/tari/config/log4rs.yml");
         args.set("--watch", "status");
         if !self.config.interactive {
             args.flag("-n");
@@ -111,7 +110,7 @@ impl ManagedContainer for TariBaseNode {
                 format!("/blockchain/{}", settings.tari_network.lower_case()),
             );
         }
-        envs.set("APP_NAME", "base_node");
+        envs.set("TARI_BASE", "/var/tari/");
     }
 
     fn ports(&self, ports: &mut Ports) {

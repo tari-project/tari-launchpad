@@ -23,7 +23,9 @@
 
 use crate::OptionUsizeWrapper;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::fmt::Display;
+use std::{path::PathBuf, str::FromStr};
+use tari_common_types::tari_address::TariAddress;
 use thiserror::Error;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
@@ -145,23 +147,46 @@ impl PersistentSettings {
         }
     }
 
-    pub fn set_wallet_payment_address<S: Into<String>>(&mut self, payment_address: S) {
-        //  let address = TariAddress::from_str(&payment_address.into()).ok();
-
+    pub fn set_wallet_payment_address<S: Into<String>>(
+        &mut self,
+        payment_address: S,
+    ) -> Result<(), InvalidTariAddress> {
         let address = payment_address.into();
+        let address = if address.is_empty() {
+            None
+        } else {
+            match TariAddress::from_str(&address) {
+                Ok(_address) => Some(address),
+                Err(e) => return Err(InvalidTariAddress(e.to_string())),
+            }
+        };
+
         if self.sha3_miner.is_none() {
             self.new_sha3_miner_settings();
         }
         if let Some(s) = self.sha3_miner.as_mut() {
-            s.wallet_payment_address = Some(address.clone())
+            s.wallet_payment_address = address.clone()
         }
 
         if self.mm_proxy.is_none() {
             self.new_mm_proxy_settings();
         }
         if let Some(m) = self.mm_proxy.as_mut() {
-            m.wallet_payment_address = Some(address)
+            m.wallet_payment_address = address
         }
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, Error)]
+pub struct InvalidTariAddress(pub String);
+
+impl Display for InvalidTariAddress {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("Received data is not a valid Tari address: ")?;
+        f.write_str(&self.0)?;
+        Ok(())
     }
 }
 

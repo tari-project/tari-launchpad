@@ -61,8 +61,13 @@ impl MiningPanel {
         let mut should_write = false;
         if let Some(LaunchpadSettings { saved_settings, .. }) = &mut state.state.config.settings {
             if let Some(v) = self.wallet_payment_address.fetch_new_value() {
-                saved_settings.set_wallet_payment_address(v);
-                should_write = true;
+                match saved_settings.set_wallet_payment_address(v) {
+                    Ok(_) => should_write = true,
+                    Err(_e) => {
+                        self.show_popup = true;
+                        return;
+                    },
+                }
             }
             if let Some(addr) = self.monero_address.fetch_new_value() {
                 saved_settings.set_monero_mining_address(addr);
@@ -207,7 +212,7 @@ impl<B: Backend> Component<B> for MiningPanel {
         self.sha3_status.draw(f, v_chunks[3], state);
         if self.show_popup {
             let popup = Popup::default()
-                .content("You need to enter wallet information before you can start mining.")
+                .content("You need to enter valid wallet information before you can start mining.")
                 .style(Style::new().yellow())
                 .title("Missing wallet information")
                 .title_style(Style::new().white().bold())

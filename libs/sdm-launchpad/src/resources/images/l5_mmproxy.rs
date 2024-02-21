@@ -25,9 +25,10 @@ use std::ops::Deref;
 
 use log::*;
 use tari_launchpad_protocol::settings::MmProxyConfig;
+use tari_sdm::image::Ports;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
-    image::{Args, Envs, ManagedContainer, Mounts, Networks, Volumes},
+    image::{Envs, ManagedContainer, Mounts, Networks, Volumes},
 };
 
 use super::{TariBaseNode, DEFAULT_REGISTRY, GENERAL_VOLUME, VAR_TARI_PATH};
@@ -91,16 +92,10 @@ impl ManagedContainer for MmProxy {
         Some(self.mm_proxy.is_none() || session.is_mmproxy_active())
     }
 
-    fn args(&self, args: &mut Args) {
-        args.set("--log-config", "/var/tari/config/log4rs.yml");
-    }
-
     fn envs(&self, envs: &mut Envs) {
         if let Some(settings) = self.settings.as_ref() {
             settings.add_common(envs);
         }
-        envs.set("APP_NAME", "mm_proxy");
-        envs.set("APP_EXEC", "minotari_merge_mining_proxy");
         if let Some(config) = self.mm_proxy.as_ref() {
             envs.set("TARI_MERGE_MINING_PROXY__MONEROD_URL", &config.monerod_url);
             envs.set("TARI_MERGE_MINING_PROXY__MONEROD_USERNAME", &config.monero_username);
@@ -113,6 +108,7 @@ impl ManagedContainer for MmProxy {
             if let Some(payment_address) = config.wallet_payment_address.as_ref() {
                 envs.set("TARI_MERGE_MINING_PROXY__WALLET_PAYMENT_ADDRESS", payment_address);
             }
+            envs.set("TARI_BASE", "/var/tari/");
         }
     }
 
@@ -128,5 +124,9 @@ impl ManagedContainer for MmProxy {
         if let Some(settings) = self.settings.as_ref() {
             mounts.bind_path(settings.data_directory.to_string_lossy(), VAR_TARI_PATH);
         }
+    }
+
+    fn ports(&self, ports: &mut Ports) {
+        ports.add(18_081);
     }
 }
