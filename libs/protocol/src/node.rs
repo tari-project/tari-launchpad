@@ -4,24 +4,29 @@
 use minotari_node_grpc_client::grpc::NodeIdentity;
 use serde::{Deserialize, Serialize};
 use tari_common_types::{emoji::EmojiId, types::PublicKey};
+use tari_comms::peer_manager::NodeId;
 use tari_utilities::byte_array::ByteArray;
 
 use crate::wallet::InvalidPublicKey;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct BaseNodeAddress {
+pub struct BaseNodeIdentity {
     pub public_key: String,
+    pub public_addresses: String,
+    pub node_id: String,
     pub emoji_id: String,
 }
 
-impl TryFrom<NodeIdentity> for BaseNodeAddress {
+impl TryFrom<NodeIdentity> for BaseNodeIdentity {
     type Error = InvalidPublicKey;
 
     fn try_from(value: NodeIdentity) -> Result<Self, Self::Error> {
         let public_key = PublicKey::from_vec(&value.public_key).map_err(|e| InvalidPublicKey(e.to_string()))?;
         let emoji_id = EmojiId::from_public_key(&public_key).to_string();
-        Ok(BaseNodeAddress {
+        Ok(BaseNodeIdentity {
             public_key: public_key.to_string(),
+            public_addresses: value.public_addresses.join("::"),
+            node_id: NodeId::from_key(&public_key).to_string(),
             emoji_id,
         })
     }
@@ -30,7 +35,7 @@ impl TryFrom<NodeIdentity> for BaseNodeAddress {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NodeState {
     // The base node's identity
-    pub identity: Option<BaseNodeAddress>,
+    pub identity: Option<BaseNodeIdentity>,
     // The sync status of the base node
     pub sync_status: String,
     // The number of peers connected to the base node
@@ -72,7 +77,7 @@ impl Default for NodeState {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum NodeDelta {
-    SetIdentity(BaseNodeAddress),
+    SetIdentity(BaseNodeIdentity),
     SetSyncStatus(String),
     SetPeerCount(usize),
     SetChainLength(u64),

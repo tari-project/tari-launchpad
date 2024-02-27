@@ -9,6 +9,7 @@ edition = "2021"
 [dependencies]
 minotari_app_grpc = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
 minotari_node_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
+tari_comms = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
 tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
 tari_launchpad_protocol = { path = "../protocol" }
 tari_sdm_assets = { path = "../sdm-assets" }

@@ -10,7 +10,7 @@ use minotari_app_grpc::tari_rpc::{
 use tari_launchpad_protocol::{
     errors::ErrorRecord,
     launchpad::{LaunchpadDelta, LaunchpadDelta::AddError, Reaction},
-    node::{BaseNodeAddress, NodeDelta},
+    node::{BaseNodeIdentity, NodeDelta},
 };
 use tokio::{
     sync::{mpsc, Mutex},
@@ -104,7 +104,7 @@ impl NodeGrpcWorker {
     }
 
     fn process_identity(&mut self, id: NodeIdentity) {
-        match BaseNodeAddress::try_from(id) {
+        match BaseNodeIdentity::try_from(id) {
             Ok(id) => {
                 let delta = NodeDelta::SetIdentity(id);
                 self.send_update(delta);

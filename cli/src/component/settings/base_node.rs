@@ -26,6 +26,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
 };
 
+use crate::component::widgets::qr_code::QrCodePreview;
 use crate::{
     component::{
         elements::block_with_title,
@@ -45,6 +46,8 @@ static ROOT_FOLDER: Focus = focus_id!();
 pub struct BaseNodeSettings {
     expert_sep: Separator,
     root_folder: LabeledInput,
+    qr_sep: Separator,
+    qr_code: QrCodePreview,
 }
 
 impl BaseNodeSettings {
@@ -52,6 +55,8 @@ impl BaseNodeSettings {
         Self {
             expert_sep: Separator::new("Expert", []),
             root_folder: LabeledInput::new("Root folder", ROOT_FOLDER),
+            qr_sep: Separator::new("QR Code", []),
+            qr_code: QrCodePreview::new(),
         }
     }
 }
@@ -94,7 +99,13 @@ impl<B: Backend> Component<B> for BaseNodeSettings {
         let block = block_with_title(Some("BaseNode Settings"), state.focus_on == BASE_NODE_SETTINGS);
         let inner_rect = block.inner(rect);
         f.render_widget(block, rect);
-        let constraints = [Constraint::Length(1), Constraint::Length(3), Constraint::Min(0)];
+        let constraints = [
+            Constraint::Length(1),
+            Constraint::Length(3),
+            Constraint::Length(1),
+            Constraint::default(),
+            Constraint::Min(0),
+        ];
         let chunks = Layout::default()
             .vertical_margin(1)
             .horizontal_margin(3)
@@ -103,5 +114,7 @@ impl<B: Backend> Component<B> for BaseNodeSettings {
             .split(inner_rect);
         self.expert_sep.draw(f, chunks[0], state);
         self.root_folder.draw(f, chunks[1], state);
+        self.qr_sep.draw(f, chunks[2], state);
+        self.qr_code.draw(f, chunks[3], state);
     }
 }

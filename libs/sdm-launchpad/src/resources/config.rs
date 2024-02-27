@@ -28,6 +28,7 @@ use minotari_node_grpc_client::grpc::NodeIdentity;
 use minotari_wallet_grpc_client::grpc::GetIdentityResponse;
 use serde::Serialize;
 use tari_common_types::{emoji::EmojiId, types::PublicKey};
+use tari_comms::peer_manager::NodeId;
 use tari_launchpad_protocol::session::LaunchpadSession;
 pub use tari_launchpad_protocol::{
     config::LaunchpadConfig,
@@ -56,7 +57,7 @@ pub enum LaunchpadInnerEvent {
 pub struct BaseNodeIdentity {
     pub public_key: Vec<u8>,
     pub public_addresses: Vec<String>,
-    node_id: Vec<u8>,
+    node_id: String,
     emoji_id: String,
 }
 
@@ -78,7 +79,7 @@ impl TryFrom<NodeIdentity> for BaseNodeIdentity {
         Ok(BaseNodeIdentity {
             public_key: value.public_key,
             public_addresses: value.public_addresses,
-            node_id: value.node_id,
+            node_id: NodeId::from_key(&public_key).to_string(),
             emoji_id,
         })
     }

@@ -10,6 +10,7 @@ crossterm = "0.26.1"
 derive_more = "0.99.17"
 log = "0.4.17"
 log4rs = "1.2.0"
+qrcode = { version = "0.13" }
 rust_decimal = "1.29.1"
 strum = { version = "0.24.1", features = ["derive"] }
 tact = { path = "../libs/tact" }
