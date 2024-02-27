@@ -5,7 +5,11 @@ use qrcode::render::unicode;
 use qrcode::QrCode;
 use ratatui::widgets::Block;
 use ratatui::{backend::Backend, layout::Rect, widgets::Paragraph};
+use tari_common_types::types::PublicKey;
 use tari_launchpad_protocol::settings::TariNetwork;
+use tari_launchpad_protocol::wallet::InvalidPublicKey;
+use tari_utilities::hex::Hex;
+use tari_utilities::ByteArray;
 
 use crate::{
     component::{Component, ComponentEvent, Frame, Input},
@@ -43,11 +47,20 @@ impl<B: Backend> Component<B> for QrCodePreview {
                 TariNetwork::default()
             };
 
-            let peer = format!("{}::{}", identity.public_key, identity.public_addresses);
+            let public_key =
+                match PublicKey::from_vec(&identity.public_key).map_err(|e| InvalidPublicKey(e.to_string())) {
+                    Ok(public_key) => public_key,
+                    Err(e) => {
+                        log::warn!("Couldn't convert public key: {}", e);
+                        return;
+                    },
+                };
+
+            let peer = format!("{}::{}", public_key, identity.public_addresses.join("::"));
             let qr_link = format!(
                 "tari://{}/base_nodes/add?name={}&peer={}",
                 network.lower_case(),
-                identity.node_id,
+                identity.node_id.to_hex(),
                 peer
             );
             if let Ok(code) = QrCode::new(qr_link.clone()) {

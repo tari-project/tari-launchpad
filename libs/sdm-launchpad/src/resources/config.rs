@@ -24,18 +24,17 @@
 use std::{ops::Deref, path::PathBuf};
 
 use anyhow::{anyhow, Error};
-use minotari_node_grpc_client::grpc::NodeIdentity;
 use minotari_wallet_grpc_client::grpc::GetIdentityResponse;
 use serde::Serialize;
 use tari_common_types::{emoji::EmojiId, types::PublicKey};
-use tari_comms::peer_manager::NodeId;
+use tari_launchpad_protocol::node::BaseNodeIdentity;
 use tari_launchpad_protocol::session::LaunchpadSession;
 pub use tari_launchpad_protocol::{
     config::LaunchpadConfig,
     settings::{LaunchpadSettings, TariNetwork},
 };
 use tari_sdm::{config::ManagedProtocol, image::Envs};
-use tari_utilities::{hex::Hex, ByteArray};
+use tari_utilities::ByteArray;
 
 #[derive(Debug)]
 pub struct LaunchpadProtocol;
@@ -50,39 +49,6 @@ impl ManagedProtocol for LaunchpadProtocol {
 pub enum LaunchpadInnerEvent {
     IdentityReady(BaseNodeIdentity),
     WalletIdentityReady(WalletIdentity),
-}
-
-#[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct BaseNodeIdentity {
-    pub public_key: Vec<u8>,
-    pub public_addresses: Vec<String>,
-    node_id: String,
-    emoji_id: String,
-}
-
-impl BaseNodeIdentity {
-    /// Provide the base node connection string. It is of the form
-    /// "0eefb45a4de9484eca74846a4f47d2c8d38e76be1fec63b0112bd00d297c0928::/ip4/13.40.98.39/tcp/18189"
-    pub fn connection_string(&self) -> String {
-        format!("{}::/dns4/base_node/tcp/18189", self.public_key.to_hex())
-    }
-}
-
-impl TryFrom<NodeIdentity> for BaseNodeIdentity {
-    type Error = Error;
-
-    fn try_from(value: NodeIdentity) -> Result<Self, Self::Error> {
-        let public_key = PublicKey::from_vec(&value.public_key).map_err(|_| anyhow!("PublicKey failed to parse"))?;
-        // TODO: Implement `Serialize` for `EmojiId`
-        let emoji_id = EmojiId::from_public_key(&public_key).to_string();
-        Ok(BaseNodeIdentity {
-            public_key: value.public_key,
-            public_addresses: value.public_addresses,
-            node_id: NodeId::from_key(&public_key).to_string(),
-            emoji_id,
-        })
-    }
 }
 
 #[derive(Debug, Clone, Serialize)]

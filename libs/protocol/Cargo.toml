@@ -10,7 +10,6 @@ edition = "2021"
 
 minotari_node_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
 tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
-tari_comms = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
 tari_utilities = "0.7.0"
 
 byte-unit = { version = "5.1.3", features = ["serde"] }
