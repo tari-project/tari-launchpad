@@ -16,13 +16,10 @@ tari_sdm_assets = { path = "../sdm-assets" }
 tari_sdm = { path = "../sdm" }
 minotari_wallet_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
 tari_utilities = "0.7.0"
-openssl = { version = "0.10.55", features = ["vendored"] }
 
 anyhow = "1.0.72"
 async-trait = "0.1.72"
-futures = "0.3.28"
 log = "0.4.19"
-rand = "0.8.5"
 regex = "1.9.1"
 serde = "=1.0.167"
 serde_json = "1.0.103"
