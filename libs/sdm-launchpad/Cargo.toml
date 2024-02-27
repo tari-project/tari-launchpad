@@ -9,24 +9,24 @@ edition = "2021"
 [dependencies]
 minotari_app_grpc = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
 minotari_node_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
-tari_comms = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
-tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
-tari_launchpad_protocol = { path = "../protocol" }
-tari_sdm_assets = { path = "../sdm-assets" }
-tari_sdm = { path = "../sdm" }
 minotari_wallet_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
+tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
+tari_comms = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
+tari_launchpad_protocol = { path = "../protocol" }
+tari_sdm = { path = "../sdm" }
+tari_sdm_assets = { path = "../sdm-assets" }
 tari_utilities = "0.7.0"
 
 anyhow = "1.0.72"
 async-trait = "0.1.72"
+chrono = "0.4.31"
 log = "0.4.19"
 regex = "1.9.1"
 serde = "=1.0.167"
 serde_json = "1.0.103"
 tauri = { version = "=1.2.5", features = ["api-all", "cli", "macos-private-api"], optional = true }
 thiserror = "1.0.44"
-tor-hash-passwd = "1.0.1"
 tokio = "1.29.1"
 toml = "0.8.8"
 tonic = { version = "0.8.3", features = ["tls"] }
-chrono = "0.4.31"
+tor-hash-passwd = "1.0.1"
