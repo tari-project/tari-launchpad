@@ -56,7 +56,7 @@ impl<B: Backend> Component<B> for QrCodePreview {
                     },
                 };
 
-            let peer = format!("{}::{}", public_key, identity.public_addresses.join("::"));
+            let peer = format!("{}::{}", public_key, identity.public_addresses[0]);
             let qr_link = format!(
                 "tari://{}/base_nodes/add?name={}&peer={}",
                 network.lower_case(),
