@@ -1,7 +1,7 @@
 // Copyright 2023. The Tari Project
 // SPDX-License-Identifier: BSD-3-Clause
 
-use crossterm::event::KeyCode;
+use crossterm::event::{KeyCode, KeyModifiers};
 use log::warn;
 use ratatui::prelude::*;
 use tari_launchpad_protocol::settings::LaunchpadSettings;
@@ -142,7 +142,9 @@ impl Input for MiningPanel {
         self.check_for_updated_settings(state);
 
         if let KeyEvent(key) = event {
-            if key.code == KeyCode::Char('m') || key.code == KeyCode::Char('M') {
+            if (key.code == KeyCode::Char('m') || key.code == KeyCode::Char('M'))
+                && key.modifiers.contains(KeyModifiers::CONTROL)
+            {
                 if let Some(settings) = &state.state.config.settings {
                     if let Some(conf) = &settings.saved_settings.sha3_miner {
                         if conf.wallet_payment_address.is_none() {
@@ -164,7 +166,9 @@ impl Input for MiningPanel {
                 Self::toggle_merge_mining(state);
                 return Some(());
             }
-            if key.code == KeyCode::Char('t') || key.code == KeyCode::Char('T') {
+            if (key.code == KeyCode::Char('t') || key.code == KeyCode::Char('T'))
+                && key.modifiers.contains(KeyModifiers::CONTROL)
+            {
                 if let Some(settings) = &state.state.config.settings {
                     if let Some(conf) = &settings.saved_settings.sha3_miner {
                         if conf.wallet_payment_address.is_none() {
