@@ -51,9 +51,9 @@ impl<B: Backend> Component<B> for LegendWidget {
         let command_items = [
             ["Crtl-Q", "Quit"],
             ["Crtl-B", "Start Tari node"],
-            ["Crtl-H", "Switch to home"],
-            ["Crtl-L", "Switch to logs"],
-            ["Crtl-S", "Switch to settings"],
+            ["Crtl-H", "Switch to Home"],
+            ["Crtl-L", "Switch to Logs"],
+            ["Crtl-S", "Switch to Settings"],
             ["Enter ", "Edit/stop editing field"],
             ["Crtl-M", "Merge mine"],
             ["Crtl-T", "Sha mine"],
