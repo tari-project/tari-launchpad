@@ -49,14 +49,14 @@ impl<B: Backend> Component<B> for LegendWidget {
         f.render_widget(block, rect);
 
         let command_items = [
-            ["Crtl-Q", "Quit"],
-            ["Crtl-B", "Start Tari node"],
-            ["Crtl-H", "Switch to home"],
-            ["Crtl-L", "Switch to logs"],
-            ["Crtl-S", "Switch to settings"],
+            ["Ctrl-Q", "Quit"],
+            ["Ctrl-B", "Start Tari node"],
+            ["Ctrl-H", "Switch to Home"],
+            ["Ctrl-L", "Switch to Logs"],
+            ["Ctrl-S", "Switch to Settings"],
             ["Enter ", "Edit/stop editing field"],
-            ["M     ", "Merge mine"],
-            ["T     ", "Sha mine"],
+            ["Ctrl-M", "Merge mine"],
+            ["Ctrl-T", "Sha mine"],
             ["Left-Arrow ", "Move left"],
             ["Right-Arrow", "Move right"],
             ["Up-Arrow   ", "Move up"],
