@@ -8,6 +8,8 @@ use ratatui::{
     prelude::*,
     widgets::Padding,
 };
+use tari_common_types::types::PublicKey;
+use tari_utilities::ByteArray;
 
 use crate::{
     component::{
@@ -37,10 +39,9 @@ impl BaseNodeStatus {
         let top_line = Line::from(vec![sync_state, chain_height, peer_count]);
         let public_key = node_status
             .identity
-            .as_ref()
-            .cloned()
-            .map(|id| (id.public_key))
-            .unwrap_or_else(|| ("-".into()));
+            .clone()
+            .map(|id| PublicKey::from_vec(&id.public_key).map_or("-".to_string(), |k| k.to_string()))
+            .unwrap_or_else(|| "-".into());
         let mid_line = Line::from(format!("Public key: {public_key}"));
         Text::from(vec![top_line, mid_line])
     }

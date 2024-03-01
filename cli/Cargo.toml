@@ -4,26 +4,27 @@ version = "1.6.0"
 edition = "2021"
 
 [dependencies]
+tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
+tari_launchpad_protocol = { path = "../libs/protocol" }
+tari_sdm = { path = "../libs/sdm" }
+tari_sdm_assets = { path = "../libs/sdm-assets" }
+tari_sdm_launchpad = { path = "../libs/sdm-launchpad" }
+tari_utilities = "0.7.0"
+
 anyhow = "1.0.71"
 async-trait = "0.1.68"
+byte-unit = "5.1.3"
 crossterm = "0.26.1"
 derive_more = "0.99.17"
+derive_setters = "0.1.0"
 log = "0.4.17"
 log4rs = "1.2.0"
-rust_decimal = "1.29.1"
+qrcode = { version = "0.13" }
+ratatui = "0.23.0"
 strum = { version = "0.24.1", features = ["derive"] }
 tact = { path = "../libs/tact" }
 thiserror = "1.0.40"
 tokio = "1.28.1"
-ratatui = "0.23.0"
-byte-unit = "5.1.3"
-
-derive_setters = "0.1.0"
-
-tari_launchpad_protocol = { path = "../libs/protocol" }
-tari_sdm_assets = { path = "../libs/sdm-assets" }
-tari_sdm = { path = "../libs/sdm" }
-tari_sdm_launchpad = { path = "../libs/sdm-launchpad" }
 
 [features]
 default = []
