@@ -384,10 +384,14 @@ where
 
     pub fn reconfigure(&mut self, config: Option<&<R::Protocol as ManagedProtocol>::Config>) {
         let active = self.context.reconfigure(config);
-        if active {
+        if active && self.context.should_start != active {
+            let _ = self.context.update_task_status(TaskStatusValue::Waiting);
             debug!("[SdmTaskRunner::reconfigure] Task {} is queued to start", self.task_id)
         } else {
-            debug!("[SdmTaskRunner::reconfigure] Task {} is will NOT start", self.task_id)
+            debug!(
+                "[SdmTaskRunner::reconfigure] Task {} is NOT queued to start",
+                self.task_id
+            )
         }
         self.context.should_start = active;
     }
