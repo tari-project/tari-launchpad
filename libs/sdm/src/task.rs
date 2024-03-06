@@ -383,17 +383,19 @@ where
     }
 
     pub fn reconfigure(&mut self, config: Option<&<R::Protocol as ManagedProtocol>::Config>) {
-        let active = self.context.reconfigure(config);
-        if active && self.context.should_start != active {
-            let _ = self.context.update_task_status(TaskStatusValue::Waiting);
+        let is_active = self.context.reconfigure(config);
+        if is_active && self.context.should_start != is_active {
+            drop(self.context.update_task_status(TaskStatusValue::Waiting));
             debug!("[SdmTaskRunner::reconfigure] Task {} is queued to start", self.task_id)
+        } else if !is_active && self.context.should_start != is_active {
+            drop(self.context.update_task_status(TaskStatusValue::ShuttingDown));
         } else {
             debug!(
                 "[SdmTaskRunner::reconfigure] Task {} is NOT queued to start",
                 self.task_id
             )
         }
-        self.context.should_start = active;
+        self.context.should_start = is_active;
     }
 
     pub fn process_inner_event(&mut self, event: <R::Protocol as ManagedProtocol>::Inner) {
