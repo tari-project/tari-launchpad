@@ -142,44 +142,42 @@ impl Input for MiningPanel {
         self.check_for_updated_settings(state);
 
         if let KeyEvent(key) = event {
-            if (key.code == KeyCode::Char('m') || key.code == KeyCode::Char('M'))
-                && key.modifiers.contains(KeyModifiers::CONTROL)
-            {
-                if let Some(settings) = &state.state.config.settings {
-                    if let Some(conf) = &settings.saved_settings.sha3_miner {
-                        if conf.wallet_payment_address.is_none() {
-                            self.show_popup = true;
-                            state.update_state();
-                            return None;
+            if key.modifiers.contains(KeyModifiers::CONTROL) {
+                if key.code == KeyCode::Char('x') || key.code == KeyCode::Char('X') {
+                    if let Some(settings) = &state.state.config.settings {
+                        if let Some(conf) = &settings.saved_settings.sha3_miner {
+                            if conf.wallet_payment_address.is_none() {
+                                self.show_popup = true;
+                                state.update_state();
+                                return None;
+                            }
+                            if let Some(conf) = &settings.saved_settings.xmrig {
+                                let value = conf.monero_mining_address.clone();
+                                if value.is_empty() {
+                                    self.show_popup = true;
+                                    state.update_state();
+                                    return None;
+                                }
+                            }
                         }
-                        if let Some(conf) = &settings.saved_settings.xmrig {
-                            let value = conf.monero_mining_address.clone();
-                            if value.is_empty() {
+                    }
+
+                    Self::toggle_merge_mining(state);
+                    return Some(());
+                }
+                if key.code == KeyCode::Char('t') || key.code == KeyCode::Char('T') {
+                    if let Some(settings) = &state.state.config.settings {
+                        if let Some(conf) = &settings.saved_settings.sha3_miner {
+                            if conf.wallet_payment_address.is_none() {
                                 self.show_popup = true;
                                 state.update_state();
                                 return None;
                             }
                         }
                     }
+                    Self::toggle_sha3_mining(state);
+                    return Some(());
                 }
-
-                Self::toggle_merge_mining(state);
-                return Some(());
-            }
-            if (key.code == KeyCode::Char('t') || key.code == KeyCode::Char('T'))
-                && key.modifiers.contains(KeyModifiers::CONTROL)
-            {
-                if let Some(settings) = &state.state.config.settings {
-                    if let Some(conf) = &settings.saved_settings.sha3_miner {
-                        if conf.wallet_payment_address.is_none() {
-                            self.show_popup = true;
-                            state.update_state();
-                            return None;
-                        }
-                    }
-                }
-                Self::toggle_sha3_mining(state);
-                return Some(());
             }
         }
 

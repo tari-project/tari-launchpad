@@ -55,7 +55,7 @@ impl<B: Backend> Component<B> for LegendWidget {
             ["Ctrl-L", "Switch to Logs"],
             ["Ctrl-S", "Switch to Settings"],
             ["Enter ", "Edit/stop editing field"],
-            ["Ctrl-M", "Merge mine"],
+            ["Ctrl-X", "Merge mine"],
             ["Ctrl-T", "Sha mine"],
             ["Left-Arrow ", "Move left"],
             ["Right-Arrow", "Move right"],

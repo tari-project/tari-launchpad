@@ -136,12 +136,16 @@ pub enum TaskStatus {
     Pending,
     /// Task failed due to missing configuration.
     MissingConfiguration(String),
-    /// Task is starting up
+    /// Task is starting up.
     Progress(TaskProgress),
-    /// Task is running
+    /// Task is running.
     Active,
     /// Task failed for other reasons.
     Failed(String),
+    /// Task is shutting down.
+    ShuttingDown,
+    /// Task is waiting for dependencies to start.
+    Waiting,
 }
 
 impl TaskStatus {
@@ -170,7 +174,9 @@ impl TaskStatus {
 
     pub fn progress(&self) -> Option<String> {
         match self {
-            Self::Progress(progress) => Some(format!("{} -{}%", progress.stage, progress.pct)),
+            Self::Waiting => Some(format!("{}", self)),
+            Self::ShuttingDown => Some(format!("{}", self)),
+            Self::Progress(progress) => Some(format!("{} - {}%", progress.stage, progress.pct)),
             _ => None,
         }
     }
@@ -185,6 +191,8 @@ impl fmt::Display for TaskStatus {
             Self::Active => write!(f, "Active"),
             Self::MissingConfiguration(reason) => write!(f, "Missing configuration. Details: {}", reason),
             Self::Failed(reason) => write!(f, "Failed. Reason: {}", reason),
+            Self::ShuttingDown => write!(f, "Shutting down"),
+            Self::Waiting => write!(f, "Waiting"),
         }
     }
 }
