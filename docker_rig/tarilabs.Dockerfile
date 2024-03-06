@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1.3
 
 # https://hub.docker.com/_/rust
-ARG RUST_VERSION=1.74
+ARG RUST_VERSION=1.76
 ARG OS_BASE=bookworm
 
 # rust source compile with cross platform build support
@@ -50,7 +50,7 @@ COPY infrastructure infrastructure
 COPY meta meta
 COPY buildtools/deps_only buildtools/deps_only
 COPY integration_tests integration_tests
-COPY hash_domains hash_domains
+COPY hashing hashing
 COPY scripts scripts
 
 # Disable Prompt During Packages Installation
