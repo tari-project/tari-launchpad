@@ -10,9 +10,9 @@ pub struct MergeMiningStatus;
 impl StatusGetter for MergeMiningStatus {
     fn get_status(&self, state: &AppState) -> (&str, Color) {
         if state.state.config.session.merge_layer_active {
-            ("⚒️  Press [Ctrl-M] to stop Merge Mining", Color::Green)
+            ("⚒️  Press [Ctrl-X] to stop Merge Mining", Color::Green)
         } else {
-            ("Press [Ctrl-M] to start Merge mining   ", Color::Gray)
+            ("Press [Ctrl-X] to start Merge mining   ", Color::Gray)
         }
     }
 }
