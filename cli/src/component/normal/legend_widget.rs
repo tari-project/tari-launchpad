@@ -21,16 +21,20 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use crate::component::elements::block_with_title;
-use crate::component::Component;
-use crate::state::AppState;
-use ratatui::backend::Backend;
-use ratatui::layout::{Constraint, Direction, Layout, Rect};
-use ratatui::prelude::Line;
-use ratatui::style::{Color, Style};
-use ratatui::text::Span;
-use ratatui::widgets::{List, ListItem, Padding};
-use ratatui::Frame;
+use ratatui::{
+    backend::Backend,
+    layout::{Constraint, Direction, Layout, Rect},
+    prelude::Line,
+    style::{Color, Style},
+    text::Span,
+    widgets::{List, ListItem, Padding},
+    Frame,
+};
+
+use crate::{
+    component::{elements::block_with_title, Component},
+    state::AppState,
+};
 
 pub struct LegendWidget {}
 

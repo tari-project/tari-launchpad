@@ -14,7 +14,7 @@ appenders:
       kind: compound
       trigger:
         kind: size
-        limit: 10mb
+        limit: 100mb
       roller:
         kind: fixed_window
         base: 1
@@ -36,6 +36,11 @@ loggers:
       - core
     additive: false
   tari_sdm_launchpad:
+    level: trace
+    appenders:
+      - core
+    additive: false
+  crossterm_events:
     level: trace
     appenders:
       - core

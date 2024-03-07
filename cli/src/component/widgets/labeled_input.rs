@@ -31,6 +31,7 @@ use ratatui::{
     style::{Color, Style},
     widgets::{Block, Borders, Paragraph},
 };
+use tari_common_types::tari_address::TariAddress;
 
 use crate::{
     component::{widgets::Label, Component, ComponentEvent, Frame, Input},
@@ -135,7 +136,11 @@ where
     }
 
     pub fn set(&mut self, value: T) {
-        self.content = value.to_string();
+        self.content = if let Ok(val) = TariAddress::from_str(&value.to_string()) {
+            TariAddress::to_emoji_string(&val)
+        } else {
+            value.to_string()
+        };
         self.value = Value::Valid { value };
     }
 

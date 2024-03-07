@@ -25,10 +25,9 @@ use std::ops::Deref;
 
 use log::*;
 use tari_launchpad_protocol::settings::MmProxyConfig;
-use tari_sdm::image::Ports;
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
-    image::{Envs, ManagedContainer, Mounts, Networks, Volumes},
+    image::{Envs, ManagedContainer, Mounts, Networks, Ports, Volumes},
 };
 
 use super::{TariBaseNode, DEFAULT_REGISTRY, GENERAL_VOLUME, VAR_TARI_PATH};

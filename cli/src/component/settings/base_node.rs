@@ -26,11 +26,10 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
 };
 
-use crate::component::widgets::qr_code::QrCodePreview;
 use crate::{
     component::{
         elements::block_with_title,
-        widgets::{LabeledInput, Separator},
+        widgets::{qr_code::QrCodePreview, LabeledInput, Separator},
         Component, ComponentEvent, Frame, Input, Pass,
     },
     focus_id,

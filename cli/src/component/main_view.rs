@@ -28,10 +28,9 @@ use ratatui::{
     Frame,
 };
 
-use crate::component::expert::logs::LogsScene;
 use crate::{
     component::{
-        expert::ExpertScene,
+        expert::{logs::LogsScene, ExpertScene},
         header::{mode::Mode, Header},
         normal::NormalScene,
         settings::SettingsScene,

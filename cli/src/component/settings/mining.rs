@@ -26,7 +26,7 @@ use ratatui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
 };
-use tari_launchpad_protocol::settings::LaunchpadSettings;
+use tari_launchpad_protocol::{settings::LaunchpadSettings, OptionUsizeWrapper};
 
 use crate::{
     component::{
@@ -40,7 +40,6 @@ use crate::{
         AppState,
     },
 };
-use tari_launchpad_protocol::OptionUsizeWrapper;
 
 pub static MINING_SETTINGS: Focus = focus_id!();
 static MONERO_ADDRESS: Focus = focus_id!();
