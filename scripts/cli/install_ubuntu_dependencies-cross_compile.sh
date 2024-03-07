@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 #
-# Install Ubuntu aarch64(arm64)/riscv64gc deb dev/tool packages on x86_64
+# Install Ubuntu aarch64(arm64)/riscv64 deb dev/tool packages on x86_64
 #
 
 USAGE="Usage: $0 ISA_ARCH other packages"
