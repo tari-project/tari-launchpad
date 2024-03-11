@@ -1,15 +1,15 @@
 // Copyright 2023. The Tari Project
 // SPDX-License-Identifier: BSD-3-Clause
 
-use qrcode::render::unicode;
-use qrcode::QrCode;
-use ratatui::widgets::Block;
-use ratatui::{backend::Backend, layout::Rect, widgets::Paragraph};
+use qrcode::{render::unicode, QrCode};
+use ratatui::{
+    backend::Backend,
+    layout::Rect,
+    widgets::{Block, Paragraph},
+};
 use tari_common_types::types::PublicKey;
-use tari_launchpad_protocol::settings::TariNetwork;
-use tari_launchpad_protocol::wallet::InvalidPublicKey;
-use tari_utilities::hex::Hex;
-use tari_utilities::ByteArray;
+use tari_launchpad_protocol::{settings::TariNetwork, wallet::InvalidPublicKey};
+use tari_utilities::{hex::Hex, ByteArray};
 
 use crate::{
     component::{Component, ComponentEvent, Frame, Input},

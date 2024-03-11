@@ -40,3 +40,8 @@ loggers:
     appenders:
       - core
     additive: false
+  crossterm_events:
+    level: trace
+    appenders:
+      - core
+    additive: false

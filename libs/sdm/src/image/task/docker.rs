@@ -24,18 +24,16 @@
 use std::{collections::HashMap, path::Path};
 
 use anyhow::{anyhow, Error};
-use bollard::container::StopContainerOptions;
-use bollard::models::ContainerStateStatusEnum;
 use bollard::{
     container::{
         Config, CreateContainerOptions, LogOutput, LogsOptions, NetworkingConfig, RemoveContainerOptions,
-        Stats as BollardStats, StatsOptions,
+        Stats as BollardStats, StatsOptions, StopContainerOptions,
     },
     errors::Error as BollardError,
     image::{CreateImageOptions, RemoveImageOptions},
     models::{
-        CreateImageInfo, EndpointSettings, EventMessage, EventMessageTypeEnum, HostConfig, Mount as BollardMount,
-        MountTypeEnum, PortBinding, PortMap,
+        ContainerStateStatusEnum, CreateImageInfo, EndpointSettings, EventMessage, EventMessageTypeEnum, HostConfig,
+        Mount as BollardMount, MountTypeEnum, PortBinding, PortMap,
     },
     system::EventsOptions,
 };

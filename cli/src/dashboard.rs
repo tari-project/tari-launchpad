@@ -120,9 +120,8 @@ impl Actor for Dashboard {
             let url = "https://docs.docker.com/engine/install/ubuntu/";
 
             let msg = format!(
-                "\nThe Docker process is not detected.\nIs it installed and running?\n\n\
-            Download docker at {url}\n\n\
-            Press any key to quit."
+                "\nThe Docker process is not detected.\nIs it installed and running?\n\nDownload docker at \
+                 {url}\n\nPress any key to quit."
             );
             if self
                 .terminal
@@ -235,7 +234,6 @@ impl Do<TermEvent> for Dashboard {
                     if key.kind != crossterm::event::KeyEventKind::Release {
                         return Ok(());
                     }
-
                     let state = self.state.as_mut().ok_or_else(|| DashboardError::State)?;
                     self.main_view.on_event(key.into(), state);
                     let changed = state.process_events();

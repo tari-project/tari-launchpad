@@ -23,8 +23,9 @@
 
 #![cfg_attr(all(not(debug_assertions), target_os = "windows"), windows_subsystem = "windows")]
 
-use anyhow::{Context, Error};
 use std::{env, thread, time::Duration};
+
+use anyhow::{Context, Error};
 use tari_launchpad_protocol::{
     launchpad::{Action, LaunchpadAction},
     session::LaunchpadSession,

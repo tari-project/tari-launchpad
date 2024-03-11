@@ -6,7 +6,6 @@ use log::warn;
 use ratatui::prelude::*;
 use tari_launchpad_protocol::settings::LaunchpadSettings;
 
-use crate::component::widgets::popup::Popup;
 use crate::{
     component::{
         elements::block_with_title,
@@ -14,7 +13,7 @@ use crate::{
             helpers::{MergeMiningStatus, ShaMiningStatus},
             status_badge::StatusBadge,
         },
-        widgets::LabeledInput,
+        widgets::{popup::Popup, LabeledInput},
         Component, ComponentEvent,
         ComponentEvent::KeyEvent,
         Input, Pass,

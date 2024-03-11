@@ -25,8 +25,7 @@ use anyhow::Error;
 use async_trait::async_trait;
 use log::debug;
 use minotari_node_grpc_client::{grpc, BaseNodeGrpcClient};
-use tari_launchpad_protocol::container::TaskProgress;
-use tari_launchpad_protocol::settings::BaseNodeConfig;
+use tari_launchpad_protocol::{container::TaskProgress, settings::BaseNodeConfig};
 use tari_sdm::{
     ids::{ManagedTask, TaskId},
     image::{
@@ -39,9 +38,9 @@ use super::{
     sync_progress::SyncProgress, Tor, BLOCKCHAIN_PATH, BLOCKCHAIN_VOLUME, DEFAULT_REGISTRY, GENERAL_VOLUME,
     VAR_TARI_PATH,
 };
-use crate::resources::images::sync_progress::SyncType;
 use crate::resources::{
     config::{ConnectionSettings, LaunchpadConfig, LaunchpadInnerEvent, LaunchpadProtocol},
+    images::sync_progress::SyncType,
     networks::LocalNet,
     volumes::SharedVolume,
 };

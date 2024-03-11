@@ -32,10 +32,9 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
 };
 
-use crate::component::normal::legend_widget::LegendWidget;
 use crate::{
     component::{
-        normal::{base_node::BaseNodeWidget, containers::ContainersScene},
+        normal::{base_node::BaseNodeWidget, containers::ContainersScene, legend_widget::LegendWidget},
         Component, ComponentEvent, Frame, Input,
     },
     state::AppState,

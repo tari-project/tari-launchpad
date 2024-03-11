@@ -4,8 +4,7 @@
 use minotari_node_grpc_client::grpc::NodeIdentity;
 use serde::{Deserialize, Serialize};
 use tari_common_types::{emoji::EmojiId, types::PublicKey};
-use tari_utilities::byte_array::ByteArray;
-use tari_utilities::hex::Hex;
+use tari_utilities::{byte_array::ByteArray, hex::Hex};
 
 use crate::wallet::InvalidPublicKey;
 

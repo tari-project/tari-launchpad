@@ -21,12 +21,13 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use crate::OptionUsizeWrapper;
+use std::{fmt::Display, path::PathBuf, str::FromStr};
+
 use serde::{Deserialize, Serialize};
-use std::fmt::Display;
-use std::{path::PathBuf, str::FromStr};
 use tari_common_types::tari_address::TariAddress;
 use thiserror::Error;
+
+use crate::OptionUsizeWrapper;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 pub struct BaseNodeConfig {
@@ -46,6 +47,7 @@ pub struct XmRigConfig {
 pub struct Sha3MinerConfig {
     /// The number of threads to employ for SHA3 mining
     pub num_mining_threads: usize,
+    /// The address that will accept Tari mining rewards
     pub wallet_payment_address: Option<String>,
 }
 
@@ -60,7 +62,7 @@ pub struct MmProxyConfig {
     pub monero_password: String,
     /// If true, provide the monero username and password to the daemon. Otherwise those strings are ignored.
     pub monero_use_auth: bool,
-
+    /// The address that will accept Tari mining rewards
     pub wallet_payment_address: Option<String>,
 }
 
@@ -152,11 +154,12 @@ impl PersistentSettings {
         payment_address: S,
     ) -> Result<(), InvalidTariAddress> {
         let address = payment_address.into();
+
         let address = if address.is_empty() {
             None
         } else {
             match TariAddress::from_str(&address) {
-                Ok(_address) => Some(address),
+                Ok(val) => Some(val.to_emoji_string()),
                 Err(e) => return Err(InvalidTariAddress(e.to_string())),
             }
         };
