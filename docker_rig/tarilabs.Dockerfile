@@ -34,6 +34,7 @@ ARG VERSION=1.0.1
 ARG APP_NAME=wallet
 ARG APP_EXEC=minotari_console_wallet
 ARG TARI_NETWORK
+ARG TARI_TARGET_NETWORK
 
 WORKDIR /tari
 
@@ -93,6 +94,7 @@ ARG VERSION
 ARG APP_NAME
 ARG APP_EXEC
 ARG TARI_NETWORK
+ARG TARI_TARGET_NETWORK
 
 # Disable Prompt During Packages Installation
 ARG DEBIAN_FRONTEND=noninteractive
@@ -130,7 +132,8 @@ ENV rust_version=$RUST_VERSION
 
 ENV APP_NAME=${APP_NAME:-wallet}
 ENV APP_EXEC=${APP_EXEC:-minotari_console_wallet}
-ENV TARI_NETWORK=$TARI_NETWORK
+ENV TARI_NETWORK=${TARI_NETWORK}
+ENV TARI_TARGET_NETWORK=${TARI_TARGET_NETWORK}
 
 RUN mkdir -p "/var/tari/${APP_NAME}" && \
     chown -R tari:tari "/var/tari/${APP_NAME}"
