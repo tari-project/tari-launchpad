@@ -5,9 +5,9 @@
   },
   "build": {
     "beforeDevCommand": "yarn dev",
-    "beforeBuildCommand": "yarn --cwd react2 build",
+    "beforeBuildCommand": "yarn --cwd frontend build",
     "devPath": "http://localhost:1420",
-    "distDir": "../react2/dist"
+    "distDir": "../frontend/dist"
   },
   "tauri": {
     "cli": {
