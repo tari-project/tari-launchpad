@@ -5,6 +5,12 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
+export const SettingsBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(3),
+}));
+
 export const TabStatusLabel = styled(Typography)(({ theme }) => ({
   textTransform: 'none',
   fontSize: 12,

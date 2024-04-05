@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { Tabs, Tab, Box } from '@mui/material';
-import ThemeSwitcher from '../UI/ThemeSwitcher';
+import ThemeSwitch from '../UI/ThemeSwitch';
 import MiningSettings from './MiningSettings';
 import BaseNodeSettings from './BaseNodeSettings';
 import DockerSettings from './DockerSettings';
 import LogsSettings from './LogsSettings';
 import SecuritySettings from './SecuritySettings';
-import WalletSettings from './WalletSettings';
 import { styled, useTheme } from '@mui/material/styles';
 
 interface TabPanelProps {
@@ -32,7 +31,29 @@ const SettingsPanel = styled(Box)(({ theme }) => ({
   width: '100%',
   padding: `${theme.spacing(5)} ${theme.spacing(10)}`,
   flexDirection: 'column',
-  gap: theme.spacing(3),
+  gap: theme.spacing(5),
+}));
+
+const ScrollBarBox = styled(Box)(({ theme }) => ({
+  overflowY: 'scroll',
+  scrollbarWidth: 'thin',
+  scrollbarColor:
+    theme.palette.mode === 'light'
+      ? `${theme.palette.grey[300]} transparent`
+      : `${theme.palette.grey[800]} transparent`,
+  '&::-webkit-scrollbar': {
+    width: '8px',
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: 'transparent',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor:
+      theme.palette.mode === 'light'
+        ? theme.palette.grey[300]
+        : theme.palette.grey[800],
+    borderRadius: '4px',
+  },
 }));
 
 function TabPanel(props: TabPanelProps) {
@@ -79,6 +100,10 @@ export default function SettingsTabs() {
         sx={{
           borderRight: 1,
           borderColor: 'divider',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
         }}
       >
         <Tabs
@@ -87,47 +112,59 @@ export default function SettingsTabs() {
           value={value}
           onChange={handleChange}
           aria-label="Settings Tabs"
-          sx={{
-            width: 176,
-            // paddingTop: theme.spacing(5),
-            // paddingBottom: theme.spacing(5),
-            padding: `${theme.spacing(5)} 0 ${theme.spacing(5)} ${theme.spacing(
-              3
-            )}`,
-          }}
           TabIndicatorProps={{
             style: {
               display: 'none',
             },
           }}
+          style={{
+            width: 190,
+            padding: `${theme.spacing(5)} 0 ${theme.spacing(2)} ${theme.spacing(
+              3
+            )}`,
+          }}
         >
           <SettingsTab label="Mining" {...a11yProps(0)} />
-          <SettingsTab label="Wallet" {...a11yProps(1)} />
-          <SettingsTab label="Base Node" {...a11yProps(2)} />
-          <SettingsTab label="Docker" {...a11yProps(3)} />
-          <SettingsTab label="Logs" {...a11yProps(4)} />
-          <SettingsTab label="Security" {...a11yProps(5)} />
+          <SettingsTab label="Base Node" {...a11yProps(1)} />
+          <SettingsTab label="Docker" {...a11yProps(2)} />
+          <SettingsTab label="Logs" {...a11yProps(3)} />
+          <SettingsTab label="Security" {...a11yProps(4)} />
         </Tabs>
-        <ThemeSwitcher />
+        <Box
+          style={{
+            padding: `${theme.spacing(2)} ${theme.spacing(3)}`,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <ThemeSwitch />
+        </Box>
       </Box>
-      <TabPanel value={value} index={0}>
-        <MiningSettings />
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        <WalletSettings />
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        <BaseNodeSettings />
-      </TabPanel>
-      <TabPanel value={value} index={3}>
-        <DockerSettings />
-      </TabPanel>
-      <TabPanel value={value} index={4}>
-        <LogsSettings />
-      </TabPanel>
-      <TabPanel value={value} index={5}>
-        <SecuritySettings />
-      </TabPanel>
+      <Box
+        style={{
+          width: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        <ScrollBarBox>
+          <TabPanel value={value} index={0}>
+            <MiningSettings />
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <BaseNodeSettings />
+          </TabPanel>
+          <TabPanel value={value} index={2}>
+            <DockerSettings />
+          </TabPanel>
+          <TabPanel value={value} index={3}>
+            <LogsSettings />
+          </TabPanel>
+          <TabPanel value={value} index={4}>
+            <SecuritySettings />
+          </TabPanel>
+        </ScrollBarBox>
+      </Box>
     </Box>
   );
 }

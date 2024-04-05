@@ -175,9 +175,8 @@ export default function MainLayout({
               checked={open}
               onChange={open ? handleDrawerClose : handleDrawerOpen}
               inputProps={{ 'aria-label': 'toggle expert view' }}
-              size="small"
-              sx={{
-                mr: '4px',
+              style={{
+                marginRight: '4px',
               }}
             />
           }
@@ -244,7 +243,7 @@ export default function MainLayout({
               display: 'flex',
             }}
           >
-            <CssBaseline />
+            <CssBaseline enableColorScheme />
             <Box
               style={{
                 height: headerHeight,

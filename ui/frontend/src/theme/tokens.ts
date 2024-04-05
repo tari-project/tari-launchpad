@@ -33,93 +33,6 @@ import {
 } from './colors';
 import gradients from '../styles/styles/gradients';
 
-// begin
-// export const font = {
-//   400: 'AvenirRegular',
-//   500: 'AvenirMedium',
-//   800: 'AvenirHeavy',
-// };
-
-// const typography = {
-//   header: {
-//     fontSize: 32,
-//     lineHeight: '44px',
-//     fontFamily: 'AvenirHeavy',
-//     fontWeight: 500,
-//   },
-//   subheader: {
-//     fontSize: 24,
-//     lineHeight: '38px',
-//     fontFamily: 'AvenirHeavy',
-//     fontWeight: 500,
-//   },
-//   defaultHeavy: {
-//     fontSize: 16,
-//     lineHeight: '25.6px',
-//     fontFamily: 'AvenirHeavy',
-//     fontWeight: 500,
-//   },
-//   defaultMedium: {
-//     fontSize: 16,
-//     lineHeight: '25.6px',
-//     fontFamily: 'AvenirMedium',
-//     fontWeight: 500,
-//   },
-//   defaultUnder: {
-//     fontSize: 16,
-//     lineHeight: '25.6px',
-//     fontFamily: 'AvenirMedium',
-//     textDecoration: 'underline',
-//     fontWeight: 500,
-//   },
-//   smallHeavy: {
-//     fontSize: 14,
-//     lineHeight: '22.4px',
-//     fontFamily: 'AvenirHeavy',
-//     fontWeight: 500,
-//   },
-//   smallMedium: {
-//     fontSize: 14,
-//     lineHeight: '22.4px',
-//     fontFamily: 'AvenirMedium',
-//     fontWeight: 500,
-//   },
-//   smallUnder: {
-//     fontSize: 14,
-//     lineHeight: '22.4px',
-//     fontFamily: 'AvenirMedium',
-//     textDecoration: 'underline',
-//     fontWeight: 500,
-//   },
-//   microHeavy: {
-//     fontSize: 12,
-//     lineHeight: '18px',
-//     fontFamily: 'AvenirHeavy',
-//     fontWeight: 500,
-//   },
-//   microMedium: {
-//     fontSize: 12,
-//     lineHeight: '18px',
-//     fontFamily: 'AvenirMedium',
-//     fontWeight: 500,
-//   },
-//   microRegular: {
-//     fontSize: 12,
-//     lineHeight: '18px',
-//     fontFamily: 'AvenirRegular',
-//     fontWeight: 500,
-//   },
-//   microOblique: {
-//     fontSize: 12,
-//     lineHeight: '18px',
-//     fontFamily: 'AvenirRegular',
-//     fontStyle: 'italic',
-//     fontWeight: 500,
-//   },
-// };
-
-// end
-
 export const componentSettings: ThemeOptions = {
   shape: {
     borderRadius: 8,
@@ -211,27 +124,6 @@ export const componentSettings: ThemeOptions = {
         },
       },
     },
-    // MuiTypography: {
-    //   defaultProps: {
-    //     sx: (props) => ({
-    //       ...props.sx,
-    //       color: (theme) => theme.palette.text.primary,
-    //       boxShadow: 'none',
-    //       '&.MuiTypography-body1': {
-    //         // Spread existing styles first
-    //         ...props.sx?.['&.MuiTypography-body1'],
-    //         // Add your custom styles
-    //         color: 'red',
-    //       },
-    //       '&.MuiTypography-body2': {
-    //         // Spread existing styles first
-    //         ...props.sx?.['&.MuiTypography-body2'],
-    //         // Add your custom styles
-    //         color: (theme) => theme.palette.text.secondary,
-    //       },
-    //     }),
-    //   },
-    // },
     MuiButton: {
       defaultProps: {
         size: 'large',
@@ -297,7 +189,8 @@ export const componentSettings: ThemeOptions = {
       defaultProps: {
         variant: 'outlined',
         fullWidth: true,
-        margin: 'normal',
+        // margin: 'normal',
+        size: 'small',
         sx: {
           boxShadow: 'none',
           '& .MuiOutlinedInput-root': {
@@ -307,6 +200,13 @@ export const componentSettings: ThemeOptions = {
           },
           '&:hover fieldset': {
             borderColor: (theme) => theme.palette.divider,
+          },
+        },
+
+        InputProps: {
+          style: {
+            color: grey[500],
+            fontSize: '14px',
           },
         },
         InputLabelProps: {
@@ -326,12 +226,54 @@ export const componentSettings: ThemeOptions = {
         },
         BackdropProps: {
           sx: (theme) => ({
-            backdropFilter: 'blur(2px)',
+            backdropFilter: 'blur(1px)',
             backgroundColor:
               theme.palette.mode === 'light'
                 ? 'rgba(250, 250, 250, 0.5)'
                 : 'rgba(0, 0, 0, 0.5)',
           }),
+        },
+      },
+    },
+    MuiSwitch: {
+      defaultProps: {
+        size: 'medium',
+        sx: {
+          width: 48,
+          '&:active': {
+            '& .MuiSwitch-thumb': {
+              border: '1px solid #000',
+            },
+            '& + .MuiSwitch-track': {
+              opacity: 1,
+            },
+            '& .MuiSwitch-switchBase.Mui-checked': {},
+          },
+          '& .MuiSwitch-switchBase': {
+            padding: '12px',
+            opacity: 1,
+            '& + .MuiSwitch-track': {
+              border: '1px solid black',
+              opacity: 1,
+              backgroundColor: (theme) =>
+                theme.palette.mode === 'light'
+                  ? theme.palette.grey[200]
+                  : theme.palette.grey[700],
+            },
+            '&.Mui-checked': {
+              transform: 'translateX(10px)',
+              '& + .MuiSwitch-track': {
+                opacity: 1,
+              },
+            },
+          },
+          '& .MuiSwitch-thumb': {
+            border: '1px solid #000',
+            backgroundColor: '#fff',
+            width: 14,
+            height: 14,
+          },
+          '& .MuiSwitch-track': {},
         },
       },
     },

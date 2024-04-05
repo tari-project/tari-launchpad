@@ -431,6 +431,7 @@ function App() {
 
   return (
     <MainLayout>
+      <MainTabs />
       {isChangingMining ? (
         <CircularProgress color="inherit" />
       ) : (
@@ -445,7 +446,6 @@ function App() {
           ? 'Pause Mining'
           : 'Start Mining'}
       </Typography>
-      <MainTabs />
       <StyledPaper
         style={{
           width: '100%',

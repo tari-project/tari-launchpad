@@ -132,3 +132,11 @@ input {
   width: 64px;
   height: 64px;
 }
+
+.ScrollbarsCustom-TrackY {
+  background: transparent !important;
+}
+
+.ScrollbarsCustom-TrackX {
+  background: transparent !important;
+}

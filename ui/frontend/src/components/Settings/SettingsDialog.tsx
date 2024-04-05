@@ -5,6 +5,7 @@ import {
   DialogContentText,
   TextField,
   Button,
+  Box,
 } from '@mui/material';
 import SettingsTabs from './SettingsTabs';
 import { emit } from '@tauri-apps/api/event';
@@ -55,24 +56,37 @@ function SettingsDialog() {
       fullWidth
       maxWidth="md"
     >
-      <DialogContent>
-        <SettingsTabs />
-        <DialogContentText id="alert-dialog-description">
-          <TextField
-            label="Tari Address"
+      <SettingsTabs />
+      <Box
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '24px',
+        }}
+      >
+        <DialogContent>
+          <DialogContentText
+            id="alert-dialog-description"
             style={{
-              width: 300,
+              padding: '8px',
             }}
-            value={tariAddress}
-            onChange={handleTariAddressChange}
-            size="small"
-          />
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => handleSettingsClose(true)}>Save</Button>
-        <Button onClick={() => handleSettingsClose(false)}>Exit</Button>
-      </DialogActions>
+          >
+            <TextField
+              label="Tari Address"
+              style={{
+                width: 300,
+              }}
+              value={tariAddress}
+              onChange={handleTariAddressChange}
+            />
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleSettingsClose(true)}>Save</Button>
+          <Button onClick={() => handleSettingsClose(false)}>Exit</Button>
+        </DialogActions>
+      </Box>
     </Dialog>
   );
 }
