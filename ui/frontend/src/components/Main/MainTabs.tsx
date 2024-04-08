@@ -5,6 +5,10 @@ import MiningWidget from './MiningWidget';
 import MergedMiningWidget from './MergedMiningWidget';
 import useMiningStore from '../../store/miningStore';
 import useMergedMiningStore from '../../store/mergedMiningStore';
+import { StyledIconButton, TabInnerBox } from '../UI/StyledComponents';
+import SvgQuestion from '../../styles/Icons/Question';
+import typography from '../../styles/styles/typography';
+import { useSnackbar } from 'notistack';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -49,6 +53,7 @@ export default function MainTabs() {
   const isMining = useMiningStore((state) => state.isMining);
   const isMergedMining = useMergedMiningStore((state) => state.isMergedMining);
   const theme = useTheme();
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -97,16 +102,48 @@ export default function MainTabs() {
         <Tab label="Base Node" {...a11yProps(1)} />
       </Tabs>
       <CustomTabPanel value={value} index={0}>
-        <Box
-          style={{
-            display: 'grid',
-            gap: theme.spacing(3),
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          }}
-        >
-          <MiningWidget />
-          <MergedMiningWidget />
-        </Box>
+        <TabInnerBox>
+          <Box
+            style={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: theme.spacing(3),
+            }}
+          >
+            <Box
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <Typography variant="h3" sx={typography.defaultHeavy}>
+                You are one step away from starting mining. Want to know more
+              </Typography>
+              <StyledIconButton
+                onClick={() =>
+                  enqueueSnackbar(`Help message`, {
+                    key: 1,
+                    persist: true,
+                  })
+                }
+              >
+                <SvgQuestion />
+              </StyledIconButton>
+            </Box>
+            <Box
+              style={{
+                display: 'grid',
+                gap: theme.spacing(3),
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              }}
+            >
+              <MiningWidget />
+              <MergedMiningWidget />
+            </Box>
+          </Box>
+        </TabInnerBox>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         <Typography variant="h4">Base Node</Typography>

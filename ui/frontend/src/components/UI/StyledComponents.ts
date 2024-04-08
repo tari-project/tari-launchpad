@@ -5,6 +5,13 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
+export const TabInnerBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  gap: theme.spacing(3),
+  width: '100%',
+}));
+
 export const SettingsBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',

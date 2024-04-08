@@ -11,11 +11,9 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import './theme/theme.css';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { light, dark, componentSettings } from './theme/tokens';
-import ThemeSwitcher from './components/UI/ThemeSwitcher';
 import useThemeStore from './store/themeStore';
 import ExpertViewTabs from './components/ExpertView/ExpertViewTabs';
 import { Container } from '@mui/material';
-import TBot from './components/TBot/TBot';
 import TariLogo from './assets/tari-logo';
 import { SnackbarProvider } from 'notistack';
 import { SnackbarCloseButton } from './components/TBot/TBot';
@@ -328,7 +326,7 @@ export default function MainLayout({
                 </Box>
               </Drawer>
             </ThemeProvider>
-            <Box
+            {/* <Box
               style={{
                 position: 'absolute',
                 bottom: '24px',
@@ -342,7 +340,7 @@ export default function MainLayout({
             >
               <ThemeSwitcher />
               <TBot />
-            </Box>
+            </Box> */}
           </Box>
         </ThemeProvider>
       </SnackbarProvider>
