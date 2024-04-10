@@ -265,7 +265,11 @@ export default function MainLayout({
                 <Menu />
               </MenuContainer>
             </ThemeProvider>
-            <Main open={open} contentWidth={contentWidth} drawerWidth={0}>
+            <Main
+              open={open}
+              contentWidth={contentWidth}
+              drawerWidth={drawerWidth}
+            >
               <DrawerHeader />
               <Container>{children}</Container>
             </Main>
@@ -275,7 +279,6 @@ export default function MainLayout({
                   width: contentWidth === 'fullScreen' ? '100vw' : drawerWidth,
                   flexShrink: 0,
                   zIndex: 400,
-                  display: open ? 'block' : 'none',
                   '& .MuiDrawer-paper': {
                     width:
                       contentWidth === 'fullScreen' ? '100vw' : drawerWidth,

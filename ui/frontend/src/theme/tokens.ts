@@ -124,26 +124,6 @@ export const componentSettings: ThemeOptions = {
         },
       },
     },
-    MuiButton: {
-      defaultProps: {
-        size: 'large',
-        disableElevation: true,
-        disableRipple: true,
-        sx: {
-          textTransform: 'none',
-          boxShadow: 'none',
-        },
-      },
-      variants: [
-        {
-          props: { variant: 'contained' },
-          style: {
-            background: gradients.tari,
-            border: `1px solid ${tariPurple[500]}`,
-          },
-        },
-      ],
-    },
     MuiPaper: {
       defaultProps: {
         elevation: 0,
@@ -185,6 +165,35 @@ export const componentSettings: ThemeOptions = {
         },
       },
     },
+    MuiButton: {
+      defaultProps: {
+        size: 'medium',
+        disableElevation: true,
+        disableRipple: true,
+        sx: {
+          textTransform: 'none',
+          boxShadow: 'none',
+          fontFamily: '"AvenirHeavy", sans-serif',
+          height: 44,
+        },
+      },
+      variants: [
+        {
+          props: { variant: 'contained' },
+          style: ({ theme }) => ({
+            background: gradients.tari,
+            border: `1px solid ${theme.palette.primary.main}`,
+          }),
+        },
+        {
+          props: { variant: 'contained', disabled: true },
+          style: {
+            background: 'transparent',
+            borderColor: 'transparent',
+          },
+        },
+      ],
+    },
     MuiTextField: {
       defaultProps: {
         variant: 'outlined',
@@ -207,6 +216,7 @@ export const componentSettings: ThemeOptions = {
           style: {
             color: grey[500],
             fontSize: '14px',
+            padding: '4px',
           },
         },
         InputLabelProps: {
