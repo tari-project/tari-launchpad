@@ -84,7 +84,7 @@ export default function MainTabs() {
   return (
     <Box sx={{ width: '100%' }}>
       <Tabs
-        TabIndicatorProps={{ style: { height: 3, borderRadius: 3 } }}
+        TabIndicatorProps={{ style: { height: 4, borderRadius: 4 } }}
         value={value}
         onChange={handleChange}
         aria-label="Main page tabs"

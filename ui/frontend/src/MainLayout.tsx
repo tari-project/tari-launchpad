@@ -52,7 +52,7 @@ const StyledMaterialDesignContent = styled(MaterialDesignContent)(
 
 const MenuContainer = styled(Box)(({ theme }) => ({
   position: 'fixed',
-  top: theme.spacing(2),
+  top: '10px',
   right: theme.spacing(2),
   zIndex: 1000,
 }));
@@ -193,6 +193,7 @@ export default function MainLayout({
           display: 'flex',
           flexDirection: 'row',
           gap: theme.spacing(3),
+          alignItems: 'center',
         }}
       >
         <ThemeProvider theme={theme}>

@@ -45,12 +45,11 @@ export default function ExpertViewTabs() {
   return (
     <Box sx={{ width: '100%', p: 5 }}>
       <Tabs
-        TabIndicatorProps={{ style: { height: 3, borderRadius: 3 } }}
+        TabIndicatorProps={{ style: { height: 4, borderRadius: 4 } }}
         value={value}
         onChange={handleChange}
         aria-label="Expert View Tabs"
         indicatorColor="secondary"
-        // variant="fullWidth"
       >
         <Tab label="Performance" {...a11yProps(0)} />
         <Tab label="Containers" {...a11yProps(1)} />

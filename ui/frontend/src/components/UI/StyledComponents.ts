@@ -15,7 +15,7 @@ export const TabInnerBox = styled(Box)(({ theme }) => ({
 export const SettingsBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  gap: theme.spacing(3),
+  gap: theme.spacing(2),
 }));
 
 export const TabStatusLabel = styled(Typography)(({ theme }) => ({

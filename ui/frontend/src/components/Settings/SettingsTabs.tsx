@@ -6,6 +6,7 @@ import BaseNodeSettings from './BaseNodeSettings';
 import DockerSettings from './DockerSettings';
 import LogsSettings from './LogsSettings';
 import SecuritySettings from './SecuritySettings';
+import GeneralSettings from './GeneralSettings';
 import { styled, useTheme } from '@mui/material/styles';
 
 interface TabPanelProps {
@@ -84,9 +85,48 @@ export default function SettingsTabs() {
   const [value, setValue] = React.useState(0);
   const theme = useTheme();
 
+  const menuItems = [
+    {
+      label: 'Mining',
+      component: MiningSettings,
+    },
+    {
+      label: 'Base Node',
+      component: BaseNodeSettings,
+    },
+    {
+      label: 'Docker',
+      component: DockerSettings,
+    },
+    {
+      label: 'Logs',
+      component: LogsSettings,
+    },
+    {
+      label: 'Security',
+      component: SecuritySettings,
+    },
+    {
+      label: 'General',
+      component: GeneralSettings,
+    },
+  ];
+
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
+
+  const renderTab = menuItems.map((item, index) => {
+    return <SettingsTab label={item.label} {...a11yProps(index)} />;
+  });
+
+  const renderTabPanel = menuItems.map((item, index) => {
+    return (
+      <TabPanel value={value} index={index} key={index}>
+        <item.component />
+      </TabPanel>
+    );
+  });
 
   return (
     <Box
@@ -124,11 +164,7 @@ export default function SettingsTabs() {
             )}`,
           }}
         >
-          <SettingsTab label="Mining" {...a11yProps(0)} />
-          <SettingsTab label="Base Node" {...a11yProps(1)} />
-          <SettingsTab label="Docker" {...a11yProps(2)} />
-          <SettingsTab label="Logs" {...a11yProps(3)} />
-          <SettingsTab label="Security" {...a11yProps(4)} />
+          {renderTab}
         </Tabs>
         <Box
           style={{
@@ -147,23 +183,7 @@ export default function SettingsTabs() {
           overflow: 'hidden',
         }}
       >
-        <ScrollBarBox>
-          <TabPanel value={value} index={0}>
-            <MiningSettings />
-          </TabPanel>
-          <TabPanel value={value} index={1}>
-            <BaseNodeSettings />
-          </TabPanel>
-          <TabPanel value={value} index={2}>
-            <DockerSettings />
-          </TabPanel>
-          <TabPanel value={value} index={3}>
-            <LogsSettings />
-          </TabPanel>
-          <TabPanel value={value} index={4}>
-            <SecuritySettings />
-          </TabPanel>
-        </ScrollBarBox>
+        <ScrollBarBox>{renderTabPanel}</ScrollBarBox>
       </Box>
     </Box>
   );
