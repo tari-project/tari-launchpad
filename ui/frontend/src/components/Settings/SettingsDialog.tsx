@@ -1,15 +1,8 @@
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  TextField,
-  Button,
-  Box,
-} from '@mui/material';
+import { Dialog, DialogActions, Button, Divider } from '@mui/material';
 import SettingsTabs from './SettingsTabs';
 import { emit } from '@tauri-apps/api/event';
 import useAppStateStore from '../../store/appStore';
+import t from '../../locales';
 
 function SettingsDialog() {
   const {
@@ -19,10 +12,6 @@ function SettingsDialog() {
     appState,
     setOpenSettings,
   } = useAppStateStore();
-
-  function handleTariAddressChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setTariAddress(event.target.value);
-  }
 
   function handleSettingsClose(save: boolean) {
     if (save) {
@@ -47,6 +36,15 @@ function SettingsDialog() {
     setOpenSettings(false);
   }
 
+  const handleCancel = () => {
+    setOpenSettings(false);
+  };
+
+  const handleSave = () => {
+    console.log('Save settings');
+    setOpenSettings(false);
+  };
+
   return (
     <Dialog
       open={openSettings}
@@ -57,36 +55,15 @@ function SettingsDialog() {
       maxWidth="md"
     >
       <SettingsTabs />
-      <Box
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '24px',
-        }}
-      >
-        <DialogContent>
-          <DialogContentText
-            id="alert-dialog-description"
-            style={{
-              padding: '8px',
-            }}
-          >
-            <TextField
-              label="Tari Address"
-              style={{
-                width: 300,
-              }}
-              value={tariAddress}
-              onChange={handleTariAddressChange}
-            />
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => handleSettingsClose(true)}>Save</Button>
-          <Button onClick={() => handleSettingsClose(false)}>Exit</Button>
-        </DialogActions>
-      </Box>
+      <Divider variant="fullWidth" />
+      <DialogActions>
+        <Button variant="outlined" onClick={() => handleCancel()}>
+          {t.common.verbs.cancel}
+        </Button>
+        <Button variant="contained" onClick={() => handleSave()}>
+          {t.common.phrases.saveChanges}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 }

@@ -429,6 +429,8 @@ function App() {
   //  let containers: any = state.containers;
   // console.log(containers);
 
+  console.log(appState);
+
   return (
     <MainLayout>
       <MainTabs />

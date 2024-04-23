@@ -77,7 +77,7 @@ function MergedMiningWidget() {
                 <SvgQuestion color={theme.palette.primary.main} />
               </StyledIconButton>
             </Box>
-            <Typography variant="body1" sx={typography.defaultMedium}>
+            <Typography variant="body2" sx={typography.defaultMedium}>
               {t.mining.setup.description}{' '}
               <span style={typography.defaultHeavy}>
                 {t.mining.setup.descriptionBold}

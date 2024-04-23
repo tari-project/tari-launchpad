@@ -42,6 +42,7 @@ const translations = {
     baseNodeSettings: 'Base Node settings',
   },
   qrModal: {
+    title: 'QR Code',
     heading: 'Connect your Aurora app',
     description: 'Open Aurora app on your smartphone.',
     step1: 'Go to Settings',
@@ -61,6 +62,6 @@ const translations = {
     time: 'Time: ',
     status: 'Base Node status: ',
   },
-}
+};
 
-export default translations
+export default translations;

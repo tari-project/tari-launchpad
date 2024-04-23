@@ -15,7 +15,23 @@ export const TabInnerBox = styled(Box)(({ theme }) => ({
 export const SettingsBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
+  gap: theme.spacing(3),
+}));
+
+export const LabelBoxVertical = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(1),
+}));
+
+export const LabelBoxHorisontal = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
   gap: theme.spacing(2),
+  '& > *:first-child': {
+    minWidth: 120,
+  },
 }));
 
 export const TabStatusLabel = styled(Typography)(({ theme }) => ({

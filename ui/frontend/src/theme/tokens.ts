@@ -116,7 +116,7 @@ export const componentSettings: ThemeOptions = {
           color: (theme) => theme.palette.text.primary,
           boxShadow: 'none',
           '&.MuiTypography-body1': {
-            color: (theme) => theme.palette.text.secondary,
+            color: (theme) => theme.palette.text.primary,
           },
           '&.MuiTypography-body2': {
             color: (theme) => theme.palette.text.secondary,
@@ -165,6 +165,13 @@ export const componentSettings: ThemeOptions = {
         },
       },
     },
+    MuiDialogActions: {
+      defaultProps: {
+        sx: {
+          padding: 2,
+        },
+      },
+    },
     MuiButton: {
       defaultProps: {
         size: 'medium',
@@ -191,6 +198,14 @@ export const componentSettings: ThemeOptions = {
             background: 'transparent',
             borderColor: 'transparent',
           },
+        },
+        {
+          props: { variant: 'outlined' },
+          style: ({ theme }) => ({
+            background: theme.palette.mode === 'light' ? grey[50] : grey[800],
+            borderColor: theme.palette.mode === 'light' ? grey[100] : grey[700],
+            color: theme.palette.text.primary,
+          }),
         },
       ],
     },

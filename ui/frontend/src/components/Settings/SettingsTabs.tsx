@@ -4,9 +4,9 @@ import ThemeSwitch from '../UI/ThemeSwitch';
 import MiningSettings from './MiningSettings';
 import BaseNodeSettings from './BaseNodeSettings';
 import DockerSettings from './DockerSettings';
-import LogsSettings from './LogsSettings';
 import SecuritySettings from './SecuritySettings';
 import GeneralSettings from './GeneralSettings';
+import WalletSettings from './WalletSettings';
 import { styled, useTheme } from '@mui/material/styles';
 
 interface TabPanelProps {
@@ -95,12 +95,12 @@ export default function SettingsTabs() {
       component: BaseNodeSettings,
     },
     {
-      label: 'Docker',
-      component: DockerSettings,
+      label: 'Wallet',
+      component: WalletSettings,
     },
     {
-      label: 'Logs',
-      component: LogsSettings,
+      label: 'Docker',
+      component: DockerSettings,
     },
     {
       label: 'Security',
