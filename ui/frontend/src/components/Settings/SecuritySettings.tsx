@@ -3,6 +3,7 @@ import typography from '../../styles/styles/typography';
 import { SettingsBox } from '../UI/StyledComponents';
 import { useTheme } from '@mui/material/styles';
 import t from '../../locales';
+import { LabelWithChip } from '../UI/StyledComponents';
 
 function SecuritySettings() {
   const theme = useTheme();
@@ -11,19 +12,12 @@ function SecuritySettings() {
       <Typography variant="h3" style={typography.subheader}>
         {t.settings.security.title}
       </Typography>
-      <Box
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: theme.spacing(1),
-        }}
-      >
+      <LabelWithChip>
         <Typography variant="body1" style={typography.smallMedium}>
           {t.settings.security.backupRecoveryPhrase}
         </Typography>
         <Chip label={t.common.adjectives.recommended} color="info" />
-      </Box>
+      </LabelWithChip>
       <Box>
         <Typography variant="body2" style={typography.smallMedium}>
           {t.settings.security.tab.desc}

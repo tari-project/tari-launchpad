@@ -34,6 +34,20 @@ export const LabelBoxHorisontal = styled(Box)(({ theme }) => ({
   },
 }));
 
+export const LabelWithChip = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+}));
+
+export const HorisontalButtons = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+}));
+
 export const TabStatusLabel = styled(Typography)(({ theme }) => ({
   textTransform: 'none',
   fontSize: 12,

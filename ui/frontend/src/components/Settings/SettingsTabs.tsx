@@ -7,6 +7,7 @@ import DockerSettings from './DockerSettings';
 import SecuritySettings from './SecuritySettings';
 import GeneralSettings from './GeneralSettings';
 import WalletSettings from './WalletSettings';
+import ResetSettings from './ResetSettings';
 import { styled, useTheme } from '@mui/material/styles';
 
 interface TabPanelProps {
@@ -109,6 +110,10 @@ export default function SettingsTabs() {
     {
       label: 'General',
       component: GeneralSettings,
+    },
+    {
+      label: 'Reset',
+      component: ResetSettings,
     },
   ];
 

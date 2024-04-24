@@ -188,8 +188,15 @@ export const componentSettings: ThemeOptions = {
         {
           props: { variant: 'contained' },
           style: ({ theme }) => ({
-            background: gradients.tari,
+            background:
+              theme.palette.mode === 'light'
+                ? gradients.tari
+                : gradients.tariDark,
             border: `1px solid ${theme.palette.primary.main}`,
+            '&:hover': {
+              opacity: 0.85,
+              borderColor: theme.palette.primary.main,
+            },
           }),
         },
         {
@@ -205,6 +212,12 @@ export const componentSettings: ThemeOptions = {
             background: theme.palette.mode === 'light' ? grey[50] : grey[800],
             borderColor: theme.palette.mode === 'light' ? grey[100] : grey[700],
             color: theme.palette.text.primary,
+            '&:hover': {
+              background:
+                theme.palette.mode === 'light' ? grey[100] : grey[700],
+              borderColor:
+                theme.palette.mode === 'light' ? grey[100] : grey[700],
+            },
           }),
         },
       ],

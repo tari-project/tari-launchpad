@@ -1,13 +1,15 @@
-import { Typography, TextField, Button, Box } from '@mui/material';
+import { Typography, TextField, Button } from '@mui/material';
 import typography from '../../styles/styles/typography';
-import { SettingsBox, LabelBoxVertical } from '../UI/StyledComponents';
+import {
+  SettingsBox,
+  LabelBoxVertical,
+  HorisontalButtons,
+} from '../UI/StyledComponents';
 import t from '../../locales';
 import useAppStateStore from '../../store/appStore';
 import { emit } from '@tauri-apps/api/event';
-import { useTheme } from '@mui/material/styles';
 
 function WalletSettings() {
-  const theme = useTheme();
   const { tariAddress, setTariAddress, appState } = useAppStateStore();
   function handleTariAddressChange(event: React.ChangeEvent<HTMLInputElement>) {
     setTariAddress(event.target.value);
@@ -62,21 +64,14 @@ function WalletSettings() {
           {t.wallet.settings.explanations.extendedFunctionality}{' '}
           {t.wallet.settings.explanations.convert}{' '}
         </Typography>
-        <Box
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: theme.spacing(1),
-          }}
-        >
+        <HorisontalButtons>
           <Button variant="outlined" onClick={() => handleAddressChange(false)}>
             Cancel
           </Button>
           <Button variant="outlined" onClick={() => handleAddressChange(true)}>
             Save
           </Button>
-        </Box>
+        </HorisontalButtons>
       </SettingsBox>
     </>
   );
