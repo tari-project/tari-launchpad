@@ -18,6 +18,7 @@ interface AppStateStore {
   openDockerWarning: boolean;
   openSettings: boolean;
   tariAddress: string;
+  moneroAddress: string;
   setAppState: (newState: AppState) => void;
   setContainers: (newContainers: ContainerState) => void;
   setIsMining: (value: boolean) => void;
@@ -27,6 +28,7 @@ interface AppStateStore {
   setOpenDockerWarning: (value: boolean) => void;
   setOpenSettings: (value: boolean) => void;
   setTariAddress: (value: string) => void;
+  setMoneroAddress: (value: string) => void;
 }
 
 const useAppStateStore = create<AppStateStore>((set) => ({
@@ -39,6 +41,7 @@ const useAppStateStore = create<AppStateStore>((set) => ({
   openDockerWarning: false,
   openSettings: false,
   tariAddress: '',
+  moneroAddress: '',
   setAppState: (newState) => set({ appState: newState }),
   setContainers: (newContainers) => set({ containers: newContainers }),
   setIsMining: (value) => set((state) => ({ ...state, isMining: value })),
@@ -52,7 +55,8 @@ const useAppStateStore = create<AppStateStore>((set) => ({
     set((state) => ({ ...state, openDockerWarning: value })),
   setOpenSettings: (value) =>
     set((state) => ({ ...state, openSettings: value })),
-  setTariAddress: (value) => set((state) => ({ ...state, tariAddress: value })),
+  setTariAddress: (value) => set(() => ({ tariAddress: value })),
+  setMoneroAddress: (value) => set(() => ({ moneroAddress: value })),
 }));
 
 export default useAppStateStore;

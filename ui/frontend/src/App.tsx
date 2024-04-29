@@ -22,11 +22,12 @@ import { IoPauseCircleOutline as PauseIcon } from 'react-icons/io5';
 import { exit } from '@tauri-apps/api/process';
 import { open } from '@tauri-apps/api/shell';
 import MainLayout from './MainLayout';
-import { StyledPaper } from './components/UI/StyledComponents';
+import { StyledPaper } from './components/StyledComponents';
 import { styled } from '@mui/material/styles';
 import useAppStateStore from './store/appStore';
-import MainTabs from './components/Main/MainTabs';
-import SettingsDialog from './components/Settings/SettingsDialog';
+import MainTabs from './containers/Dashboard/DashboardContainer/MainTabs';
+import SettingsDialog from './containers/SettingsContainer/SettingsDialog';
+import { useStartMining, useStopMining } from './api/hooks/useMiningStore';
 
 const CustomGrid = styled(Box)(({ theme }) => ({
   display: 'grid',
@@ -341,36 +342,75 @@ function App() {
     };
   });
 
+  // async function startMining() {
+  //   let state: any = appState;
+  //   let stateSession = { ...state?.config?.session };
+  //   stateSession.merge_layer_active = mergeMiningEnabled;
+  //   stateSession.sha3x_layer_active = shaMiningEnabled;
+  //   emit('tari://actions', {
+  //     Action: { type: 'ChangeSession', payload: stateSession },
+  //   });
+  // }
+
+  // async function stopMining() {
+  //   let state: any = appState;
+  //   let stateSession = { ...state?.config?.session };
+  //   stateSession.merge_layer_active = false;
+  //   stateSession.sha3x_layer_active = false;
+  //   emit('tari://actions', {
+  //     Action: { type: 'ChangeSession', payload: stateSession },
+  //   });
+  // }
+
+  // const stopMining = useMutation({
+  //   mutationFn: async () => {
+  //     let state: any = appState;
+  //     let stateSession = { ...state?.config?.session };
+  //     stateSession.merge_layer_active = false;
+  //     stateSession.sha3x_layer_active = false;
+  //     emit('tari://actions', {
+  //       Action: { type: 'ChangeSession', payload: stateSession },
+  //     });
+  //   },
+  //   onSuccess: () => {
+  //     console.log('Mining stopped');
+  //   },
+  // });
+
+  // const startMining = useMutation({
+  //   mutationFn: async () => {
+  //     let state: any = appState;
+  //     let stateSession = { ...state?.config?.session };
+  //     stateSession.merge_layer_active = mergeMiningEnabled;
+  //     stateSession.sha3x_layer_active = shaMiningEnabled;
+  //     emit('tari://actions', {
+  //       Action: { type: 'ChangeSession', payload: stateSession },
+  //     });
+  //   },
+  //   onSuccess: () => {
+  //     console.log('Mining started');
+  //   },
+  // });
+
+  const startMining = useStartMining();
+  const stopMining = useStopMining();
+
   async function toggleMining() {
     if (isChangingMining) {
       return;
     }
     setIsChangingMining(true);
     if (isMining) {
-      stopMining();
+      await stopMining.mutateAsync({
+        appState,
+      });
     } else {
-      startMining();
+      await startMining.mutateAsync({
+        appState,
+        mergeMiningEnabled,
+        shaMiningEnabled,
+      });
     }
-  }
-
-  async function startMining() {
-    let state: any = appState;
-    let stateSession = { ...state?.config?.session };
-    stateSession.merge_layer_active = mergeMiningEnabled;
-    stateSession.sha3x_layer_active = shaMiningEnabled;
-    emit('tari://actions', {
-      Action: { type: 'ChangeSession', payload: stateSession },
-    });
-  }
-
-  async function stopMining() {
-    let state: any = appState;
-    let stateSession = { ...state?.config?.session };
-    stateSession.merge_layer_active = false;
-    stateSession.sha3x_layer_active = false;
-    emit('tari://actions', {
-      Action: { type: 'ChangeSession', payload: stateSession },
-    });
   }
 
   async function toggleMergeMiningEnabled(
