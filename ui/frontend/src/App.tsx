@@ -5,43 +5,18 @@ import { useEffect } from 'react';
 import { emit, listen } from '@tauri-apps/api/event';
 import {
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Divider,
-  IconButton,
-  Switch,
-  Typography,
-  Box,
 } from '@mui/material';
-import { IoChevronForward as PlayArrowIcon } from 'react-icons/io5';
-import { IoPauseCircleOutline as PauseIcon } from 'react-icons/io5';
 import { exit } from '@tauri-apps/api/process';
 import { open } from '@tauri-apps/api/shell';
 import MainLayout from './MainLayout';
-import { StyledPaper } from './components/StyledComponents';
-import { styled } from '@mui/material/styles';
-import useAppStateStore from './store/appStore';
+import useAppStateStore from './store/appStateStore';
 import MainTabs from './containers/Dashboard/DashboardContainer/MainTabs';
 import SettingsDialog from './containers/SettingsContainer/SettingsDialog';
-import { useStartMining, useStopMining } from './api/hooks/useMiningStore';
-
-const CustomGrid = styled(Box)(({ theme }) => ({
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr 100px',
-  gridGap: theme.spacing(1),
-  width: '100%',
-}));
-
-const CustomGridContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  width: '100%',
-  flexDirection: 'column',
-  gap: theme.spacing(1),
-}));
 
 function App() {
   const {
@@ -49,17 +24,12 @@ function App() {
     setAppState,
     containers,
     setContainers,
-    isMining,
     setIsMining,
-    shaMiningEnabled,
-    setShaMiningEnabled,
-    mergeMiningEnabled,
-    setMergeMiningEnabled,
-    isChangingMining,
     setIsChangingMining,
     openDockerWarning,
     setOpenDockerWarning,
     setTariAddress,
+    openSettings,
   } = useAppStateStore();
 
   //   async function connect() {
@@ -342,89 +312,6 @@ function App() {
     };
   });
 
-  // async function startMining() {
-  //   let state: any = appState;
-  //   let stateSession = { ...state?.config?.session };
-  //   stateSession.merge_layer_active = mergeMiningEnabled;
-  //   stateSession.sha3x_layer_active = shaMiningEnabled;
-  //   emit('tari://actions', {
-  //     Action: { type: 'ChangeSession', payload: stateSession },
-  //   });
-  // }
-
-  // async function stopMining() {
-  //   let state: any = appState;
-  //   let stateSession = { ...state?.config?.session };
-  //   stateSession.merge_layer_active = false;
-  //   stateSession.sha3x_layer_active = false;
-  //   emit('tari://actions', {
-  //     Action: { type: 'ChangeSession', payload: stateSession },
-  //   });
-  // }
-
-  // const stopMining = useMutation({
-  //   mutationFn: async () => {
-  //     let state: any = appState;
-  //     let stateSession = { ...state?.config?.session };
-  //     stateSession.merge_layer_active = false;
-  //     stateSession.sha3x_layer_active = false;
-  //     emit('tari://actions', {
-  //       Action: { type: 'ChangeSession', payload: stateSession },
-  //     });
-  //   },
-  //   onSuccess: () => {
-  //     console.log('Mining stopped');
-  //   },
-  // });
-
-  // const startMining = useMutation({
-  //   mutationFn: async () => {
-  //     let state: any = appState;
-  //     let stateSession = { ...state?.config?.session };
-  //     stateSession.merge_layer_active = mergeMiningEnabled;
-  //     stateSession.sha3x_layer_active = shaMiningEnabled;
-  //     emit('tari://actions', {
-  //       Action: { type: 'ChangeSession', payload: stateSession },
-  //     });
-  //   },
-  //   onSuccess: () => {
-  //     console.log('Mining started');
-  //   },
-  // });
-
-  const startMining = useStartMining();
-  const stopMining = useStopMining();
-
-  async function toggleMining() {
-    if (isChangingMining) {
-      return;
-    }
-    setIsChangingMining(true);
-    if (isMining) {
-      await stopMining.mutateAsync({
-        appState,
-      });
-    } else {
-      await startMining.mutateAsync({
-        appState,
-        mergeMiningEnabled,
-        shaMiningEnabled,
-      });
-    }
-  }
-
-  async function toggleMergeMiningEnabled(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    setMergeMiningEnabled(event.target.checked);
-  }
-
-  async function toggleShaMiningEnabled(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    setShaMiningEnabled(event.target.checked);
-  }
-
   async function handleDockerClose() {
     setOpenDockerWarning(false);
     await exit(1);
@@ -474,10 +361,10 @@ function App() {
   return (
     <MainLayout>
       <MainTabs />
-      {isChangingMining ? (
+      {/* {isChangingMining ? (
         <CircularProgress color="inherit" />
       ) : (
-        <IconButton onClick={() => toggleMining()}>
+        <IconButton onClick={isMining ? stop : start}>
           {isMining ? <PauseIcon /> : <PlayArrowIcon />}
         </IconButton>
       )}
@@ -522,7 +409,7 @@ function App() {
             />
           </CustomGrid>
         </CustomGridContainer>
-      </StyledPaper>
+      </StyledPaper> */}
       <Dialog
         open={openDockerWarning}
         onClose={handleDockerClose}
@@ -545,7 +432,7 @@ function App() {
           <Button onClick={handleDockerClose}>Exit</Button>
         </DialogActions>
       </Dialog>
-      <SettingsDialog />
+      {openSettings ? <SettingsDialog /> : null}
     </MainLayout>
   );
 }

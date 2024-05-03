@@ -96,6 +96,11 @@ const translations = {
     authUsernamePlaceholder: 'Username you log in to the Monero node',
     authPasswordLabel: 'Password (optional)',
     authPasswordPlaceholder: 'Password you log in to the Monero node',
+    randomXThreadsLabel: 'RandomX threads',
+    randomXThreadsDesc:
+      'This is the number of threads that will be used for RandomX mining.',
+    moneroNodeUrlLabel: 'Monero Node URL',
+    walletPaymentAddressLabel: 'Wallet Payment Address',
   },
   notification: {
     added: 'has been added to your wallet.',
@@ -116,6 +121,6 @@ const translations = {
       'You did it, Miner! A new Tari block has been mined!',
     ],
   },
-}
+};
 
-export default translations
+export default translations;

@@ -1,6 +1,6 @@
 import { Typography, Divider, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import useAppStateStore from '../../../../store/appStore';
+import useAppStateStore from '../../../../store/appStateStore';
 
 const CustomGrid = styled(Box)(({ theme }) => ({
   display: 'grid',

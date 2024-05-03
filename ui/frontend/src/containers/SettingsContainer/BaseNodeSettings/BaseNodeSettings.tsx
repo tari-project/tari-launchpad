@@ -7,7 +7,13 @@ import {
 } from '../../../components/StyledComponents';
 import t from '../../../locales';
 
-function BaseNodeSettings() {
+function BaseNodeSettings({
+  handleChange,
+  formData,
+}: {
+  handleChange: any;
+  formData: any;
+}) {
   return (
     <>
       <Typography variant="h3" style={typography.subheader}>
@@ -18,14 +24,25 @@ function BaseNodeSettings() {
           <Typography variant="body1" style={typography.smallMedium}>
             {t.baseNode.tari_network_label}
           </Typography>
-          <TextField placeholder={t.baseNode.tari_network_label} />
+          <TextField
+            placeholder={t.baseNode.tari_network_label}
+            name="baseNodeSettings.network"
+            value={formData.network}
+            onChange={handleChange}
+          />
         </LabelBoxHorisontal>
         <SubHeading text={t.common.nouns.expert} />
         <LabelBoxHorisontal>
           <Typography variant="body1" style={typography.smallMedium}>
             {t.baseNode.settings.rootFolder}
           </Typography>
-          <TextField placeholder={t.baseNode.settings.rootFolder} />
+          <TextField
+            placeholder={t.baseNode.settings.rootFolder}
+            name="baseNodeSettings.rootFolder"
+            value={formData.rootFolder}
+            onChange={handleChange}
+            disabled
+          />
         </LabelBoxHorisontal>
       </SettingsBox>
       <SettingsBox>

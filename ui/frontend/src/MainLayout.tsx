@@ -19,7 +19,7 @@ import { SnackbarProvider } from 'notistack';
 import { SnackbarCloseButton } from './containers/TBotContainer/TBot';
 import { MaterialDesignContent } from 'notistack';
 import Fade from './components/Fade';
-import useAppStateStore from './store/appStore';
+import useAppStateStore from './store/appStateStore';
 import SvgMonitor from './styles/Icons/Monitor';
 import typography from './styles/styles/typography';
 import SvgSetting from './styles/Icons/Setting2';
@@ -198,7 +198,7 @@ export default function MainLayout({
       >
         <ThemeProvider theme={theme}>
           <Button
-            onClick={() => handleOpenSettings()}
+            onClick={handleOpenSettings}
             size="small"
             startIcon={<SvgSetting />}
             style={{

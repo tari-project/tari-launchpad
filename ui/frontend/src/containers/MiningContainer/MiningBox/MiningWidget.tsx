@@ -1,26 +1,25 @@
 import { useEffect } from 'react';
 import { TextField, Button, Typography, Box, Chip } from '@mui/material';
-import useMiningStore from '../../../store/miningStore';
 import { useTheme } from '@mui/material/styles';
 import gradients from '../../../styles/styles/gradients';
 import t from '../../../locales';
 import typography from '../../../styles/styles/typography';
 import SvgTariSignet from '../../../styles/Icons/TariSignet';
-import useAppStateStore from '../../../store/appStore';
+import useAppStateStore from '../../../store/appStateStore';
 import GradientBox from '../../../components/GradientBox';
-import {
-  useStartShaMining,
-  useStopShaMining,
-} from '../../../api/hooks/useMiningStore';
-import { useSetTariAddress } from '../../../api/hooks/useSettingsStore';
+import CopyToClipboard from '../../../components/CopyToClipboard';
 
 function MiningWidget() {
   const theme = useTheme();
-  const { isMining, setIsMining } = useMiningStore();
-  const { tariAddress, setTariAddress, appState } = useAppStateStore();
-  const startMining = useStartShaMining();
-  const stopMining = useStopShaMining();
-  const setTariAddressMutation = useSetTariAddress();
+  const {
+    tariAddress,
+    setTariAddress,
+    startMining,
+    stopMining,
+    appState,
+    saveTariAddress,
+    isMining,
+  } = useAppStateStore();
 
   function handleTariAddressChange(event: React.ChangeEvent<HTMLInputElement>) {
     setTariAddress(event.target.value);
@@ -39,19 +38,17 @@ function MiningWidget() {
     appState?.config?.settings?.saved_settings?.sha3_miner,
   ]);
 
-  async function start() {
-    await startMining.mutateAsync({ appState });
-    setIsMining(true);
+  function start() {
+    startMining('Sha3');
   }
 
-  async function stop() {
-    await stopMining.mutateAsync({ appState });
-    setIsMining(false);
+  function stop() {
+    stopMining('Sha3');
   }
 
   function handleSetAddress(save: boolean) {
     if (save) {
-      setTariAddressMutation.mutate({ appState, tariAddress });
+      saveTariAddress(tariAddress);
     } else {
       setTariAddress(
         appState?.config?.settings?.saved_settings?.mm_proxy
@@ -114,6 +111,9 @@ function MiningWidget() {
           placeholder="Tari Address"
           value={tariAddress}
           onChange={handleTariAddressChange}
+          InputProps={{
+            endAdornment: <CopyToClipboard copy={tariAddress} />,
+          }}
         />
         <Button variant="contained" onClick={() => handleSetAddress(true)}>
           Save

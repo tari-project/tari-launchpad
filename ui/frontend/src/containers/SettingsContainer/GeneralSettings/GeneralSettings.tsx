@@ -3,11 +3,11 @@ import SubHeading from '../../../components/SubHeading';
 import typography from '../../../styles/styles/typography';
 import { SettingsBox } from '../../../components/StyledComponents';
 import { FormGroup, FormControlLabel } from '@mui/material';
-import useGeneralSettingsStore from '../../../store/generalSettingsStore';
+import useAppStateStore from '../../../store/appStateStore';
 
 function GeneralSettings() {
   const { runOnStartup, setRunOnStartup, mineOnStartup, setMineOnStartup } =
-    useGeneralSettingsStore();
+    useAppStateStore();
   return (
     <>
       <Typography variant="h3" style={typography.subheader}>

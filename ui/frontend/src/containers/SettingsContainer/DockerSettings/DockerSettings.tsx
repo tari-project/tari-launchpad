@@ -7,7 +7,13 @@ import {
 import typography from '../../../styles/styles/typography';
 import t from '../../../locales';
 
-function DockerSettings() {
+function DockerSettings({
+  handleChange,
+  formData,
+}: {
+  handleChange: any;
+  formData: any;
+}) {
   return (
     <>
       <Typography variant="h3" style={typography.subheader}>
@@ -19,13 +25,23 @@ function DockerSettings() {
           <Typography variant="body1" style={typography.smallMedium}>
             {t.docker.settings.tagLabel}
           </Typography>
-          <TextField placeholder={t.docker.settings.tagLabel} />
+          <TextField
+            placeholder={t.docker.settings.tagLabel}
+            name="dockerSettings.dockerTag"
+            value={formData.dockerTag}
+            onChange={handleChange}
+          />
         </LabelBoxHorisontal>
         <LabelBoxHorisontal>
           <Typography variant="body1" style={typography.smallMedium}>
             {t.docker.settings.registryLabel}
           </Typography>
-          <TextField placeholder={t.docker.settings.registryLabel} />
+          <TextField
+            placeholder={t.docker.settings.registryLabel}
+            name="dockerSettings.dockerRegistry"
+            value={formData.dockerRegistry}
+            onChange={handleChange}
+          />
         </LabelBoxHorisontal>
         <SubHeading text={t.docker.settings.imageStatuses} />
       </SettingsBox>

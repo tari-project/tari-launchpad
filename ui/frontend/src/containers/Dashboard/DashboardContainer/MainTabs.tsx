@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Typography, Tabs, Tab, Box, Chip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import useMiningStore from '../../../store/miningStore';
-import useMergedMiningStore from '../../../store/mergedMiningStore';
 import MiningTab from '../../MiningContainer/MiningTab';
 import BaseNodeTab from '../../BaseNodeContainer/BaseNodeTab';
+import useAppStateStore from '../../../store/appStateStore';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -46,9 +45,8 @@ function a11yProps(index: number) {
 
 export default function MainTabs() {
   const [value, setValue] = useState(0);
-  const isMining = useMiningStore((state) => state.isMining);
-  const isMergedMining = useMergedMiningStore((state) => state.isMergedMining);
   const theme = useTheme();
+  const { isMining, isMergeMining } = useAppStateStore();
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -91,7 +89,7 @@ export default function MainTabs() {
       >
         <CustomTab
           label="Mining"
-          isActive={isMining || isMergedMining}
+          isActive={isMining || isMergeMining}
           {...a11yProps(0)}
         />
         <Tab label="Base Node" {...a11yProps(1)} />

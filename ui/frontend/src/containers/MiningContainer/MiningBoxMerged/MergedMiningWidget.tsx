@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { Typography, Box, Chip, Button, TextField } from '@mui/material';
-import useMergedMiningStore from '../../../store/mergedMiningStore';
 import { useTheme } from '@mui/material/styles';
 import gradients from '../../../styles/styles/gradients';
 import t from '../../../locales';
@@ -11,21 +10,21 @@ import SvgQuestion from '../../../styles/Icons/Question';
 import { StyledIconButton } from '../../../components/StyledComponents';
 import { useSnackbar } from 'notistack';
 import GradientBox from '../../../components/GradientBox';
-import {
-  useStartMergeMining,
-  useStopMergeMining,
-} from '../../../api/hooks/useMiningStore';
-import useAppStateStore from '../../../store/appStore';
-import { useSetMoneroAddress } from '../../../api/hooks/useSettingsStore';
+import useAppStateStore from '../../../store/appStateStore';
+import CopyToClipboard from '../../../components/CopyToClipboard';
 
 function MergedMiningWidget() {
   const theme = useTheme();
-  const { isMergedMining, setIsMergedMining } = useMergedMiningStore();
-  const { appState, moneroAddress, setMoneroAddress } = useAppStateStore();
+  const {
+    appState,
+    moneroAddress,
+    setMoneroAddress,
+    startMining,
+    stopMining,
+    saveMoneroAddress,
+    isMergeMining,
+  } = useAppStateStore();
   const { enqueueSnackbar } = useSnackbar();
-  const startMining = useStartMergeMining();
-  const stopMining = useStopMergeMining();
-  const setMoneroAddressMutation = useSetMoneroAddress();
 
   function handleMoneroAddressChange(
     event: React.ChangeEvent<HTMLInputElement>
@@ -35,7 +34,7 @@ function MergedMiningWidget() {
 
   function handleSetAddress(save: boolean) {
     if (save) {
-      setMoneroAddressMutation.mutate({ appState, moneroAddress });
+      saveMoneroAddress(moneroAddress);
     } else {
       setMoneroAddress(
         appState?.config?.settings?.saved_settings?.xmrig
@@ -60,18 +59,16 @@ function MergedMiningWidget() {
     appState?.config?.settings?.saved_settings?.xmrig?.monero_mining_address,
   ]);
 
-  async function start() {
-    await startMining.mutateAsync({ appState });
-    setIsMergedMining(true);
+  function start() {
+    startMining('Merge');
   }
 
-  async function stop() {
-    await stopMining.mutateAsync({ appState });
-    setIsMergedMining(false);
+  function stop() {
+    stopMining('Merge');
   }
 
   return (
-    <GradientBox isActive={isMergedMining} gradient={gradients.merged}>
+    <GradientBox isActive={isMergeMining} gradient={gradients.merged}>
       <Box
         style={{
           display: 'flex',
@@ -143,9 +140,12 @@ function MergedMiningWidget() {
         }}
       >
         <TextField
-          placeholder="Tari Address"
+          placeholder="Monero Address"
           value={moneroAddress}
           onChange={handleMoneroAddressChange}
+          InputProps={{
+            endAdornment: <CopyToClipboard copy={moneroAddress} />,
+          }}
         />
         <Button variant="contained" onClick={() => handleSetAddress(true)}>
           Save
@@ -154,7 +154,7 @@ function MergedMiningWidget() {
           Cancel
         </Button>
       </Box>
-      {isMergedMining ? (
+      {isMergeMining ? (
         <Button variant="contained" onClick={stop}>
           Pause
         </Button>
