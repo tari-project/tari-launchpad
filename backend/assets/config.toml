@@ -141,7 +141,6 @@ grpc_server_allow_methods = [
 [base_node.p2p]
 #auxiliary_tcp_listener_address = "/dns4/base_node/tcp/18189"
 auxiliary_tcp_listener_address = "/ip4/0.0.0.0/tcp/18189"
-user_agent = "Launchpad base node"
 
 [base_node.p2p.transport]
 type = "tor"
