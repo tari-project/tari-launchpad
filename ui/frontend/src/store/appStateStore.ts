@@ -2,24 +2,11 @@ import { create } from 'zustand';
 import { emit } from '@tauri-apps/api/event';
 import { AppState, ContainerState, MiningType } from './types';
 
-interface Settings {
-  miningSettings: {
-    shaThreads: string;
-    moneroAddress: string;
-  };
-  baseNodeSettings: {
-    network: string;
-    rootFolder: string;
-  };
-  walletSettings: {
-    tariAddress: string;
-  };
-}
-
 interface AppStateStore {
   appState: AppState;
   containers: ContainerState;
   isMining: boolean;
+  isShaMining: boolean;
   isMergeMining: boolean;
   shaMiningEnabled: boolean;
   mergeMiningEnabled: boolean;
@@ -28,10 +15,11 @@ interface AppStateStore {
   openSettings: boolean;
   tariAddress: string;
   moneroAddress: string;
-  settings: () => Promise<Settings>;
   setAppState: (newState: AppState) => void;
   setContainers: (newContainers: ContainerState) => void;
   setIsMining: (value: boolean) => void;
+  setIsShaMining: (value: boolean) => void;
+  setIsMergeMining: (value: boolean) => void;
   setShaMiningEnabled: (value: boolean) => void;
   setMergeMiningEnabled: (value: boolean) => void;
   setIsChangingMining: (value: boolean) => void;
@@ -79,8 +67,11 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
             wallet_payment_address: '',
           },
           xmrig: {
+            num_mining_threads: 0,
             monero_mining_address: '',
           },
+          registry: '',
+          tag: '',
           tari_network: '',
         },
         tor_control_password: '',
@@ -123,6 +114,7 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
   },
   containers: {},
   isMining: false,
+  isShaMining: false,
   isMergeMining: false,
   shaMiningEnabled: true,
   mergeMiningEnabled: true,
@@ -131,33 +123,12 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
   openSettings: false,
   tariAddress: '',
   moneroAddress: '',
-  settings: async () => {
-    let state = get().appState;
-    return {
-      miningSettings: {
-        shaThreads: '',
-        moneroAddress:
-          state.config?.settings?.saved_settings?.xmrig
-            ?.monero_mining_address || '',
-      },
-      baseNodeSettings: {
-        network: '',
-        rootFolder: '',
-      },
-      walletSettings: {
-        tariAddress:
-          state.config?.settings?.saved_settings?.mm_proxy
-            ?.wallet_payment_address ||
-          state.config?.settings?.saved_settings?.sha3_miner
-            ?.wallet_payment_address ||
-          '',
-      },
-    };
-  },
   setAppState: (newState) => set({ appState: newState }),
   setContainers: (newContainers) =>
     set((state) => ({ ...state, containers: newContainers })),
   setIsMining: (value) => set(() => ({ isMining: value })),
+  setIsShaMining: (value) => set(() => ({ isShaMining: value })),
+  setIsMergeMining: (value) => set(() => ({ isMergeMining: value })),
   setShaMiningEnabled: (value) => set(() => ({ shaMiningEnabled: value })),
   setMergeMiningEnabled: (value) => set(() => ({ mergeMiningEnabled: value })),
   setIsChangingMining: (value) => set(() => ({ isChangingMining: value })),
@@ -171,7 +142,7 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
     switch (miningType) {
       case 'Sha3':
         stateSession.sha3x_layer_active = true;
-        set({ isMining: true });
+        set({ isShaMining: true });
         break;
       case 'Merge':
         stateSession.merge_layer_active = true;
@@ -180,7 +151,7 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
       case 'All':
         stateSession.sha3x_layer_active = true;
         stateSession.merge_layer_active = true;
-        set({ isMining: true });
+        set({ isShaMining: true });
         set({ isMergeMining: true });
         break;
     }
@@ -194,7 +165,7 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
     switch (miningType) {
       case 'Sha3':
         stateSession.sha3x_layer_active = false;
-        set({ isMining: false });
+        set({ isShaMining: false });
         break;
       case 'Merge':
         stateSession.merge_layer_active = false;
@@ -203,7 +174,7 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
       case 'All':
         stateSession.sha3x_layer_active = false;
         stateSession.merge_layer_active = false;
-        set({ isMining: false });
+        set({ isShaMining: false });
         set({ isMergeMining: false });
         break;
     }

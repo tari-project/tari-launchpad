@@ -5,7 +5,6 @@ import ThemeSwitch from '../../components/ThemeSwitch';
 import MiningSettings from './MiningSettings/MiningSettings';
 import BaseNodeSettings from './BaseNodeSettings/BaseNodeSettings';
 import DockerSettings from './DockerSettings/DockerSettings';
-import SecuritySettings from './SecuritySettings/SecuritySettings';
 import GeneralSettings from './GeneralSettings/GeneralSettings';
 import WalletSettings from './WalletSettings/WalletSettings';
 import ResetSettings from './ResetSettings/ResetSettings';
@@ -129,47 +128,42 @@ function a11yProps(index: number) {
   };
 }
 
-function SettingsForm() {
+function SettingsDialog() {
   const [openSettings, setOpenSettings, appState] = useAppStateStore(
     (state) => [state.openSettings, state.setOpenSettings, state.appState]
   );
   const [isValid, setIsValid] = useState(false);
+  console.log('isValid', isValid);
+
+  const settings = appState?.config?.settings?.saved_settings || {};
 
   const initialFormData = {
     miningSettings: {
-      shaThreads:
-        appState?.config?.settings?.saved_settings?.sha3_miner
-          ?.num_mining_threads || 0,
-      moneroAddress:
-        appState?.config?.settings?.saved_settings?.xmrig
-          ?.monero_mining_address || '',
-      randomXThreads:
-        appState?.config?.settings?.saved_settings?.sha3_miner
-          ?.num_mining_threads || 0,
-      moneroNodeUrl:
-        appState?.config?.settings?.saved_settings?.mm_proxy?.monerod_url || '',
+      shaThreads: settings.sha3_miner?.num_mining_threads || 0,
+      moneroAddress: settings.xmrig?.monero_mining_address || '',
+      randomXThreads: settings.xmrig?.num_mining_threads || 0,
+      moneroNodeUrl: settings.mm_proxy?.monerod_url || '',
       // walletPaymentAddress:
-      //   appState?.config?.settings?.saved_settings?.mm_proxy
+      //   settings.mm_proxy
       //     ?.wallet_payment_address ||
-      //   appState?.config?.settings?.saved_settings?.sha3_miner
+      //   settings.sha3_miner
       //     ?.wallet_payment_address ||
       //   '',
     },
     baseNodeSettings: {
-      network: appState?.config?.settings?.saved_settings?.tari_network || '',
+      network: settings.tari_network || '',
       rootFolder: appState?.config?.settings?.data_directory || '',
     },
     walletSettings: {
       tariAddress:
-        appState?.config?.settings?.saved_settings?.mm_proxy
-          ?.wallet_payment_address ||
-        appState?.config?.settings?.saved_settings?.sha3_miner
-          ?.wallet_payment_address ||
+        settings.mm_proxy?.wallet_payment_address ||
+        settings.sha3_miner?.wallet_payment_address ||
         '',
     },
     dockerSettings: {
-      dockerTag: 'dockerTag',
-      dockerRegistry: 'dockerRegistry',
+      dockerTag: appState?.config?.settings?.saved_settings?.tag || '',
+      dockerRegistry:
+        appState?.config?.settings?.saved_settings?.registry || '',
     },
     // generalSettings: {
     //   runOnStartup: false,
@@ -235,10 +229,6 @@ function SettingsForm() {
       ),
     },
     {
-      label: 'Security',
-      component: <SecuritySettings />,
-    },
-    {
       label: 'General',
       component: <GeneralSettings />,
     },
@@ -279,8 +269,6 @@ function SettingsForm() {
     setFormData(initialFormData);
   }, [appState]);
 
-  console.log('isValid', isValid);
-
   async function saveSettings(formData: FormData) {
     console.log('Save Form', FormDataSchema.safeParse(formData));
     const validatedData = FormDataSchema.safeParse(formData);
@@ -300,8 +288,7 @@ function SettingsForm() {
     settings.xmrig.monero_mining_address =
       formData.miningSettings.moneroAddress;
     // randomXThreads
-    settings.sha3_miner.num_mining_threads =
-      formData.miningSettings.randomXThreads;
+    settings.xmrig.num_mining_threads = formData.miningSettings.randomXThreads;
     // moneroNodeUrl
     settings.mm_proxy.monerod_url = formData.miningSettings.moneroNodeUrl;
     // walletPaymentAddress
@@ -322,6 +309,12 @@ function SettingsForm() {
     // tartAddress
     settings.mm_proxy.wallet_payment_address =
       formData.walletSettings.tariAddress;
+
+    // DOCKER SETTINGS
+    // dockerTag
+    settings.tag = formData.dockerSettings.dockerTag;
+    // dockerRegistry
+    settings.registry = formData.dockerSettings.dockerRegistry;
 
     emit('tari://actions', {
       Action: { type: 'SaveSettings', payload: settings },
@@ -421,4 +414,4 @@ function SettingsForm() {
   );
 }
 
-export default SettingsForm;
+export default SettingsDialog;

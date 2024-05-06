@@ -19,10 +19,11 @@ function MergedMiningWidget() {
     appState,
     moneroAddress,
     setMoneroAddress,
+    saveMoneroAddress,
     startMining,
     stopMining,
-    saveMoneroAddress,
     isMergeMining,
+    setIsMergeMining,
   } = useAppStateStore();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -61,10 +62,12 @@ function MergedMiningWidget() {
 
   function start() {
     startMining('Merge');
+    setIsMergeMining(true);
   }
 
   function stop() {
     stopMining('Merge');
+    setIsMergeMining(false);
   }
 
   return (

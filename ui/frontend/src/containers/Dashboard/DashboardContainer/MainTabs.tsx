@@ -46,7 +46,7 @@ function a11yProps(index: number) {
 export default function MainTabs() {
   const [value, setValue] = useState(0);
   const theme = useTheme();
-  const { isMining, isMergeMining } = useAppStateStore();
+  const { isShaMining, isMergeMining, appState } = useAppStateStore();
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -67,7 +67,8 @@ export default function MainTabs() {
             <Chip
               label={
                 <span>
-                  <strong>Running</strong> Mainnet
+                  <strong>Running</strong>{' '}
+                  {appState?.config?.settings?.saved_settings?.tari_network}
                 </span>
               }
               color="success"
@@ -89,7 +90,7 @@ export default function MainTabs() {
       >
         <CustomTab
           label="Mining"
-          isActive={isMining || isMergeMining}
+          isActive={isShaMining || isMergeMining}
           {...a11yProps(0)}
         />
         <Tab label="Base Node" {...a11yProps(1)} />

@@ -22,8 +22,11 @@ export interface ConfigState {
         wallet_payment_address: string;
       };
       xmrig: {
+        num_mining_threads: number;
         monero_mining_address: string;
       };
+      registry: string;
+      tag: string;
       tari_network: string;
     };
     tor_control_password: string;

@@ -14,11 +14,11 @@ function MiningWidget() {
   const {
     tariAddress,
     setTariAddress,
-    startMining,
-    stopMining,
     appState,
     saveTariAddress,
-    isMining,
+    startMining,
+    stopMining,
+    isShaMining,
   } = useAppStateStore();
 
   function handleTariAddressChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -61,7 +61,7 @@ function MiningWidget() {
   }
 
   return (
-    <GradientBox isActive={isMining} gradient={gradients.tari}>
+    <GradientBox isActive={isShaMining} gradient={gradients.tari}>
       <Box
         style={{
           display: 'flex',
@@ -122,7 +122,7 @@ function MiningWidget() {
           Cancel
         </Button>
       </Box>
-      {isMining ? (
+      {isShaMining ? (
         <Button variant="contained" onClick={stop}>
           Pause
         </Button>

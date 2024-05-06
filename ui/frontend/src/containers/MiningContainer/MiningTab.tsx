@@ -1,6 +1,6 @@
 import { Typography, Box } from '@mui/material';
 import MiningWidget from './MiningBox/MiningWidget';
-import MergedMiningWidget from './MiningBoxMerged/MergedMiningWidget';
+import MergeMiningWidget from './MiningBoxMerged/MergeMiningWidget';
 import {
   StyledIconButton,
   TabInnerBox,
@@ -68,7 +68,7 @@ function MiningTab() {
           }}
         >
           <MiningWidget />
-          <MergedMiningWidget />
+          <MergeMiningWidget />
         </Box>
       </Box>
     </TabInnerBox>
