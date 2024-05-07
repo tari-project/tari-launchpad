@@ -74,7 +74,8 @@ impl ManagedContainer for MmProxy {
             None
         });
         let session = &self.settings.as_ref()?.session;
-        self.mm_proxy = config?.settings.as_ref()?.saved_settings.mm_proxy.clone();
+        self.mm_proxy
+            .clone_from(&config?.settings.as_ref()?.saved_settings.mm_proxy);
         self.mm_proxy = match config?.settings {
             Some(ref settings) if settings.saved_settings.mm_proxy.is_none() => {
                 info!("No MM proxy settings found for the container configuration. Falling back on defaults.");
