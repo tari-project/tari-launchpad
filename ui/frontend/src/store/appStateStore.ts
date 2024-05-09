@@ -8,6 +8,7 @@ interface AppStateStore {
   isMining: boolean;
   isShaMining: boolean;
   isMergeMining: boolean;
+  isBaseNodeActive: boolean;
   shaMiningEnabled: boolean;
   mergeMiningEnabled: boolean;
   isChangingMining: boolean;
@@ -20,6 +21,7 @@ interface AppStateStore {
   setIsMining: (value: boolean) => void;
   setIsShaMining: (value: boolean) => void;
   setIsMergeMining: (value: boolean) => void;
+  setIsBaseNodeActive: (value: boolean) => void;
   setShaMiningEnabled: (value: boolean) => void;
   setMergeMiningEnabled: (value: boolean) => void;
   setIsChangingMining: (value: boolean) => void;
@@ -29,6 +31,8 @@ interface AppStateStore {
   setMoneroAddress: (value: string) => void;
   startMining: (type: MiningType) => void;
   stopMining: (type: MiningType) => void;
+  startBaseNode: () => void;
+  stopBaseNode: () => void;
   //settings
   isSubmitting: boolean;
   setIsSubmitting: (value: boolean) => void;
@@ -79,28 +83,7 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
         with_tor: false,
       },
     },
-    containers: {
-      sha3_miner: {
-        container_id: '',
-        container_name: '',
-        container_status: '',
-      },
-      merge_miner: {
-        container_id: '',
-        container_name: '',
-        container_status: '',
-      },
-      mm_proxy: {
-        container_id: '',
-        container_name: '',
-        container_status: '',
-      },
-      xmrig: {
-        container_id: '',
-        container_name: '',
-        container_status: '',
-      },
-    },
+    containers: {},
     errors: {
       data: [],
       length: 0,
@@ -116,6 +99,7 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
   isMining: false,
   isShaMining: false,
   isMergeMining: false,
+  isBaseNodeActive: false,
   shaMiningEnabled: true,
   mergeMiningEnabled: true,
   isChangingMining: false,
@@ -129,6 +113,7 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
   setIsMining: (value) => set(() => ({ isMining: value })),
   setIsShaMining: (value) => set(() => ({ isShaMining: value })),
   setIsMergeMining: (value) => set(() => ({ isMergeMining: value })),
+  setIsBaseNodeActive: (value) => set(() => ({ isBaseNodeActive: value })),
   setShaMiningEnabled: (value) => set(() => ({ shaMiningEnabled: value })),
   setMergeMiningEnabled: (value) => set(() => ({ mergeMiningEnabled: value })),
   setIsChangingMining: (value) => set(() => ({ isChangingMining: value })),
@@ -178,6 +163,24 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
         set({ isMergeMining: false });
         break;
     }
+    emit('tari://actions', {
+      Action: { type: 'ChangeSession', payload: stateSession },
+    });
+  },
+  startBaseNode: async () => {
+    let state = get().appState;
+    let stateSession = { ...state?.config?.session };
+    stateSession.base_node_active = true;
+    // set({ isBaseNodeActive: true });
+    emit('tari://actions', {
+      Action: { type: 'ChangeSession', payload: stateSession },
+    });
+  },
+  stopBaseNode: async () => {
+    let state = get().appState;
+    let stateSession = { ...state?.config?.session };
+    stateSession.base_node_active = false;
+    // set({ isBaseNodeActive: false });
     emit('tari://actions', {
       Action: { type: 'ChangeSession', payload: stateSession },
     });

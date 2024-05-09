@@ -1,4 +1,4 @@
-import colors from './colors'
+import colors from './colors';
 
 /**
  * Gradient palette
@@ -12,7 +12,8 @@ const gradients = {
   merged: 'linear-gradient(238.06deg, #6838B4 0%, #DA574B 99.74%)',
   mergedDark: 'linear-gradient(238.06deg, #3F1264 0%, #782D27 99.74%)',
   baseNodeDark: 'linear-gradient(238.06deg, #55208E 0%, #455E5B 99.74%)',
+  baseNode: 'linear-gradient(238.06deg, #9330FF 0%, #76A59D 99.74%)',
   warning: `linear-gradient(264.94deg, #D87740 21.86%, ${colors.secondary.warningText} 80.58%)`,
-}
+};
 
-export default gradients
+export default gradients;

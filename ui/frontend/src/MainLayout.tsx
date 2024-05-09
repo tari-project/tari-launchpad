@@ -100,7 +100,7 @@ export default function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [contentWidth, setContentWidth] = useState<'normal' | 'fullScreen'>(
     'normal'
   );

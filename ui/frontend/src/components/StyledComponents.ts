@@ -1,9 +1,15 @@
-import Paper from '@mui/material/Paper';
-import TableCell from '@mui/material/TableCell';
 import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import {
+  Paper,
+  TableCell,
+  Box,
+  IconButton,
+  Typography,
+  Chip,
+  Button,
+} from '@mui/material';
+import gradients from '../styles/styles/gradients';
+import colors from '../styles/styles/colors';
 
 export const TabInnerBox = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -149,4 +155,60 @@ export const GridDataCell = styled(Box)(({ theme, className }) => ({
 export const TypographyData = styled(Typography)(({ theme }) => ({
   fontFamily: "'Courier New', Courier, monospace",
   padding: theme.spacing(2),
+}));
+
+export const DefaultBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(2),
+  background: theme.palette.background.paper,
+  padding: theme.spacing(3),
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: theme.spacing(1),
+}));
+
+export const GradientBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(2),
+  background: gradients.baseNode,
+  padding: theme.spacing(3),
+  borderRadius: theme.spacing(1),
+  // Force dark mode
+  ...((theme.palette.mode === 'light' || theme.palette.mode === 'dark') && {
+    color: '#fff',
+    '& MuiTypography-root': {
+      color: '#fff',
+    },
+    '& MuiCircularProgress-root': {
+      color: 'rgba(255, 255, 255, 0.5)',
+    },
+  }),
+}));
+
+export const StatusChip = styled(Chip)(({ color }) => ({
+  backgroundColor:
+    color === 'info' ? colors.secondary.info : colors.secondary.on,
+  color: color === 'info' ? colors.secondary.infoText : colors.secondary.onText,
+}));
+
+export const TransparentButton = styled(Button)(() => ({
+  color: '#fff',
+  border: `1px solid #fff`,
+  backgroundColor: 'rgba(255, 255, 255, 0.22)',
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    border: `1px solid #fff`,
+    color: '#fff',
+  },
+  '&:focus': {
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    border: `1px solid #fff`,
+    color: '#fff',
+  },
+  '&:active': {
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    border: `1px solid #fff`,
+    color: '#fff',
+  },
 }));

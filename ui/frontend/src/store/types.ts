@@ -59,3 +59,31 @@ export interface AppState {
 }
 
 export type MiningType = 'Sha3' | 'Merge' | 'Monero' | 'All';
+
+export const BaseNodeStatus = {
+  WAITING: 'Waiting',
+  SHUTTINGDOWN: 'ShuttingDown',
+  ACTIVE: 'Active',
+  STARTING: 'Starting...',
+  INACTIVE: 'Inactive',
+  PENDING: 'Pending',
+  CHECKING: 'Checking for old containers...',
+};
+
+export const ShaMiningStatus = {
+  WAITING: 'Waiting',
+  SHUTTINGDOWN: 'ShuttingDown',
+  ACTIVE: 'Active',
+  STARTING: 'Starting...',
+  INACTIVE: 'Inactive',
+  PENDING: 'Pending',
+};
+
+export const MergeMiningStatus = {
+  WAITING: 'Waiting',
+  SHUTTINGDOWN: 'ShuttingDown',
+  ACTIVE: 'Active',
+  STARTING: 'Starting...',
+  INACTIVE: 'Inactive',
+  PENDING: 'Pending',
+};

@@ -4,6 +4,11 @@ import { useTheme } from '@mui/material/styles';
 import MiningTab from '../../MiningContainer/MiningTab';
 import BaseNodeTab from '../../BaseNodeContainer/BaseNodeTab';
 import useAppStateStore from '../../../store/appStateStore';
+import {
+  BaseNodeStatus,
+  ShaMiningStatus,
+  MergeMiningStatus,
+} from '../../../store/types';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -12,7 +17,7 @@ interface TabPanelProps {
 }
 
 interface CustomTabProps {
-  isActive: boolean;
+  chip: React.ReactNode;
   label: string;
 }
 
@@ -46,13 +51,51 @@ function a11yProps(index: number) {
 export default function MainTabs() {
   const [value, setValue] = useState(0);
   const theme = useTheme();
-  const { isShaMining, isMergeMining, appState } = useAppStateStore();
+  const { containers, appState } = useAppStateStore();
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
-  const CustomTab = ({ isActive, label, ...props }: CustomTabProps) => (
+  const BaseNodeChip = () => {
+    if (containers?.baseNode?.status === BaseNodeStatus.ACTIVE) {
+      return (
+        <Chip
+          label={
+            <span>
+              <strong>Running</strong>{' '}
+              {appState?.config?.settings?.saved_settings?.tari_network || ''}
+            </span>
+          }
+          color="success"
+        />
+      );
+    } else {
+      return null;
+    }
+  };
+
+  const MiningChip = () => {
+    if (
+      containers?.sha3Miner?.status === ShaMiningStatus.ACTIVE ||
+      containers?.mmProxy?.status === MergeMiningStatus.ACTIVE
+    ) {
+      return (
+        <Chip
+          label={
+            <span>
+              <strong>Running</strong>
+            </span>
+          }
+          color="success"
+        />
+      );
+    } else {
+      return null;
+    }
+  };
+
+  const CustomTab = ({ chip, label, ...props }: CustomTabProps) => (
     <Tab
       label={
         <div
@@ -63,17 +106,7 @@ export default function MainTabs() {
           }}
         >
           <span>{label}</span>
-          {isActive && (
-            <Chip
-              label={
-                <span>
-                  <strong>Running</strong>{' '}
-                  {appState?.config?.settings?.saved_settings?.tari_network}
-                </span>
-              }
-              color="success"
-            />
-          )}
+          {chip}
         </div>
       }
       {...props}
@@ -88,12 +121,12 @@ export default function MainTabs() {
         onChange={handleChange}
         aria-label="Main page tabs"
       >
+        <CustomTab label="Mining" chip={<MiningChip />} {...a11yProps(0)} />
         <CustomTab
-          label="Mining"
-          isActive={isShaMining || isMergeMining}
-          {...a11yProps(0)}
+          label="Base Node"
+          chip={<BaseNodeChip />}
+          {...a11yProps(1)}
         />
-        <Tab label="Base Node" {...a11yProps(1)} />
       </Tabs>
       <CustomTabPanel value={value} index={0}>
         <MiningTab />
