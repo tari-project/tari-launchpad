@@ -68,7 +68,7 @@ impl ManagedContainer for XMRig {
         self.settings = ConnectionSettings::try_extract(config?);
         let session = &self.settings.as_ref()?.session;
 
-        self.xmrig = config?.settings.as_ref()?.saved_settings.xmrig.clone();
+        self.xmrig.clone_from(&config?.settings.as_ref()?.saved_settings.xmrig);
         self.xmrig.as_ref()?;
 
         Some(session.is_xmrig_active())

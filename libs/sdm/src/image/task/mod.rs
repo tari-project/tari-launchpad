@@ -33,7 +33,7 @@ use super::{checker::CheckerEvent, ManagedContainer};
 use crate::{
     config::ManagedProtocol,
     error::ParseError,
-    task::{RunnableContext, RunnableTask, TaskContext, TaskEvent, TaskStatusChecker},
+    task::{RunnableContext, RunnableTask, TaskContext, TaskStatusChecker},
     utils::TaskGuard,
 };
 
@@ -177,8 +177,6 @@ pub enum Event {
     Terminated,
     CheckerProgress(CheckerEvent),
 }
-
-impl TaskEvent for Event {}
 
 impl TryFrom<String> for Event {
     type Error = ParseError;

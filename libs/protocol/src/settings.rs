@@ -168,7 +168,7 @@ impl PersistentSettings {
             self.new_sha3_miner_settings();
         }
         if let Some(s) = self.sha3_miner.as_mut() {
-            s.wallet_payment_address = address.clone()
+            s.wallet_payment_address.clone_from(&address)
         }
 
         if self.mm_proxy.is_none() {

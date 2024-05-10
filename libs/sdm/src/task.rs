@@ -65,7 +65,7 @@ pub trait TaskStatusChecker: fmt::Debug + Default + Send {
 pub trait RunnableTask: Sized + Send + 'static {
     type Protocol: ManagedProtocol;
     type Status: TaskStatusChecker;
-    type Event: TaskEvent;
+    type Event: fmt::Debug;
 
     fn name(&self) -> &str;
 
@@ -428,5 +428,3 @@ where
         }
     }
 }
-
-pub trait TaskEvent: fmt::Debug + Send {}
