@@ -16,6 +16,7 @@ interface AppStateStore {
   openSettings: boolean;
   tariAddress: string;
   moneroAddress: string;
+  network: string;
   setAppState: (newState: AppState) => void;
   setContainers: (newContainers: ContainerState) => void;
   setIsMining: (value: boolean) => void;
@@ -29,6 +30,7 @@ interface AppStateStore {
   setOpenSettings: (value: boolean) => void;
   setTariAddress: (value: string) => void;
   setMoneroAddress: (value: string) => void;
+  setNetwork: (value: string) => void;
   startMining: (type: MiningType) => void;
   stopMining: (type: MiningType) => void;
   startBaseNode: () => void;
@@ -107,6 +109,7 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
   openSettings: false,
   tariAddress: '',
   moneroAddress: '',
+  network: '',
   setAppState: (newState) => set({ appState: newState }),
   setContainers: (newContainers) =>
     set((state) => ({ ...state, containers: newContainers })),
@@ -120,6 +123,7 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
   setOpenDockerWarning: (value) => set(() => ({ openDockerWarning: value })),
   setOpenSettings: (value) => set(() => ({ openSettings: value })),
   setTariAddress: (value) => set(() => ({ tariAddress: value })),
+  setNetwork: (value) => set(() => ({ network: value })),
   setMoneroAddress: (value) => set(() => ({ moneroAddress: value })),
   startMining: async (miningType: MiningType) => {
     let state = get().appState;

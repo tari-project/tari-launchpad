@@ -29,6 +29,7 @@ function App() {
     openDockerWarning,
     setOpenDockerWarning,
     setTariAddress,
+    setNetwork,
     openSettings,
   } = useAppStateStore();
 
@@ -355,6 +356,10 @@ function App() {
   // let state: any = appState;
   //  let containers: any = state.containers;
   // console.log(containers);
+
+  useEffect(() => {
+    setNetwork(appState?.config?.settings?.saved_settings?.tari_network || '');
+  }, [appState?.config?.settings?.saved_settings?.tari_network]);
 
   console.log(appState);
 

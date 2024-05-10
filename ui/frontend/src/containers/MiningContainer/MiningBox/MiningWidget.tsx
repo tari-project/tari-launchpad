@@ -1,25 +1,39 @@
 import { useEffect } from 'react';
-import { TextField, Button, Typography, Box, Chip } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import gradients from '../../../styles/styles/gradients';
+import {
+  Button,
+  Chip,
+  Typography,
+  TextField,
+  Box,
+  CircularProgress,
+} from '@mui/material';
 import t from '../../../locales';
 import typography from '../../../styles/styles/typography';
-import SvgTariSignet from '../../../styles/Icons/TariSignet';
 import useAppStateStore from '../../../store/appStateStore';
-import GradientBox from '../../../components/GradientBox';
+import { ShaMiningStatus } from '../../../store/types';
+import {
+  StatusChip,
+  MiningBoxOuter,
+  MiningBoxInner,
+  MiningButtonBox,
+  TransparentButton,
+  ShaMiningBox,
+} from '../../../components/StyledComponents';
+import { useTheme } from '@mui/material/styles';
+import SvgTariSignet from '../../../styles/Icons/TariSignet';
 import CopyToClipboard from '../../../components/CopyToClipboard';
 
 function MiningWidget() {
-  const theme = useTheme();
   const {
+    appState,
+    containers,
     tariAddress,
     setTariAddress,
-    appState,
     saveTariAddress,
     startMining,
     stopMining,
-    isShaMining,
   } = useAppStateStore();
+  const theme = useTheme();
 
   function handleTariAddressChange(event: React.ChangeEvent<HTMLInputElement>) {
     setTariAddress(event.target.value);
@@ -37,7 +51,6 @@ function MiningWidget() {
     appState?.config?.settings?.saved_settings?.mm_proxy.wallet_payment_address,
     appState?.config?.settings?.saved_settings?.sha3_miner,
   ]);
-
   function start() {
     startMining('Sha3');
   }
@@ -60,79 +73,162 @@ function MiningWidget() {
     }
   }
 
-  return (
-    <GradientBox isActive={isShaMining} gradient={gradients.tari}>
-      <Box
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          gap: theme.spacing(3),
-        }}
-      >
-        <Box
+  const SignetBox = () => {
+    return (
+      <Box>
+        <SvgTariSignet
+          color={theme.palette.divider}
+          width="80px"
+          height="80px"
+        />
+      </Box>
+    );
+  };
+
+  const MiningTitle = () => {
+    return (
+      <Typography variant="h3" sx={typography.header}>
+        {t.common.miningType.tari}
+      </Typography>
+    );
+  };
+
+  const MiningButton = () => {
+    return (
+      <MiningButtonBox>
+        <Typography variant="body2" sx={typography.smallHeavy} pr={1}>
+          0:00:00
+        </Typography>
+        <Typography variant="body2" sx={typography.smallHeavy}>
+          |
+        </Typography>
+        <Button
+          variant="text"
+          onClick={stop}
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: theme.spacing(1),
+            color: '#fff',
           }}
         >
-          <Box>
-            <Chip
-              label={
-                <span>
-                  <strong>{t.common.phrases.startHere}</strong>
-                </span>
-              }
-              color="info"
-            />
-          </Box>
-          <Typography variant="h3" sx={typography.header}>
-            {t.common.miningType.tari}
-          </Typography>
-          <Typography variant="body1" sx={typography.defaultMedium}>
-            {t.walletPasswordWizard.description}
-          </Typography>
-        </Box>
-        <Box>
-          <SvgTariSignet
-            color={theme.palette.divider}
-            width="80px"
-            height="80px"
-          />
-        </Box>
-      </Box>
-      <Box
-        style={{
-          display: 'flex',
-          gap: theme.spacing(1),
-        }}
-      >
-        <TextField
-          placeholder="Tari Address"
-          value={tariAddress}
-          onChange={handleTariAddressChange}
-          InputProps={{
-            endAdornment: <CopyToClipboard copy={tariAddress} />,
-          }}
-        />
-        <Button variant="contained" onClick={() => handleSetAddress(true)}>
-          Save
+          {t.common.verbs.pause}
         </Button>
-        <Button variant="outlined" onClick={() => handleSetAddress(false)}>
-          Cancel
-        </Button>
-      </Box>
-      {isShaMining ? (
-        <Button variant="contained" onClick={stop}>
-          Pause
-        </Button>
-      ) : (
-        <Button variant="contained" onClick={start}>
-          Start
-        </Button>
-      )}
-    </GradientBox>
-  );
+      </MiningButtonBox>
+    );
+  };
+
+  const ShaMining = () => {
+    switch (containers?.sha3Miner?.status) {
+      case ShaMiningStatus.WAITING:
+      case ShaMiningStatus.SHUTTINGDOWN:
+      case ShaMiningStatus.STARTING:
+      case ShaMiningStatus.PENDING:
+        return (
+          <ShaMiningBox>
+            <MiningBoxInner>
+              <Box>
+                <StatusChip
+                  label={
+                    <span>
+                      <strong>{containers.sha3Miner?.status}</strong>
+                    </span>
+                  }
+                  color="info"
+                />
+              </Box>
+              <MiningTitle />
+              <CircularProgress />
+              <Box>
+                <TransparentButton onClick={stop}>
+                  {t.common.verbs.cancel}
+                </TransparentButton>
+              </Box>
+            </MiningBoxInner>
+            <SignetBox />
+          </ShaMiningBox>
+        );
+      case ShaMiningStatus.ACTIVE:
+        return (
+          <ShaMiningBox>
+            <MiningBoxInner>
+              <Box>
+                <StatusChip
+                  label={
+                    <span>
+                      <strong>{t.common.adjectives.running}</strong>
+                    </span>
+                  }
+                  color="success"
+                />
+              </Box>
+              <MiningTitle />
+              <Typography variant="body1" sx={typography.defaultMedium}>
+                00 000 XTR
+              </Typography>
+              <MiningButton />
+            </MiningBoxInner>
+            <SignetBox />
+          </ShaMiningBox>
+        );
+      case ShaMiningStatus.INACTIVE:
+      default:
+        return (
+          <MiningBoxOuter>
+            <MiningBoxInner>
+              <Chip
+                label={
+                  <span>
+                    <strong>{t.common.phrases.startHere}</strong>
+                  </span>
+                }
+                color="info"
+              />
+              <MiningTitle />
+              <Typography variant="body1" sx={typography.defaultMedium}>
+                {t.walletPasswordWizard.description}
+              </Typography>
+              <Box
+                style={{
+                  display: 'flex',
+                  gap: theme.spacing(1),
+                }}
+              >
+                <TextField
+                  placeholder="Tari Address"
+                  value={tariAddress}
+                  onChange={handleTariAddressChange}
+                  InputProps={{
+                    endAdornment: <CopyToClipboard copy={tariAddress} />,
+                  }}
+                />
+                <Button
+                  variant="contained"
+                  onClick={() => handleSetAddress(true)}
+                >
+                  Save
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleSetAddress(false)}
+                >
+                  Cancel
+                </Button>
+              </Box>
+              <Button
+                variant="contained"
+                onClick={start}
+                style={{
+                  minWidth: '120px',
+                }}
+              >
+                {t.common.verbs.start}
+              </Button>
+            </MiningBoxInner>
+            <SignetBox />
+          </MiningBoxOuter>
+        );
+    }
+  };
+
+  return <ShaMining />;
 }
 
 export default MiningWidget;

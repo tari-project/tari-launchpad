@@ -167,11 +167,70 @@ export const DefaultBox = styled(Box)(({ theme }) => ({
   borderRadius: theme.spacing(1),
 }));
 
-export const GradientBox = styled(Box)(({ theme }) => ({
+export const BaseNodeBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   gap: theme.spacing(2),
-  background: gradients.baseNode,
+  background:
+    theme.palette.mode === 'dark' ? gradients.baseNodeDark : gradients.baseNode,
+  padding: theme.spacing(3),
+  borderRadius: theme.spacing(1),
+  // Force dark mode
+  ...((theme.palette.mode === 'light' || theme.palette.mode === 'dark') && {
+    color: '#fff',
+    '& MuiTypography-root': {
+      color: '#fff',
+    },
+    '& MuiCircularProgress-root': {
+      color: 'rgba(255, 255, 255, 0.5)',
+    },
+  }),
+}));
+
+export const MiningBoxOuter = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  gap: theme.spacing(3),
+  background: theme.palette.background.paper,
+  padding: theme.spacing(3),
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: theme.spacing(1),
+}));
+
+export const MiningBoxInner = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(2),
+  alignItems: 'flex-start',
+}));
+
+export const ShaMiningBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  background:
+    theme.palette.mode === 'dark' ? gradients.tariDark : gradients.tari,
+  padding: theme.spacing(3),
+  borderRadius: theme.spacing(1),
+  // Force dark mode
+  ...((theme.palette.mode === 'light' || theme.palette.mode === 'dark') && {
+    color: '#fff',
+    '& MuiTypography-root': {
+      color: '#fff',
+    },
+    '& MuiCircularProgress-root': {
+      color: 'rgba(255, 255, 255, 0.5)',
+    },
+  }),
+}));
+
+export const MergeMiningBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  background:
+    theme.palette.mode === 'dark' ? gradients.mergedDark : gradients.merged,
   padding: theme.spacing(3),
   borderRadius: theme.spacing(1),
   // Force dark mode
@@ -194,8 +253,9 @@ export const StatusChip = styled(Chip)(({ color }) => ({
 
 export const TransparentButton = styled(Button)(() => ({
   color: '#fff',
-  border: `1px solid #fff`,
+  // border: `1px solid rgba(255, 255, 255, 0.6)`,
   backgroundColor: 'rgba(255, 255, 255, 0.22)',
+  minWidth: 120,
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 0.22)',
     border: `1px solid #fff`,
@@ -211,4 +271,15 @@ export const TransparentButton = styled(Button)(() => ({
     border: `1px solid #fff`,
     color: '#fff',
   },
+}));
+
+export const MiningButtonBox = styled(Box)(({ theme }) => ({
+  color: 'rgba(255, 255, 255, 0.8)',
+  backgroundColor: 'rgba(255, 255, 255, 0.22)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-start',
+  gap: theme.spacing(2),
+  padding: `4px 16px 4px 24px`,
+  borderRadius: theme.spacing(1),
 }));

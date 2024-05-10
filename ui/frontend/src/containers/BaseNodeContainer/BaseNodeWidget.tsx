@@ -8,12 +8,12 @@ import { BaseNodeStatus } from '../../store/types';
 import {
   StatusChip,
   DefaultBox,
-  GradientBox,
+  BaseNodeBox,
   TransparentButton,
 } from '../../components/StyledComponents';
 
 function BaseNodeWidget() {
-  const { appState, containers, startBaseNode, stopBaseNode } =
+  const { appState, containers, startBaseNode, stopBaseNode, network } =
     useAppStateStore();
 
   function start() {
@@ -61,9 +61,7 @@ function BaseNodeWidget() {
     return (
       <LabelBoxVertical>
         <Typography variant="body1" sx={typography.defaultMedium}>
-          {t.baseNode.tari_network_label}:{' '}
-          {appState?.config?.settings?.saved_settings?.tari_network ||
-            'Not found'}
+          {t.baseNode.tari_network_label}: {network}
         </Typography>
       </LabelBoxVertical>
     );
@@ -99,7 +97,7 @@ function BaseNodeWidget() {
       case BaseNodeStatus.STARTING:
       case BaseNodeStatus.PENDING:
         return (
-          <GradientBox>
+          <BaseNodeBox>
             <BaseNodeTitle />
             <BaseNodeNetwork />
             <Box>
@@ -111,11 +109,11 @@ function BaseNodeWidget() {
               </TransparentButton>
             </Box>
             <BaseNodeInfo />
-          </GradientBox>
+          </BaseNodeBox>
         );
       case BaseNodeStatus.ACTIVE:
         return (
-          <GradientBox>
+          <BaseNodeBox>
             <BaseNodeTitle />
             <BaseNodeNetwork />
             <Box>
@@ -124,7 +122,7 @@ function BaseNodeWidget() {
               </TransparentButton>
             </Box>
             <BaseNodeInfo />
-          </GradientBox>
+          </BaseNodeBox>
         );
       case BaseNodeStatus.INACTIVE:
       default:

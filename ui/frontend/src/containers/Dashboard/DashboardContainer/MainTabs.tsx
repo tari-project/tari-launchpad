@@ -51,7 +51,7 @@ function a11yProps(index: number) {
 export default function MainTabs() {
   const [value, setValue] = useState(0);
   const theme = useTheme();
-  const { containers, appState } = useAppStateStore();
+  const { containers, network } = useAppStateStore();
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -63,8 +63,7 @@ export default function MainTabs() {
         <Chip
           label={
             <span>
-              <strong>Running</strong>{' '}
-              {appState?.config?.settings?.saved_settings?.tari_network || ''}
+              <strong>Running</strong> {network}
             </span>
           }
           color="success"
