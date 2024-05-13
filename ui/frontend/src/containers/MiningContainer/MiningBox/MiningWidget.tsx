@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   Chip,
@@ -35,9 +35,9 @@ function MiningWidget() {
   } = useAppStateStore();
   const theme = useTheme();
 
-  function handleTariAddressChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setTariAddress(event.target.value);
-  }
+  // function handleTariAddressChange(event: React.ChangeEvent<HTMLInputElement>) {
+  //   setTariAddress(event.target.value);
+  // }
 
   useEffect(() => {
     setTariAddress(
@@ -57,20 +57,6 @@ function MiningWidget() {
 
   function stop() {
     stopMining('Sha3');
-  }
-
-  function handleSetAddress(save: boolean) {
-    if (save) {
-      saveTariAddress(tariAddress);
-    } else {
-      setTariAddress(
-        appState?.config?.settings?.saved_settings?.mm_proxy
-          .wallet_payment_address ||
-          appState?.config?.settings?.saved_settings?.sha3_miner
-            ?.wallet_payment_address ||
-          ''
-      );
-    }
   }
 
   const SignetBox = () => {
@@ -112,6 +98,54 @@ function MiningWidget() {
           {t.common.verbs.pause}
         </Button>
       </MiningButtonBox>
+    );
+  };
+
+  const TariAddressTextField = () => {
+    const [localAddress, setLocalAddress] = useState(tariAddress);
+
+    const handleLocalAddressChange = (
+      event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+      setLocalAddress(event.target.value);
+    };
+
+    function handleSetAddress(save: boolean) {
+      if (save) {
+        saveTariAddress(localAddress);
+      } else {
+        setTariAddress(
+          appState?.config?.settings?.saved_settings?.mm_proxy
+            .wallet_payment_address ||
+            appState?.config?.settings?.saved_settings?.sha3_miner
+              ?.wallet_payment_address ||
+            ''
+        );
+      }
+    }
+
+    return (
+      <Box
+        style={{
+          display: 'flex',
+          gap: theme.spacing(1),
+        }}
+      >
+        <TextField
+          placeholder="Tari Address"
+          value={localAddress}
+          onChange={handleLocalAddressChange}
+          InputProps={{
+            endAdornment: <CopyToClipboard copy={localAddress} />,
+          }}
+        />
+        <Button variant="contained" onClick={() => handleSetAddress(true)}>
+          Save
+        </Button>
+        <Button variant="outlined" onClick={() => handleSetAddress(false)}>
+          Cancel
+        </Button>
+      </Box>
     );
   };
 
@@ -185,33 +219,8 @@ function MiningWidget() {
               <Typography variant="body1" sx={typography.defaultMedium}>
                 {t.walletPasswordWizard.description}
               </Typography>
-              <Box
-                style={{
-                  display: 'flex',
-                  gap: theme.spacing(1),
-                }}
-              >
-                <TextField
-                  placeholder="Tari Address"
-                  value={tariAddress}
-                  onChange={handleTariAddressChange}
-                  InputProps={{
-                    endAdornment: <CopyToClipboard copy={tariAddress} />,
-                  }}
-                />
-                <Button
-                  variant="contained"
-                  onClick={() => handleSetAddress(true)}
-                >
-                  Save
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => handleSetAddress(false)}
-                >
-                  Cancel
-                </Button>
-              </Box>
+              <TariAddressTextField />
+
               <Button
                 variant="contained"
                 onClick={start}

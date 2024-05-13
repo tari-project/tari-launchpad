@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   Chip,
@@ -47,12 +47,6 @@ function MergeMiningWidget() {
     });
   };
 
-  function handleMoneroAddressChange(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    setMoneroAddress(event.target.value);
-  }
-
   useEffect(() => {
     setMoneroAddress(
       appState?.config?.settings?.saved_settings?.xmrig
@@ -68,17 +62,6 @@ function MergeMiningWidget() {
 
   function stop() {
     stopMining('Merge');
-  }
-
-  function handleSetAddress(save: boolean) {
-    if (save) {
-      saveMoneroAddress(moneroAddress);
-    } else {
-      setMoneroAddress(
-        appState?.config?.settings?.saved_settings?.xmrig
-          .monero_mining_address || ''
-      );
-    }
   }
 
   const SignetBox = () => {
@@ -142,6 +125,51 @@ function MergeMiningWidget() {
           {t.common.verbs.pause}
         </Button>
       </MiningButtonBox>
+    );
+  };
+
+  const MoneroAddressTextField = () => {
+    const [localAddress, setLocalAddress] = useState(moneroAddress);
+
+    const handleLocalAddressChange = (
+      event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+      setLocalAddress(event.target.value);
+    };
+
+    function handleSetAddress(save: boolean) {
+      if (save) {
+        saveMoneroAddress(localAddress);
+      } else {
+        setMoneroAddress(
+          appState?.config?.settings?.saved_settings?.xmrig
+            .monero_mining_address || ''
+        );
+      }
+    }
+
+    return (
+      <Box
+        style={{
+          display: 'flex',
+          gap: theme.spacing(1),
+        }}
+      >
+        <TextField
+          placeholder="Monero Address"
+          value={localAddress}
+          onChange={handleLocalAddressChange}
+          InputProps={{
+            endAdornment: <CopyToClipboard copy={localAddress} />,
+          }}
+        />
+        <Button variant="contained" onClick={() => handleSetAddress(true)}>
+          Save
+        </Button>
+        <Button variant="outlined" onClick={() => handleSetAddress(false)}>
+          Cancel
+        </Button>
+      </Box>
     );
   };
 
@@ -218,33 +246,7 @@ function MergeMiningWidget() {
                   {t.mining.setup.descriptionBold}
                 </span>
               </Typography>
-              <Box
-                style={{
-                  display: 'flex',
-                  gap: theme.spacing(1),
-                }}
-              >
-                <TextField
-                  placeholder="Monero Address"
-                  value={moneroAddress}
-                  onChange={handleMoneroAddressChange}
-                  InputProps={{
-                    endAdornment: <CopyToClipboard copy={moneroAddress} />,
-                  }}
-                />
-                <Button
-                  variant="contained"
-                  onClick={() => handleSetAddress(true)}
-                >
-                  Save
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => handleSetAddress(false)}
-                >
-                  Cancel
-                </Button>
-              </Box>
+              <MoneroAddressTextField />
               <Button
                 variant="contained"
                 onClick={start}
