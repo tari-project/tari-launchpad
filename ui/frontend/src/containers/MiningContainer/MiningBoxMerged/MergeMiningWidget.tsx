@@ -27,6 +27,8 @@ import SvgQuestion from '../../../styles/Icons/Question';
 import CopyToClipboard from '../../../components/CopyToClipboard';
 import { useSnackbar } from 'notistack';
 
+type Status = 'inactive' | 'pending' | 'active';
+
 function MergeMiningWidget() {
   const {
     appState,
@@ -38,6 +40,7 @@ function MergeMiningWidget() {
     stopMining,
   } = useAppStateStore();
   const theme = useTheme();
+  const [miningStatus, setMiningStatus] = useState<Status>('inactive');
   const { enqueueSnackbar } = useSnackbar();
 
   const mergeMiningHelp = () => {
@@ -63,6 +66,21 @@ function MergeMiningWidget() {
   function stop() {
     stopMining('Merge');
   }
+
+  useEffect(() => {
+    if (
+      containers?.mmProxy?.status === MergeMiningStatus.WAITING ||
+      containers?.mmProxy?.status === MergeMiningStatus.SHUTTINGDOWN ||
+      containers?.mmProxy?.status === MergeMiningStatus.STARTING ||
+      containers?.mmProxy?.status === MergeMiningStatus.PENDING
+    ) {
+      setMiningStatus('pending');
+    } else if (containers?.mmProxy?.status === MergeMiningStatus.ACTIVE) {
+      setMiningStatus('active');
+    } else {
+      setMiningStatus('inactive');
+    }
+  }, [containers?.mmProxy?.status]);
 
   const SignetBox = () => {
     return (
@@ -173,15 +191,127 @@ function MergeMiningWidget() {
     );
   };
 
-  const MergeMining = () => {
-    switch (containers?.mmProxy?.status) {
-      case MergeMiningStatus.WAITING:
-      case MergeMiningStatus.SHUTTINGDOWN:
-      case MergeMiningStatus.STARTING:
-      case MergeMiningStatus.PENDING:
-        return (
-          <MergeMiningBox>
-            <MiningBoxInner>
+  // const MergeMining = () => {
+  //   switch (containers?.mmProxy?.status) {
+  //     case MergeMiningStatus.WAITING:
+  //     case MergeMiningStatus.SHUTTINGDOWN:
+  //     case MergeMiningStatus.STARTING:
+  //     case MergeMiningStatus.PENDING:
+  //       return (
+  //         <MergeMiningBox>
+  //           <MiningBoxInner>
+  //             <StatusChip
+  //               label={
+  //                 <span>
+  //                   <strong>{containers.mmProxy?.status}</strong>
+  //                 </span>
+  //               }
+  //               color="info"
+  //             />
+  //             <MiningTitle />
+  //             <CircularProgress />
+  //             <Box>
+  //               <TransparentButton onClick={stop}>
+  //                 {t.common.verbs.cancel}
+  //               </TransparentButton>
+  //             </Box>
+  //           </MiningBoxInner>
+  //           <SignetBox />
+  //         </MergeMiningBox>
+  //       );
+  //     case MergeMiningStatus.ACTIVE:
+  //       return (
+  //         <MergeMiningBox>
+  //           <MiningBoxInner>
+  //             <Box>
+  //               <StatusChip
+  //                 label={
+  //                   <span>
+  //                     <strong>{t.common.adjectives.running}</strong>
+  //                   </span>
+  //                 }
+  //                 color="success"
+  //               />
+  //             </Box>
+  //             <MiningTitle />
+  //             <Typography variant="body1" sx={typography.defaultMedium}>
+  //               00 000 XTR
+  //             </Typography>
+  //             <MiningButton />
+  //           </MiningBoxInner>
+  //           <SignetBox />
+  //         </MergeMiningBox>
+  //       );
+  //     case MergeMiningStatus.INACTIVE:
+  //     default:
+  //       return (
+  //         <MiningBoxOuter>
+  //           <MiningBoxInner>
+  //             <Box>
+  //               <Chip
+  //                 label={
+  //                   <span>
+  //                     <strong>{t.common.phrases.readyToSet}</strong>
+  //                   </span>
+  //                 }
+  //                 color="info"
+  //               />
+  //             </Box>
+  //             <MiningTitle />
+  //             <Typography variant="body2" sx={typography.defaultMedium}>
+  //               {t.mining.setup.description}{' '}
+  //               <span style={typography.defaultHeavy}>
+  //                 {t.mining.setup.descriptionBold}
+  //               </span>
+  //             </Typography>
+  //             <MoneroAddressTextField />
+  //             <Button
+  //               variant="contained"
+  //               onClick={start}
+  //               style={{
+  //                 minWidth: '120px',
+  //               }}
+  //             >
+  //               {t.common.verbs.start}
+  //             </Button>
+  //           </MiningBoxInner>
+  //           <SignetBox />
+  //         </MiningBoxOuter>
+  //       );
+  //   }
+  // };
+
+  // return <MergeMining />;
+
+  switch (miningStatus) {
+    case 'active':
+      return (
+        <MergeMiningBox>
+          <MiningBoxInner>
+            <Box>
+              <StatusChip
+                label={
+                  <span>
+                    <strong>{t.common.adjectives.running}</strong>
+                  </span>
+                }
+                color="success"
+              />
+            </Box>
+            <MiningTitle />
+            <Typography variant="body1" sx={typography.defaultMedium}>
+              00 000 XTR
+            </Typography>
+            <MiningButton />
+          </MiningBoxInner>
+          <SignetBox />
+        </MergeMiningBox>
+      );
+    case 'pending':
+      return (
+        <MergeMiningBox>
+          <MiningBoxInner>
+            <Box>
               <StatusChip
                 label={
                   <span>
@@ -190,80 +320,55 @@ function MergeMiningWidget() {
                 }
                 color="info"
               />
-              <MiningTitle />
-              <CircularProgress />
-              <Box>
-                <TransparentButton onClick={stop}>
-                  {t.common.verbs.cancel}
-                </TransparentButton>
-              </Box>
-            </MiningBoxInner>
-            <SignetBox />
-          </MergeMiningBox>
-        );
-      case MergeMiningStatus.ACTIVE:
-        return (
-          <MergeMiningBox>
-            <MiningBoxInner>
-              <Box>
-                <StatusChip
-                  label={
-                    <span>
-                      <strong>{t.common.adjectives.running}</strong>
-                    </span>
-                  }
-                  color="success"
-                />
-              </Box>
-              <MiningTitle />
-              <Typography variant="body1" sx={typography.defaultMedium}>
-                00 000 XTR
-              </Typography>
-              <MiningButton />
-            </MiningBoxInner>
-            <SignetBox />
-          </MergeMiningBox>
-        );
-      case MergeMiningStatus.INACTIVE:
-      default:
-        return (
-          <MiningBoxOuter>
-            <MiningBoxInner>
-              <Box>
-                <Chip
-                  label={
-                    <span>
-                      <strong>{t.common.phrases.readyToSet}</strong>
-                    </span>
-                  }
-                  color="info"
-                />
-              </Box>
-              <MiningTitle />
-              <Typography variant="body2" sx={typography.defaultMedium}>
-                {t.mining.setup.description}{' '}
-                <span style={typography.defaultHeavy}>
-                  {t.mining.setup.descriptionBold}
-                </span>
-              </Typography>
-              <MoneroAddressTextField />
-              <Button
-                variant="contained"
-                onClick={start}
-                style={{
-                  minWidth: '120px',
-                }}
-              >
-                {t.common.verbs.start}
-              </Button>
-            </MiningBoxInner>
-            <SignetBox />
-          </MiningBoxOuter>
-        );
-    }
-  };
-
-  return <MergeMining />;
+            </Box>
+            <MiningTitle />
+            <CircularProgress />
+            <Box>
+              <TransparentButton onClick={stop}>
+                {t.common.verbs.cancel}
+              </TransparentButton>
+            </Box>
+          </MiningBoxInner>
+          <SignetBox />
+        </MergeMiningBox>
+      );
+    case 'inactive':
+    default:
+      return (
+        <MiningBoxOuter>
+          <MiningBoxInner>
+            <Box>
+              <Chip
+                label={
+                  <span>
+                    <strong>{t.common.phrases.readyToSet}</strong>
+                  </span>
+                }
+                color="info"
+              />
+            </Box>
+            <MiningTitle />
+            <Typography variant="body2" sx={typography.defaultMedium}>
+              {t.mining.setup.description}{' '}
+              <span style={typography.defaultHeavy}>
+                {t.mining.setup.descriptionBold}
+              </span>
+            </Typography>
+            <MoneroAddressTextField />
+            <Button
+              variant="contained"
+              onClick={start}
+              style={{
+                minWidth: '120px',
+              }}
+            >
+              {t.common.verbs.start}
+            </Button>
+          </MiningBoxInner>
+          <SignetBox />
+        </MiningBoxOuter>
+      );
+  }
 }
 
 export default MergeMiningWidget;

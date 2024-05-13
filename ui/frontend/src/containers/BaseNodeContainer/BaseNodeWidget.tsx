@@ -1,4 +1,3 @@
-// import { useEffect } from 'react';
 import { Button, Typography, Box, CircularProgress } from '@mui/material';
 import { LabelBoxVertical } from '../../components/StyledComponents';
 import t from '../../locales';
@@ -11,10 +10,14 @@ import {
   BaseNodeBox,
   TransparentButton,
 } from '../../components/StyledComponents';
+import { useEffect, useState } from 'react';
+
+type Status = 'inactive' | 'pending' | 'active';
 
 function BaseNodeWidget() {
   const { appState, containers, startBaseNode, stopBaseNode, network } =
     useAppStateStore();
+  const [baseNodeStatus, setBaseNodeStatus] = useState<Status>('inactive');
 
   function start() {
     startBaseNode();
@@ -23,6 +26,21 @@ function BaseNodeWidget() {
   function stop() {
     stopBaseNode();
   }
+
+  useEffect(() => {
+    if (
+      containers.baseNode?.status === BaseNodeStatus.WAITING ||
+      containers.baseNode?.status === BaseNodeStatus.SHUTTINGDOWN ||
+      containers.baseNode?.status === BaseNodeStatus.STARTING ||
+      containers.baseNode?.status === BaseNodeStatus.PENDING
+    ) {
+      setBaseNodeStatus('pending');
+    } else if (containers.baseNode?.status === BaseNodeStatus.ACTIVE) {
+      setBaseNodeStatus('active');
+    } else {
+      setBaseNodeStatus('inactive');
+    }
+  }, [containers.baseNode?.status]);
 
   const BaseNodeTitle = () => {
     return (
@@ -90,56 +108,41 @@ function BaseNodeWidget() {
     );
   };
 
-  const BaseNode = () => {
-    switch (containers.baseNode?.status) {
-      case BaseNodeStatus.WAITING:
-      case BaseNodeStatus.SHUTTINGDOWN:
-      case BaseNodeStatus.STARTING:
-      case BaseNodeStatus.PENDING:
-        return (
-          <BaseNodeBox>
-            <BaseNodeTitle />
-            <BaseNodeNetwork />
-            <Box>
-              <CircularProgress />
-            </Box>
-            <Box>
-              <TransparentButton onClick={stop}>
-                Stop Base Node
-              </TransparentButton>
-            </Box>
-            <BaseNodeInfo />
-          </BaseNodeBox>
-        );
-      case BaseNodeStatus.ACTIVE:
-        return (
-          <BaseNodeBox>
-            <BaseNodeTitle />
-            <BaseNodeNetwork />
-            <Box>
-              <TransparentButton onClick={stop}>
-                Stop Base Node
-              </TransparentButton>
-            </Box>
-            <BaseNodeInfo />
-          </BaseNodeBox>
-        );
-      case BaseNodeStatus.INACTIVE:
-      default:
-        return (
-          <DefaultBox>
-            <BaseNodeTitle />
-            <BaseNodeNetwork />
-            <Button variant="contained" onClick={start}>
-              Start Base Node
-            </Button>
-            <BaseNodeInfo />
-          </DefaultBox>
-        );
-    }
-  };
-
-  return <>{<BaseNode />}</>;
+  switch (baseNodeStatus) {
+    case 'active':
+      return (
+        <BaseNodeBox>
+          <BaseNodeTitle />
+          <BaseNodeNetwork />
+          <Box>
+            <TransparentButton onClick={stop}>Stop Base Node</TransparentButton>
+          </Box>
+          <BaseNodeInfo />
+        </BaseNodeBox>
+      );
+    case 'pending':
+      return (
+        <BaseNodeBox>
+          <BaseNodeTitle />
+          <BaseNodeNetwork />
+          <CircularProgress />
+          <TransparentButton onClick={stop}>Stop Base Node</TransparentButton>
+          <BaseNodeInfo />
+        </BaseNodeBox>
+      );
+    case 'inactive':
+    default:
+      return (
+        <DefaultBox>
+          <BaseNodeTitle />
+          <BaseNodeNetwork />
+          <Button variant="contained" onClick={start}>
+            Start Base Node
+          </Button>
+          <BaseNodeInfo />
+        </DefaultBox>
+      );
+  }
 }
 
 export default BaseNodeWidget;

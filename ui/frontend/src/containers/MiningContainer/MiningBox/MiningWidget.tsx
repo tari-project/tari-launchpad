@@ -23,6 +23,8 @@ import { useTheme } from '@mui/material/styles';
 import SvgTariSignet from '../../../styles/Icons/TariSignet';
 import CopyToClipboard from '../../../components/CopyToClipboard';
 
+type Status = 'inactive' | 'pending' | 'active';
+
 function MiningWidget() {
   const {
     appState,
@@ -34,10 +36,7 @@ function MiningWidget() {
     stopMining,
   } = useAppStateStore();
   const theme = useTheme();
-
-  // function handleTariAddressChange(event: React.ChangeEvent<HTMLInputElement>) {
-  //   setTariAddress(event.target.value);
-  // }
+  const [miningStatus, setMiningStatus] = useState<Status>('inactive');
 
   useEffect(() => {
     setTariAddress(
@@ -51,6 +50,7 @@ function MiningWidget() {
     appState?.config?.settings?.saved_settings?.mm_proxy.wallet_payment_address,
     appState?.config?.settings?.saved_settings?.sha3_miner,
   ]);
+
   function start() {
     startMining('Sha3');
   }
@@ -58,6 +58,21 @@ function MiningWidget() {
   function stop() {
     stopMining('Sha3');
   }
+
+  useEffect(() => {
+    if (
+      containers.sha3Miner?.status === ShaMiningStatus.WAITING ||
+      containers.sha3Miner?.status === ShaMiningStatus.SHUTTINGDOWN ||
+      containers.sha3Miner?.status === ShaMiningStatus.STARTING ||
+      containers.sha3Miner?.status === ShaMiningStatus.PENDING
+    ) {
+      setMiningStatus('pending');
+    } else if (containers.sha3Miner?.status === ShaMiningStatus.ACTIVE) {
+      setMiningStatus('active');
+    } else {
+      setMiningStatus('inactive');
+    }
+  }, [containers.sha3Miner?.status]);
 
   const SignetBox = () => {
     return (
@@ -149,95 +164,88 @@ function MiningWidget() {
     );
   };
 
-  const ShaMining = () => {
-    switch (containers?.sha3Miner?.status) {
-      case ShaMiningStatus.WAITING:
-      case ShaMiningStatus.SHUTTINGDOWN:
-      case ShaMiningStatus.STARTING:
-      case ShaMiningStatus.PENDING:
-        return (
-          <ShaMiningBox>
-            <MiningBoxInner>
-              <Box>
-                <StatusChip
-                  label={
-                    <span>
-                      <strong>{containers.sha3Miner?.status}</strong>
-                    </span>
-                  }
-                  color="info"
-                />
-              </Box>
-              <MiningTitle />
-              <CircularProgress />
-              <Box>
-                <TransparentButton onClick={stop}>
-                  {t.common.verbs.cancel}
-                </TransparentButton>
-              </Box>
-            </MiningBoxInner>
-            <SignetBox />
-          </ShaMiningBox>
-        );
-      case ShaMiningStatus.ACTIVE:
-        return (
-          <ShaMiningBox>
-            <MiningBoxInner>
-              <Box>
-                <StatusChip
-                  label={
-                    <span>
-                      <strong>{t.common.adjectives.running}</strong>
-                    </span>
-                  }
-                  color="success"
-                />
-              </Box>
-              <MiningTitle />
-              <Typography variant="body1" sx={typography.defaultMedium}>
-                00 000 XTR
-              </Typography>
-              <MiningButton />
-            </MiningBoxInner>
-            <SignetBox />
-          </ShaMiningBox>
-        );
-      case ShaMiningStatus.INACTIVE:
-      default:
-        return (
-          <MiningBoxOuter>
-            <MiningBoxInner>
-              <Chip
+  switch (miningStatus) {
+    case 'active':
+      return (
+        <ShaMiningBox>
+          <MiningBoxInner>
+            <Box>
+              <StatusChip
                 label={
                   <span>
-                    <strong>{t.common.phrases.startHere}</strong>
+                    <strong>{t.common.adjectives.running}</strong>
+                  </span>
+                }
+                color="success"
+              />
+            </Box>
+            <MiningTitle />
+            <Typography variant="body1" sx={typography.defaultMedium}>
+              00 000 XTR
+            </Typography>
+            <MiningButton />
+          </MiningBoxInner>
+          <SignetBox />
+        </ShaMiningBox>
+      );
+    case 'pending':
+      return (
+        <ShaMiningBox>
+          <MiningBoxInner>
+            <Box>
+              <StatusChip
+                label={
+                  <span>
+                    <strong>{containers.sha3Miner?.status}</strong>
                   </span>
                 }
                 color="info"
               />
-              <MiningTitle />
-              <Typography variant="body1" sx={typography.defaultMedium}>
-                {t.walletPasswordWizard.description}
-              </Typography>
-              <TariAddressTextField />
+            </Box>
+            <MiningTitle />
+            <CircularProgress />
+            <Box>
+              <TransparentButton onClick={stop}>
+                {t.common.verbs.cancel}
+              </TransparentButton>
+            </Box>
+          </MiningBoxInner>
+          <SignetBox />
+        </ShaMiningBox>
+      );
+    case 'inactive':
+    default:
+      return (
+        <MiningBoxOuter>
+          <MiningBoxInner>
+            <Chip
+              label={
+                <span>
+                  <strong>{t.common.phrases.startHere}</strong>
+                </span>
+              }
+              color="info"
+            />
+            <MiningTitle />
+            <Typography variant="body1" sx={typography.defaultMedium}>
+              {t.walletPasswordWizard.description}
+            </Typography>
+            <TariAddressTextField />
 
-              <Button
-                variant="contained"
-                onClick={start}
-                style={{
-                  minWidth: '120px',
-                }}
-              >
-                {t.common.verbs.start}
-              </Button>
-            </MiningBoxInner>
-            <SignetBox />
-          </MiningBoxOuter>
-        );
-    }
-  };
-
-  return <ShaMining />;
+            <Button
+              variant="contained"
+              onClick={start}
+              style={{
+                minWidth: '120px',
+              }}
+            >
+              {t.common.verbs.start}
+            </Button>
+          </MiningBoxInner>
+          <SignetBox />
+        </MiningBoxOuter>
+      );
+  }
 }
 
 export default MiningWidget;

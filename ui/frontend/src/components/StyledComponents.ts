@@ -253,22 +253,11 @@ export const StatusChip = styled(Chip)(({ color }) => ({
 
 export const TransparentButton = styled(Button)(() => ({
   color: '#fff',
-  // border: `1px solid rgba(255, 255, 255, 0.6)`,
+  border: 'none',
   backgroundColor: 'rgba(255, 255, 255, 0.22)',
   minWidth: 120,
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
-    border: `1px solid #fff`,
-    color: '#fff',
-  },
-  '&:focus': {
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
-    border: `1px solid #fff`,
-    color: '#fff',
-  },
-  '&:active': {
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
-    border: `1px solid #fff`,
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
     color: '#fff',
   },
 }));
@@ -282,4 +271,7 @@ export const MiningButtonBox = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
   padding: `4px 16px 4px 24px`,
   borderRadius: theme.spacing(1),
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+  },
 }));

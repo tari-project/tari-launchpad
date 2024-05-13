@@ -366,55 +366,6 @@ function App() {
   return (
     <MainLayout>
       <MainTabs />
-      {/* {isChangingMining ? (
-        <CircularProgress color="inherit" />
-      ) : (
-        <IconButton onClick={isMining ? stop : start}>
-          {isMining ? <PauseIcon /> : <PlayArrowIcon />}
-        </IconButton>
-      )}
-      <Typography pt={2} variant="body2">
-        {isChangingMining
-          ? 'Busy ...'
-          : isMining
-          ? 'Pause Mining'
-          : 'Start Mining'}
-      </Typography>
-      <StyledPaper
-        style={{
-          width: '100%',
-        }}
-      >
-        <CustomGridContainer>
-          <CustomGrid>
-            <Typography variant="h6">Algorithm</Typography>
-            <Typography variant="h6">Status</Typography>
-            <Typography variant="h6">Enabled</Typography>
-          </CustomGrid>
-          <Divider />
-          <CustomGrid>
-            <Typography variant="h6">Merge Mining with Monero</Typography>
-            <Typography variant="body2">
-              {containers ? containers.xmrig?.status : '...'}
-            </Typography>
-            <Switch
-              checked={mergeMiningEnabled}
-              onChange={toggleMergeMiningEnabled}
-            />
-          </CustomGrid>
-          <Divider />
-          <CustomGrid>
-            <Typography variant="h6">SHA3</Typography>
-            <Typography variant="body2">
-              {containers ? containers?.sha3Miner?.status : '...'}
-            </Typography>
-            <Switch
-              checked={shaMiningEnabled}
-              onChange={toggleShaMiningEnabled}
-            />
-          </CustomGrid>
-        </CustomGridContainer>
-      </StyledPaper> */}
       <Dialog
         open={openDockerWarning}
         onClose={handleDockerClose}
