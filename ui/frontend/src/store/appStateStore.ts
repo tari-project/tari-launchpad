@@ -1,51 +1,6 @@
 import { create } from 'zustand';
 import { emit } from '@tauri-apps/api/event';
-import { AppState, ContainerState, MiningType } from './types';
-
-interface AppStateStore {
-  appState: AppState;
-  containers: ContainerState;
-  isMining: boolean;
-  isShaMining: boolean;
-  isMergeMining: boolean;
-  isBaseNodeActive: boolean;
-  shaMiningEnabled: boolean;
-  mergeMiningEnabled: boolean;
-  isChangingMining: boolean;
-  openDockerWarning: boolean;
-  openSettings: boolean;
-  tariAddress: string;
-  moneroAddress: string;
-  network: string;
-  setAppState: (newState: AppState) => void;
-  setContainers: (newContainers: ContainerState) => void;
-  setIsMining: (value: boolean) => void;
-  setIsShaMining: (value: boolean) => void;
-  setIsMergeMining: (value: boolean) => void;
-  setIsBaseNodeActive: (value: boolean) => void;
-  setShaMiningEnabled: (value: boolean) => void;
-  setMergeMiningEnabled: (value: boolean) => void;
-  setIsChangingMining: (value: boolean) => void;
-  setOpenDockerWarning: (value: boolean) => void;
-  setOpenSettings: (value: boolean) => void;
-  setTariAddress: (value: string) => void;
-  setMoneroAddress: (value: string) => void;
-  setNetwork: (value: string) => void;
-  startMining: (type: MiningType) => void;
-  stopMining: (type: MiningType) => void;
-  startBaseNode: () => void;
-  stopBaseNode: () => void;
-  //settings
-  isSubmitting: boolean;
-  setIsSubmitting: (value: boolean) => void;
-  saveTariAddress: (tariAddress: string) => void;
-  saveMoneroAddress: (moneroAddress: string) => void;
-  saveSettings: (formData: any) => void;
-  runOnStartup: boolean;
-  mineOnStartup: boolean;
-  setRunOnStartup: (value: boolean) => void;
-  setMineOnStartup: (value: boolean) => void;
-}
+import { AppStateStore, MiningType, SettingsTabs } from './types';
 
 const useAppStateStore = create<AppStateStore>((set, get) => ({
   appState: {
@@ -97,39 +52,106 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
       sync_status: '',
     },
   },
-  containers: {},
-  isMining: false,
-  isShaMining: false,
-  isMergeMining: false,
-  isBaseNodeActive: false,
-  shaMiningEnabled: true,
-  mergeMiningEnabled: true,
-  isChangingMining: false,
-  openDockerWarning: false,
-  openSettings: false,
-  tariAddress: '',
-  moneroAddress: '',
-  network: '',
   setAppState: (newState) => set({ appState: newState }),
+
+  containers: {},
   setContainers: (newContainers) =>
     set((state) => ({ ...state, containers: newContainers })),
+
+  isMining: false,
   setIsMining: (value) => set(() => ({ isMining: value })),
+
+  isShaMining: false,
   setIsShaMining: (value) => set(() => ({ isShaMining: value })),
+
+  isMergeMining: false,
   setIsMergeMining: (value) => set(() => ({ isMergeMining: value })),
+
+  isBaseNodeActive: false,
   setIsBaseNodeActive: (value) => set(() => ({ isBaseNodeActive: value })),
+
+  shaMiningEnabled: true,
   setShaMiningEnabled: (value) => set(() => ({ shaMiningEnabled: value })),
+
+  mergeMiningEnabled: true,
   setMergeMiningEnabled: (value) => set(() => ({ mergeMiningEnabled: value })),
+
+  isChangingMining: false,
   setIsChangingMining: (value) => set(() => ({ isChangingMining: value })),
+
+  openDockerWarning: false,
   setOpenDockerWarning: (value) => set(() => ({ openDockerWarning: value })),
+
+  openSettings: false,
   setOpenSettings: (value) => set(() => ({ openSettings: value })),
+
+  tariAddress: '',
   setTariAddress: (value) => set(() => ({ tariAddress: value })),
-  setNetwork: (value) => set(() => ({ network: value })),
+
+  moneroAddress: '',
   setMoneroAddress: (value) => set(() => ({ moneroAddress: value })),
+
+  network: '',
+  setNetwork: (value) => set(() => ({ network: value })),
+
+  openSchedule: false,
+  setOpenSchedule: (value) => set({ openSchedule: value }),
+
+  shaTime: 0,
+  setShaTime: (value) => set({ shaTime: value }),
+
+  shaTimerOn: false,
+  setShaTimerOn: (value) => set({ shaTimerOn: value }),
+
+  mergeTime: 0,
+  setMergeTime: (value) => set({ mergeTime: value }),
+
+  mergeTimerOn: false,
+  setMergeTimerOn: (value) => set({ mergeTimerOn: value }),
+
+  settingsTab: 0,
+
+  openSettingsFunc: (tab) => {
+    set({ openSettings: true });
+    switch (tab) {
+      case SettingsTabs.MINING:
+        set({ settingsTab: 0 });
+        break;
+      case SettingsTabs.BASE_NODE:
+        set({ settingsTab: 1 });
+        break;
+      case SettingsTabs.WALLET:
+        set({ settingsTab: 2 });
+        break;
+      case SettingsTabs.DOCKER:
+        set({ settingsTab: 3 });
+        break;
+      case SettingsTabs.GENERAL:
+        set({ settingsTab: 4 });
+        break;
+      case SettingsTabs.RESET:
+        set({ settingsTab: 5 });
+        break;
+      default:
+        set({ settingsTab: 0 });
+    }
+  },
+
+  isSubmitting: false,
+  setIsSubmitting: (value) => set({ isSubmitting: value }),
+
+  runOnStartup: false,
+  setRunOnStartup: (value) => set({ runOnStartup: value }),
+
+  mineOnStartup: false,
+  setMineOnStartup: (value) => set({ mineOnStartup: value }),
+
+  // Mining functions
   startMining: async (miningType: MiningType) => {
     let state = get().appState;
     let stateSession = { ...state?.config?.session };
     switch (miningType) {
-      case 'Sha3':
+      case 'Sha':
         stateSession.sha3x_layer_active = true;
         set({ isShaMining: true });
         break;
@@ -152,7 +174,7 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
     let state = get().appState;
     let stateSession = { ...state?.config?.session };
     switch (miningType) {
-      case 'Sha3':
+      case 'Sha':
         stateSession.sha3x_layer_active = false;
         set({ isShaMining: false });
         break;
@@ -175,7 +197,6 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
     let state = get().appState;
     let stateSession = { ...state?.config?.session };
     stateSession.base_node_active = true;
-    // set({ isBaseNodeActive: true });
     emit('tari://actions', {
       Action: { type: 'ChangeSession', payload: stateSession },
     });
@@ -184,17 +205,17 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
     let state = get().appState;
     let stateSession = { ...state?.config?.session };
     stateSession.base_node_active = false;
-    // set({ isBaseNodeActive: false });
     emit('tari://actions', {
       Action: { type: 'ChangeSession', payload: stateSession },
     });
   },
-  isSubmitting: false,
-  setIsSubmitting: (value) => set({ isSubmitting: value }),
+
+  // Address related functions
   saveTariAddress: async (tariAddress: string) => {
     let state = get().appState;
     let settings = { ...state?.config?.settings?.saved_settings };
     settings.mm_proxy.wallet_payment_address = tariAddress;
+    set({ tariAddress: tariAddress });
     settings.sha3_miner.wallet_payment_address = tariAddress;
     emit('tari://actions', {
       Action: { type: 'SaveSettings', payload: settings },
@@ -204,6 +225,7 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
     let state = get().appState;
     let settings = { ...state?.config?.settings?.saved_settings };
     settings.xmrig.monero_mining_address = moneroAddress;
+    set({ moneroAddress: moneroAddress });
     emit('tari://actions', {
       Action: { type: 'SaveSettings', payload: settings },
     });
@@ -217,10 +239,6 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
       Action: { type: 'SaveSettings', payload: settings },
     });
   },
-  runOnStartup: false,
-  mineOnStartup: false,
-  setRunOnStartup: (value) => set({ runOnStartup: value }),
-  setMineOnStartup: (value) => set({ mineOnStartup: value }),
 }));
 
 export default useAppStateStore;

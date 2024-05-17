@@ -2,6 +2,7 @@ const translations = {
   title: 'Base Node',
   tari_network_label: 'Tari network',
   start: 'Start Base Node',
+  stop: 'Stop Base Node',
   unhealthy: {
     warning:
       'Not all containers required to run Base Node are in a healthy state.',

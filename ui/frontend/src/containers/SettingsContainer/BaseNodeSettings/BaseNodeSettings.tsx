@@ -1,10 +1,9 @@
 import { Typography, TextField } from '@mui/material';
 import SubHeading from '../../../components/SubHeading';
 import typography from '../../../styles/styles/typography';
-import {
-  SettingsBox,
-  LabelBoxHorisontal,
-} from '../../../components/StyledComponents';
+import { LabelBoxHorisontal } from '../../../components/StyledComponents';
+import { SettingsBox, SettingsContainer } from '../styles';
+import { BaseNodeSettingsType } from '../types';
 import t from '../../../locales';
 
 function BaseNodeSettings({
@@ -12,10 +11,10 @@ function BaseNodeSettings({
   formData,
 }: {
   handleChange: any;
-  formData: any;
+  formData: BaseNodeSettingsType;
 }) {
   return (
-    <>
+    <SettingsContainer>
       <Typography variant="h3" style={typography.subheader}>
         {t.baseNode.settings.title}
       </Typography>
@@ -48,7 +47,7 @@ function BaseNodeSettings({
       <SettingsBox>
         <SubHeading text={t.baseNode.qrModal.title} />
       </SettingsBox>
-    </>
+    </SettingsContainer>
   );
 }
 

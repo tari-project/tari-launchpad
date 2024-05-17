@@ -1,9 +1,7 @@
 import { Typography, TextField } from '@mui/material';
 import typography from '../../../styles/styles/typography';
-import {
-  SettingsBox,
-  LabelBoxVertical,
-} from '../../../components/StyledComponents';
+import { LabelBoxVertical } from '../../../components/StyledComponents';
+import { SettingsBox, SettingsContainer } from '../styles';
 import t from '../../../locales';
 import CopyToClipboard from '../../../components/CopyToClipboard';
 
@@ -15,7 +13,7 @@ function WalletSettings({
   formData: any;
 }) {
   return (
-    <>
+    <SettingsContainer>
       <Typography variant="h3" style={typography.subheader}>
         {t.wallet.settings.title}
       </Typography>
@@ -46,7 +44,7 @@ function WalletSettings({
           {t.wallet.settings.explanations.convert}{' '}
         </Typography>
       </SettingsBox>
-    </>
+    </SettingsContainer>
   );
 }
 

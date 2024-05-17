@@ -17,7 +17,7 @@ const CustomGridContainer = styled(Box)(({ theme }) => ({
 }));
 
 function Containers() {
-  const { appState, containers } = useAppStateStore();
+  const { containers } = useAppStateStore();
   const items = [
     {
       container: 'Tor',
@@ -64,34 +64,25 @@ function Containers() {
   const renderItems = items.map((item) => {
     return (
       <>
+        <Divider />
         <CustomGrid>
           <Typography variant="h6">{item.container}</Typography>
           <Typography variant="body2">{item.status}</Typography>
           <Typography variant="body2">{item.cpu}</Typography>
         </CustomGrid>
-        <Divider />
       </>
     );
   });
 
   return (
-    <>
-      <CustomGridContainer>
-        <CustomGrid>
-          <Typography variant="h5">Container</Typography>
-          <Typography variant="h5">Status</Typography>
-          <Typography variant="h5">CPU</Typography>
-        </CustomGrid>
-        <Divider />
-        {renderItems}
-        <CustomGrid>
-          <Typography variant="body2">
-            Sync Status: Height: {appState?.node?.chain_height} Status:{' '}
-            {appState?.node?.sync_status}
-          </Typography>
-        </CustomGrid>
-      </CustomGridContainer>
-    </>
+    <CustomGridContainer>
+      <CustomGrid>
+        <Typography variant="h5">Container</Typography>
+        <Typography variant="h5">Status</Typography>
+        <Typography variant="h5">CPU</Typography>
+      </CustomGrid>
+      {renderItems}
+    </CustomGridContainer>
   );
 }
 

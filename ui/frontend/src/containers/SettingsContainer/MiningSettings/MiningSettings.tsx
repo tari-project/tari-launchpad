@@ -2,19 +2,20 @@ import { Typography, TextField } from '@mui/material';
 import SubHeading from '../../../components/SubHeading';
 import typography from '../../../styles/styles/typography';
 import {
-  SettingsBox,
   LabelBoxHorisontal,
   LabelBoxVertical,
 } from '../../../components/StyledComponents';
+import { SettingsBox, SettingsContainer } from '../styles';
 import t from '../../../locales';
 import CopyToClipboard from '../../../components/CopyToClipboard';
+import { MiningSettingsType } from '../types';
 
 function MiningSettings({
   handleChange,
   formData,
 }: {
   handleChange: any;
-  formData: any;
+  formData: MiningSettingsType;
 }) {
   console.log(typeof formData.shaThreads);
   const handleThreadChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,7 +28,7 @@ function MiningSettings({
     });
   };
   return (
-    <>
+    <SettingsContainer>
       <Typography variant="h3" style={typography.subheader}>
         {t.mining.settings.title}
       </Typography>
@@ -108,7 +109,7 @@ function MiningSettings({
           />
         </LabelBoxVertical> */}
       </SettingsBox>
-    </>
+    </SettingsContainer>
   );
 }
 

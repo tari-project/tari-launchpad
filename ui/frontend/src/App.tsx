@@ -3,20 +3,12 @@ import { useEffect } from 'react';
 // import { invoke } from "@tauri-apps/api/tauri";
 // import './App.css';
 import { emit, listen } from '@tauri-apps/api/event';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from '@mui/material';
-import { exit } from '@tauri-apps/api/process';
-import { open } from '@tauri-apps/api/shell';
 import MainLayout from './MainLayout';
 import useAppStateStore from './store/appStateStore';
 import MainTabs from './containers/Dashboard/DashboardContainer/MainTabs';
 import SettingsDialog from './containers/SettingsContainer/SettingsDialog';
+import DockerWarning from './containers/DockerWarning/DockerWarning';
+import MiningScheduleDialog from './containers/MiningContainer/MiningSchedule/MiningScheduleDialog';
 
 function App() {
   const {
@@ -31,6 +23,13 @@ function App() {
     setTariAddress,
     setNetwork,
     openSettings,
+    shaTime,
+    setShaTime,
+    shaTimerOn,
+    mergeTime,
+    setMergeTime,
+    mergeTimerOn,
+    openSchedule,
   } = useAppStateStore();
 
   //   async function connect() {
@@ -313,11 +312,6 @@ function App() {
     };
   });
 
-  async function handleDockerClose() {
-    setOpenDockerWarning(false);
-    await exit(1);
-  }
-
   function printStatus(status: any) {
     if (status === undefined) {
       return '...';
@@ -348,11 +342,6 @@ function App() {
     };
   }
 
-  async function openDockerInstall(evt: any) {
-    evt.preventDefault();
-    open('https://docs.docker.com/engine/install/');
-  }
-
   // let state: any = appState;
   //  let containers: any = state.containers;
   // console.log(containers);
@@ -363,32 +352,44 @@ function App() {
 
   console.log(appState);
 
+  useEffect(() => {
+    let intervalId: any;
+    let prevTime = shaTime;
+
+    if (shaTimerOn) {
+      intervalId = setInterval(() => {
+        prevTime = prevTime + 1;
+        setShaTime(prevTime);
+      }, 1000);
+    } else {
+      clearInterval(intervalId);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [shaTimerOn]);
+
+  useEffect(() => {
+    let intervalId: any;
+    let prevTime = mergeTime;
+
+    if (mergeTimerOn) {
+      intervalId = setInterval(() => {
+        prevTime = prevTime + 1;
+        setMergeTime(prevTime);
+      }, 1000);
+    } else {
+      clearInterval(intervalId);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [mergeTimerOn]);
+
   return (
     <MainLayout>
       <MainTabs />
-      <Dialog
-        open={openDockerWarning}
-        onClose={handleDockerClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Docker is not running</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Tari Launchpad requires Docker to be running. Please start Docker
-            and try again. If you don't have Docker installed, you can download
-            it from{' '}
-            <a onClick={(evt) => openDockerInstall(evt)} href="#">
-              here
-            </a>
-            .
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDockerClose}>Exit</Button>
-        </DialogActions>
-      </Dialog>
-      {openSettings ? <SettingsDialog /> : null}
+      {openDockerWarning && <DockerWarning />}
+      {openSettings && <SettingsDialog />}
+      {openSchedule && <MiningScheduleDialog />}
     </MainLayout>
   );
 }

@@ -1,10 +1,9 @@
 import { Typography, TextField } from '@mui/material';
 import SubHeading from '../../../components/SubHeading';
-import {
-  SettingsBox,
-  LabelBoxHorisontal,
-} from '../../../components/StyledComponents';
+import { LabelBoxHorisontal } from '../../../components/StyledComponents';
+import { SettingsBox, SettingsContainer } from '../styles';
 import typography from '../../../styles/styles/typography';
+import { DockerSettingsType } from '../types';
 import t from '../../../locales';
 
 function DockerSettings({
@@ -12,10 +11,10 @@ function DockerSettings({
   formData,
 }: {
   handleChange: any;
-  formData: any;
+  formData: DockerSettingsType;
 }) {
   return (
-    <>
+    <SettingsContainer>
       <Typography variant="h3" style={typography.subheader}>
         {t.docker.settings.title}
       </Typography>
@@ -45,7 +44,7 @@ function DockerSettings({
         </LabelBoxHorisontal>
         <SubHeading text={t.docker.settings.imageStatuses} />
       </SettingsBox>
-    </>
+    </SettingsContainer>
   );
 }
 

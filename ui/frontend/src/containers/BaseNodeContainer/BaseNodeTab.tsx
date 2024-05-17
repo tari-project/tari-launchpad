@@ -10,6 +10,7 @@ import typography from '../../styles/styles/typography';
 import { useTheme } from '@mui/material/styles';
 import { useSnackbar } from 'notistack';
 import t from '../../locales';
+import BaseNodeFooter from './BaseNodeFooter';
 
 function BaseNodeTab() {
   const theme = useTheme();
@@ -77,6 +78,7 @@ function BaseNodeTab() {
           }}
         >
           <BaseNodeWidget />
+          <BaseNodeFooter />
         </Box>
       </Box>
     </TabInnerBox>

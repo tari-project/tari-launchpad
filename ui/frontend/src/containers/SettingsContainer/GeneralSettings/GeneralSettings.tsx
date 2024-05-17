@@ -1,7 +1,7 @@
 import { Typography, Switch } from '@mui/material';
 import SubHeading from '../../../components/SubHeading';
 import typography from '../../../styles/styles/typography';
-import { SettingsBox } from '../../../components/StyledComponents';
+import { SettingsBox, SettingsContainer } from '../styles';
 import { FormGroup, FormControlLabel } from '@mui/material';
 import useAppStateStore from '../../../store/appStateStore';
 
@@ -9,7 +9,7 @@ function GeneralSettings() {
   const { runOnStartup, setRunOnStartup, mineOnStartup, setMineOnStartup } =
     useAppStateStore();
   return (
-    <>
+    <SettingsContainer>
       <Typography variant="h3" style={typography.subheader}>
         General Settings
       </Typography>
@@ -48,7 +48,7 @@ function GeneralSettings() {
           />
         </FormGroup>
       </SettingsBox>
-    </>
+    </SettingsContainer>
   );
 }
 

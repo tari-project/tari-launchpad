@@ -307,6 +307,7 @@ export default function MainLayout({
                     onClick={handleFullScreenToggle}
                     startIcon={<SvgMonitor />}
                     style={typography.microMedium}
+                    color="inherit"
                   >
                     {contentWidth === 'fullScreen'
                       ? 'Exit Full Screen'
@@ -319,27 +320,13 @@ export default function MainLayout({
                     position: 'absolute',
                     top: headerHeight,
                     zIndex: 1000,
+                    width: '100%',
                   }}
                 >
                   <ExpertViewTabs />
                 </Box>
               </Drawer>
             </ThemeProvider>
-            {/* <Box
-              style={{
-                position: 'absolute',
-                bottom: '24px',
-                left: '24px',
-                backgroundColor: theme.palette.background.paper,
-                borderRadius: 50,
-                padding: 10,
-                border: `1px solid ${theme.palette.divider}`,
-                opacity: 0.9,
-              }}
-            >
-              <ThemeSwitcher />
-              <TBot />
-            </Box> */}
           </Box>
         </ThemeProvider>
       </SnackbarProvider>

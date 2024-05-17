@@ -58,7 +58,7 @@ export interface AppState {
   node: NodeState;
 }
 
-export type MiningType = 'Sha3' | 'Merge' | 'Monero' | 'All';
+export type MiningType = 'Sha' | 'Merge' | 'Monero' | 'All';
 
 export const BaseNodeStatus = {
   WAITING: 'Waiting',
@@ -68,6 +68,7 @@ export const BaseNodeStatus = {
   INACTIVE: 'Inactive',
   PENDING: 'Pending',
   CHECKING: 'Checking for old containers...',
+  SYNCING: 'Syncing blockchain...',
 };
 
 export const ShaMiningStatus = {
@@ -87,3 +88,102 @@ export const MergeMiningStatus = {
   INACTIVE: 'Inactive',
   PENDING: 'Pending',
 };
+
+export const SettingsTabs = {
+  MINING: 'Mining',
+  BASE_NODE: 'BaseNode',
+  WALLET: 'Wallet',
+  DOCKER: 'Docker',
+  GENERAL: 'General',
+  RESET: 'Reset',
+};
+
+export interface AppStateStore {
+  // AppState
+  appState: AppState;
+  setAppState: (newState: AppState) => void;
+
+  // ContainerState
+  containers: ContainerState;
+  setContainers: (newContainers: ContainerState) => void;
+
+  // Mining states
+  isMining: boolean;
+  setIsMining: (value: boolean) => void;
+
+  isShaMining: boolean;
+  setIsShaMining: (value: boolean) => void;
+
+  isMergeMining: boolean;
+  setIsMergeMining: (value: boolean) => void;
+
+  isBaseNodeActive: boolean;
+  setIsBaseNodeActive: (value: boolean) => void;
+
+  shaMiningEnabled: boolean;
+  setShaMiningEnabled: (value: boolean) => void;
+
+  mergeMiningEnabled: boolean;
+  setMergeMiningEnabled: (value: boolean) => void;
+
+  isChangingMining: boolean;
+  setIsChangingMining: (value: boolean) => void;
+
+  // UI states
+  openDockerWarning: boolean;
+  setOpenDockerWarning: (value: boolean) => void;
+
+  openSettings: boolean;
+  setOpenSettings: (value: boolean) => void;
+
+  openSchedule: boolean;
+  setOpenSchedule: (value: boolean) => void;
+
+  // Addresses
+  tariAddress: string;
+  setTariAddress: (value: string) => void;
+
+  moneroAddress: string;
+  setMoneroAddress: (value: string) => void;
+
+  // Network
+  network: string;
+  setNetwork: (value: string) => void;
+
+  // Timer states
+  shaTime: number;
+  setShaTime: (value: number) => void;
+
+  shaTimerOn: boolean;
+  setShaTimerOn: (value: boolean) => void;
+
+  mergeTime: number;
+  setMergeTime: (value: number) => void;
+
+  mergeTimerOn: boolean;
+  setMergeTimerOn: (value: boolean) => void;
+
+  // Form submission state
+  isSubmitting: boolean;
+  setIsSubmitting: (value: boolean) => void;
+
+  // Startup configurations
+  runOnStartup: boolean;
+  setRunOnStartup: (value: boolean) => void;
+
+  mineOnStartup: boolean;
+  setMineOnStartup: (value: boolean) => void;
+
+  // Settings tab
+  settingsTab: number;
+
+  // Functions
+  openSettingsFunc: (settingsTab: string) => void;
+  startMining: (type: MiningType) => void;
+  stopMining: (type: MiningType) => void;
+  startBaseNode: () => void;
+  stopBaseNode: () => void;
+  saveTariAddress: (tariAddress: string) => void;
+  saveMoneroAddress: (moneroAddress: string) => void;
+  saveSettings: (formData: any) => void;
+}

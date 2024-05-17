@@ -32,6 +32,7 @@ import {
   error,
 } from './colors';
 import gradients from '../styles/styles/gradients';
+import typography from '../styles/styles/typography';
 
 export const componentSettings: ThemeOptions = {
   shape: {
@@ -180,8 +181,9 @@ export const componentSettings: ThemeOptions = {
         sx: {
           textTransform: 'none',
           boxShadow: 'none',
-          fontFamily: '"AvenirHeavy", sans-serif',
+          fontFamily: '"AvenirMedium", sans-serif',
           height: 44,
+          padding: '8px 16px',
         },
       },
       variants: [
@@ -273,6 +275,16 @@ export const componentSettings: ThemeOptions = {
         },
       },
     },
+    MuiDialogTitle: {
+      defaultProps: {
+        sx: {
+          fontFamily: typography.subheader.fontFamily,
+          fontSize: typography.subheader.fontSize,
+          fontWeight: typography.subheader.fontWeight,
+          lineHeight: typography.subheader.lineHeight,
+        },
+      },
+    },
     MuiSwitch: {
       defaultProps: {
         size: 'medium',
@@ -332,7 +344,7 @@ export const componentSettings: ThemeOptions = {
             background:
               theme.palette.mode === 'light'
                 ? theme.palette.success.light
-                : theme.palette.background.paper,
+                : 'rgba(255,255,255, 0.08)',
             color:
               theme.palette.mode === 'light'
                 ? theme.palette.success.contrastText
@@ -345,7 +357,7 @@ export const componentSettings: ThemeOptions = {
             background:
               theme.palette.mode === 'light'
                 ? theme.palette.warning.light
-                : theme.palette.background.paper,
+                : 'rgba(255,255,255, 0.08)',
             color: theme.palette.warning.main,
           }),
         },
@@ -355,7 +367,7 @@ export const componentSettings: ThemeOptions = {
             background:
               theme.palette.mode === 'light'
                 ? theme.palette.error.light
-                : theme.palette.background.paper,
+                : 'rgba(255,255,255, 0.08)',
             color: theme.palette.error.main,
           }),
         },
@@ -365,8 +377,18 @@ export const componentSettings: ThemeOptions = {
             background:
               theme.palette.mode === 'light'
                 ? theme.palette.info.light
-                : theme.palette.background.paper,
+                : 'rgba(255,255,255, 0.08)',
             color: theme.palette.info.main,
+          }),
+        },
+        {
+          props: { color: 'primary' },
+          style: ({ theme }) => ({
+            background:
+              theme.palette.mode === 'light'
+                ? theme.palette.info.light
+                : 'rgba(255,255,255, 0.08)',
+            color: theme.palette.primary.main,
           }),
         },
       ],

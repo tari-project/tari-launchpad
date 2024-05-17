@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box, Tab, Tabs, Dialog } from '@mui/material';
+import { Button, Box, Tabs, Dialog } from '@mui/material';
 import useAppStateStore from '../../store/appStateStore';
 import ThemeSwitch from '../../components/ThemeSwitch';
 import MiningSettings from './MiningSettings/MiningSettings';
@@ -8,101 +8,16 @@ import DockerSettings from './DockerSettings/DockerSettings';
 import GeneralSettings from './GeneralSettings/GeneralSettings';
 import WalletSettings from './WalletSettings/WalletSettings';
 import ResetSettings from './ResetSettings/ResetSettings';
-import { styled, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import { HorisontalButtons } from '../../components/StyledComponents';
+import {
+  SettingsPanel,
+  ScrollBarBox,
+  SettingsTab,
+  ThemeSwitchBox,
+} from './styles';
 import { emit } from '@tauri-apps/api/event';
-import { z } from 'zod';
-
-const MiningSettingsSchema = z.object({
-  shaThreads: z.number(),
-  moneroAddress: z.string().min(8, 'Monero address is too short'),
-  randomXThreads: z.number(),
-  moneroNodeUrl: z.string(),
-  // walletPaymentAddress: z.any(),
-});
-
-const BaseNodeSettingsSchema = z.object({
-  network: z.string(),
-  rootFolder: z.string(),
-});
-
-const WalletSettingsSchema = z.object({
-  tariAddress: z.string(),
-});
-
-const DockerSettingsSchema = z.object({
-  dockerTag: z.string(),
-  dockerRegistry: z.string(),
-});
-
-// const GeneralSettingsSchema = z.object({
-//   runOnStartup: z.boolean(),
-//   mineOnStartup: z.boolean(),
-// });
-
-const FormDataSchema = z.object({
-  miningSettings: MiningSettingsSchema,
-  baseNodeSettings: BaseNodeSettingsSchema,
-  walletSettings: WalletSettingsSchema,
-  dockerSettings: DockerSettingsSchema,
-  // generalSettings: GeneralSettingsSchema,
-});
-
-type MiningSettings = z.infer<typeof MiningSettingsSchema>;
-type BaseNodeSettings = z.infer<typeof BaseNodeSettingsSchema>;
-type WalletSettings = z.infer<typeof WalletSettingsSchema>;
-type DockerSettings = z.infer<typeof DockerSettingsSchema>;
-// type GeneralSettings = z.infer<typeof GeneralSettingsSchema>;
-type FormData = z.infer<typeof FormDataSchema>;
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-const SettingsTab = styled(Tab)(({ theme }) => ({
-  borderRadius: '6px 0 0 6px',
-  alignItems: 'flex-start',
-  color: theme.palette.primary.dark,
-  fontSize: '14px',
-  '&.Mui-selected': {
-    backgroundColor: theme.palette.divider,
-    color: theme.palette.primary.main,
-    fontFamily: '"AvenirHeavy", sans-serif',
-  },
-}));
-
-const SettingsPanel = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  height: 500,
-  width: '100%',
-  padding: `${theme.spacing(5)} ${theme.spacing(10)}`,
-  flexDirection: 'column',
-  gap: theme.spacing(5),
-}));
-
-const ScrollBarBox = styled(Box)(({ theme }) => ({
-  overflowY: 'scroll',
-  scrollbarWidth: 'thin',
-  scrollbarColor:
-    theme.palette.mode === 'light'
-      ? `${theme.palette.grey[300]} transparent`
-      : `${theme.palette.grey[800]} transparent`,
-  '&::-webkit-scrollbar': {
-    width: '8px',
-  },
-  '&::-webkit-scrollbar-track': {
-    backgroundColor: 'transparent',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    backgroundColor:
-      theme.palette.mode === 'light'
-        ? theme.palette.grey[300]
-        : theme.palette.grey[800],
-    borderRadius: '4px',
-  },
-}));
+import { TabPanelProps, FormDataType, FormDataSchema } from './types';
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -129,9 +44,13 @@ function a11yProps(index: number) {
 }
 
 function SettingsDialog() {
-  const [openSettings, setOpenSettings, appState] = useAppStateStore(
-    (state) => [state.openSettings, state.setOpenSettings, state.appState]
-  );
+  const [openSettings, setOpenSettings, appState, settingsTab] =
+    useAppStateStore((state) => [
+      state.openSettings,
+      state.setOpenSettings,
+      state.appState,
+      state.settingsTab,
+    ]);
   const [isValid, setIsValid] = useState(false);
   console.log('isValid', isValid);
 
@@ -171,12 +90,12 @@ function SettingsDialog() {
     // },
   };
 
-  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [formData, setFormData] = useState<FormDataType>(initialFormData);
   const [isDirty, setIsDirty] = useState(false);
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(settingsTab);
   const theme = useTheme();
 
-  console.log('formData', FormDataSchema.safeParse(formData));
+  // console.log('formData', FormDataSchema.safeParse(formData));
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setIsDirty(true);
@@ -269,7 +188,7 @@ function SettingsDialog() {
     setFormData(initialFormData);
   }, [appState]);
 
-  async function saveSettings(formData: FormData) {
+  async function saveSettings(formData: FormDataType) {
     console.log('Save Form', FormDataSchema.safeParse(formData));
     const validatedData = FormDataSchema.safeParse(formData);
     if (!validatedData.success) {
@@ -367,16 +286,9 @@ function SettingsDialog() {
           >
             {renderTab}
           </Tabs>
-          <Box
-            style={{
-              padding: `${theme.spacing(2)} ${theme.spacing(3)}`,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
+          <ThemeSwitchBox>
             <ThemeSwitch />
-          </Box>
+          </ThemeSwitchBox>
         </Box>
         <Box
           style={{

@@ -3,16 +3,16 @@ import { Typography, Button, Box, Chip } from '@mui/material';
 import SubHeading from '../../../components/SubHeading';
 import typography from '../../../styles/styles/typography';
 import {
-  SettingsBox,
   LabelWithChip,
   HorisontalButtons,
 } from '../../../components/StyledComponents';
+import { SettingsBox, SettingsContainer } from '../styles';
 import t from '../../../locales';
 
 function ResetSettings() {
   const [confirmReset, setConfirmReset] = useState(false);
   return (
-    <>
+    <SettingsContainer>
       <Typography variant="h3" style={typography.subheader}>
         {t.reset.settings.title}
       </Typography>
@@ -45,7 +45,7 @@ function ResetSettings() {
           )}
         </Box>
       </SettingsBox>
-    </>
+    </SettingsContainer>
   );
 }
 

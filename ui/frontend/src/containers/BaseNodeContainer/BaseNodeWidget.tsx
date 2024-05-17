@@ -1,4 +1,4 @@
-import { Button, Typography, Box, CircularProgress } from '@mui/material';
+import { Button, Typography, Box } from '@mui/material';
 import { LabelBoxVertical } from '../../components/StyledComponents';
 import t from '../../locales';
 import typography from '../../styles/styles/typography';
@@ -6,10 +6,14 @@ import useAppStateStore from '../../store/appStateStore';
 import { BaseNodeStatus } from '../../store/types';
 import {
   StatusChip,
-  DefaultBox,
-  BaseNodeBox,
   TransparentButton,
 } from '../../components/StyledComponents';
+import {
+  BaseNodeBox,
+  ContentBox,
+  DefaultBox,
+  CircularProgressLight,
+} from './styles';
 import { useEffect, useState } from 'react';
 
 type Status = 'inactive' | 'pending' | 'active';
@@ -32,7 +36,8 @@ function BaseNodeWidget() {
       containers.baseNode?.status === BaseNodeStatus.WAITING ||
       containers.baseNode?.status === BaseNodeStatus.SHUTTINGDOWN ||
       containers.baseNode?.status === BaseNodeStatus.STARTING ||
-      containers.baseNode?.status === BaseNodeStatus.PENDING
+      containers.baseNode?.status === BaseNodeStatus.PENDING ||
+      containers.baseNode?.status === BaseNodeStatus.SYNCING
     ) {
       setBaseNodeStatus('pending');
     } else if (containers.baseNode?.status === BaseNodeStatus.ACTIVE) {
@@ -112,34 +117,48 @@ function BaseNodeWidget() {
     case 'active':
       return (
         <BaseNodeBox>
-          <BaseNodeTitle />
-          <BaseNodeNetwork />
-          <Box>
-            <TransparentButton onClick={stop}>Stop Base Node</TransparentButton>
-          </Box>
-          <BaseNodeInfo />
+          <ContentBox>
+            <BaseNodeTitle />
+            <BaseNodeNetwork />
+          </ContentBox>
+          <ContentBox>
+            <TransparentButton onClick={stop}>
+              {t.baseNode.stop}
+            </TransparentButton>
+            <BaseNodeInfo />
+          </ContentBox>
         </BaseNodeBox>
       );
     case 'pending':
       return (
         <BaseNodeBox>
-          <BaseNodeTitle />
-          <BaseNodeNetwork />
-          <CircularProgress />
-          <TransparentButton onClick={stop}>Stop Base Node</TransparentButton>
-          <BaseNodeInfo />
+          <ContentBox>
+            <BaseNodeTitle />
+            <BaseNodeNetwork />
+            <CircularProgressLight />
+          </ContentBox>
+          <ContentBox>
+            <TransparentButton onClick={stop}>
+              {t.baseNode.stop}
+            </TransparentButton>
+            <BaseNodeInfo />
+          </ContentBox>
         </BaseNodeBox>
       );
     case 'inactive':
     default:
       return (
         <DefaultBox>
-          <BaseNodeTitle />
-          <BaseNodeNetwork />
-          <Button variant="contained" onClick={start}>
-            Start Base Node
-          </Button>
-          <BaseNodeInfo />
+          <ContentBox>
+            <BaseNodeTitle />
+            <BaseNodeNetwork />
+          </ContentBox>
+          <ContentBox>
+            <Button variant="contained" onClick={start}>
+              {t.baseNode.start}
+            </Button>
+            <BaseNodeInfo />
+          </ContentBox>
         </DefaultBox>
       );
   }

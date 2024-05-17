@@ -1,31 +1,30 @@
 import { useEffect, useState } from 'react';
-import {
-  Button,
-  Chip,
-  Typography,
-  TextField,
-  Box,
-  CircularProgress,
-} from '@mui/material';
+import { Button, Chip, Typography, TextField, Box } from '@mui/material';
 import t from '../../../locales';
 import typography from '../../../styles/styles/typography';
 import useAppStateStore from '../../../store/appStateStore';
 import { MergeMiningStatus } from '../../../store/types';
 import {
   StatusChip,
+  TransparentButton,
+  StyledIconButton,
+  HorisontalButtons,
+} from '../../../components/StyledComponents';
+import {
   MiningBoxOuter,
   MiningBoxInner,
-  MiningButtonBox,
-  TransparentButton,
   MergeMiningBox,
-  StyledIconButton,
-} from '../../../components/StyledComponents';
+  ContentBox,
+  CircularProgressLight,
+} from '../styles';
 import { useTheme } from '@mui/material/styles';
 import SvgTariSignet from '../../../styles/Icons/TariSignet';
 import SvgMoneroSignet from '../../../styles/Icons/MoneroSignet';
 import SvgQuestion from '../../../styles/Icons/Question';
 import CopyToClipboard from '../../../components/CopyToClipboard';
 import { useSnackbar } from 'notistack';
+import Timer from '../components/Timer';
+import Amount from '../components/Amount';
 
 type Status = 'inactive' | 'pending' | 'active';
 
@@ -38,6 +37,9 @@ function MergeMiningWidget() {
     saveMoneroAddress,
     startMining,
     stopMining,
+    setMergeTimerOn,
+    mergeTime,
+    setMergeTime,
   } = useAppStateStore();
   const theme = useTheme();
   const [miningStatus, setMiningStatus] = useState<Status>('inactive');
@@ -118,31 +120,13 @@ function MergeMiningWidget() {
           {t.common.miningType.merged}
         </Typography>
         <StyledIconButton onClick={() => mergeMiningHelp()}>
-          <SvgQuestion color={theme.palette.primary.main} />
+          <SvgQuestion
+            color={
+              miningStatus === 'inactive' ? theme.palette.primary.main : '#FFF'
+            }
+          />
         </StyledIconButton>
       </Box>
-    );
-  };
-
-  const MiningButton = () => {
-    return (
-      <MiningButtonBox>
-        <Typography variant="body2" sx={typography.smallHeavy} pr={1}>
-          0:00:00
-        </Typography>
-        <Typography variant="body2" sx={typography.smallHeavy}>
-          |
-        </Typography>
-        <Button
-          variant="text"
-          onClick={stop}
-          style={{
-            color: '#fff',
-          }}
-        >
-          {t.common.verbs.pause}
-        </Button>
-      </MiningButtonBox>
     );
   };
 
@@ -171,6 +155,9 @@ function MergeMiningWidget() {
         style={{
           display: 'flex',
           gap: theme.spacing(1),
+          flexDirection: 'column',
+          width: '100%',
+          alignItems: 'flex-start',
         }}
       >
         <TextField
@@ -181,12 +168,14 @@ function MergeMiningWidget() {
             endAdornment: <CopyToClipboard copy={localAddress} />,
           }}
         />
-        <Button variant="contained" onClick={() => handleSetAddress(true)}>
-          Save
-        </Button>
-        <Button variant="outlined" onClick={() => handleSetAddress(false)}>
-          Cancel
-        </Button>
+        <HorisontalButtons>
+          <Button variant="contained" onClick={() => handleSetAddress(true)}>
+            Save
+          </Button>
+          <Button variant="outlined" onClick={() => handleSetAddress(false)}>
+            Cancel
+          </Button>
+        </HorisontalButtons>
       </Box>
     );
   };
@@ -196,7 +185,7 @@ function MergeMiningWidget() {
       return (
         <MergeMiningBox>
           <MiningBoxInner>
-            <Box>
+            <ContentBox>
               <StatusChip
                 label={
                   <span>
@@ -205,12 +194,15 @@ function MergeMiningWidget() {
                 }
                 color="success"
               />
-            </Box>
-            <MiningTitle />
-            <Typography variant="body1" sx={typography.defaultMedium}>
-              00 000 XTR
-            </Typography>
-            <MiningButton />
+              <MiningTitle />
+              <Amount amount={0} />
+            </ContentBox>
+            <Timer
+              miningType="Merge"
+              setTimerOn={setMergeTimerOn}
+              time={mergeTime}
+              setTime={setMergeTime}
+            />
           </MiningBoxInner>
           <SignetBox />
         </MergeMiningBox>
@@ -219,7 +211,7 @@ function MergeMiningWidget() {
       return (
         <MergeMiningBox>
           <MiningBoxInner>
-            <Box>
+            <ContentBox>
               <StatusChip
                 label={
                   <span>
@@ -228,24 +220,24 @@ function MergeMiningWidget() {
                 }
                 color="info"
               />
-            </Box>
-            <MiningTitle />
-            <CircularProgress />
-            <Box>
+              <MiningTitle />
+              <CircularProgressLight />
+            </ContentBox>
+            {containers?.mmProxy?.status !== MergeMiningStatus.SHUTTINGDOWN && (
               <TransparentButton onClick={stop}>
                 {t.common.verbs.cancel}
               </TransparentButton>
-            </Box>
+            )}
           </MiningBoxInner>
           <SignetBox />
         </MergeMiningBox>
       );
     case 'inactive':
     default:
-      return (
+      return moneroAddress === '' ? (
         <MiningBoxOuter>
           <MiningBoxInner>
-            <Box>
+            <ContentBox>
               <Chip
                 label={
                   <span>
@@ -254,15 +246,47 @@ function MergeMiningWidget() {
                 }
                 color="info"
               />
-            </Box>
-            <MiningTitle />
-            <Typography variant="body2" sx={typography.defaultMedium}>
-              {t.mining.setup.description}{' '}
-              <span style={typography.defaultHeavy}>
-                {t.mining.setup.descriptionBold}
-              </span>
-            </Typography>
-            <MoneroAddressTextField />
+              <MiningTitle />
+              <Typography
+                variant="body2"
+                sx={typography.defaultMedium}
+                style={{
+                  color: theme.palette.text.secondary,
+                }}
+              >
+                {t.mining.setup.description}{' '}
+                <span style={typography.defaultHeavy}>
+                  {t.mining.setup.descriptionBold}
+                </span>
+              </Typography>
+              <MoneroAddressTextField />
+            </ContentBox>
+          </MiningBoxInner>
+          <SignetBox />
+        </MiningBoxOuter>
+      ) : (
+        <MiningBoxOuter>
+          <MiningBoxInner>
+            <ContentBox>
+              <Chip
+                label={
+                  <span>
+                    <strong>{t.common.phrases.readyToGo}</strong>
+                  </span>
+                }
+                color="info"
+              />
+              <MiningTitle />
+              <Typography
+                variant="body2"
+                sx={typography.defaultMedium}
+                style={{
+                  color: theme.palette.text.secondary,
+                }}
+              >
+                {t.mining.readyToMiningText}
+              </Typography>
+            </ContentBox>
             <Button
               variant="contained"
               onClick={start}
@@ -270,7 +294,7 @@ function MergeMiningWidget() {
                 minWidth: '120px',
               }}
             >
-              {t.common.verbs.start}
+              {t.mining.actions.startMining}
             </Button>
           </MiningBoxInner>
           <SignetBox />

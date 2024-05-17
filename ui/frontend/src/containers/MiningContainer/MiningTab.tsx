@@ -1,6 +1,6 @@
 import { Typography, Box } from '@mui/material';
 import MiningWidget from './MiningBox/MiningWidget';
-import MergedMiningWidget from './MiningBoxMerged/MergeMiningWidget';
+import MergeMiningWidget from './MiningBoxMerged/MergeMiningWidget';
 import {
   StyledIconButton,
   TabInnerBox,
@@ -11,6 +11,7 @@ import typography from '../../styles/styles/typography';
 import { useTheme } from '@mui/material/styles';
 import { useSnackbar } from 'notistack';
 import t from '../../locales';
+import MiningFooter from './components/MiningFooter';
 
 function MiningTab() {
   const theme = useTheme();
@@ -68,8 +69,9 @@ function MiningTab() {
           }}
         >
           <MiningWidget />
-          <MergedMiningWidget />
+          <MergeMiningWidget />
         </Box>
+        <MiningFooter />
       </Box>
     </TabInnerBox>
   );
