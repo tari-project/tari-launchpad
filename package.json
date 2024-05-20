@@ -1,7 +1,8 @@
 {
   "scripts": {
-    "tauri": "tauri",
-    "dev-vue": "tauri dev -c tauri.vue.conf.json"
+    "start": "cd ui/frontend && npm run build && cargo run --bin tari_bus_tauri",
+    "dev": "cd ui/frontend && npm run dev",
+    "tauri": "tauri"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.0.1"
