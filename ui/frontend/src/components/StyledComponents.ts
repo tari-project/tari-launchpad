@@ -61,6 +61,12 @@ export const StyledIconButton = styled(IconButton)(({ theme }) => ({
   boxShadow: 'none',
 }));
 
+export const IconButtonNoPadding = styled(IconButton)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  boxShadow: 'none',
+  padding: 0,
+}));
+
 export const AccordionIconButton = styled(IconButton)(({ theme }) => ({
   backgroundColor: theme.palette.divider,
   color: theme.palette.primary.main,

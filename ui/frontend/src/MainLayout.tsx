@@ -105,7 +105,13 @@ export default function MainLayout({
     'normal'
   );
   const [drawerWidth, setDrawerWidth] = useState(window.innerWidth * 0.5);
-  const { setOpenSettings, setTariAddress, appState } = useAppStateStore();
+  const { setOpenSettings, setTariAddress, appState } = useAppStateStore(
+    (state) => ({
+      setOpenSettings: state.setOpenSettings,
+      setTariAddress: state.setTariAddress,
+      appState: state.appState,
+    })
+  );
   const { themeMode } = useThemeStore();
   const headerHeight = 64;
 

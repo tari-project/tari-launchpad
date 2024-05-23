@@ -51,7 +51,10 @@ function a11yProps(index: number) {
 export default function MainTabs() {
   const [value, setValue] = useState(0);
   const theme = useTheme();
-  const { containers, network } = useAppStateStore();
+  const { containers, network } = useAppStateStore((state) => ({
+    containers: state.containers,
+    network: state.network,
+  }));
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);

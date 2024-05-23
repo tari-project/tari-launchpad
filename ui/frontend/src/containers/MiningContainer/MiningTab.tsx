@@ -11,7 +11,8 @@ import typography from '../../styles/styles/typography';
 import { useTheme } from '@mui/material/styles';
 import { useSnackbar } from 'notistack';
 import t from '../../locales';
-import MiningFooter from './components/MiningFooter';
+import TariMiningFooter from './MiningBox/TariMiningFooter';
+import MergeMiningFooter from './MiningBoxMerged/MergeMiningFooter';
 
 function MiningTab() {
   const theme = useTheme();
@@ -70,8 +71,9 @@ function MiningTab() {
         >
           <MiningWidget />
           <MergeMiningWidget />
+          <TariMiningFooter />
+          <MergeMiningFooter />
         </Box>
-        <MiningFooter />
       </Box>
     </TabInnerBox>
   );

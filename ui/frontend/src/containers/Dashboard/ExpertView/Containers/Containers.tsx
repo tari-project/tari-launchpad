@@ -17,7 +17,7 @@ const CustomGridContainer = styled(Box)(({ theme }) => ({
 }));
 
 function Containers() {
-  const { containers } = useAppStateStore();
+  const containers = useAppStateStore((state) => state.containers);
   const items = [
     {
       container: 'Tor',

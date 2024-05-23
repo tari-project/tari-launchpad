@@ -3,7 +3,7 @@ import { Box, CircularProgress } from '@mui/material';
 import gradients from '../../styles/styles/gradients';
 import colors from '../../styles/styles/colors';
 
-const minHeight = 320;
+const minHeight = 350;
 
 export const CircularProgressLight = styled(CircularProgress)(({}) => ({
   color: colors.light.textSecondary,

@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Button, Box, Tabs, Dialog } from '@mui/material';
 import useAppStateStore from '../../store/appStateStore';
 import ThemeSwitch from '../../components/ThemeSwitch';
-import MiningSettings from './MiningSettings/MiningSettings';
+import MergedMiningSettings from './MergedMiningSettings/MergedMiningSettings';
 import BaseNodeSettings from './BaseNodeSettings/BaseNodeSettings';
 import DockerSettings from './DockerSettings/DockerSettings';
-import GeneralSettings from './GeneralSettings/GeneralSettings';
-import WalletSettings from './WalletSettings/WalletSettings';
+import ShaMiningSettings from './ShaMiningSettings/ShaMiningSettings';
 import ResetSettings from './ResetSettings/ResetSettings';
 import { useTheme } from '@mui/material/styles';
 import { HorisontalButtons } from '../../components/StyledComponents';
@@ -18,6 +17,7 @@ import {
 } from './styles';
 import { emit } from '@tauri-apps/api/event';
 import { TabPanelProps, FormDataType, FormDataSchema } from './types';
+import useConfigStore from '../../store/configStore';
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -51,43 +51,37 @@ function SettingsDialog() {
       state.appState,
       state.settingsTab,
     ]);
+  const { startupConfig, setStartupConfig } = useConfigStore();
   const [isValid, setIsValid] = useState(false);
   console.log('isValid', isValid);
 
   const settings = appState?.config?.settings?.saved_settings || {};
 
   const initialFormData = {
-    miningSettings: {
-      shaThreads: settings.sha3_miner?.num_mining_threads || 0,
+    mergedMiningSettings: {
       moneroAddress: settings.xmrig?.monero_mining_address || '',
       randomXThreads: settings.xmrig?.num_mining_threads || 0,
       moneroNodeUrl: settings.mm_proxy?.monerod_url || '',
-      // walletPaymentAddress:
-      //   settings.mm_proxy
-      //     ?.wallet_payment_address ||
-      //   settings.sha3_miner
-      //     ?.wallet_payment_address ||
-      //   '',
+      mergeMineOnStartup: startupConfig.mergeMine || false,
     },
     baseNodeSettings: {
       network: settings.tari_network || '',
       rootFolder: appState?.config?.settings?.data_directory || '',
+      runOnStartup: startupConfig.baseNode || false,
     },
-    walletSettings: {
+    shaMiningSettings: {
       tariAddress:
         settings.mm_proxy?.wallet_payment_address ||
         settings.sha3_miner?.wallet_payment_address ||
         '',
+      shaThreads: settings.sha3_miner?.num_mining_threads || 0,
+      shaMineOnStartup: startupConfig.shaMine || false,
     },
     dockerSettings: {
       dockerTag: appState?.config?.settings?.saved_settings?.tag || '',
       dockerRegistry:
         appState?.config?.settings?.saved_settings?.registry || '',
     },
-    // generalSettings: {
-    //   runOnStartup: false,
-    //   mineOnStartup: false,
-    // },
   };
 
   const [formData, setFormData] = useState<FormDataType>(initialFormData);
@@ -112,11 +106,20 @@ function SettingsDialog() {
 
   const menuItems = [
     {
-      label: 'Mining',
+      label: 'Tari Mining',
       component: (
-        <MiningSettings
+        <ShaMiningSettings
           handleChange={handleFormChange}
-          formData={formData.miningSettings}
+          formData={formData.shaMiningSettings}
+        />
+      ),
+    },
+    {
+      label: 'Merged Mining',
+      component: (
+        <MergedMiningSettings
+          handleChange={handleFormChange}
+          formData={formData.mergedMiningSettings}
         />
       ),
     },
@@ -130,15 +133,6 @@ function SettingsDialog() {
       ),
     },
     {
-      label: 'Wallet',
-      component: (
-        <WalletSettings
-          handleChange={handleFormChange}
-          formData={formData.walletSettings}
-        />
-      ),
-    },
-    {
       label: 'Docker',
       component: (
         <DockerSettings
@@ -146,10 +140,6 @@ function SettingsDialog() {
           formData={formData.dockerSettings}
         />
       ),
-    },
-    {
-      label: 'General',
-      component: <GeneralSettings />,
     },
     {
       label: 'Reset',
@@ -202,14 +192,26 @@ function SettingsDialog() {
     const settings = { ...appState?.config?.settings?.saved_settings };
     // MINING SETTINGS
     // shaThreads
-    settings.sha3_miner.num_mining_threads = formData.miningSettings.shaThreads;
+    settings.sha3_miner.num_mining_threads =
+      formData.shaMiningSettings.shaThreads;
     // moneroAddress
     settings.xmrig.monero_mining_address =
-      formData.miningSettings.moneroAddress;
+      formData.mergedMiningSettings.moneroAddress;
     // randomXThreads
-    settings.xmrig.num_mining_threads = formData.miningSettings.randomXThreads;
+    settings.xmrig.num_mining_threads =
+      formData.mergedMiningSettings.randomXThreads;
     // moneroNodeUrl
-    settings.mm_proxy.monerod_url = formData.miningSettings.moneroNodeUrl;
+    settings.mm_proxy.monerod_url = formData.mergedMiningSettings.moneroNodeUrl;
+    // sha mine on startup
+    setStartupConfig('shaMine', formData.shaMiningSettings.shaMineOnStartup);
+
+    // MERGE MINING SETTINGS
+    // merge mine on startup
+    setStartupConfig(
+      'mergeMine',
+      formData.mergedMiningSettings.mergeMineOnStartup
+    );
+
     // walletPaymentAddress
     // settings.sha3_miner.wallet_payment_address =
     //   formData.miningSettings.walletPaymentAddress;
@@ -219,15 +221,17 @@ function SettingsDialog() {
     // BASE NODE SETTINGS
     // network
     settings.tari_network = formData.baseNodeSettings.network;
+    // runOnStartup
+    setStartupConfig('baseNode', formData.baseNodeSettings.runOnStartup);
     // //rootFolder
     // this breaks the interface
     // appState.config.settings = formData.baseNodeSettings.rootFolder;
     // tariAddress
     settings.sha3_miner.wallet_payment_address =
-      formData.walletSettings.tariAddress;
+      formData.shaMiningSettings.tariAddress;
     // tartAddress
     settings.mm_proxy.wallet_payment_address =
-      formData.walletSettings.tariAddress;
+      formData.shaMiningSettings.tariAddress;
 
     // DOCKER SETTINGS
     // dockerTag

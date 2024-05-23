@@ -52,51 +52,9 @@ export default function ExpertViewTabs() {
         indicatorColor="secondary"
       >
         <Tab label="Containers" {...a11yProps(0)} />
-        <Tab label="Performance" {...a11yProps(1)} />
-        <Tab label="Logs" {...a11yProps(2)} />
       </Tabs>
       <CustomTabPanel value={value} index={0}>
         <Containers />
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={1}>
-        <Typography variant="h4">Performance</Typography>
-        <Typography>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Repudiandae
-          aliquam recusandae dolorem, praesentium facilis consectetur animi
-          autem assumenda laboriosam ratione dolore corrupti doloribus hic
-          necessitatibus non in possimus, placeat totam? Lorem ipsum dolor, sit
-          amet consectetur adipisicing elit. Repudiandae aliquam recusandae
-          dolorem, praesentium facilis consectetur animi autem assumenda
-          laboriosam ratione dolore corrupti doloribus hic necessitatibus non in
-          possimus, placeat totam? Lorem ipsum dolor, sit amet consectetur
-          adipisicing elit. Repudiandae aliquam recusandae dolorem, praesentium
-          facilis consectetur animi autem assumenda laboriosam ratione dolore
-          corrupti doloribus hic necessitatibus non in possimus, placeat totam?
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Repudiandae
-          aliquam recusandae dolorem, praesentium facilis consectetur animi
-          autem assumenda laboriosam ratione dolore corrupti doloribus hic
-          necessitatibus non in possimus, placeat totam?
-        </Typography>
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={2}>
-        <Typography variant="h4">Logs</Typography>
-        <Typography>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Repudiandae
-          aliquam recusandae dolorem, praesentium facilis consectetur animi
-          autem assumenda laboriosam ratione dolore corrupti doloribus hic
-          necessitatibus non in possimus, placeat totam? Lorem ipsum dolor, sit
-          amet consectetur adipisicing elit. Repudiandae aliquam recusandae
-          dolorem, praesentium facilis consectetur animi autem assumenda
-          laboriosam ratione dolore corrupti doloribus hic necessitatibus non in
-          possimus, placeat totam? Lorem ipsum dolor, sit amet consectetur
-          adipisicing elit. Repudiandae aliquam recusandae dolorem, praesentium
-          facilis consectetur animi autem assumenda laboriosam ratione dolore
-          corrupti doloribus hic necessitatibus non in possimus, placeat totam?
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Repudiandae
-          aliquam recusandae dolorem, praesentium facilis consectetur animi
-          autem assumenda laboriosam ratione dolore corrupti doloribus hic
-          necessitatibus non in possimus, placeat totam?
-        </Typography>
       </CustomTabPanel>
     </Box>
   );

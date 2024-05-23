@@ -92,12 +92,16 @@ export const componentSettings: ThemeOptions = {
           fontSize: 16,
           border: 'none',
           boxShadow: 'none',
+          borderRadius: '8px',
           color: (theme) => theme.palette.text.secondary,
           '&.Mui-selected': {
             color: (theme) => theme.palette.text.primary,
           },
           '&:hover': {
             color: (theme) => theme.palette.text.primary,
+          },
+          '&:focus': {
+            backgroundColor: (theme) => theme.palette.action.hover,
           },
         },
       },
@@ -236,6 +240,9 @@ export const componentSettings: ThemeOptions = {
             '& fieldset': {
               borderColor: (theme) => theme.palette.divider,
             },
+            '&:hover fieldset': {
+              borderColor: (theme) => theme.palette.primary.main,
+            },
           },
           '&:hover fieldset': {
             borderColor: (theme) => theme.palette.divider,
@@ -249,9 +256,9 @@ export const componentSettings: ThemeOptions = {
             padding: '4px',
           },
         },
-        InputLabelProps: {
-          shrink: true,
-        },
+        // InputLabelProps: {
+        //   shrink: true,
+        // },
       },
     },
     MuiDialog: {
