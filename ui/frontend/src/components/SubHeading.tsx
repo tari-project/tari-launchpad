@@ -9,7 +9,7 @@ const HeadingContainer = styled('div')({
 
 const Heading = styled(Typography)(({ theme }) => ({
   marginRight: theme.spacing(2),
-  color: `${theme.palette.primary.main} !important`,
+  color: `${theme.palette.secondary.main} !important`,
 }));
 
 const Line = styled('hr')(({ theme }) => ({

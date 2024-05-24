@@ -30,13 +30,12 @@ function ShaMiningSettings({
   return (
     <SettingsContainer>
       <Typography variant="h3" style={typography.subheader}>
-        {/* {t.wallet.settings.title} */}
         Tari Mining Settings
       </Typography>
       <SettingsBox>
         <SubHeading text={t.common.nouns.shaMining} />
         <LabelBoxVertical>
-          <Typography variant="body1" style={typography.smallMedium}>
+          <Typography variant="body1" style={typography.defaultMedium}>
             {t.wallet.wallet.walletId} ({t.wallet.wallet.address})
           </Typography>
           <TextField
@@ -85,7 +84,7 @@ function ShaMiningSettings({
         </FormGroup>
         <SubHeading text={t.common.nouns.expert} />
         <LabelBoxHorisontal>
-          <Typography variant="body1" style={typography.smallMedium}>
+          <Typography variant="body1" style={typography.defaultMedium}>
             {t.mining.settings.threadsLabel}
           </Typography>
           <TextField

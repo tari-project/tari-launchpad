@@ -37,7 +37,7 @@ const StyledMaterialDesignContent = styled(MaterialDesignContent)(
       backgroundColor:
         theme.palette.mode === 'light'
           ? theme.palette.background.paper
-          : '#262626',
+          : 'rgba(255,255,255,0.04)',
       color: theme.palette.text.primary,
       boxShadow: 'none',
       maxWidth: '200px',
@@ -205,7 +205,7 @@ export default function MainLayout({
         <ThemeProvider theme={theme}>
           <Button
             onClick={handleOpenSettings}
-            size="small"
+            size="medium"
             startIcon={<SvgSetting />}
             style={{
               color: open ? '#fff' : 'inherit',
@@ -312,7 +312,7 @@ export default function MainLayout({
                   <Button
                     onClick={handleFullScreenToggle}
                     startIcon={<SvgMonitor />}
-                    style={typography.microMedium}
+                    style={typography.smallMedium}
                     color="inherit"
                   >
                     {contentWidth === 'fullScreen'

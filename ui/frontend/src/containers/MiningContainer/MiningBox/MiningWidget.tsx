@@ -179,7 +179,7 @@ function MiningWidget() {
       >
         <Typography
           variant="body1"
-          sx={typography.smallMedium}
+          sx={typography.defaultMedium}
           style={{
             color: theme.palette.text.secondary,
           }}
@@ -228,13 +228,17 @@ function MiningWidget() {
               <MiningTitle />
               <Amount amount={0} />
             </ContentBox>
-
-            <Timer
-              miningType="Sha"
-              setTimerOn={setShaTimerOn}
-              time={shaTime}
-              setTime={setShaTime}
-            />
+            <ContentBox>
+              <Typography variant="body1" sx={typography.smallMedium}>
+                <span style={typography.smallHeavy}>Hash rate:</span> 0KH
+              </Typography>
+              <Timer
+                miningType="Sha"
+                setTimerOn={setShaTimerOn}
+                time={shaTime}
+                setTime={setShaTime}
+              />
+            </ContentBox>
           </MiningBoxInner>
           <SignetBox />
         </ShaMiningBox>

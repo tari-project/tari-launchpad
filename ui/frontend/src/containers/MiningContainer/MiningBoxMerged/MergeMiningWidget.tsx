@@ -209,7 +209,7 @@ function MergeMiningWidget() {
       >
         <Typography
           variant="body1"
-          sx={typography.smallMedium}
+          sx={typography.defaultMedium}
           style={{
             color: theme.palette.text.secondary,
           }}
@@ -258,12 +258,17 @@ function MergeMiningWidget() {
               <MiningTitle />
               <Amount amount={0} />
             </ContentBox>
-            <Timer
-              miningType="Merge"
-              setTimerOn={setMergeTimerOn}
-              time={mergeTime}
-              setTime={setMergeTime}
-            />
+            <ContentBox>
+              <Typography variant="body1" sx={typography.smallMedium}>
+                <span style={typography.smallHeavy}>Hash rate:</span> 0KH
+              </Typography>
+              <Timer
+                miningType="Merge"
+                setTimerOn={setMergeTimerOn}
+                time={mergeTime}
+                setTime={setMergeTime}
+              />
+            </ContentBox>
           </MiningBoxInner>
           <SignetBox />
         </MergeMiningBox>

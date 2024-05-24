@@ -21,7 +21,7 @@ function DockerSettings({
       <SettingsBox>
         <SubHeading text={t.common.nouns.expert} />
         <LabelBoxHorisontal>
-          <Typography variant="body1" style={typography.smallMedium}>
+          <Typography variant="body1" style={typography.defaultMedium}>
             {t.docker.settings.tagLabel}
           </Typography>
           <TextField
@@ -32,7 +32,7 @@ function DockerSettings({
           />
         </LabelBoxHorisontal>
         <LabelBoxHorisontal>
-          <Typography variant="body1" style={typography.smallMedium}>
+          <Typography variant="body1" style={typography.defaultMedium}>
             {t.docker.settings.registryLabel}
           </Typography>
           <TextField

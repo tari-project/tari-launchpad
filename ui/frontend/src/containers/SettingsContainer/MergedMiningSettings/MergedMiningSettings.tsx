@@ -34,7 +34,7 @@ function MergedMiningSettings({
       <SettingsBox>
         <SubHeading text={t.common.nouns.mergeMining} />
         <LabelBoxVertical>
-          <Typography variant="body1" style={typography.smallMedium}>
+          <Typography variant="body1" style={typography.defaultMedium}>
             {t.mining.settings.moneroAddressLabel}
           </Typography>
           <TextField
@@ -92,7 +92,7 @@ function MergedMiningSettings({
           }}
         >
           <LabelBoxVertical>
-            <Typography variant="body1" style={typography.smallMedium}>
+            <Typography variant="body1" style={typography.defaultMedium}>
               {t.mining.settings.randomXThreadsLabel}
             </Typography>
             <TextField
@@ -109,7 +109,7 @@ function MergedMiningSettings({
               flexGrow: 4,
             }}
           >
-            <Typography variant="body1" style={typography.smallMedium}>
+            <Typography variant="body1" style={typography.defaultMedium}>
               {t.mining.settings.moneroNodeUrlLabel}
             </Typography>
             <TextField

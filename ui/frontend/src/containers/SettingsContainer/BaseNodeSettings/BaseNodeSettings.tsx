@@ -22,7 +22,7 @@ function BaseNodeSettings({
       <SettingsBox>
         <SubHeading text={t.baseNode.title} />
         <LabelBoxHorisontal>
-          <Typography variant="body1" style={typography.smallMedium}>
+          <Typography variant="body1" style={typography.defaultMedium}>
             {t.baseNode.tari_network_label}
           </Typography>
           <TextField
@@ -57,7 +57,7 @@ function BaseNodeSettings({
         </FormGroup>
         <SubHeading text={t.common.nouns.expert} />
         <LabelBoxHorisontal>
-          <Typography variant="body1" style={typography.smallMedium}>
+          <Typography variant="body1" style={typography.defaultMedium}>
             {t.baseNode.settings.rootFolder}
           </Typography>
           <TextField
