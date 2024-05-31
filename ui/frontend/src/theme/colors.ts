@@ -44,6 +44,20 @@ export const error = {
   300: '#612820',
 };
 
+export const brightGreen = {
+  50: '#ffffe4',
+  100: '#fdffc5',
+  200: '#f7ff92',
+  300: '#eeff53',
+  400: '#dffb20',
+  500: '#C9EB00',
+  600: '#95b500',
+  700: '#718902',
+  800: '#596c08',
+  900: '#4b5b0c',
+  950: '#273300',
+};
+
 export const grey = {
   50: '#f7f7f8',
   100: '#eeeef0',

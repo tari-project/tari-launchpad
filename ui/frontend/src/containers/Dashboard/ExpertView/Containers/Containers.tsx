@@ -1,11 +1,12 @@
 import { Typography, Divider, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import useAppStateStore from '../../../../store/appStateStore';
+import typography from '../../../../styles/styles/typography';
 
 const CustomGrid = styled(Box)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: '1fr 1fr 100px',
-  gridGap: theme.spacing(1),
+  gridGap: theme.spacing(2),
   width: '100%',
 }));
 
@@ -13,11 +14,11 @@ const CustomGridContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   width: '100%',
   flexDirection: 'column',
-  gap: theme.spacing(1),
+  gap: theme.spacing(2),
 }));
 
 function Containers() {
-  const { containers } = useAppStateStore();
+  const containers = useAppStateStore((state) => state.containers);
   const items = [
     {
       container: 'Tor',
@@ -66,9 +67,15 @@ function Containers() {
       <>
         <Divider />
         <CustomGrid>
-          <Typography variant="h6">{item.container}</Typography>
-          <Typography variant="body2">{item.status}</Typography>
-          <Typography variant="body2">{item.cpu}</Typography>
+          <Typography variant="h6" sx={typography.smallHeavy}>
+            {item.container}
+          </Typography>
+          <Typography variant="body2" sx={typography.smallMedium}>
+            {item.status}
+          </Typography>
+          <Typography variant="body2" sx={typography.smallMedium}>
+            {item.cpu}
+          </Typography>
         </CustomGrid>
       </>
     );
@@ -77,9 +84,15 @@ function Containers() {
   return (
     <CustomGridContainer>
       <CustomGrid>
-        <Typography variant="h5">Container</Typography>
-        <Typography variant="h5">Status</Typography>
-        <Typography variant="h5">CPU</Typography>
+        <Typography variant="h5" sx={typography.defaultHeavy}>
+          Container
+        </Typography>
+        <Typography variant="h5" sx={typography.defaultHeavy}>
+          Status
+        </Typography>
+        <Typography variant="h5" sx={typography.defaultHeavy}>
+          CPU
+        </Typography>
       </CustomGrid>
       {renderItems}
     </CustomGridContainer>

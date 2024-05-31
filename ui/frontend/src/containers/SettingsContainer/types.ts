@@ -1,20 +1,22 @@
 import { z } from 'zod';
 
-export const MiningSettingsSchema = z.object({
+export const ShaMiningSettingsSchema = z.object({
+  tariAddress: z.string(),
   shaThreads: z.number(),
+  shaMineOnStartup: z.boolean(),
+});
+
+export const MergedMiningSettingsSchema = z.object({
   moneroAddress: z.string(),
   randomXThreads: z.number(),
   moneroNodeUrl: z.string(),
-  // walletPaymentAddress: z.any(),
+  mergeMineOnStartup: z.boolean(),
 });
 
 export const BaseNodeSettingsSchema = z.object({
   network: z.string(),
   rootFolder: z.string(),
-});
-
-export const WalletSettingsSchema = z.object({
-  tariAddress: z.string(),
+  runOnStartup: z.boolean(),
 });
 
 export const DockerSettingsSchema = z.object({
@@ -22,24 +24,19 @@ export const DockerSettingsSchema = z.object({
   dockerRegistry: z.string(),
 });
 
-// export const GeneralSettingsSchema = z.object({
-//   runOnStartup: z.boolean(),
-//   mineOnStartup: z.boolean(),
-// });
-
 export const FormDataSchema = z.object({
-  miningSettings: MiningSettingsSchema,
+  mergedMiningSettings: MergedMiningSettingsSchema,
   baseNodeSettings: BaseNodeSettingsSchema,
-  walletSettings: WalletSettingsSchema,
+  shaMiningSettings: ShaMiningSettingsSchema,
   dockerSettings: DockerSettingsSchema,
-  // generalSettings: GeneralSettingsSchema,
 });
 
-export type MiningSettingsType = z.infer<typeof MiningSettingsSchema>;
+export type ShaMiningSettingsType = z.infer<typeof ShaMiningSettingsSchema>;
+export type MergedMiningSettingsType = z.infer<
+  typeof MergedMiningSettingsSchema
+>;
 export type BaseNodeSettingsType = z.infer<typeof BaseNodeSettingsSchema>;
-export type WalletSettingsType = z.infer<typeof WalletSettingsSchema>;
 export type DockerSettingsType = z.infer<typeof DockerSettingsSchema>;
-// export type GeneralSettingsType = z.infer<typeof GeneralSettingsSchema>;
 export type FormDataType = z.infer<typeof FormDataSchema>;
 
 export interface TabPanelProps {

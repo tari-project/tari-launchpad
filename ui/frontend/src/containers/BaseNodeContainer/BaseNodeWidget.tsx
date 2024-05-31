@@ -8,19 +8,20 @@ import {
   StatusChip,
   TransparentButton,
 } from '../../components/StyledComponents';
-import {
-  BaseNodeBox,
-  ContentBox,
-  DefaultBox,
-  CircularProgressLight,
-} from './styles';
+import { BaseNodeBox, ContentBox, DefaultBox } from './styles';
 import { useEffect, useState } from 'react';
 
 type Status = 'inactive' | 'pending' | 'active';
 
 function BaseNodeWidget() {
   const { appState, containers, startBaseNode, stopBaseNode, network } =
-    useAppStateStore();
+    useAppStateStore((state) => ({
+      appState: state.appState,
+      containers: state.containers,
+      startBaseNode: state.startBaseNode,
+      stopBaseNode: state.stopBaseNode,
+      network: state.network,
+    }));
   const [baseNodeStatus, setBaseNodeStatus] = useState<Status>('inactive');
 
   function start() {
@@ -135,7 +136,6 @@ function BaseNodeWidget() {
           <ContentBox>
             <BaseNodeTitle />
             <BaseNodeNetwork />
-            <CircularProgressLight />
           </ContentBox>
           <ContentBox>
             <TransparentButton onClick={stop}>

@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { emit, listen } from '@tauri-apps/api/event';
 import MainLayout from './MainLayout';
 import useAppStateStore from './store/appStateStore';
+import useConfigStore from './store/configStore';
 import MainTabs from './containers/Dashboard/DashboardContainer/MainTabs';
 import SettingsDialog from './containers/SettingsContainer/SettingsDialog';
 import DockerWarning from './containers/DockerWarning/DockerWarning';
@@ -30,7 +31,10 @@ function App() {
     setMergeTime,
     mergeTimerOn,
     openSchedule,
+    startBaseNode,
+    startMining,
   } = useAppStateStore();
+  const { startupConfig } = useConfigStore();
 
   //   async function connect() {
   //     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -349,6 +353,25 @@ function App() {
   useEffect(() => {
     setNetwork(appState?.config?.settings?.saved_settings?.tari_network || '');
   }, [appState?.config?.settings?.saved_settings?.tari_network]);
+
+  // settings that should run on first startup
+  useEffect(() => {
+    if (startupConfig.shaMine) {
+      setTimeout(() => {
+        startMining('Sha');
+      }, 2000);
+    }
+    if (startupConfig.mergeMine) {
+      setTimeout(() => {
+        startMining('Merge');
+      }, 2000);
+    }
+    if (startupConfig.baseNode) {
+      setTimeout(() => {
+        startBaseNode();
+      }, 2000);
+    }
+  }, []);
 
   console.log(appState);
 

@@ -19,7 +19,7 @@ function ResetSettings() {
       <SettingsBox>
         <SubHeading text={t.reset.settings.subtitle} />
         <LabelWithChip>
-          <Typography variant="body1" style={typography.smallMedium}>
+          <Typography variant="body1" style={typography.defaultMedium}>
             {t.reset.settings.label}
           </Typography>
           <Chip label={t.reset.settings.warning} color="warning" />

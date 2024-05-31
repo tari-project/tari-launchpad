@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Button, Chip, Typography, TextField, Box } from '@mui/material';
+import {
+  Button,
+  Chip,
+  Typography,
+  TextField,
+  Box,
+  ButtonGroup,
+} from '@mui/material';
 import t from '../../../locales';
 import typography from '../../../styles/styles/typography';
 import useAppStateStore from '../../../store/appStateStore';
@@ -8,14 +15,13 @@ import {
   StatusChip,
   TransparentButton,
   StyledIconButton,
-  HorisontalButtons,
+  LabelBoxVertical,
 } from '../../../components/StyledComponents';
 import {
   MiningBoxOuter,
   MiningBoxInner,
   MergeMiningBox,
   ContentBox,
-  CircularProgressLight,
 } from '../styles';
 import { useTheme } from '@mui/material/styles';
 import SvgTariSignet from '../../../styles/Icons/TariSignet';
@@ -25,6 +31,8 @@ import CopyToClipboard from '../../../components/CopyToClipboard';
 import { useSnackbar } from 'notistack';
 import Timer from '../components/Timer';
 import Amount from '../components/Amount';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 
 type Status = 'inactive' | 'pending' | 'active';
 
@@ -40,7 +48,18 @@ function MergeMiningWidget() {
     setMergeTimerOn,
     mergeTime,
     setMergeTime,
-  } = useAppStateStore();
+  } = useAppStateStore((state) => ({
+    appState: state.appState,
+    containers: state.containers,
+    moneroAddress: state.moneroAddress,
+    setMoneroAddress: state.setMoneroAddress,
+    saveMoneroAddress: state.saveMoneroAddress,
+    startMining: state.startMining,
+    stopMining: state.stopMining,
+    setMergeTimerOn: state.setMergeTimerOn,
+    mergeTime: state.mergeTime,
+    setMergeTime: state.setMergeTime,
+  }));
   const theme = useTheme();
   const [miningStatus, setMiningStatus] = useState<Status>('inactive');
   const { enqueueSnackbar } = useSnackbar();
@@ -132,11 +151,13 @@ function MergeMiningWidget() {
 
   const MoneroAddressTextField = () => {
     const [localAddress, setLocalAddress] = useState(moneroAddress);
+    const [isDirty, setIsDirty] = useState(false);
 
     const handleLocalAddressChange = (
       event: React.ChangeEvent<HTMLInputElement>
     ) => {
       setLocalAddress(event.target.value);
+      setIsDirty(true);
     };
 
     function handleSetAddress(save: boolean) {
@@ -150,33 +171,73 @@ function MergeMiningWidget() {
       }
     }
 
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        handleSetAddress(true);
+        event.preventDefault();
+      }
+    };
+
+    const ActionButtons = () => {
+      return (
+        <ButtonGroup>
+          <StyledIconButton onClick={() => handleSetAddress(true)}>
+            <CheckRoundedIcon
+              style={{
+                height: '16px',
+                width: '16px',
+              }}
+            />
+          </StyledIconButton>
+          <StyledIconButton onClick={() => handleSetAddress(false)}>
+            <CloseRoundedIcon
+              style={{
+                height: '16px',
+                width: '16px',
+              }}
+            />
+          </StyledIconButton>
+        </ButtonGroup>
+      );
+    };
+
     return (
-      <Box
+      <LabelBoxVertical
         style={{
-          display: 'flex',
-          gap: theme.spacing(1),
-          flexDirection: 'column',
           width: '100%',
-          alignItems: 'flex-start',
         }}
       >
+        <Typography
+          variant="body1"
+          sx={typography.defaultMedium}
+          style={{
+            color: theme.palette.text.secondary,
+          }}
+        >
+          {t.mining.settings.moneroAddressLabel}
+        </Typography>
         <TextField
-          placeholder="Monero Address"
+          placeholder={t.mining.settings.moneroAddressLabel}
           value={localAddress}
           onChange={handleLocalAddressChange}
+          onKeyDown={handleKeyDown}
           InputProps={{
-            endAdornment: <CopyToClipboard copy={localAddress} />,
+            endAdornment: isDirty ? (
+              <ActionButtons />
+            ) : (
+              <CopyToClipboard copy={localAddress} />
+            ),
+            style: {
+              paddingRight: '8px',
+              paddingLeft: '8px',
+            },
           }}
+          style={{
+            paddingRight: '0',
+          }}
+          fullWidth
         />
-        <HorisontalButtons>
-          <Button variant="contained" onClick={() => handleSetAddress(true)}>
-            Save
-          </Button>
-          <Button variant="outlined" onClick={() => handleSetAddress(false)}>
-            Cancel
-          </Button>
-        </HorisontalButtons>
-      </Box>
+      </LabelBoxVertical>
     );
   };
 
@@ -197,12 +258,17 @@ function MergeMiningWidget() {
               <MiningTitle />
               <Amount amount={0} />
             </ContentBox>
-            <Timer
-              miningType="Merge"
-              setTimerOn={setMergeTimerOn}
-              time={mergeTime}
-              setTime={setMergeTime}
-            />
+            <ContentBox>
+              <Typography variant="body1" sx={typography.smallMedium}>
+                <span style={typography.smallHeavy}>Hash rate:</span> 0KH
+              </Typography>
+              <Timer
+                miningType="Merge"
+                setTimerOn={setMergeTimerOn}
+                time={mergeTime}
+                setTime={setMergeTime}
+              />
+            </ContentBox>
           </MiningBoxInner>
           <SignetBox />
         </MergeMiningBox>
@@ -221,7 +287,6 @@ function MergeMiningWidget() {
                 color="info"
               />
               <MiningTitle />
-              <CircularProgressLight />
             </ContentBox>
             {containers?.mmProxy?.status !== MergeMiningStatus.SHUTTINGDOWN && (
               <TransparentButton onClick={stop}>
@@ -286,6 +351,7 @@ function MergeMiningWidget() {
               >
                 {t.mining.readyToMiningText}
               </Typography>
+              <MoneroAddressTextField />
             </ContentBox>
             <Button
               variant="contained"

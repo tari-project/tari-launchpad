@@ -8,7 +8,9 @@ import { TextButton } from '../../components/StyledComponents';
 import { SettingsTabs } from '../../store/types';
 
 function BaseNodeFooter() {
-  const { openSettingsFunc } = useAppStateStore();
+  const { openSettingsFunc } = useAppStateStore((state) => ({
+    openSettingsFunc: state.openSettingsFunc,
+  }));
   return (
     <FooterBox>
       <InfoBox>

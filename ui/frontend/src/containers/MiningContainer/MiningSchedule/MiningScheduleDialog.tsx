@@ -11,7 +11,10 @@ import typography from '../../../styles/styles/typography';
 import t from '../../../locales';
 
 function MiningScheduleDialog() {
-  const { openSchedule, setOpenSchedule } = useAppStateStore();
+  const { openSchedule, setOpenSchedule } = useAppStateStore((state) => ({
+    openSchedule: state.openSchedule,
+    setOpenSchedule: state.setOpenSchedule,
+  }));
 
   const handleScheduleClose = () => {
     setOpenSchedule(false);

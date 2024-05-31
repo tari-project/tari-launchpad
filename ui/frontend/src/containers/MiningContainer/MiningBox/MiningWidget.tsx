@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Button, Chip, Typography, TextField, Box } from '@mui/material';
+import {
+  Button,
+  Chip,
+  Typography,
+  TextField,
+  Box,
+  ButtonGroup,
+} from '@mui/material';
 import t from '../../../locales';
 import typography from '../../../styles/styles/typography';
 import useAppStateStore from '../../../store/appStateStore';
@@ -7,20 +14,22 @@ import { ShaMiningStatus } from '../../../store/types';
 import {
   StatusChip,
   TransparentButton,
-  HorisontalButtons,
+  LabelBoxVertical,
+  StyledIconButton,
 } from '../../../components/StyledComponents';
 import {
   ShaMiningBox,
   MiningBoxInner,
   MiningBoxOuter,
   ContentBox,
-  CircularProgressLight,
 } from '../styles';
 import { useTheme } from '@mui/material/styles';
 import SvgTariSignet from '../../../styles/Icons/TariSignet';
 import CopyToClipboard from '../../../components/CopyToClipboard';
 import Timer from '../components/Timer';
 import Amount from '../components/Amount';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 
 type Status = 'inactive' | 'pending' | 'active';
 
@@ -36,7 +45,18 @@ function MiningWidget() {
     setShaTimerOn,
     shaTime,
     setShaTime,
-  } = useAppStateStore();
+  } = useAppStateStore((state) => ({
+    appState: state.appState,
+    containers: state.containers,
+    tariAddress: state.tariAddress,
+    setTariAddress: state.setTariAddress,
+    saveTariAddress: state.saveTariAddress,
+    startMining: state.startMining,
+    stopMining: state.stopMining,
+    setShaTimerOn: state.setShaTimerOn,
+    shaTime: state.shaTime,
+    setShaTime: state.setShaTime,
+  }));
   const theme = useTheme();
   const [miningStatus, setMiningStatus] = useState<Status>('inactive');
 
@@ -98,14 +118,16 @@ function MiningWidget() {
 
   const TariAddressTextField = () => {
     const [localAddress, setLocalAddress] = useState(tariAddress);
+    const [isDirty, setIsDirty] = useState(false);
 
     const handleLocalAddressChange = (
       event: React.ChangeEvent<HTMLInputElement>
     ) => {
       setLocalAddress(event.target.value);
+      setIsDirty(true);
     };
 
-    function handleSetAddress(save: boolean) {
+    const handleSetAddress = (save: boolean) => {
       if (save) {
         saveTariAddress(localAddress);
       } else {
@@ -117,35 +139,75 @@ function MiningWidget() {
             ''
         );
       }
-    }
+    };
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        handleSetAddress(true);
+        event.preventDefault();
+      }
+    };
+
+    const ActionButtons = () => {
+      return (
+        <ButtonGroup>
+          <StyledIconButton onClick={() => handleSetAddress(true)}>
+            <CheckRoundedIcon
+              style={{
+                height: '16px',
+                width: '16px',
+              }}
+            />
+          </StyledIconButton>
+          <StyledIconButton onClick={() => handleSetAddress(false)}>
+            <CloseRoundedIcon
+              style={{
+                height: '16px',
+                width: '16px',
+              }}
+            />
+          </StyledIconButton>
+        </ButtonGroup>
+      );
+    };
 
     return (
-      <Box
+      <LabelBoxVertical
         style={{
-          display: 'flex',
-          gap: theme.spacing(1),
-          flexDirection: 'column',
           width: '100%',
-          alignItems: 'flex-start',
         }}
       >
+        <Typography
+          variant="body1"
+          sx={typography.defaultMedium}
+          style={{
+            color: theme.palette.text.secondary,
+          }}
+        >
+          {t.wallet.wallet.walletId} ({t.wallet.wallet.address})
+        </Typography>
         <TextField
-          placeholder="Tari Address"
+          placeholder={t.wallet.wallet.walletId}
           value={localAddress}
           onChange={handleLocalAddressChange}
+          onKeyDown={handleKeyDown}
           InputProps={{
-            endAdornment: <CopyToClipboard copy={localAddress} />,
+            endAdornment: isDirty ? (
+              <ActionButtons />
+            ) : (
+              <CopyToClipboard copy={localAddress} />
+            ),
+            style: {
+              paddingRight: '8px',
+              paddingLeft: '8px',
+            },
           }}
+          style={{
+            paddingRight: '0',
+          }}
+          fullWidth
         />
-        <HorisontalButtons>
-          <Button variant="contained" onClick={() => handleSetAddress(true)}>
-            Save
-          </Button>
-          <Button variant="outlined" onClick={() => handleSetAddress(false)}>
-            Cancel
-          </Button>
-        </HorisontalButtons>
-      </Box>
+      </LabelBoxVertical>
     );
   };
 
@@ -166,13 +228,17 @@ function MiningWidget() {
               <MiningTitle />
               <Amount amount={0} />
             </ContentBox>
-
-            <Timer
-              miningType="Sha"
-              setTimerOn={setShaTimerOn}
-              time={shaTime}
-              setTime={setShaTime}
-            />
+            <ContentBox>
+              <Typography variant="body1" sx={typography.smallMedium}>
+                <span style={typography.smallHeavy}>Hash rate:</span> 0KH
+              </Typography>
+              <Timer
+                miningType="Sha"
+                setTimerOn={setShaTimerOn}
+                time={shaTime}
+                setTime={setShaTime}
+              />
+            </ContentBox>
           </MiningBoxInner>
           <SignetBox />
         </ShaMiningBox>
@@ -193,7 +259,6 @@ function MiningWidget() {
                 />
               </Box>
               <MiningTitle />
-              <CircularProgressLight />
             </ContentBox>
             {containers.sha3Miner?.status !== ShaMiningStatus.SHUTTINGDOWN && (
               <Box>
@@ -257,6 +322,7 @@ function MiningWidget() {
               >
                 {t.mining.readyToMiningText}
               </Typography>
+              <TariAddressTextField />
             </ContentBox>
             <Button
               variant="contained"

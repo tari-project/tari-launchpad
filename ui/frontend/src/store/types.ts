@@ -90,9 +90,9 @@ export const MergeMiningStatus = {
 };
 
 export const SettingsTabs = {
-  MINING: 'Mining',
+  SHA_MINING: 'Sha Mining',
+  MERGED_MINING: 'Merged Mining',
   BASE_NODE: 'BaseNode',
-  WALLET: 'Wallet',
   DOCKER: 'Docker',
   GENERAL: 'General',
   RESET: 'Reset',
@@ -166,13 +166,6 @@ export interface AppStateStore {
   // Form submission state
   isSubmitting: boolean;
   setIsSubmitting: (value: boolean) => void;
-
-  // Startup configurations
-  runOnStartup: boolean;
-  setRunOnStartup: (value: boolean) => void;
-
-  mineOnStartup: boolean;
-  setMineOnStartup: (value: boolean) => void;
 
   // Settings tab
   settingsTab: number;

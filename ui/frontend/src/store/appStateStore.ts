@@ -114,23 +114,20 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
   openSettingsFunc: (tab) => {
     set({ openSettings: true });
     switch (tab) {
-      case SettingsTabs.MINING:
+      case SettingsTabs.SHA_MINING:
         set({ settingsTab: 0 });
         break;
-      case SettingsTabs.BASE_NODE:
+      case SettingsTabs.MERGED_MINING:
         set({ settingsTab: 1 });
         break;
-      case SettingsTabs.WALLET:
+      case SettingsTabs.BASE_NODE:
         set({ settingsTab: 2 });
         break;
       case SettingsTabs.DOCKER:
         set({ settingsTab: 3 });
         break;
-      case SettingsTabs.GENERAL:
-        set({ settingsTab: 4 });
-        break;
       case SettingsTabs.RESET:
-        set({ settingsTab: 5 });
+        set({ settingsTab: 4 });
         break;
       default:
         set({ settingsTab: 0 });
@@ -139,12 +136,6 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
 
   isSubmitting: false,
   setIsSubmitting: (value) => set({ isSubmitting: value }),
-
-  runOnStartup: false,
-  setRunOnStartup: (value) => set({ runOnStartup: value }),
-
-  mineOnStartup: false,
-  setMineOnStartup: (value) => set({ mineOnStartup: value }),
 
   // Mining functions
   startMining: async (miningType: MiningType) => {

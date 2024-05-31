@@ -22,7 +22,7 @@ export const SettingsTab = styled(Tab)(({ theme }) => ({
   '&.Mui-selected': {
     backgroundColor: theme.palette.divider,
     color: theme.palette.primary.main,
-    fontFamily: '"AvenirHeavy", sans-serif',
+    fontFamily: '"PoppinsMedium", sans-serif',
   },
 }));
 

@@ -24,12 +24,11 @@ import { ThemeOptions } from '@mui/material/styles';
 import {
   tariPurple,
   grey,
-  teal,
-  gothic,
   success,
   info,
   warning,
   error,
+  brightGreen,
 } from './colors';
 import gradients from '../styles/styles/gradients';
 import typography from '../styles/styles/typography';
@@ -40,41 +39,45 @@ export const componentSettings: ThemeOptions = {
   },
   spacing: 8,
   typography: {
-    fontFamily: '"AvenirMedium", sans-serif',
+    fontFamily: '"PoppinsMedium", sans-serif',
     fontSize: 14,
-    body1: {},
+    body1: {
+      fontSize: '14px',
+      // letterSpacing: '0.1px',
+    },
     body2: {
+      fontSize: '12px',
       lineHeight: '1.5rem',
     },
     h1: {
       fontSize: '2.2rem',
       lineHeight: '3.2rem',
-      fontFamily: '"AvenirHeavy", sans-serif',
+      fontFamily: '"PoppinsBold", sans-serif',
     },
     h2: {
       fontSize: '1.9rem',
       lineHeight: '2.9rem',
-      fontFamily: '"AvenirHeavy", sans-serif',
+      fontFamily: '"PoppinsBold", sans-serif',
     },
     h3: {
       fontSize: '1.6rem',
       lineHeight: '2.6rem',
-      fontFamily: '"AvenirHeavy", sans-serif',
+      fontFamily: '"PoppinsBold", sans-serif',
     },
     h4: {
       fontSize: '1.3rem',
       lineHeight: '2.3rem',
-      fontFamily: '"AvenirHeavy", sans-serif',
+      fontFamily: '"PoppinsBold", sans-serif',
     },
     h5: {
       fontSize: '1rem',
       lineHeight: '2em',
-      fontFamily: '"AvenirHeavy", sans-serif',
+      fontFamily: '"PoppinsBold", sans-serif',
     },
     h6: {
       fontSize: '0.875rem',
       lineHeight: '1.8rem',
-      fontFamily: '"AvenirHeavy", sans-serif',
+      fontFamily: '"PoppinsBold", sans-serif',
     },
   },
   transitions: {
@@ -89,15 +92,19 @@ export const componentSettings: ThemeOptions = {
         disableRipple: true,
         sx: {
           textTransform: 'none',
-          fontSize: 16,
+          fontSize: 14,
           border: 'none',
           boxShadow: 'none',
+          borderRadius: '8px',
           color: (theme) => theme.palette.text.secondary,
           '&.Mui-selected': {
             color: (theme) => theme.palette.text.primary,
           },
           '&:hover': {
             color: (theme) => theme.palette.text.primary,
+          },
+          '&:focus': {
+            backgroundColor: (theme) => theme.palette.action.hover,
           },
         },
       },
@@ -151,7 +158,7 @@ export const componentSettings: ThemeOptions = {
       defaultProps: {
         sx: {
           '& .MuiTypography-root': {
-            fontSize: '0.875rem',
+            fontSize: '14px',
             lineHeight: '1.8rem',
             color: (theme) => theme.palette.text.primary,
           },
@@ -181,7 +188,7 @@ export const componentSettings: ThemeOptions = {
         sx: {
           textTransform: 'none',
           boxShadow: 'none',
-          fontFamily: '"AvenirMedium", sans-serif',
+          fontFamily: '"PoppinsMedium", sans-serif',
           height: 44,
           padding: '8px 16px',
         },
@@ -211,14 +218,24 @@ export const componentSettings: ThemeOptions = {
         {
           props: { variant: 'outlined' },
           style: ({ theme }) => ({
-            background: theme.palette.mode === 'light' ? grey[50] : grey[800],
-            borderColor: theme.palette.mode === 'light' ? grey[100] : grey[700],
+            background:
+              theme.palette.mode === 'light'
+                ? grey[50]
+                : 'rgba(255,255,255,0.08)',
+            borderColor:
+              theme.palette.mode === 'light'
+                ? grey[100]
+                : 'rgba(255,255,255,0.12)',
             color: theme.palette.text.primary,
             '&:hover': {
               background:
-                theme.palette.mode === 'light' ? grey[100] : grey[700],
+                theme.palette.mode === 'light'
+                  ? grey[100]
+                  : 'rgba(255,255,255,0.12)',
               borderColor:
-                theme.palette.mode === 'light' ? grey[100] : grey[700],
+                theme.palette.mode === 'light'
+                  ? grey[100]
+                  : 'rgba(255,255,255,0.12)',
             },
           }),
         },
@@ -236,6 +253,9 @@ export const componentSettings: ThemeOptions = {
             '& fieldset': {
               borderColor: (theme) => theme.palette.divider,
             },
+            '&:hover fieldset': {
+              borderColor: (theme) => theme.palette.primary.main,
+            },
           },
           '&:hover fieldset': {
             borderColor: (theme) => theme.palette.divider,
@@ -248,9 +268,6 @@ export const componentSettings: ThemeOptions = {
             fontSize: '14px',
             padding: '4px',
           },
-        },
-        InputLabelProps: {
-          shrink: true,
         },
       },
     },
@@ -287,7 +304,6 @@ export const componentSettings: ThemeOptions = {
     },
     MuiSwitch: {
       defaultProps: {
-        size: 'medium',
         sx: {
           width: 48,
           '&:active': {
@@ -323,7 +339,6 @@ export const componentSettings: ThemeOptions = {
             width: 14,
             height: 14,
           },
-          '& .MuiSwitch-track': {},
         },
       },
     },
@@ -333,7 +348,7 @@ export const componentSettings: ThemeOptions = {
           fontSize: 12,
           height: 26,
           '& strong': {
-            fontFamily: '"AvenirHeavy", sans-serif',
+            fontFamily: '"PoppinsMedium", sans-serif',
           },
         },
       },
@@ -405,9 +420,9 @@ export const light: ThemeOptions = {
       light: tariPurple[500],
     },
     secondary: {
-      main: gothic[400],
-      dark: gothic[500],
-      light: teal[400],
+      main: brightGreen[600],
+      dark: brightGreen[700],
+      light: brightGreen[500],
     },
     divider: 'rgba(0,0,0,0.06)',
     text: {
@@ -455,9 +470,9 @@ export const dark: ThemeOptions = {
       light: tariPurple[50],
     },
     secondary: {
-      main: teal[400],
-      dark: teal[300],
-      light: gothic[400],
+      main: brightGreen[500],
+      dark: brightGreen[400],
+      light: brightGreen[600],
     },
     divider: 'rgba(255,255,255,0.06)',
     text: {
@@ -466,8 +481,8 @@ export const dark: ThemeOptions = {
       disabled: 'rgba(255,255,255,0.4)',
     },
     background: {
-      default: grey[950],
-      paper: grey[900],
+      default: '#040723',
+      paper: '#0C0E2A',
     },
     success: {
       main: success[200],

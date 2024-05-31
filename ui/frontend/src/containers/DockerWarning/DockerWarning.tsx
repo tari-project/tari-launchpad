@@ -11,7 +11,12 @@ import { exit } from '@tauri-apps/api/process';
 import typography from '../../styles/styles/typography';
 
 function DockerDialog() {
-  const { openDockerWarning, setOpenDockerWarning } = useAppStateStore();
+  const { openDockerWarning, setOpenDockerWarning } = useAppStateStore(
+    (state) => ({
+      openDockerWarning: state.openDockerWarning,
+      setOpenDockerWarning: state.setOpenDockerWarning,
+    })
+  );
 
   async function openDockerInstall(evt: any) {
     evt.preventDefault();
