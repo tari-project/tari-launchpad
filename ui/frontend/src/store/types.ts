@@ -69,6 +69,7 @@ export const BaseNodeStatus = {
   PENDING: 'Pending',
   CHECKING: 'Checking for old containers...',
   SYNCING: 'Syncing blockchain...',
+  HEADERSYNC: 'Syncing headers...',
 };
 
 export const ShaMiningStatus = {
@@ -108,6 +109,7 @@ export interface AppStateStore {
   setContainers: (newContainers: ContainerState) => void;
 
   // Mining states
+
   isMining: boolean;
   setIsMining: (value: boolean) => void;
 

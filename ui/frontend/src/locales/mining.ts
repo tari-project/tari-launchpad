@@ -8,6 +8,9 @@ const translations = {
     continueMining:
       'Keep on going. You are one click away from starting mining.',
     runningOn: 'Awesome! Tari Mining is on.',
+    tariOn: 'Awesome! Tari Mining is on.',
+    moneroOn: 'Awesome! Monero Mining is on.',
+    tariMoneroOn: 'Awesome! Tari and Monero Mining are on.',
     wantToKnowMore: 'Want to know more',
   },
   actions: {

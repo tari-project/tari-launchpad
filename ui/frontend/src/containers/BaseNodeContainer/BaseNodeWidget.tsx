@@ -38,7 +38,8 @@ function BaseNodeWidget() {
       containers.baseNode?.status === BaseNodeStatus.SHUTTINGDOWN ||
       containers.baseNode?.status === BaseNodeStatus.STARTING ||
       containers.baseNode?.status === BaseNodeStatus.PENDING ||
-      containers.baseNode?.status === BaseNodeStatus.SYNCING
+      containers.baseNode?.status === BaseNodeStatus.SYNCING ||
+      containers.baseNode?.status === BaseNodeStatus.HEADERSYNC
     ) {
       setBaseNodeStatus('pending');
     } else if (containers.baseNode?.status === BaseNodeStatus.ACTIVE) {

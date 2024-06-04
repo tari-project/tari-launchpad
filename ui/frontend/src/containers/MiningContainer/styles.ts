@@ -92,7 +92,7 @@ export const MiningButtonBox = styled(Box)(({ theme }) => ({
   color: 'rgba(255, 255, 255, 0.8)',
   backgroundColor: 'rgba(255, 255, 255, 0.22)',
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'baseline',
   justifyContent: 'flex-start',
   gap: theme.spacing(2),
   padding: `2px 16px 2px 24px`,
@@ -107,4 +107,23 @@ export const AmountBox = styled(Box)(({ theme }) => ({
   flexDirection: 'row',
   gap: theme.spacing(0.5),
   alignItems: 'baseline',
+}));
+
+export const HelpTextBox = styled(Box)(() => ({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+}));
+
+export const TabContainer = styled(Box)(({ theme }) => ({
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(3),
+}));
+
+export const ItemsContainer = styled(Box)(({ theme }) => ({
+  display: 'grid',
+  gap: theme.spacing(3),
+  gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
 }));

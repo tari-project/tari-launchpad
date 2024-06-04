@@ -7,8 +7,13 @@ import {
   Typography,
   Chip,
   Button,
+  CircularProgress,
 } from '@mui/material';
 import colors from '../styles/styles/colors';
+
+export const CircularProgressLight = styled(CircularProgress)(({}) => ({
+  color: colors.light.textSecondary,
+}));
 
 export const TabInnerBox = styled(Box)(({ theme }) => ({
   display: 'flex',

@@ -154,6 +154,20 @@ export const componentSettings: ThemeOptions = {
         },
       },
     },
+    MuiList: {
+      defaultProps: {
+        sx: {
+          listStyleType: 'disc',
+          pl: 2,
+          pt: 0,
+          '& .MuiListItem-root': {
+            display: 'list-item',
+            pb: 0.5,
+            pt: 0.5,
+          },
+        },
+      },
+    },
     MuiFormControlLabel: {
       defaultProps: {
         sx: {

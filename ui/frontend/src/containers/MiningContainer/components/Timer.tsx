@@ -29,22 +29,6 @@ function Timer({
     startTimer();
   }, []);
 
-  // useEffect(() => {
-  //   let intervalId: any;
-  //   let prevTime = time;
-
-  //   if (timerOn) {
-  //     intervalId = setInterval(() => {
-  //       prevTime = prevTime + 1;
-  //       setTime(prevTime);
-  //     }, 1000);
-  //   } else {
-  //     clearInterval(intervalId);
-  //   }
-
-  //   return () => clearInterval(intervalId);
-  // }, [timerOn]);
-
   const stopTimer = (miningType: MiningType) => {
     setTimerOn(false);
     stopMining(miningType);
@@ -63,10 +47,18 @@ function Timer({
 
   return (
     <MiningButtonBox>
-      <Typography variant="body2" sx={typography.smallHeavy} pr={1}>
+      <Typography
+        variant="body2"
+        sx={typography.defaultMedium}
+        pr={1}
+        style={{
+          minWidth: 70,
+          textAlign: 'center',
+        }}
+      >
         {formatTime(time)}
       </Typography>
-      <Typography variant="body2" sx={typography.smallHeavy}>
+      <Typography variant="body2" sx={typography.defaultMedium}>
         |
       </Typography>
       <Button
@@ -74,6 +66,7 @@ function Timer({
         onClick={() => stopTimer(miningType)}
         style={{
           color: '#fff',
+          fontFamily: typography.defaultMedium.fontFamily,
         }}
       >
         {t.common.verbs.pause}

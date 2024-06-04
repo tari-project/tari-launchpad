@@ -9,6 +9,8 @@ import {
   ShaMiningStatus,
   MergeMiningStatus,
 } from '../../../store/types';
+import { useShallow } from 'zustand/react/shallow';
+import typography from '../../../styles/styles/typography';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -51,10 +53,12 @@ function a11yProps(index: number) {
 export default function MainTabs() {
   const [value, setValue] = useState(0);
   const theme = useTheme();
-  const { containers, network } = useAppStateStore((state) => ({
-    containers: state.containers,
-    network: state.network,
-  }));
+  const { containers, network } = useAppStateStore(
+    useShallow((state) => ({
+      containers: state.containers,
+      network: state.network,
+    }))
+  );
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -65,8 +69,8 @@ export default function MainTabs() {
       return (
         <Chip
           label={
-            <span>
-              <strong>Running</strong> {network}
+            <span style={typography.smallHeavy}>
+              Running <span style={typography.smallMedium}>{network}</span>
             </span>
           }
           color="success"
@@ -84,11 +88,7 @@ export default function MainTabs() {
     ) {
       return (
         <Chip
-          label={
-            <span>
-              <strong>Running</strong>
-            </span>
-          }
+          label={<span style={typography.smallHeavy}>Running</span>}
           color="success"
         />
       );

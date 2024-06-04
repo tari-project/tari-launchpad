@@ -23,7 +23,7 @@ const translations = {
   helpMessages: {
     howItWorks: {
       tip: {
-        text: 'Begin by starting the Base Node',
+        text: 'Begin by starting the Base Node.',
         cta: 'How it works',
       },
       allowsYou: 'Running Tari Base Node allows you to:',
@@ -38,6 +38,7 @@ const translations = {
     },
     aurora:
       'If you have an Aurora wallet on your smartphone, you can increase its security by connecting to the Tari Base Node.',
+    alreadyRunning: 'The Base Node is already running!',
   },
   viewActions: {
     baseNodeSettings: 'Base Node settings',

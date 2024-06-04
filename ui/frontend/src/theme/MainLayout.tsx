@@ -8,21 +8,24 @@ import Button from '@mui/material/Button';
 import Switch from '@mui/material/Switch';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import './theme/theme.css';
+import './theme.css';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { light, dark, componentSettings } from './theme/tokens';
-import useThemeStore from './store/themeStore';
-import ExpertViewTabs from './containers/Dashboard/ExpertView/ExpertViewTabs';
+import { light, dark, componentSettings } from './tokens';
+import useThemeStore from '../store/themeStore';
+import ExpertViewTabs from '../containers/Dashboard/ExpertView/ExpertViewTabs';
 import { Container } from '@mui/material';
-import TariLogo from './assets/tari-logo';
+import TariLogo from '../assets/tari-logo';
 import { SnackbarProvider } from 'notistack';
-import { SnackbarCloseButton } from './containers/TBotContainer/TBot';
+// import { SnackbarCloseButton } from '../containers/TBotContainer/TBot';
+// import { CustomSnackbarContent } from '../containers/TBotContainer/TBot';
 import { MaterialDesignContent } from 'notistack';
-import Fade from './components/Fade';
-import useAppStateStore from './store/appStateStore';
-import SvgMonitor from './styles/Icons/Monitor';
-import typography from './styles/styles/typography';
-import SvgSetting from './styles/Icons/Setting2';
+import Fade from '../components/Fade';
+import useAppStateStore from '../store/appStateStore';
+import SvgMonitor from '../styles/Icons/Monitor';
+import typography from '../styles/styles/typography';
+import SvgSetting from '../styles/Icons/Setting2';
+import { DrawerHeader, Main, MenuContainer } from './styles';
+import { useShallow } from 'zustand/react/shallow';
 
 const StyledMaterialDesignContent = styled(MaterialDesignContent)(
   ({ theme }) => ({
@@ -37,76 +40,40 @@ const StyledMaterialDesignContent = styled(MaterialDesignContent)(
       backgroundColor:
         theme.palette.mode === 'light'
           ? theme.palette.background.paper
-          : '#262626',
+          : 'rgba(255,255,255,0.04)',
       color: theme.palette.text.primary,
       boxShadow: 'none',
-      maxWidth: '200px',
+      width: '400px',
     },
     '&.notistack-SnackbarContainer': {
       border: `1px solid ${theme.palette.divider}`,
       color: theme.palette.text.primary,
       boxShadow: 'none',
+      width: 600,
     },
   })
 );
-
-const MenuContainer = styled(Box)(({ theme }) => ({
-  position: 'fixed',
-  top: theme.spacing(2),
-  right: theme.spacing(2),
-  zIndex: 1000,
-}));
-
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
-  open?: boolean;
-  contentWidth?: string;
-  drawerWidth: number;
-}>(({ theme, open, contentWidth, drawerWidth }) => ({
-  flexGrow: 1,
-  backgroundColor:
-    theme.palette.mode === 'light'
-      ? theme.palette.background.paper
-      : theme.palette.background.default,
-  minHeight: '100vh',
-  padding: theme.spacing(3),
-  transition: theme.transitions.create('margin', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  marginRight: -drawerWidth,
-  ...(open && {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginRight: 0,
-  }),
-  width: contentWidth === 'fullScreen' ? '100%' : 'calc(100% - 600px)',
-  position: 'relative',
-}));
-
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  ...theme.mixins.toolbar,
-  justifyContent: 'space-between',
-  position: 'sticky',
-  top: 0,
-  zIndex: 10,
-}));
 
 export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [contentWidth, setContentWidth] = useState<'normal' | 'fullScreen'>(
     'normal'
   );
   const [drawerWidth, setDrawerWidth] = useState(window.innerWidth * 0.5);
-  const { setOpenSettings, setTariAddress, appState } = useAppStateStore();
-  const { themeMode } = useThemeStore();
+  const { setOpenSettings } = useAppStateStore(
+    useShallow((state) => ({
+      setOpenSettings: state.setOpenSettings,
+    }))
+  );
+  const { themeMode } = useThemeStore(
+    useShallow((state) => ({
+      themeMode: state.themeMode,
+    }))
+  );
   const headerHeight = 64;
 
   const themeOptions = (mode: string) => {
@@ -143,13 +110,6 @@ export default function MainLayout({
   };
 
   function handleOpenSettings() {
-    setTariAddress(
-      appState?.config?.settings?.saved_settings?.mm_proxy
-        .wallet_payment_address ||
-        appState?.config?.settings?.saved_settings?.sha3_miner
-          ?.wallet_payment_address ||
-        ''
-    );
     setOpenSettings(true);
   }
 
@@ -193,12 +153,13 @@ export default function MainLayout({
           display: 'flex',
           flexDirection: 'row',
           gap: theme.spacing(3),
+          alignItems: 'center',
         }}
       >
         <ThemeProvider theme={theme}>
           <Button
-            onClick={() => handleOpenSettings()}
-            size="small"
+            onClick={handleOpenSettings}
+            size="medium"
             startIcon={<SvgSetting />}
             style={{
               color: open ? '#fff' : 'inherit',
@@ -216,13 +177,10 @@ export default function MainLayout({
     <ThemeProvider theme={open ? darkTheme : theme}>
       <SnackbarProvider
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        maxSnack={3}
+        maxSnack={2}
         preventDuplicate
-        hideIconVariant
         TransitionComponent={Fade}
-        action={(snackbarKey) => (
-          <SnackbarCloseButton snackbarKey={snackbarKey} />
-        )}
+        autoHideDuration={20000}
         Components={{
           success: StyledMaterialDesignContent,
           error: StyledMaterialDesignContent,
@@ -265,11 +223,7 @@ export default function MainLayout({
                 <Menu />
               </MenuContainer>
             </ThemeProvider>
-            <Main
-              open={open}
-              contentWidth={contentWidth}
-              drawerWidth={drawerWidth}
-            >
+            <Main open={open} contentWidth={contentWidth} drawerWidth={0}>
               <DrawerHeader />
               <Container>{children}</Container>
             </Main>
@@ -279,6 +233,7 @@ export default function MainLayout({
                   width: contentWidth === 'fullScreen' ? '100vw' : drawerWidth,
                   flexShrink: 0,
                   zIndex: 400,
+                  display: open ? 'block' : 'none',
                   '& .MuiDrawer-paper': {
                     width:
                       contentWidth === 'fullScreen' ? '100vw' : drawerWidth,
@@ -308,7 +263,8 @@ export default function MainLayout({
                   <Button
                     onClick={handleFullScreenToggle}
                     startIcon={<SvgMonitor />}
-                    style={typography.microMedium}
+                    style={typography.smallMedium}
+                    color="inherit"
                   >
                     {contentWidth === 'fullScreen'
                       ? 'Exit Full Screen'
@@ -321,27 +277,13 @@ export default function MainLayout({
                     position: 'absolute',
                     top: headerHeight,
                     zIndex: 1000,
+                    width: '100%',
                   }}
                 >
                   <ExpertViewTabs />
                 </Box>
               </Drawer>
             </ThemeProvider>
-            {/* <Box
-              style={{
-                position: 'absolute',
-                bottom: '24px',
-                left: '24px',
-                backgroundColor: theme.palette.background.paper,
-                borderRadius: 50,
-                padding: 10,
-                border: `1px solid ${theme.palette.divider}`,
-                opacity: 0.9,
-              }}
-            >
-              <ThemeSwitcher />
-              <TBot />
-            </Box> */}
           </Box>
         </ThemeProvider>
       </SnackbarProvider>

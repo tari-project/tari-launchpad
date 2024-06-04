@@ -1,13 +1,8 @@
 import { styled } from '@mui/material/styles';
-import { Box, CircularProgress } from '@mui/material';
+import { Box } from '@mui/material';
 import gradients from '../../styles/styles/gradients';
-import colors from '../../styles/styles/colors';
 
 const minHeight = 350;
-
-export const CircularProgressLight = styled(CircularProgress)(({}) => ({
-  color: colors.light.textSecondary,
-}));
 
 export const FooterBox = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -73,4 +68,24 @@ export const ContentBox = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
   alignItems: 'flex-start',
   width: '100%',
+}));
+
+export const HelpTextBox = styled(Box)(() => ({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+}));
+
+export const TabContainer = styled(Box)(({ theme }) => ({
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(3),
+  alignItems: 'center',
+}));
+
+export const ItemsContainer = styled(Box)(({ theme }) => ({
+  display: 'grid',
+  gap: theme.spacing(3),
+  gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
 }));
