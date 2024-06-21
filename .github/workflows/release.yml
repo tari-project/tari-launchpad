@@ -13,19 +13,27 @@ name: Release
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # https://docs.github.com/en/actions/examples/using-concurrency-expressions-and-a-test-matrix
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/v') || github.ref != 'refs/heads/main' }}
+
+permissions: {}
 
 jobs:
   builds:
+    name: Building ${{ matrix.platform }}
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
-        platform: [
-          macos-latest,
-          ubuntu-latest,
-          windows-latest,
-        ]
+        include:
+          - platform: "ubuntu-22.04"
+            args: ""
+          - platform: "windows-2019"
+            args: ""
+          - platform: "macos-latest"
+            args: "--verbose --target universal-apple-darwin"
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -35,120 +43,117 @@ jobs:
       - name: Node.js setup
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: lts/*
           cache: 'yarn'
 
       - name: Rust setup (native)
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
+          targets: 'wasm32-unknown-unknown'
 
-      - name: Rust setup (Linux/aarch64)
+      - name: Rust setup (macOS)
+        if: startsWith(runner.os,'macOS')
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          target: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Rust setup (linux)
         if: startsWith(runner.os,'Linux')
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
           target: aarch64-unknown-linux-gnu
 
-      - name: Rust setup (macOS/aarch64)
-        if: startsWith(runner.os,'macOS')
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-          target: aarch64-apple-darwin
-
       - name: Cache cargo files and outputs
+        if: ${{ ( ! startsWith(github.ref, 'refs/tags/v') ) }}
         uses: Swatinem/rust-cache@v2
-
-      - name: Install dependencies (Linux)
-        if: startsWith(runner.os,'Linux')
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends --assume-yes \
-            libgtk-3-dev \
-            webkit2gtk-4.0 \
-            libappindicator3-dev \
-            librsvg2-dev \
-            patchelf
-          rustup target add aarch64-unknown-linux-gnu
 
       - name: Install dependencies (macOS)
         if: startsWith(runner.os,'macOS')
         run: |
-          brew install openssl
-          echo "AARCH64_APPLE_DARWIN_OPENSSL_INCLUDE_DIR=/usr/local/opt/openssl/include" >> $GITHUB_ENV
-          echo "AARCH64_APPLE_DARWIN_OPENSSL_LIB_DIR=/usr/local/opt/openssl/lib" >> $GITHUB_ENV
-          rustup target add aarch64-apple-darwin
+          # openssl, cmake, autoconf and zip already installed
+          brew install coreutils automake protobuf
 
-      - name: Install app dependencies and build web
-        run: |
-          yarn
-          cd ./gui-react
-          yarn
-
-      - name: Build the app (Linux)
+      - name: Install dependencies (linux)
         if: startsWith(runner.os,'Linux')
-        continue-on-error: true
-        env:
-          CI: false
         run: |
-          yarn run tauri build --target x86_64-unknown-linux-gnu
-          # yarn run tauri build --target aarch64-unknown-linux-gnu
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --assume-yes \
+            libwebkit2gtk-4.0-dev \
+            build-essential \
+            wget \
+            file \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libsoup2.4-dev \
+            patchelf \
+            apt-transport-https \
+            ca-certificates \
+            curl \
+            gpg \
+            openssl \
+            libssl-dev \
+            pkg-config \
+            libsqlite3-dev \
+            git \
+            cmake \
+            dh-autoreconf \
+            libc++-dev \
+            libc++abi-dev \
+            libprotobuf-dev \
+            protobuf-compiler \
+            libncurses5-dev \
+            libncursesw5-dev \
+            zip
 
-      - name: Build the app (macOS)
-        if: startsWith(runner.os,'macOS')
-        continue-on-error: true
-        env:
-          CI: false
-        run: |
-          yarn run tauri build --target x86_64-apple-darwin
-          yarn run tauri build --target aarch64-apple-darwin
-          yarn run tauri build --target universal-apple-darwin
-
-      - name: Prepare packages - ${{ matrix.platform }}
+      - name: Install dependencies (windows)
+        if: startsWith(runner.os,'Windows')
         shell: bash
         run: |
-          # /target/**/release/bundle/macos/tari-launchpad*.app
-          target_temp="${{ runner.temp }}/${{ matrix.platform }}"
-          mkdir -p "${target_temp}"
-          find "${{ github.workspace }}/target/" \( -iname "*.deb" -o -iname "*.AppImage" \
-            -o -iname "*.dmg" \) -exec cp -v {} ${target_temp} \;
-          cd "${target_temp}"
-          shasum -a 256 * >> "${{ matrix.platform }}.txt.sha256sums"
+          vcpkg.exe install sqlite3:x64-windows zlib:x64-windows
+          # Bug in choco - need to install each package individually
+          choco upgrade llvm -y
+          # psutils is out of date
+          # choco upgrade psutils -y
+          choco upgrade openssl -y
+          # Should already be installed
+          # choco upgrade strawberryperl -y
+          choco upgrade protoc -y
+          echo "SQLITE3_LIB_DIR=C:\vcpkg\installed\x64-windows\lib" >> $GITHUB_ENV
+          echo "OPENSSL_DIR=C:\Program Files\OpenSSL-Win64" >> $GITHUB_ENV
+          echo "LIBCLANG_PATH=C:\Program Files\LLVM\bin" >> $GITHUB_ENV
+          echo "C:\Strawberry\perl\bin" >> $GITHUB_PATH
 
-      - name: Artifact upload - ${{ matrix.platform }}
-        continue-on-error: true
+      - name: Install dependencies (node)
+        run: |
+          yarn
+          cd ui/frontend
+          yarn install
+
+      - name: Build Tauri apps
+        uses: tauri-apps/tauri-action@v0
+        id: build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENABLE_CODE_SIGNING: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          projectPath: ui
+          includeDebug: ${{ ( ! startsWith(github.ref, 'refs/tags/v') ) }}
+          includeRelease: ${{ ( startsWith(github.ref, 'refs/tags/v') ) }}
+          releaseBody: "Tari-Launcher."
+          releaseDraft: true
+          prerelease: true
+          args: ${{ matrix.args }}
+
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: tari-launchpad-${{ matrix.platform }}
-          path: ${{ runner.temp }}/${{ matrix.platform }}
-
-  create-draft-release:
-    # tag should match - backend/(package.json|tauri.conf.json) [package:version]
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    runs-on: ubuntu-latest
-    needs: builds
-    steps:
-      - name: Download build binaries
-        uses: actions/download-artifact@v4
-        with:
-          path: tari-launchpad
-
-      - name: Verify binaries with checksums
-        shell: bash
-        working-directory: tari-launchpad
-        run: |
-          mv -v tari-launchpad-*-latest/* .
-          find . -name "*-latest.txt.sha256sums" -print | xargs cat >> tari-launchpad.txt.sha256sums
-          sha256sum -c tari-launchpad.txt.sha256sums
-
-      - name: Create draft release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "tari-launchpad/tari-launchpad_*,tari-launchpad/tari-launchpad.txt.sha256sums"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: true
-          draft: true
-          allowUpdates: true
-          updateOnlyUnreleased: true
-          replacesArtifacts: true
+          name: tari-launchpad_${{ steps.build.outputs.appVersion }}_${{ matrix.platform }}
+          path: "${{ join(fromJSON(steps.build.outputs.artifactPaths), '\n') }}"
