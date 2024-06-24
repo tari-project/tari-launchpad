@@ -26,13 +26,12 @@ import {
 import { useTheme } from '@mui/material/styles';
 import SvgTariSignet from '../../../styles/Icons/TariSignet';
 import SvgMoneroSignet from '../../../styles/Icons/MoneroSignet';
-import SvgQuestion from '../../../styles/Icons/Question';
 import CopyToClipboard from '../../../components/CopyToClipboard';
-import { useSnackbar } from 'notistack';
 import Timer from '../components/Timer';
 import Amount from '../components/Amount';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import { MergedMiningHelp } from '../MiningHelp/Messages';
 
 type Status = 'inactive' | 'pending' | 'active';
 
@@ -62,14 +61,6 @@ function MergeMiningWidget() {
   }));
   const theme = useTheme();
   const [miningStatus, setMiningStatus] = useState<Status>('inactive');
-  const { enqueueSnackbar } = useSnackbar();
-
-  const mergeMiningHelp = () => {
-    enqueueSnackbar(`${t.mergedMiningHelp.message1}`, {
-      key: 'mergedMiningHelp.message1',
-      persist: true,
-    });
-  };
 
   useEffect(() => {
     setMoneroAddress(
@@ -138,13 +129,7 @@ function MergeMiningWidget() {
         <Typography variant="h3" sx={typography.header}>
           {t.common.miningType.merged}
         </Typography>
-        <StyledIconButton onClick={() => mergeMiningHelp()}>
-          <SvgQuestion
-            color={
-              miningStatus === 'inactive' ? theme.palette.primary.main : '#FFF'
-            }
-          />
-        </StyledIconButton>
+        <MergedMiningHelp miningStatus={miningStatus} />
       </Box>
     );
   };

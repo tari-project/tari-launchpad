@@ -3,13 +3,14 @@ import { useEffect } from 'react';
 // import { invoke } from "@tauri-apps/api/tauri";
 // import './App.css';
 import { emit, listen } from '@tauri-apps/api/event';
-import MainLayout from './MainLayout';
+import MainLayout from './theme/MainLayout';
 import useAppStateStore from './store/appStateStore';
 import useConfigStore from './store/configStore';
 import MainTabs from './containers/Dashboard/DashboardContainer/MainTabs';
 import SettingsDialog from './containers/SettingsContainer/SettingsDialog';
 import DockerWarning from './containers/DockerWarning/DockerWarning';
 import MiningScheduleDialog from './containers/MiningContainer/MiningSchedule/MiningScheduleDialog';
+import { useShallow } from 'zustand/react/shallow';
 
 function App() {
   const {
@@ -33,7 +34,30 @@ function App() {
     openSchedule,
     startBaseNode,
     startMining,
-  } = useAppStateStore();
+  } = useAppStateStore(
+    useShallow((state) => ({
+      appState: state.appState,
+      setAppState: state.setAppState,
+      containers: state.containers,
+      setContainers: state.setContainers,
+      setIsMining: state.setIsMining,
+      setIsChangingMining: state.setIsChangingMining,
+      openDockerWarning: state.openDockerWarning,
+      setOpenDockerWarning: state.setOpenDockerWarning,
+      setTariAddress: state.setTariAddress,
+      setNetwork: state.setNetwork,
+      openSettings: state.openSettings,
+      shaTime: state.shaTime,
+      setShaTime: state.setShaTime,
+      shaTimerOn: state.shaTimerOn,
+      mergeTime: state.mergeTime,
+      setMergeTime: state.setMergeTime,
+      mergeTimerOn: state.mergeTimerOn,
+      openSchedule: state.openSchedule,
+      startBaseNode: state.startBaseNode,
+      startMining: state.startMining,
+    }))
+  );
   const { startupConfig } = useConfigStore();
 
   //   async function connect() {
@@ -105,6 +129,7 @@ function App() {
               payload?.State?.config?.session?.merge_layer_active ||
                 payload?.State?.config?.session?.sha3x_layer_active
             );
+
             setIsChangingMining(false);
             setTariAddress(
               appState?.config?.settings?.saved_settings?.mm_proxy

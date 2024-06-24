@@ -39,7 +39,7 @@ function DockerDialog() {
       <DialogContent>
         <DialogContentText
           id="alert-dialog-description"
-          sx={typography.smallMedium}
+          sx={typography.defaultMedium}
           pr={3}
           pl={3}
         >

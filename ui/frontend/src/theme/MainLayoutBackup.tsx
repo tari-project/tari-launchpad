@@ -8,21 +8,21 @@ import Button from '@mui/material/Button';
 import Switch from '@mui/material/Switch';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import './theme/theme.css';
+import './theme.css';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { light, dark, componentSettings } from './theme/tokens';
-import useThemeStore from './store/themeStore';
-import ExpertViewTabs from './containers/Dashboard/ExpertView/ExpertViewTabs';
+import { light, dark, componentSettings } from './tokens';
+import useThemeStore from '../store/themeStore';
+import ExpertViewTabs from '../containers/Dashboard/ExpertView/ExpertViewTabs';
 import { Container } from '@mui/material';
-import TariLogo from './assets/tari-logo';
+import TariLogo from '../assets/tari-logo';
 import { SnackbarProvider } from 'notistack';
-import { SnackbarCloseButton } from './containers/TBotContainer/TBot';
+import { SnackbarCloseButton } from '../containers/TBotContainer/TBot';
 import { MaterialDesignContent } from 'notistack';
-import Fade from './components/Fade';
-import useAppStateStore from './store/appStateStore';
-import SvgMonitor from './styles/Icons/Monitor';
-import typography from './styles/styles/typography';
-import SvgSetting from './styles/Icons/Setting2';
+import Fade from '../components/Fade';
+import useAppStateStore from '../store/appStateStore';
+import SvgMonitor from '../styles/Icons/Monitor';
+import typography from '../styles/styles/typography';
+import SvgSetting from '../styles/Icons/Setting2';
 
 const StyledMaterialDesignContent = styled(MaterialDesignContent)(
   ({ theme }) => ({
@@ -37,7 +37,7 @@ const StyledMaterialDesignContent = styled(MaterialDesignContent)(
       backgroundColor:
         theme.palette.mode === 'light'
           ? theme.palette.background.paper
-          : 'rgba(255,255,255,0.04)',
+          : '#262626',
       color: theme.palette.text.primary,
       boxShadow: 'none',
       maxWidth: '200px',
@@ -52,7 +52,7 @@ const StyledMaterialDesignContent = styled(MaterialDesignContent)(
 
 const MenuContainer = styled(Box)(({ theme }) => ({
   position: 'fixed',
-  top: '10px',
+  top: theme.spacing(2),
   right: theme.spacing(2),
   zIndex: 1000,
 }));
@@ -100,18 +100,12 @@ export default function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [contentWidth, setContentWidth] = useState<'normal' | 'fullScreen'>(
     'normal'
   );
   const [drawerWidth, setDrawerWidth] = useState(window.innerWidth * 0.5);
-  const { setOpenSettings, setTariAddress, appState } = useAppStateStore(
-    (state) => ({
-      setOpenSettings: state.setOpenSettings,
-      setTariAddress: state.setTariAddress,
-      appState: state.appState,
-    })
-  );
+  const { setOpenSettings, setTariAddress, appState } = useAppStateStore();
   const { themeMode } = useThemeStore();
   const headerHeight = 64;
 
@@ -199,13 +193,12 @@ export default function MainLayout({
           display: 'flex',
           flexDirection: 'row',
           gap: theme.spacing(3),
-          alignItems: 'center',
         }}
       >
         <ThemeProvider theme={theme}>
           <Button
-            onClick={handleOpenSettings}
-            size="medium"
+            onClick={() => handleOpenSettings()}
+            size="small"
             startIcon={<SvgSetting />}
             style={{
               color: open ? '#fff' : 'inherit',
@@ -272,7 +265,11 @@ export default function MainLayout({
                 <Menu />
               </MenuContainer>
             </ThemeProvider>
-            <Main open={open} contentWidth={contentWidth} drawerWidth={0}>
+            <Main
+              open={open}
+              contentWidth={contentWidth}
+              drawerWidth={drawerWidth}
+            >
               <DrawerHeader />
               <Container>{children}</Container>
             </Main>
@@ -282,7 +279,6 @@ export default function MainLayout({
                   width: contentWidth === 'fullScreen' ? '100vw' : drawerWidth,
                   flexShrink: 0,
                   zIndex: 400,
-                  display: open ? 'block' : 'none',
                   '& .MuiDrawer-paper': {
                     width:
                       contentWidth === 'fullScreen' ? '100vw' : drawerWidth,
@@ -312,8 +308,7 @@ export default function MainLayout({
                   <Button
                     onClick={handleFullScreenToggle}
                     startIcon={<SvgMonitor />}
-                    style={typography.smallMedium}
-                    color="inherit"
+                    style={typography.microMedium}
                   >
                     {contentWidth === 'fullScreen'
                       ? 'Exit Full Screen'
@@ -326,13 +321,27 @@ export default function MainLayout({
                     position: 'absolute',
                     top: headerHeight,
                     zIndex: 1000,
-                    width: '100%',
                   }}
                 >
                   <ExpertViewTabs />
                 </Box>
               </Drawer>
             </ThemeProvider>
+            {/* <Box
+              style={{
+                position: 'absolute',
+                bottom: '24px',
+                left: '24px',
+                backgroundColor: theme.palette.background.paper,
+                borderRadius: 50,
+                padding: 10,
+                border: `1px solid ${theme.palette.divider}`,
+                opacity: 0.9,
+              }}
+            >
+              <ThemeSwitcher />
+              <TBot />
+            </Box> */}
           </Box>
         </ThemeProvider>
       </SnackbarProvider>

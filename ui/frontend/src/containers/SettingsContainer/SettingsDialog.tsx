@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button, Box, Tabs, Dialog } from '@mui/material';
 import useAppStateStore from '../../store/appStateStore';
 import ThemeSwitch from '../../components/ThemeSwitch';
@@ -18,6 +18,7 @@ import {
 import { emit } from '@tauri-apps/api/event';
 import { TabPanelProps, FormDataType, FormDataSchema } from './types';
 import useConfigStore from '../../store/configStore';
+import { useShallow } from 'zustand/react/shallow';
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -44,13 +45,15 @@ function a11yProps(index: number) {
 }
 
 function SettingsDialog() {
-  const [openSettings, setOpenSettings, appState, settingsTab] =
-    useAppStateStore((state) => [
-      state.openSettings,
-      state.setOpenSettings,
-      state.appState,
-      state.settingsTab,
-    ]);
+  const { openSettings, setOpenSettings, appState, settingsTab } =
+    useAppStateStore(
+      useShallow((state) => ({
+        openSettings: state.openSettings,
+        setOpenSettings: state.setOpenSettings,
+        appState: state.appState,
+        settingsTab: state.settingsTab,
+      }))
+    );
   const { startupConfig, setStartupConfig } = useConfigStore();
   const [isValid, setIsValid] = useState(false);
   console.log('isValid', isValid);
@@ -173,10 +176,6 @@ function SettingsDialog() {
     setValue(0);
     setOpenSettings(false);
   };
-
-  useEffect(() => {
-    setFormData(initialFormData);
-  }, [appState]);
 
   async function saveSettings(formData: FormDataType) {
     console.log('Save Form', FormDataSchema.safeParse(formData));

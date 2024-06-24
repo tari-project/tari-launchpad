@@ -144,17 +144,17 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
     switch (miningType) {
       case 'Sha':
         stateSession.sha3x_layer_active = true;
-        set({ isShaMining: true });
+        // set({ isShaMining: true });
         break;
       case 'Merge':
         stateSession.merge_layer_active = true;
-        set({ isMergeMining: true });
+        // set({ isMergeMining: true });
         break;
       case 'All':
         stateSession.sha3x_layer_active = true;
         stateSession.merge_layer_active = true;
-        set({ isShaMining: true });
-        set({ isMergeMining: true });
+        // set({ isShaMining: true });
+        // set({ isMergeMining: true });
         break;
     }
     emit('tari://actions', {
@@ -167,17 +167,17 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
     switch (miningType) {
       case 'Sha':
         stateSession.sha3x_layer_active = false;
-        set({ isShaMining: false });
+        // set({ isShaMining: false });
         break;
       case 'Merge':
         stateSession.merge_layer_active = false;
-        set({ isMergeMining: false });
+        // set({ isMergeMining: false });
         break;
       case 'All':
         stateSession.sha3x_layer_active = false;
         stateSession.merge_layer_active = false;
-        set({ isShaMining: false });
-        set({ isMergeMining: false });
+        // set({ isShaMining: false });
+        // set({ isMergeMining: false });
         break;
     }
     emit('tari://actions', {
