@@ -5115,7 +5115,7 @@ dependencies = [
 
 [[package]]
 name = "tari-lp-cli"
-version = "1.9.1"
+version = "1.10.0"
 dependencies = [
  "anyhow",
  "async-trait",
