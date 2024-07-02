@@ -131,7 +131,7 @@ jobs:
 
       - name: Install dependencies (node)
         run: |
-          npm
+          npm --version
           cd ui/frontend
           npm install
 
