@@ -1,4 +1,4 @@
-import { Typography, TextField, Switch, Box } from '@mui/material';
+import { Typography, TextField, Box } from '@mui/material';
 import SubHeading from '../../../components/SubHeading';
 import typography from '../../../styles/styles/typography';
 import { LabelBoxVertical } from '../../../components/StyledComponents';
@@ -6,7 +6,6 @@ import { SettingsBox, SettingsContainer } from '../styles';
 import t from '../../../locales';
 import CopyToClipboard from '../../../components/CopyToClipboard';
 import { MergedMiningSettingsType } from '../types';
-import { FormGroup, FormControlLabel } from '@mui/material';
 
 function MergedMiningSettings({
   handleChange,
@@ -58,29 +57,6 @@ function MergedMiningSettings({
             </span>
           </Typography>
         </LabelBoxVertical>
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={formData.mergeMineOnStartup}
-                onChange={() =>
-                  handleChange({
-                    target: {
-                      name: 'mergedMiningSettings.mergeMineOnStartup',
-                      value: !formData.mergeMineOnStartup,
-                    },
-                  })
-                }
-                inputProps={{ 'aria-label': 'start merged mining on startup' }}
-                style={{
-                  marginRight: '4px',
-                }}
-              />
-            }
-            label="Start merged mining on startup"
-            labelPlacement="end"
-          />
-        </FormGroup>
         <SubHeading text={t.common.nouns.expert} />
         <Box
           style={{

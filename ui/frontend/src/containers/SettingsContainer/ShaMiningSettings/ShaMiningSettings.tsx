@@ -1,4 +1,4 @@
-import { Typography, TextField, Switch } from '@mui/material';
+import { Typography, TextField } from '@mui/material';
 import typography from '../../../styles/styles/typography';
 import SubHeading from '../../../components/SubHeading';
 import {
@@ -9,7 +9,6 @@ import { SettingsBox, SettingsContainer } from '../styles';
 import t from '../../../locales';
 import { ShaMiningSettingsType } from '../types';
 import CopyToClipboard from '../../../components/CopyToClipboard';
-import { FormGroup, FormControlLabel } from '@mui/material';
 
 function ShaMiningSettings({
   handleChange,
@@ -59,29 +58,6 @@ function ShaMiningSettings({
           {t.wallet.settings.explanations.extendedFunctionality}{' '}
           {t.wallet.settings.explanations.convert}{' '}
         </Typography>
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={formData.shaMineOnStartup}
-                onChange={() =>
-                  handleChange({
-                    target: {
-                      name: 'shaMiningSettings.shaMineOnStartup',
-                      value: !formData.shaMineOnStartup,
-                    },
-                  })
-                }
-                inputProps={{ 'aria-label': 'start tari mining on startup' }}
-                style={{
-                  marginRight: '4px',
-                }}
-              />
-            }
-            label="Start Tari mining on startup"
-            labelPlacement="end"
-          />
-        </FormGroup>
         <SubHeading text={t.common.nouns.expert} />
         <LabelBoxHorisontal>
           <Typography variant="body1" style={typography.defaultMedium}>

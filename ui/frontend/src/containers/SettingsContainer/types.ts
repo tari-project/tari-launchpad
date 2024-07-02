@@ -3,14 +3,12 @@ import { z } from 'zod';
 export const ShaMiningSettingsSchema = z.object({
   tariAddress: z.string(),
   shaThreads: z.number(),
-  shaMineOnStartup: z.boolean(),
 });
 
 export const MergedMiningSettingsSchema = z.object({
   moneroAddress: z.string(),
   randomXThreads: z.number(),
   moneroNodeUrl: z.string(),
-  mergeMineOnStartup: z.boolean(),
 });
 
 export const BaseNodeSettingsSchema = z.object({

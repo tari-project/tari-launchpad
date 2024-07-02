@@ -65,7 +65,6 @@ function SettingsDialog() {
       moneroAddress: settings.xmrig?.monero_mining_address || '',
       randomXThreads: settings.xmrig?.num_mining_threads || 0,
       moneroNodeUrl: settings.mm_proxy?.monerod_url || '',
-      mergeMineOnStartup: startupConfig.mergeMine || false,
     },
     baseNodeSettings: {
       network: settings.tari_network || '',
@@ -78,7 +77,6 @@ function SettingsDialog() {
         settings.sha3_miner?.wallet_payment_address ||
         '',
       shaThreads: settings.sha3_miner?.num_mining_threads || 0,
-      shaMineOnStartup: startupConfig.shaMine || false,
     },
     dockerSettings: {
       dockerTag: appState?.config?.settings?.saved_settings?.tag || '',
@@ -178,8 +176,8 @@ function SettingsDialog() {
   };
 
   async function saveSettings(formData: FormDataType) {
-    console.log('Save Form', FormDataSchema.safeParse(formData));
     const validatedData = FormDataSchema.safeParse(formData);
+    console.log('Save Form', validatedData);
     if (!validatedData.success) {
       setIsValid(false);
       console.error('Validation Error', validatedData.error);
@@ -201,15 +199,6 @@ function SettingsDialog() {
       formData.mergedMiningSettings.randomXThreads;
     // moneroNodeUrl
     settings.mm_proxy.monerod_url = formData.mergedMiningSettings.moneroNodeUrl;
-    // sha mine on startup
-    setStartupConfig('shaMine', formData.shaMiningSettings.shaMineOnStartup);
-
-    // MERGE MINING SETTINGS
-    // merge mine on startup
-    setStartupConfig(
-      'mergeMine',
-      formData.mergedMiningSettings.mergeMineOnStartup
-    );
 
     // walletPaymentAddress
     // settings.sha3_miner.wallet_payment_address =
