@@ -1,7 +1,7 @@
 {
   "package": {
     "productName": "tari-launchpad",
-    "version": "0.1.1"
+    "version": "0.1.0"
   },
   "build": {
     "beforeDevCommand": "yarn dev",
@@ -59,6 +59,9 @@
     },
     "updater": {
       "active": true,
+      "endpoints": [
+        "https://github.com/leet4tari/tari-launchpad"
+      ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDhGMTIwMzNCMDI5OTI3MApSV1J3a2ltd015RHhDTlpQZzNydzdQSklsQkVmeXJ0OTE5Q2RBVFdIM0FCSUIyTlI4ZkR6WkVFVwo="
     },
