@@ -54,7 +54,8 @@
       }
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": ["https://raw.githubusercontent.com/leet4tari/tari-launchpad/main/deploy/latest.json"]
     },
     "allowlist": {
       "dialog": {
