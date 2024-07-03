@@ -69,9 +69,6 @@ function BaseNodeSettings({
           />
         </LabelBoxHorisontal>
       </SettingsBox>
-      <SettingsBox>
-        <SubHeading text={t.baseNode.qrModal.title} />
-      </SettingsBox>
     </SettingsContainer>
   );
 }
