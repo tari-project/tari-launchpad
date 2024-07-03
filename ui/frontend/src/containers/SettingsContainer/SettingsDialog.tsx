@@ -63,7 +63,6 @@ function SettingsDialog() {
   const initialFormData = {
     mergedMiningSettings: {
       moneroAddress: settings.xmrig?.monero_mining_address || '',
-      randomXThreads: settings.xmrig?.num_mining_threads || 0,
       moneroNodeUrl: settings.mm_proxy?.monerod_url || '',
       mergeMineOnStartup: startupConfig.mergeMine || false,
     },
@@ -196,9 +195,6 @@ function SettingsDialog() {
     // moneroAddress
     settings.xmrig.monero_mining_address =
       formData.mergedMiningSettings.moneroAddress;
-    // randomXThreads
-    settings.xmrig.num_mining_threads =
-      formData.mergedMiningSettings.randomXThreads;
     // moneroNodeUrl
     settings.mm_proxy.monerod_url = formData.mergedMiningSettings.moneroNodeUrl;
     // sha mine on startup
