@@ -114,6 +114,7 @@ pub enum Status {
     InitialState,
 
     PullingImage {
+        #[allow(unused)]
         progress: TaskGuard<()>,
     },
 
@@ -132,6 +133,7 @@ pub enum Status {
     Idle,
 
     Active {
+        #[allow(unused)]
         checker: TaskGuard<()>,
         ready: bool,
     },

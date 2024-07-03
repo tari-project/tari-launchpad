@@ -77,6 +77,10 @@ jobs:
         run: |
           cargo install cargo-lints
 
+      - name: empty frontend dist directory
+        run: |
+          mkdir ui/frontend/dist
+
       - name: Clippy check (with lints)
         run: |
           cargo lints clippy --all-targets --all-features
@@ -95,6 +99,10 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ inputs.toolchain }}
+
+      - name: empty frontend dist directory
+        run: |
+          mkdir ui/frontend/dist
 
       - name: Cache rust dependencies
         uses: Swatinem/rust-cache@v2
