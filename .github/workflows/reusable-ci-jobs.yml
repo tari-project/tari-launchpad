@@ -100,6 +100,10 @@ jobs:
         with:
           toolchain: ${{ inputs.toolchain }}
 
+      - name: empty frontend dist directory
+        run: |
+          mkdir ui/frontend/dist
+
       - name: Cache rust dependencies
         uses: Swatinem/rust-cache@v2
 
