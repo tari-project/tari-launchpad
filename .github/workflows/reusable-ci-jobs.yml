@@ -128,6 +128,10 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
+      - name: Change permissions
+        run: |
+          sudo chmod -R 777 /opt/hostedtoolcache
+
       - name: setup node
         uses: actions/setup-node@v4
         with:
