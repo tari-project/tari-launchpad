@@ -1,0 +1,23 @@
+{
+    "version": "0.1.1",
+    "notes": "The Tari-Launcher",
+    "pub_date": "2024-07-03T09:15:15.788Z",
+    "platforms": {
+      "linux-x86_64": {
+        "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSd2tpbXdNeUR4Q0toYS96eDg4WXBUdEdlRU1OU2tHVzBPTGIrTG0rUTlhamlkc0xDUi91Nnk0dTdvRTBUNmdEVmJsUVh0UkFqRW5ma0F3K0Vqa2NWRHU4WWNmQkliUGd3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzE5OTk4MTA4CWZpbGU6dGFyaS1sYXVuY2hwYWRfMC4xLjFfYW1kNjQuQXBwSW1hZ2UudGFyLmd6CkhBakp3RmRaMjlza1FxemFxSWtZWTZaUVlkSUw4b0FLemhDaW1hb21PdHBvZHNyd3A4eStJUGZBSW5pVHZYYW13M3EyNTZ5ZHJXV3ZxY2FRU2tpeEFRPT0K",
+        "url": "https://github.com/leet4tari/tari-launchpad/releases/download/v0.1.1/tari-launchpad_0.1.1_amd64.AppImage.tar.gz"
+      },
+      "darwin-aarch64": {
+        "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSd2tpbXdNeUR4Q0c3N2MwNkN6MVd1bnM1RkJMYmNzbVhqK1N0c0cyRGRBR3VxYWNmVWdrcWRzUGVxWEVIYlZTeTBydkVoR01Ucm1ETWhzK0NCbXptNjZDdjMwZFpMcndnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzE5OTk2ODAxCWZpbGU6dGFyaS1sYXVuY2hwYWQuYXBwLnRhci5negpSNGs2enppdUJiRnIzcTlnSjcxM0lyTG1JK0tMbXgxU05ZbVByWjIwWklxT29PblFWSG8xU0hQcHo5ZUNmVEp0OWFLV1NMTGtQcUFJdjdEWURZcFRCZz09Cg==",
+        "url": "https://github.com/leet4tari/tari-launchpad/releases/download/v0.1.1/tari-launchpad_universal.app.tar.gz"
+      },
+      "darwin-x86_64": {
+        "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSd2tpbXdNeUR4Q0c3N2MwNkN6MVd1bnM1RkJMYmNzbVhqK1N0c0cyRGRBR3VxYWNmVWdrcWRzUGVxWEVIYlZTeTBydkVoR01Ucm1ETWhzK0NCbXptNjZDdjMwZFpMcndnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzE5OTk2ODAxCWZpbGU6dGFyaS1sYXVuY2hwYWQuYXBwLnRhci5negpSNGs2enppdUJiRnIzcTlnSjcxM0lyTG1JK0tMbXgxU05ZbVByWjIwWklxT29PblFWSG8xU0hQcHo5ZUNmVEp0OWFLV1NMTGtQcUFJdjdEWURZcFRCZz09Cg==",
+        "url": "https://github.com/leet4tari/tari-launchpad/releases/download/v0.1.1/tari-launchpad_universal.app.tar.gz"
+      },
+      "windows-x86_64": {
+        "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSd2tpbXdNeUR4Q0pINXNhSjAvU3dwL0VFVEpuWEY5ME81c053RytmRmQ0SVI1MXhYdlBxbCt1Sk9YbklVbHpQMUpPRVpSTVF6a0tIbkJZTGFyZzRlYVFlUndWZmdnS2dBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzE5OTk3NDQwCWZpbGU6dGFyaS1sYXVuY2hwYWRfMC4xLjFfeDY0X2VuLVVTLm1zaS56aXAKOEdORi9MWlVMdGFzWS80amRlOE1mV3lzWDN3SkpQUkZyVzl3cDZRY3UyakEwVHovMmpzUVhJVG50Z2d0bHBLZ1RSaXU4UGxKQmFPN1lNSmQwMzFWREE9PQo=",
+        "url": "https://github.com/leet4tari/tari-launchpad/releases/download/v0.1.1/tari-launchpad_0.1.1_x64_en-US.msi.zip"
+      }
+    }
+  }
