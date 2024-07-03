@@ -48,7 +48,7 @@ fn main() -> Result<(), Error> {
     });
 
     let app = tauri::Builder::default()
-        .setup(|app| tari_sdm_launchpad::tauri::bus_setup(app))
+        .setup(tari_sdm_launchpad::tauri::bus_setup)
         .build(tauri::generate_context!())?;
 
     app.run(|app_handle, event| {
