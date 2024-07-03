@@ -154,13 +154,16 @@ jobs:
           releaseName: 'tari-launchpad v__VERSION__'
           #releaseId: '0.1.0'
           projectPath: ui
-          includeDebug: ${{ ( ! startsWith(github.ref, 'refs/tags/v') ) }}
-          includeRelease: ${{ ( startsWith(github.ref, 'refs/tags/v') ) }}
+          #includeDebug: ${{ ( ! startsWith(github.ref, 'refs/tags/v') ) }}
+          #includeRelease: ${{ ( startsWith(github.ref, 'refs/tags/v') ) }}
+          includeDebug: false
+          includeRelease: true
           includeUpdaterJson: true
+          #updaterJsonKeepUniversal: true
           updaterJsonKeepUniversal: false
           releaseBody: "The Tari-Launcher"
           releaseDraft: true
-          prerelease: true
+          prerelease: false
           args: ${{ matrix.args }}
 
 #      - name: Upload
