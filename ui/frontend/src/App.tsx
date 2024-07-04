@@ -12,6 +12,17 @@ import DockerWarning from './containers/DockerWarning/DockerWarning';
 import MiningScheduleDialog from './containers/MiningContainer/MiningSchedule/MiningScheduleDialog';
 import { useShallow } from 'zustand/react/shallow';
 
+const containerIdToKey: { [key: string]: string | undefined} = {
+  'Tor': 'tor',
+  'Base Node': 'baseNode',
+  'Sha3Miner': 'sha3Miner',
+  'SharedVolume': 'sharedVolume',
+  'MM proxy': 'mmProxy',
+  'Loki': 'loki',
+  'Grafana': 'grafana',
+  'Xmrig': 'xmrig',
+};
+
 function App() {
   const {
     appState,
@@ -84,7 +95,6 @@ function App() {
     let unlisten = (async () =>
       await listen('tari://reactions', (event) => {
         let payload: any = event.payload;
-        // console.log(event);
         if (payload?.State !== undefined) {
           setAppState(payload?.State);
           //  console.log(payload?.State);
@@ -99,30 +109,13 @@ function App() {
 
             // We have to do this because some supersmart developer
             // used strings as keys with spaces in them
-            newContainers.tor = normalizeContainer(
-              payload?.State?.containers['Tor']
-            );
-            newContainers.baseNode = normalizeContainer(
-              payload?.State?.containers['Base Node']
-            );
-            newContainers.sha3Miner = normalizeContainer(
-              payload?.State?.containers['Sha3Miner']
-            );
-            newContainers.sharedVolume = normalizeContainer(
-              payload?.State?.containers['SharedVolume']
-            );
-            newContainers.mmProxy = normalizeContainer(
-              payload?.State?.containers['MM proxy']
-            );
-            newContainers.loki = normalizeContainer(
-              payload?.State?.containers['Loki']
-            );
-            newContainers.grafana = normalizeContainer(
-              payload?.State?.containers['Grafana']
-            );
-            newContainers.xmrig = normalizeContainer(
-              payload?.State?.containers['Xmrig']
-            );
+            Object.keys(containerIdToKey).forEach((id) => {
+              const key = containerIdToKey[id];
+              if (key) {
+                newContainers[key] = normalizeContainer(payload?.State?.containers[id]);
+              }
+            });
+
             setContainers(newContainers);
 
             setIsMining(
@@ -153,183 +146,40 @@ function App() {
             );
           }
           if (payload?.Delta.TaskDelta) {
-            let delta: any = payload?.Delta.TaskDelta?.delta;
-            // console.log(delta);
-            let id = payload?.Delta.TaskDelta?.id;
+            const { id, delta } = payload?.Delta.TaskDelta;
+            const key = containerIdToKey[id];
+            const newContainers = { ...containers };
+            
             if (delta.UpdateStatus) {
-              let newState: any = { ...appState };
-              // console.log(delta.UpdateStatus);
+              if (appState.containers[id]) {
+                const newState = { ...appState };
+                newState.containers[id].status = delta.UpdateStatus;
+                setAppState(newState);
+              }
+              
+              if (key && newContainers[key]) {
+                newContainers[key].status = printStatus(delta.UpdateStatus);
+                if (newContainers[key].status === "Inactive") {
+                  newContainers[key].stats = {};
+                }
+                setContainers(newContainers);
+              }
+            }
+          
+            if (delta.StatsRecord && key) {
+              if (delta.StatsRecord.timestamp !== newContainers[key].stats?.timestamp) {
+                
+                const lastCpu = newContainers[key].stats?.cpu_usage;
+                const lastSystemCpu = newContainers[key].stats?.system_cpu_usage;
+                newContainers[key].stats = delta.StatsRecord;
 
-              newState.containers[payload?.Delta.TaskDelta?.id].status =
-                delta.UpdateStatus;
-              // if (delta.UpdateStatus?.Progress) {
-              // newState.containers[payload?.Delta.TaskDelta?.id].status = delta.UpdateStatus?.Progress?.stage;
-              // setAppState(newState);
-              // }
-              setAppState(newState);
-              let newContainers: any = {
-                ...containers,
-              };
-              if (id === 'Tor') {
-                newContainers.tor.status = printStatus(delta.UpdateStatus);
+                const cpuUsagePercent = ((delta.StatsRecord.cpu_usage - lastCpu) / (delta.StatsRecord.system_cpu_usage - lastSystemCpu)) * 100;
+                newContainers[key].stats.cpu = !isNaN(cpuUsagePercent) ? cpuUsagePercent : 0;
+                setContainers(newContainers);
               }
-              if (id === 'Base Node') {
-                newContainers.baseNode.status = printStatus(delta.UpdateStatus);
-              }
-              if (id === 'Sha3Miner') {
-                newContainers.sha3Miner.status = printStatus(
-                  delta.UpdateStatus
-                );
-              }
-              if (id === 'SharedVolume') {
-                newContainers.sharedVolume.status = printStatus(
-                  delta.UpdateStatus
-                );
-              }
-              if (id === 'MM proxy') {
-                newContainers.mmProxy.status = printStatus(delta.UpdateStatus);
-              }
-              if (id === 'Loki') {
-                newContainers.loki.status = printStatus(delta.UpdateStatus);
-              }
-              if (id === 'Grafana') {
-                newContainers.grafana.status = printStatus(delta.UpdateStatus);
-              }
-              if (id === 'Xmrig') {
-                newContainers.xmrig.status = printStatus(delta.UpdateStatus);
-              }
-              setContainers(newContainers);
             }
-            // stats records
-            if (delta.StatsRecord) {
-              let newContainers: any = {
-                ...containers,
-              };
-              if (id === 'Tor') {
-                // console.log(delta.StatsRecord);
-                if (
-                  delta.StatsRecord.timestamp !==
-                  newContainers.tor.stats?.timestamp
-                ) {
-                  let last_cpu = newContainers.tor.stats?.cpu_usage;
-                  let last_system_cpu =
-                    newContainers.tor.stats?.system_cpu_usage;
-                  newContainers.tor.stats = delta.StatsRecord;
-                  newContainers.tor.stats.cpu =
-                    ((delta.StatsRecord.cpu_usage - last_cpu) /
-                      (delta.StatsRecord.system_cpu_usage - last_system_cpu)) *
-                    100;
-                }
-              }
-              if (id === 'Base Node') {
-                if (
-                  delta.StatsRecord.timestamp !==
-                  newContainers.baseNode.stats?.timestamp
-                ) {
-                  let last_cpu = newContainers.baseNode.stats?.cpu_usage;
-                  let last_system_cpu =
-                    newContainers.baseNode.stats?.system_cpu_usage;
-                  newContainers.baseNode.stats = delta.StatsRecord;
-                  newContainers.baseNode.stats.cpu =
-                    ((delta.StatsRecord.cpu_usage - last_cpu) /
-                      (delta.StatsRecord.system_cpu_usage - last_system_cpu)) *
-                    100;
-                }
-              }
-              if (id === 'Sha3Miner') {
-                if (
-                  delta.StatsRecord.timestamp !==
-                  newContainers.sha3Miner.stats?.timestamp
-                ) {
-                  let last_cpu = newContainers.sha3Miner.stats?.cpu_usage;
-                  let last_system_cpu =
-                    newContainers.sha3Miner.stats?.system_cpu_usage;
-                  newContainers.sha3Miner.stats = delta.StatsRecord;
-                  newContainers.sha3Miner.stats.cpu =
-                    ((delta.StatsRecord.cpu_usage - last_cpu) /
-                      (delta.StatsRecord.system_cpu_usage - last_system_cpu)) *
-                    100;
-                }
-              }
-              if (id === 'SharedVolume') {
-                if (
-                  delta.StatsRecord.timestamp !==
-                  newContainers.sharedVolume.stats?.timestamp
-                ) {
-                  let last_cpu = newContainers.sharedVolume.stats?.cpu_usage;
-                  let last_system_cpu =
-                    newContainers.sharedVolume.stats?.system_cpu_usage;
-                  newContainers.sharedVolume.stats = delta.StatsRecord;
-                  newContainers.sharedVolume.stats.cpu =
-                    ((delta.StatsRecord.cpu_usage - last_cpu) /
-                      (delta.StatsRecord.system_cpu_usage - last_system_cpu)) *
-                    100;
-                }
-              }
-              if (id === 'MM proxy') {
-                if (
-                  delta.StatsRecord.timestamp !==
-                  newContainers.mmProxy.stats?.timestamp
-                ) {
-                  let last_cpu = newContainers.mmProxy.stats?.cpu_usage;
-                  let last_system_cpu =
-                    newContainers.mmProxy.stats?.system_cpu_usage;
-                  newContainers.mmProxy.stats = delta.StatsRecord;
-                  newContainers.mmProxy.stats.cpu =
-                    ((delta.StatsRecord.cpu_usage - last_cpu) /
-                      (delta.StatsRecord.system_cpu_usage - last_system_cpu)) *
-                    100;
-                }
-              }
-              if (id === 'Loki') {
-                if (
-                  delta.StatsRecord.timestamp !==
-                  newContainers.loki.stats?.timestamp
-                ) {
-                  let last_cpu = newContainers.loki.stats?.cpu_usage;
-                  let last_system_cpu =
-                    newContainers.loki.stats?.system_cpu_usage;
-                  newContainers.loki.stats = delta.StatsRecord;
-                  newContainers.loki.stats.cpu =
-                    ((delta.StatsRecord.cpu_usage - last_cpu) /
-                      (delta.StatsRecord.system_cpu_usage - last_system_cpu)) *
-                    100;
-                }
-              }
-              if (id === 'Grafana') {
-                if (
-                  delta.StatsRecord.timestamp !==
-                  newContainers.grafana.stats?.timestamp
-                ) {
-                  let last_cpu = newContainers.grafana.stats?.cpu_usage;
-                  let last_system_cpu =
-                    newContainers.grafana.stats?.system_cpu_usage;
-                  newContainers.grafana.stats = delta.StatsRecord;
-                  newContainers.grafana.stats.cpu =
-                    ((delta.StatsRecord.cpu_usage - last_cpu) /
-                      (delta.StatsRecord.system_cpu_usage - last_system_cpu)) *
-                    100;
-                }
-              }
-              if (id === 'Xmrig') {
-                if (
-                  delta.StatsRecord.timestamp !==
-                  newContainers.xmrig.stats?.timestamp
-                ) {
-                  let last_cpu = newContainers.xmrig.stats?.cpu_usage;
-                  let last_system_cpu =
-                    newContainers.xmrig.stats?.system_cpu_usage;
-                  newContainers.xmrig.stats = delta.StatsRecord;
-                  newContainers.xmrig.stats.cpu =
-                    ((delta.StatsRecord.cpu_usage - last_cpu) /
-                      (delta.StatsRecord.system_cpu_usage - last_system_cpu)) *
-                    100;
-                }
-              }
-              setContainers(newContainers);
-            }
+          
             if (!delta.UpdateStatus && !delta.StatsRecord && !delta.LogRecord) {
-              // No need for log records at this point
               console.log('Unknown delta: ' + JSON.stringify(delta));
             }
           }
