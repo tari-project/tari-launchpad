@@ -25,7 +25,7 @@ use std::env;
 
 use anyhow::{Context, Error};
 use tact::Actor;
-use tari_lp_cli::supervisor::Supervisor;
+use tari_launchpad_cli::supervisor::Supervisor;
 use tari_sdm_assets::configurator::Configurator;
 
 #[tokio::main]

@@ -1,4 +1,4 @@
-import { Typography, TextField, Switch, Box } from '@mui/material';
+import { Typography, TextField, Switch } from '@mui/material';
 import SubHeading from '../../../components/SubHeading';
 import typography from '../../../styles/styles/typography';
 import { LabelBoxVertical } from '../../../components/StyledComponents';
@@ -15,16 +15,6 @@ function MergedMiningSettings({
   handleChange: any;
   formData: MergedMiningSettingsType;
 }) {
-  const handleThreadChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10);
-    handleChange({
-      target: {
-        name: event.target.name,
-        value: isNaN(value) ? '' : value,
-      },
-    });
-  };
-
   return (
     <SettingsContainer>
       <Typography variant="h3" style={typography.subheader}>
@@ -81,45 +71,6 @@ function MergedMiningSettings({
             labelPlacement="end"
           />
         </FormGroup>
-        <SubHeading text={t.common.nouns.expert} />
-        <Box
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            width: '100%',
-            gap: '16px',
-          }}
-        >
-          <LabelBoxVertical>
-            <Typography variant="body1" style={typography.defaultMedium}>
-              {t.mining.settings.randomXThreadsLabel}
-            </Typography>
-            <TextField
-              placeholder={t.mining.settings.randomXThreadsLabel}
-              name="mergedMiningSettings.randomXThreads"
-              value={formData.randomXThreads}
-              onChange={handleThreadChange}
-              style={{ maxWidth: 120 }}
-            />
-          </LabelBoxVertical>
-
-          <LabelBoxVertical
-            style={{
-              flexGrow: 4,
-            }}
-          >
-            <Typography variant="body1" style={typography.defaultMedium}>
-              {t.mining.settings.moneroNodeUrlLabel}
-            </Typography>
-            <TextField
-              placeholder={t.mining.settings.moneroNodeUrlLabel}
-              name="mergedMiningSettings.moneroNodeUrl"
-              value={formData.moneroNodeUrl}
-              onChange={handleChange}
-            />
-          </LabelBoxVertical>
-        </Box>
       </SettingsBox>
     </SettingsContainer>
   );

@@ -4,7 +4,6 @@ import useAppStateStore from '../../store/appStateStore';
 import ThemeSwitch from '../../components/ThemeSwitch';
 import MergedMiningSettings from './MergedMiningSettings/MergedMiningSettings';
 import BaseNodeSettings from './BaseNodeSettings/BaseNodeSettings';
-import DockerSettings from './DockerSettings/DockerSettings';
 import ShaMiningSettings from './ShaMiningSettings/ShaMiningSettings';
 import ResetSettings from './ResetSettings/ResetSettings';
 import { useTheme } from '@mui/material/styles';
@@ -63,7 +62,6 @@ function SettingsDialog() {
   const initialFormData = {
     mergedMiningSettings: {
       moneroAddress: settings.xmrig?.monero_mining_address || '',
-      randomXThreads: settings.xmrig?.num_mining_threads || 0,
       moneroNodeUrl: settings.mm_proxy?.monerod_url || '',
       mergeMineOnStartup: startupConfig.mergeMine || false,
     },
@@ -136,15 +134,6 @@ function SettingsDialog() {
       ),
     },
     {
-      label: 'Docker',
-      component: (
-        <DockerSettings
-          handleChange={handleFormChange}
-          formData={formData.dockerSettings}
-        />
-      ),
-    },
-    {
       label: 'Reset',
       component: <ResetSettings />,
     },
@@ -196,9 +185,6 @@ function SettingsDialog() {
     // moneroAddress
     settings.xmrig.monero_mining_address =
       formData.mergedMiningSettings.moneroAddress;
-    // randomXThreads
-    settings.xmrig.num_mining_threads =
-      formData.mergedMiningSettings.randomXThreads;
     // moneroNodeUrl
     settings.mm_proxy.monerod_url = formData.mergedMiningSettings.moneroNodeUrl;
     // sha mine on startup
@@ -231,12 +217,6 @@ function SettingsDialog() {
     // tartAddress
     settings.mm_proxy.wallet_payment_address =
       formData.shaMiningSettings.tariAddress;
-
-    // DOCKER SETTINGS
-    // dockerTag
-    settings.tag = formData.dockerSettings.dockerTag;
-    // dockerRegistry
-    settings.registry = formData.dockerSettings.dockerRegistry;
 
     emit('tari://actions', {
       Action: { type: 'SaveSettings', payload: settings },

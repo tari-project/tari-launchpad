@@ -151,27 +151,4 @@ jobs:
           echo npm v$(npm -v)
           echo yarn v$(yarn -v)
 
-      - name: build gui-react
-        if: ${{ inputs.build-launchpad-fe }}
-        # Replace 'yarn build' with 'yarn tauri build' to build both, fronted (react) and backend
-        run: |
-          cd gui-react
-          yarn install
-          yarn lint:ci
-          yarn test:ci
-          yarn build
-
-      - name: build collectibles web-app
-        if: ${{ inputs.build-collectibles }}
-        run: |
-          cd applications/tari_collectibles/web-app
-          npm ci
-          npm run build
-
-      - name: lint/fmt tari explorer
-        if: ${{ inputs.build-explorer }}
-        run: |
-          cd applications/tari_explorer
-          npm ci
-          npm run lint
-          npm run check-fmt
+   

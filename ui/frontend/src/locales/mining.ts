@@ -99,9 +99,6 @@ const translations = {
     authUsernamePlaceholder: 'Username you log in to the Monero node',
     authPasswordLabel: 'Password (optional)',
     authPasswordPlaceholder: 'Password you log in to the Monero node',
-    randomXThreadsLabel: 'RandomX threads',
-    randomXThreadsDesc:
-      'This is the number of threads that will be used for RandomX mining.',
     moneroNodeUrlLabel: 'Monero Node URL',
     walletPaymentAddressLabel: 'Wallet Payment Address',
   },
