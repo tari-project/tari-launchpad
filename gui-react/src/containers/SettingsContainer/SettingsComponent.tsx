@@ -26,7 +26,6 @@ import {
 } from './styles'
 import BaseNodeSettings from './BaseNodeSettings'
 import MiningSettings from './MiningSettings'
-import DockerSettings from './DockerSettings'
 import WalletSettings from './WalletSettings'
 import ResetSettings from './ResetSettings'
 import {
@@ -62,16 +61,6 @@ const renderSettings = (
           control={props.control}
           onBaseNodeConnectClick={props.onBaseNodeConnectClick}
           setValue={props.setValue}
-        />
-      )
-    case Settings.Docker:
-      return (
-        <DockerSettings
-          formState={props.formState}
-          control={props.control}
-          values={props.values}
-          setValue={props.setValue}
-          setOpenMiningAuthForm={props.setOpenMiningAuthForm}
         />
       )
     case Settings.Security:
