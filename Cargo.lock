@@ -5114,32 +5114,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tari-lp-cli"
-version = "1.10.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "byte-unit",
- "crossterm 0.26.1",
- "derive_more",
- "derive_setters",
- "log",
- "log4rs 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "qrcode",
- "ratatui",
- "strum 0.24.1",
- "tact",
- "tari_common_types",
- "tari_launchpad_protocol",
- "tari_sdm",
- "tari_sdm_assets",
- "tari_sdm_launchpad",
- "tari_utilities",
- "thiserror",
- "tokio",
-]
-
-[[package]]
 name = "tari_bulletproofs_plus"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5160,24 +5134,6 @@ dependencies = [
  "tari-curve25519-dalek",
  "thiserror",
  "zeroize",
-]
-
-[[package]]
-name = "tari_bus_tauri"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "log",
- "log4rs 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "once_cell",
- "serde",
- "serde_json",
- "tari_launchpad_protocol",
- "tari_sdm_assets",
- "tari_sdm_launchpad",
- "tauri",
- "tauri-build",
- "tokio",
 ]
 
 [[package]]
@@ -5452,6 +5408,50 @@ dependencies = [
  "thiserror",
  "tokio",
  "zeroize",
+]
+
+[[package]]
+name = "tari_launchpad"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "log",
+ "log4rs 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "once_cell",
+ "serde",
+ "serde_json",
+ "tari_launchpad_protocol",
+ "tari_sdm_assets",
+ "tari_sdm_launchpad",
+ "tauri",
+ "tauri-build",
+ "tokio",
+]
+
+[[package]]
+name = "tari_launchpad_cli"
+version = "1.10.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "byte-unit",
+ "crossterm 0.26.1",
+ "derive_more",
+ "derive_setters",
+ "log",
+ "log4rs 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "qrcode",
+ "ratatui",
+ "strum 0.24.1",
+ "tact",
+ "tari_common_types",
+ "tari_launchpad_protocol",
+ "tari_sdm",
+ "tari_sdm_assets",
+ "tari_sdm_launchpad",
+ "tari_utilities",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]

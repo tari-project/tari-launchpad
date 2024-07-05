@@ -1,5 +1,5 @@
 [package]
-name = "tari_bus_tauri"
+name = "tari_launchpad"
 version = "0.1.0"
 description = "Tari Launchpad Backend"
 authors = ["The Tari Development Community"]
