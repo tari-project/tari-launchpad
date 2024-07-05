@@ -53,9 +53,9 @@ pub struct Configurator {
 
 impl Configurator {
     pub fn init() -> Result<Self, Error> {
-        let cache_dir = dirs_next::cache_dir().ok_or_else(|| Error::msg("No cache dir"))?;
+        let config_dir = dirs_next::config_dir().ok_or_else(|| Error::msg("No data dir"))?;
         Ok(Self {
-            base_dir: cache_dir.join("tari-launchpad"),
+            base_dir: config_dir.join("com.tari.launchpad"),
         })
     }
 

@@ -1,6 +1,6 @@
 {
   "package": {
-    "productName": "tari-launchpad",
+    "productName": "tari_launchpad",
     "version": "0.1.0"
   },
   "build": {
@@ -33,7 +33,6 @@
         "icons/icon.ico"
       ],
       "resources": [
-        "../../backend/assets/*"
       ],
       "externalBin": [],
       "copyright": "(c) The Tari Development community 2021",
@@ -85,6 +84,10 @@
     ],
     "security": {
       "csp": null
+    },
+    "systemTray": {
+      "iconPath": "icons/apple-icon-120x120.png",
+      "title": "Tari Launchpad"
     },
     "macOSPrivateApi": true
   }
