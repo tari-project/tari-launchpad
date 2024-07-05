@@ -8,7 +8,6 @@ export const ShaMiningSettingsSchema = z.object({
 
 export const MergedMiningSettingsSchema = z.object({
   moneroAddress: z.string(),
-  randomXThreads: z.number(),
   moneroNodeUrl: z.string(),
   mergeMineOnStartup: z.boolean(),
 });
