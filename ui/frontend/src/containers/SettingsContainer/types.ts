@@ -19,16 +19,11 @@ export const BaseNodeSettingsSchema = z.object({
   runOnStartup: z.boolean(),
 });
 
-export const DockerSettingsSchema = z.object({
-  dockerTag: z.string(),
-  dockerRegistry: z.string(),
-});
 
 export const FormDataSchema = z.object({
   mergedMiningSettings: MergedMiningSettingsSchema,
   baseNodeSettings: BaseNodeSettingsSchema,
   shaMiningSettings: ShaMiningSettingsSchema,
-  dockerSettings: DockerSettingsSchema,
 });
 
 export type ShaMiningSettingsType = z.infer<typeof ShaMiningSettingsSchema>;
@@ -36,7 +31,6 @@ export type MergedMiningSettingsType = z.infer<
   typeof MergedMiningSettingsSchema
 >;
 export type BaseNodeSettingsType = z.infer<typeof BaseNodeSettingsSchema>;
-export type DockerSettingsType = z.infer<typeof DockerSettingsSchema>;
 export type FormDataType = z.infer<typeof FormDataSchema>;
 
 export interface TabPanelProps {

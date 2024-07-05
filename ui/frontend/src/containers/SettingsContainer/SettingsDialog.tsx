@@ -4,7 +4,6 @@ import useAppStateStore from '../../store/appStateStore';
 import ThemeSwitch from '../../components/ThemeSwitch';
 import MergedMiningSettings from './MergedMiningSettings/MergedMiningSettings';
 import BaseNodeSettings from './BaseNodeSettings/BaseNodeSettings';
-import DockerSettings from './DockerSettings/DockerSettings';
 import ShaMiningSettings from './ShaMiningSettings/ShaMiningSettings';
 import ResetSettings from './ResetSettings/ResetSettings';
 import { useTheme } from '@mui/material/styles';
@@ -136,15 +135,6 @@ function SettingsDialog() {
       ),
     },
     {
-      label: 'Docker',
-      component: (
-        <DockerSettings
-          handleChange={handleFormChange}
-          formData={formData.dockerSettings}
-        />
-      ),
-    },
-    {
       label: 'Reset',
       component: <ResetSettings />,
     },
@@ -231,12 +221,6 @@ function SettingsDialog() {
     // tartAddress
     settings.mm_proxy.wallet_payment_address =
       formData.shaMiningSettings.tariAddress;
-
-    // DOCKER SETTINGS
-    // dockerTag
-    settings.tag = formData.dockerSettings.dockerTag;
-    // dockerRegistry
-    settings.registry = formData.dockerSettings.dockerRegistry;
 
     emit('tari://actions', {
       Action: { type: 'SaveSettings', payload: settings },
