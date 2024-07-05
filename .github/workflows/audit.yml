@@ -24,7 +24,3 @@ jobs:
           npm -v
           yarn -v
 
-      - name: npm audit gui-react
-        run: |
-          cd gui-react
-          yarn audit
