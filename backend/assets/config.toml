@@ -1,0 +1,193 @@
+# Config for launchpad v1.0.0
+[base_node]
+network = "nextnet"
+grpc_address = "/ip4/0.0.0.0/tcp/18142"
+override_from = "nextnet"
+grpc_enabled = true
+
+[base_node.storage]
+# pruning_horizon = 10_080
+# pruning_interval = 50
+track_reorgs = true
+
+
+[igor.base_node]
+network = "igor"
+base_node_identity_file = "/var/tari/base_node/config/igor/tar_base_node_id.json"
+# Uncomment all gRPC server methods that should be denied default (only active when `grpc_enabled = true`)
+grpc_server_allow_methods = [
+    "get_version",
+    #"check_for_updates",
+    #"get_sync_info",
+    "get_sync_progress",
+    "get_tip_info",
+    "identify",
+    "get_network_status",
+    "list_headers",
+    #"get_header_by_hash",
+    #"get_blocks",
+    #"get_block_timing",
+    #"get_constants",
+    #"get_block_size",
+    #"get_block_fees",
+    "get_tokens_in_circulation",
+    "get_network_difficulty",
+    "get_new_block_template",
+    "get_new_block",
+    "get_new_block_with_coinbases",
+    "get_new_block_template_with_coinbases",
+    "get_new_block_blob",
+    "submit_block",
+    "submit_block_blob",
+    "submit_transaction",
+    "search_kernels",
+    "search_utxos",
+    "fetch_matching_utxos",
+    #"get_peers",
+    #"get_mempool_transactions",
+    "transaction_state",
+    "list_connected_peers",
+    "get_mempool_stats",
+    "get_active_validator_nodes",
+    "get_shard_key",
+    "get_template_registrations",
+    "get_side_chain_utxos",
+]
+
+[stagenet.base_node]
+identity_file = "/var/tari/base_node/config/stagenet/tari_base_node_id.json"
+# Uncomment all gRPC server methods that should be denied default (only active when `grpc_enabled = true`)
+grpc_server_allow_methods = [
+    "get_version",
+    #"check_for_updates",
+    #"get_sync_info",
+    "get_sync_progress",
+    "get_tip_info",
+    "identify",
+    "get_network_status",
+    "list_headers",
+    #"get_header_by_hash",
+    #"get_blocks",
+    #"get_block_timing",
+    #"get_constants",
+    #"get_block_size",
+    #"get_block_fees",
+    "get_tokens_in_circulation",
+    "get_network_difficulty",
+    "get_new_block_template",
+    "get_new_block",
+    "get_new_block_with_coinbases",
+    "get_new_block_template_with_coinbases",
+    "get_new_block_blob",
+    "submit_block",
+    "submit_block_blob",
+    "submit_transaction",
+    "search_kernels",
+    "search_utxos",
+    "fetch_matching_utxos",
+    #"get_peers",
+    #"get_mempool_transactions",
+    "transaction_state",
+    "list_connected_peers",
+    "get_mempool_stats",
+    "get_active_validator_nodes",
+    "get_shard_key",
+    "get_template_registrations",
+    "get_side_chain_utxos",
+]
+
+
+[nextnet.base_node]
+identity_file = "/var/tari/base_node/config/nextnet/tari_base_node_id.json"
+grpc_server_allow_methods = [
+    "get_version",
+    #"check_for_updates",
+    #"get_sync_info",
+    "get_sync_progress",
+    "get_tip_info",
+    "identify",
+    "get_network_status",
+    "list_headers",
+    #"get_header_by_hash",
+    #"get_blocks",
+    #"get_block_timing",
+    #"get_constants",
+    #"get_block_size",
+    #"get_block_fees",
+    "get_tokens_in_circulation",
+    "get_network_difficulty",
+    "get_new_block_template",
+    "get_new_block",
+    "get_new_block_with_coinbases",
+    "get_new_block_template_with_coinbases",
+    "get_new_block_blob",
+    "submit_block",
+    "submit_block_blob",
+    "submit_transaction",
+    "search_kernels",
+    "search_utxos",
+    "fetch_matching_utxos",
+    #"get_peers",
+    #"get_mempool_transactions",
+    "transaction_state",
+    "list_connected_peers",
+    "get_mempool_stats",
+    "get_active_validator_nodes",
+    "get_shard_key",
+    "get_template_registrations",
+    "get_side_chain_utxos",
+]
+
+[base_node.p2p]
+#auxiliary_tcp_listener_address = "/dns4/base_node/tcp/18189"
+auxiliary_tcp_listener_address = "/ip4/0.0.0.0/tcp/18189"
+
+[base_node.p2p.transport]
+type = "tor"
+
+[base_node.p2p.transport.tor]
+control_auth = "password=tari"
+socks_address_override = "/dns4/tor/tcp/9050"
+control_address = "/dns4/tor/tcp/9051"
+# When these peer addresses are encountered when dialing another peer, the tor proxy is bypassed and the connection is
+# made directly over TCP. /ip4, /ip6, /dns, /dns4 and /dns6 are supported. (e.g. ["/dns4/my-foo-base-node/tcp/9998"])
+proxy_bypass_addresses = ["/dns4/wallet/tcp/18188"]
+# When using the tor transport and set to true, outbound TCP connections bypass the tor proxy. Defaults to false for
+# better privacy
+proxy_bypass_for_outbound_tcp = true
+
+[base_node.p2p.transport.tcp]
+listener_address = "/dns4/base_node/tcp/18189"
+
+[nextnet.p2p.seeds]
+# DNS seeds hosts - DNS TXT records are queried from these hosts and the resulting peers added to the comms peer list.
+dns_seeds = ["seeds.nextnet.tari.com"]
+# Custom specified peer seed nodes
+peer_seeds = []
+
+[stagenet.p2p.seeds]
+# DNS seeds hosts - DNS TXT records are queried from these hosts and the resulting peers added to the comms peer list.
+dns_seeds = ["seeds.stagenet.tari.com"]
+# Custom specified peer seed nodes
+peer_seeds = []
+
+[miner]
+base_node_grpc_address = "/dns4/base_node/tcp/18142"
+wallet_grpc_address = "/dns4/wallet/tcp/18143"
+mine_on_tip_only = true
+
+[merge_mining_proxy]
+monerod_url = [ # stagenet
+    "http://stagenet.xmr-tw.org:38081",
+    "http://stagenet.community.xmr.to:38081",
+    "http://monero-stagenet.exan.tech:38081",
+    "http://xmr-lux.boldsuck.org:38081",
+    "http://singapore.node.xmr.pm:38081",
+]
+base_node_grpc_address = "/dns4/base_node/tcp/18142"
+console_wallet_grpc_address = "/dns4/wallet/tcp/18143"
+listener_address = "/dns4/mm_proxy/tcp/18081"
+submit_to_origin = true
+monerod_username = ""
+monerod_password = ""
+monerod_use_auth = false
