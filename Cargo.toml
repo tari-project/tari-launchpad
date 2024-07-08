@@ -2,3 +2,19 @@
 
 members = ["libs/*", "cli", "ui/backend"]
 resolver = "2"
+
+[workspace.dependencies]
+minotari_app_grpc = { git = "https://github.com/stringhandler/tari", branch ="st-create-keygen"}
+minotari_node_grpc_client = { git = "https://github.com/stringhandler/tari", branch ="st-create-keygen"}
+minotari_wallet_grpc_client = { git = "https://github.com/stringhandler/tari", branch="st-create-keygen"}
+tari_common_types = { git = "https://github.com/stringhandler/tari", branch="st-create-keygen"}
+tari_common = { git = "https://github.com/stringhandler/tari", branch="st-create-keygen"}
+tari_core = { git = "https://github.com/stringhandler/tari", branch="st-create-keygen", features = ["transactions"] }
+tari_key_manager ={ git = "https://github.com/stringhandler/tari", branch="st-create-keygen"}
+tari_launchpad_protocol = { path = "libs/protocol" }
+tari_sdm = { path = "libs/sdm" }
+tari_sdm_assets = { path = "libs/sdm-assets" }
+tari_sdm_launchpad = { path = "libs/sdm-launchpad" }
+tari_utilities ="0.7.0"
+
+log4rs = "1.3.0"

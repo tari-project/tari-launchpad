@@ -4,12 +4,12 @@ version = "1.10.0"
 edition = "2021"
 
 [dependencies]
-tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
-tari_launchpad_protocol = { path = "../libs/protocol" }
-tari_sdm = { path = "../libs/sdm" }
-tari_sdm_assets = { path = "../libs/sdm-assets" }
-tari_sdm_launchpad = { path = "../libs/sdm-launchpad" }
-tari_utilities = "0.7.0"
+tari_common_types = { workspace = true}
+tari_launchpad_protocol = { workspace = true}
+tari_sdm = { workspace = true }
+tari_sdm_assets = { workspace = true }
+tari_sdm_launchpad = { workspace = true }
+tari_utilities =  {workspace = true}
 
 anyhow = "1.0.71"
 async-trait = "0.1.68"

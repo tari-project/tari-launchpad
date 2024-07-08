@@ -26,6 +26,7 @@ use std::sync::Arc;
 use anyhow::Error;
 use tari_launchpad_protocol::launchpad::{Action, LaunchpadAction, LaunchpadState, Reaction};
 use tokio::sync::{mpsc, RwLock};
+use tokio::task::JoinHandle;
 
 use crate::bus::LaunchpadBus;
 
@@ -33,6 +34,7 @@ use crate::bus::LaunchpadBus;
 pub struct SdmApi {
     state: Arc<RwLock<LaunchpadState>>,
     incoming: mpsc::UnboundedSender<Action>,
+    worker_thread: tauri::async_runtime::JoinHandle<()>
 }
 
 impl SdmApi {
@@ -45,10 +47,11 @@ impl SdmApi {
             incoming: bus.incoming.clone(),
             outgoing: bus.outgoing,
         };
-        tauri::async_runtime::spawn(worker.entrypoint());
+        let worker_thread = tauri::async_runtime::spawn(worker.entrypoint());
         Ok(Self {
             state,
             incoming: bus.incoming,
+            worker_thread,
         })
     }
 }

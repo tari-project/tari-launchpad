@@ -123,7 +123,7 @@ impl NodeGrpcWorker {
 
     fn process_sync_info(&mut self, sync_info: TipInfoResponse) {
         if let Some(metadata) = sync_info.metadata {
-            let delta = NodeDelta::SetChainLength(metadata.height_of_longest_chain);
+            let delta = NodeDelta::SetChainLength(metadata.best_block_height as u64);
             self.send_update(delta);
         }
         let state = BaseNodeState::from_i32(sync_info.base_node_state);

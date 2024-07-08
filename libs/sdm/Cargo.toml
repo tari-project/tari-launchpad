@@ -8,7 +8,7 @@ repository = "https://github.com/tari-project/tari-launchpad"
 edition = "2021"
 
 [dependencies]
-tari_launchpad_protocol = { path = "../protocol" }
+tari_launchpad_protocol = { workspace = true }
 
 anyhow = "1.0.72"
 async-trait = "0.1.72"
