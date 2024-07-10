@@ -16,5 +16,6 @@ tari_sdm = { path = "libs/sdm" }
 tari_sdm_assets = { path = "libs/sdm-assets" }
 tari_sdm_launchpad = { path = "libs/sdm-launchpad" }
 tari_utilities ="0.7.0"
+tari_crypto = "0.20.3"
 
 log4rs = "1.3.0"

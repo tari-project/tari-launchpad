@@ -36,9 +36,12 @@ use tari_launchpad_protocol::{
     launchpad::{Action, LaunchpadAction, LaunchpadDelta, LaunchpadState, Reaction},
     settings::PersistentSettings,
 };
+use tari_core::transactions::key_manager::TransactionKeyManagerInterface;
 use tari_sdm::{ids::ManagedTask, utils::create_password, Report, ReportEnvelope, SdmScope};
 use tari_sdm_assets::configurator::Configurator;
 use tokio::{fs, select, sync::mpsc};
+use tari_crypto::keys::PublicKey as PublicKeyTrait;
+use tari_key_manager::key_manager_service::KeyManagerInterface;
 
 use crate::{
     node_grpc::NodeGrpc,
@@ -267,16 +270,17 @@ impl LaunchpadWorker {
             KEY_MANAGER_COMMS_SECRET_KEY_BRANCH_KEY.to_string(),
             0,
         );
-        todo!()
-        // let comms_key = comms_key_manager.derive_key(0)?.key;
-        // let comms_pub_key = PublicKey::from_secret_key(&comms_key);
-        // let network = Network::default();
-        //
-        //  let tx_key_manager =create_memory_db_key_manager_from_seed(seed.clone(), 64);
-        // let view_key = tx_key_manager.get_view_key_id().await?;
-        // let view_key_pub = tx_key_manager.get_public_key_at_key_id(&view_key).await?;
-        // let tari_address =
-        //     TariAddress::new_dual_address_with_default_features(view_key_pub.clone(), comms_pub_key.clone(), network);
+        let comms_key = comms_key_manager.derive_key(0).map_err(|e| anyhow!(e.to_string()))?.key;
+        let comms_pub_key = PublicKey::from_secret_key(&comms_key);
+        let network = Network::default();
+        dbg!("here2");
+
+        let tx_key_manager =create_memory_db_key_manager_from_seed(seed.clone(), 64);
+        let view_key = tx_key_manager.get_view_key_id().await?;
+        let view_key_pub = tx_key_manager.get_public_key_at_key_id(&view_key).await?;
+         let tari_address =
+             TariAddress::new_dual_address_with_default_features(view_key_pub.clone(), comms_pub_key.clone(), network);
+        Ok(tari_address)
     }
 
     async fn step(&mut self) -> Result<(), Error> {

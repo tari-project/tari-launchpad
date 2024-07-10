@@ -13,6 +13,7 @@ minotari_wallet_grpc_client = {workspace = true }
 tari_common_types = {workspace = true }
 tari_common = {workspace = true }
 tari_core = {workspace = true }
+tari_crypto = { workspace = true }
 tari_key_manager ={workspace = true }
 tari_launchpad_protocol = {workspace = true }
 tari_sdm = {workspace = true }
