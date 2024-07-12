@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1.3
 
 # https://hub.docker.com/_/rust
-ARG RUST_VERSION=1.76
+ARG RUST_VERSION=1.79
 ARG OS_BASE=bookworm
 
 # rust source compile with cross platform build support
@@ -63,15 +63,20 @@ RUN apt-get update && \
 RUN if [ "${BUILDARCH}" != "${TARGETARCH}" ] ; then \
       # Run script to help setup cross-compile environment
       . /tari/scripts/cross_compile_tooling.sh ; \
-    fi && \
-    if [ -n "${RUST_TOOLCHAIN}" ] ; then \
+    fi
+
+RUN if [ -n "${RUST_TOOLCHAIN}" ] ; then \
       # Install a non-standard toolchain if it has been requested.
       # By default we use the toolchain specified in rust-toolchain.toml
       rustup toolchain install ${RUST_TOOLCHAIN} --force-non-host ; \
-    fi && \
-    rustup target list --installed && \
-    rustup toolchain list && \
-    cargo build ${RUST_TARGET} \
+    fi
+
+# Breaking on arm64 builds
+#RUN rustup show && \
+#    rustup target list --installed && \
+#    rustup toolchain list
+
+RUN cargo build ${RUST_TARGET} \
       --bin ${APP_EXEC} --release --features ${FEATURES} --locked && \
     # Copy executable out of the cache so it is available in the runtime image.
     cp -v /tari/target/${BUILD_TARGET}release/${APP_EXEC} /tari/${APP_EXEC}
