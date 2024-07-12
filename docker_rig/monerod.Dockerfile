@@ -8,7 +8,7 @@
 # Binary build
 
 # https://github.com/monero-project/monero/releases
-ARG MONERO_VERSION=0.18.3.1
+ARG MONERO_VERSION=0.18.3.3
 
 # https://hub.docker.com/r/bitnami/minideb
 ARG OS_BASE=bookworm
@@ -22,7 +22,7 @@ ARG MONERO_TAR=x86_64
 
 # https://github.com/monero-project/monero/releases
 # monero-linux-x64
-ARG MONERO_AMD64_SHA256=23af572fdfe3459b9ab97e2e9aa7e3c11021c955d6064b801a27d7e8c21ae09d
+ARG MONERO_AMD64_SHA256=47c7e6b4b88a57205800a2538065a7874174cd087eedc2526bee1ebcce0cc5e3
 ARG MONERO_VERSION
 
 # Declare stage using linux/arm64 base image
@@ -34,7 +34,7 @@ ARG MONERO_TAR=aarch64
 
 # https://github.com/monero-project/monero/releases
 # monero-linux-armv8
-ARG MONERO_ARM64_SHA256=445032e88dc07e51ac5fff7034752be530d1c4117d8d605100017bcd87c7b21f
+ARG MONERO_ARM64_SHA256=eb3f924c085ae5df85f5bf9ee27faaa20acd309835684e27e3fbb98b9666b649
 ARG MONERO_VERSION
 
 # Declare TARGETARCH to make it available
