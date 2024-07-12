@@ -48,12 +48,15 @@
   font-family: 'DrukSuper';
 }
 
-body {
+body,
+html {
   margin: 0;
   font-family: 'PoppinsMedium', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f7;
+  background-color: transparent !important;
+  border-radius: 12px;
+  height: 100%;
 }
 
 code {
@@ -135,7 +138,7 @@ input {
 }
 
 .notistack-container-dark {
-  background: #0c0e2a;
+  background: #111111;
   padding: 8px 14px;
   border-radius: 24px;
   right: 90px !important;

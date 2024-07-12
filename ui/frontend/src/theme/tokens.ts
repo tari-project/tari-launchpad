@@ -33,6 +33,8 @@ import {
 import gradients from '../styles/styles/gradients';
 import typography from '../styles/styles/typography';
 
+export const appBorderRadius = 12;
+
 export const componentSettings: ThemeOptions = {
   shape: {
     borderRadius: 8,
@@ -43,41 +45,47 @@ export const componentSettings: ThemeOptions = {
     fontSize: 14,
     body1: {
       fontSize: '14px',
-      // letterSpacing: '0.1px',
+      lineHeight: '20px',
     },
     body2: {
       fontSize: '12px',
-      lineHeight: '1.5rem',
+      lineHeight: '18px',
     },
     h1: {
-      fontSize: '2.2rem',
-      lineHeight: '3.2rem',
-      fontFamily: '"PoppinsBold", sans-serif',
+      fontSize: '30px',
+      lineHeight: '38px',
+      fontFamily: '"PoppinsMedium", sans-serif',
+      letterSpacing: '-0.4px',
     },
     h2: {
-      fontSize: '1.9rem',
-      lineHeight: '2.9rem',
-      fontFamily: '"PoppinsBold", sans-serif',
+      fontSize: '26px',
+      lineHeight: '30px',
+      fontFamily: '"PoppinsMedium", sans-serif',
+      letterSpacing: '-0.4px',
     },
     h3: {
-      fontSize: '1.6rem',
-      lineHeight: '2.6rem',
-      fontFamily: '"PoppinsBold", sans-serif',
+      fontSize: '24px',
+      lineHeight: '28px',
+      fontFamily: '"PoppinsMedium", sans-serif',
+      letterSpacing: '-0.4px',
     },
     h4: {
-      fontSize: '1.3rem',
-      lineHeight: '2.3rem',
-      fontFamily: '"PoppinsBold", sans-serif',
+      fontSize: '20px',
+      lineHeight: '24px',
+      fontFamily: '"PoppinsMedium", sans-serif',
+      letterSpacing: '-0.4px',
     },
     h5: {
-      fontSize: '1rem',
-      lineHeight: '2em',
-      fontFamily: '"PoppinsBold", sans-serif',
+      fontSize: '16px',
+      lineHeight: '20px',
+      fontFamily: '"PoppinsMedium", sans-serif',
+      letterSpacing: '-0.4px',
     },
     h6: {
-      fontSize: '0.875rem',
-      lineHeight: '1.8rem',
-      fontFamily: '"PoppinsBold", sans-serif',
+      fontSize: '14px',
+      lineHeight: '18px',
+      fontFamily: '"PoppinsMedium", sans-serif',
+      letterSpacing: '-0.4px',
     },
   },
   transitions: {
@@ -298,6 +306,7 @@ export const componentSettings: ThemeOptions = {
         BackdropProps: {
           sx: (theme) => ({
             backdropFilter: 'blur(1px)',
+            borderRadius: `${appBorderRadius}px`,
             backgroundColor:
               theme.palette.mode === 'light'
                 ? 'rgba(250, 250, 250, 0.5)'
@@ -488,15 +497,15 @@ export const dark: ThemeOptions = {
       dark: brightGreen[400],
       light: brightGreen[600],
     },
-    divider: 'rgba(255,255,255,0.06)',
+    divider: 'rgba(255,255,255,0.1)',
     text: {
       primary: '#FFFFFF',
       secondary: grey[300],
       disabled: 'rgba(255,255,255,0.4)',
     },
     background: {
-      default: '#040723',
-      paper: '#0C0E2A',
+      default: '#1D1D1D',
+      paper: '#2A2A2A',
     },
     success: {
       main: success[200],

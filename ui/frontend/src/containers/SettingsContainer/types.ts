@@ -18,7 +18,6 @@ export const BaseNodeSettingsSchema = z.object({
   runOnStartup: z.boolean(),
 });
 
-
 export const FormDataSchema = z.object({
   mergedMiningSettings: MergedMiningSettingsSchema,
   baseNodeSettings: BaseNodeSettingsSchema,

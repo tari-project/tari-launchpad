@@ -16,11 +16,7 @@ export const Main = styled('main', {
   drawerWidth: number;
 }>(({ theme, open, contentWidth, drawerWidth }) => ({
   flexGrow: 1,
-  backgroundColor:
-    theme.palette.mode === 'light'
-      ? theme.palette.background.paper
-      : theme.palette.background.default,
-  minHeight: '100vh',
+  height: '100vh',
   padding: theme.spacing(3),
   transition: theme.transitions.create('margin', {
     easing: theme.transitions.easing.sharp,
