@@ -1,6 +1,6 @@
 # Source build
 
-ARG ALPINE_VERSION=3.18
+ARG ALPINE_VERSION=3.20
 
 FROM alpine:$ALPINE_VERSION as builder
 
@@ -8,7 +8,7 @@ ARG ALPINE_VERSION
 ARG BUILDPLATFORM
 
 # https://github.com/xmrig/xmrig/releases
-ARG XMRIG_VERSION="v6.21.0"
+ARG XMRIG_VERSION="v6.21.3"
 
 RUN apk add \
     git \
