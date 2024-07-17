@@ -9,7 +9,7 @@ import {
 import { SettingsBox, SettingsContainer } from '../styles';
 import t from '../../../locales';
 
-function ResetSettings() {
+function ResetSettings({ handleReset }: { handleReset: VoidFunction }) {
   const [confirmReset, setConfirmReset] = useState(false);
   return (
     <SettingsContainer>
@@ -38,7 +38,7 @@ function ResetSettings() {
               <Button variant="outlined" onClick={() => setConfirmReset(false)}>
                 {t.reset.settings.keepEditing}
               </Button>
-              <Button variant="contained" onClick={() => console.log('Reset')}>
+              <Button variant="contained" onClick={handleReset}>
                 {t.reset.settings.resetAndExit}
               </Button>
             </HorisontalButtons>
