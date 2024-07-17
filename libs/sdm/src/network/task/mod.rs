@@ -89,6 +89,10 @@ impl<C: ManagedProtocol> RunnableContext<NetworkTask<C>> for TaskContext<Network
     async fn update(&mut self) -> Result<(), Error> {
         self.process_update_impl().await
     }
+
+    async fn reset(&mut self) -> Result<(), Error> {
+        self.reset().await
+    }
 }
 
 #[derive(Debug)]

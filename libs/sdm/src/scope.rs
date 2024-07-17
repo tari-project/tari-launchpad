@@ -70,6 +70,7 @@ pub enum ControlEvent<C: ManagedProtocol> {
         task_id: TaskId,
     },
     InnerEvent(C::Inner),
+    Reset
 }
 
 impl<C: ManagedProtocol> Clone for ControlEvent<C> {
@@ -84,6 +85,7 @@ impl<C: ManagedProtocol> Clone for ControlEvent<C> {
                 task_id: task_id.clone(),
             },
             Self::InnerEvent(inner) => Self::InnerEvent(inner.clone()),
+            Self::Reset => Self::Reset,
         }
     }
 }
@@ -172,4 +174,8 @@ impl<C: ManagedProtocol> SdmScope<C> {
     }
 
     pub fn stop(&self) {}
+
+    pub async fn reset_docker(&mut self) -> Result<(), Error> {
+        self.send(ControlEvent::Reset)
+    }
 }

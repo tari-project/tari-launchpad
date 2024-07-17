@@ -77,6 +77,7 @@ pub trait RunnableTask: Sized + Send + 'static {
 pub trait RunnableContext<T: RunnableTask> {
     /// Subscribe to events here
     async fn initialize(&mut self);
+    async fn reset(&mut self) -> Result<(), Error>;
     fn reconfigure(&mut self, config: Option<&<T::Protocol as ManagedProtocol>::Config>) -> bool;
     fn process_inner_event(&mut self, event: <T::Protocol as ManagedProtocol>::Inner);
     fn process_event(&mut self, event: T::Event) -> Result<(), Error>;
@@ -298,7 +299,7 @@ where
                         self.context.status.get()
                     );
                     if let Some(Ok(req)) = req {
-                        self.process_request(req);
+                        self.process_request(req).await;
                     } else {
                         log::info!("Requests stream closed");
                         break;
@@ -338,7 +339,7 @@ where
         }
     }
 
-    fn process_request(&mut self, req: ControlEvent<R::Protocol>) {
+    async fn process_request(&mut self, req: ControlEvent<R::Protocol>) {
         match req {
             ControlEvent::SetConfig(config) => {
                 let config = config.as_deref();
@@ -362,6 +363,9 @@ where
             },
             ControlEvent::InnerEvent(inner) => {
                 self.process_inner_event(inner);
+            },
+            ControlEvent::Reset => {
+                self.reset().await;
             },
         }
     }
@@ -396,6 +400,10 @@ where
             )
         }
         self.context.should_start = is_active;
+    }
+
+    pub async fn reset(&mut self) {
+        let _ = self.context.reset().await;
     }
 
     pub fn process_inner_event(&mut self, event: <R::Protocol as ManagedProtocol>::Inner) {

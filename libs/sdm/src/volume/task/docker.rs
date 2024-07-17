@@ -27,7 +27,7 @@ use anyhow::Error;
 use bollard::{
     models::{EventMessage, EventMessageTypeEnum},
     system::EventsOptions,
-    volume::CreateVolumeOptions,
+    volume::{CreateVolumeOptions, RemoveVolumeOptions},
 };
 use futures::TryStreamExt;
 
@@ -73,11 +73,11 @@ impl<C: ManagedProtocol> TaskContext<VolumeTask<C>> {
         Ok(())
     }
 
-    // pub async fn try_remove_volume(&mut self) -> Result<(), Error> {
-    // let opts = RemoveVolumeOptions { force: true };
-    // self.driver.remove_volume(&self.inner.volume_name, Some(opts)).await?;
-    // Ok(())
-    // }
+    pub async fn try_remove_volume(&mut self) -> Result<(), Error> {
+        let opts: RemoveVolumeOptions = RemoveVolumeOptions { force: true };
+        self.driver.remove_volume(&self.inner.volume_name, Some(opts)).await?;
+        Ok(())
+    }
 }
 
 struct EventConv {

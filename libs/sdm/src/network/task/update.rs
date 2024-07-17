@@ -39,6 +39,10 @@ impl<C: ManagedProtocol> TaskContext<NetworkTask<C>> {
         }
     }
 
+    pub async fn reset(&mut self) -> Result<(), Error> {
+        self.do_cleanup().await
+    }
+
     async fn do_initial_state(&mut self) -> Result<(), Error> {
         log::trace!("[Update event: Network] `do_initial_state`");
         self.update_task_status(TaskStatus::Inactive)?;

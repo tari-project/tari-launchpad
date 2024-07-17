@@ -193,6 +193,11 @@ impl LaunchpadWorker {
             LaunchpadAction::SaveSettings(settings) => {
                 self.save_settings(*settings).await?;
             },
+            LaunchpadAction::ResetSettings => {
+                self.reset_settings().await?;
+                self.scope.reset_docker().await?;
+                self.send(Reaction::Exit);
+            }
         }
         Ok(())
     }
@@ -241,6 +246,22 @@ impl LaunchpadWorker {
             // We just checked that this exists above
             settings.saved_settings = new_settings
         }
+        Ok(())
+    }
+
+    async fn reset_settings(&mut self) -> Result<(), Error> {
+        debug!("Remove the settings file");
+
+        let mut path = self
+            .state
+            .config
+            .settings
+            .as_ref()
+            .map(|s| s.data_directory.clone())
+            .ok_or_else(|| Error::msg("Can't reset the settings: no settings are attached to the config"))?;
+        path.push("config");
+        path.push("settings.toml");
+        tokio::fs::remove_file(path).await?;
         Ok(())
     }
 
