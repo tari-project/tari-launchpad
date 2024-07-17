@@ -30,7 +30,7 @@ impl TryFrom<NodeIdentity> for BaseNodeIdentity {
 
     fn try_from(value: NodeIdentity) -> Result<Self, Self::Error> {
         let public_key = PublicKey::from_vec(&value.public_key).map_err(|e| InvalidPublicKey(e.to_string()))?;
-        let emoji_id = EmojiId::from_public_key(&public_key).to_string();
+        let emoji_id = EmojiId::from(&public_key).to_string();
         Ok(BaseNodeIdentity {
             public_key: value.public_key,
             public_addresses: value.public_addresses,

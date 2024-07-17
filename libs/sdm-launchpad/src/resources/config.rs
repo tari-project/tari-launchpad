@@ -64,7 +64,7 @@ impl TryFrom<GetIdentityResponse> for WalletIdentity {
 
     fn try_from(value: GetIdentityResponse) -> Result<Self, Self::Error> {
         let public_key = PublicKey::from_vec(&value.public_key).map_err(|_| anyhow!("PublicKey failed to parse"))?;
-        let emoji_id = EmojiId::from_public_key(&public_key).to_string();
+        let emoji_id = EmojiId::from(&public_key).to_string();
         Ok(WalletIdentity {
             public_key: value.public_key,
             public_address: value.public_address,

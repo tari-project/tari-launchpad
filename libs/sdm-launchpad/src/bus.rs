@@ -21,18 +21,27 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
-use anyhow::Error;
+use anyhow::{anyhow, Error};
+use keyring::Entry;
 use log::*;
+use tari_common_types::tari_address::TariAddress;
+use tari_key_manager::cipher_seed::CipherSeed;
+use tari_key_manager::mnemonic::{Mnemonic, MnemonicLanguage};
+use tari_utilities::SafePassword;
 use tari_launchpad_protocol::{
     container::{TaskDelta, TaskId, TaskProgress, TaskState, TaskStatus},
     launchpad::{Action, LaunchpadAction, LaunchpadDelta, LaunchpadState, Reaction},
     settings::PersistentSettings,
 };
+use tari_core::transactions::key_manager::TransactionKeyManagerInterface;
 use tari_sdm::{ids::ManagedTask, utils::create_password, Report, ReportEnvelope, SdmScope};
 use tari_sdm_assets::configurator::Configurator;
-use tokio::{select, sync::mpsc};
+use tokio::{fs, select, sync::mpsc};
+use tari_crypto::keys::PublicKey as PublicKeyTrait;
+use tari_key_manager::key_manager_service::KeyManagerInterface;
 
 use crate::{
     node_grpc::NodeGrpc,
@@ -41,26 +50,45 @@ use crate::{
         images, networks, volumes,
     },
 };
+use rand::Rng;
+use tari_common::configuration::Network;
+use tari_common_types::types::PublicKey;
+use tari_key_manager::key_manager::KeyManager;
+use tari_key_manager::key_manager_service::KeyDigest;
+use tokio::task::JoinHandle;
+use tari_core::transactions::key_manager::{create_memory_db_key_manager, create_memory_db_key_manager_from_seed};
 
 pub type BusTx = mpsc::UnboundedSender<Action>;
 pub type BusRx = mpsc::UnboundedReceiver<Reaction>;
 
+const LOG_TARGET: &'static str = "tari::launchpad::sdm::bus";
+const KEY_MANAGER_COMMS_SECRET_KEY_BRANCH_KEY: &str = "comms";
+
 pub struct LaunchpadBus {
     pub incoming: mpsc::UnboundedSender<Action>,
     pub outgoing: mpsc::UnboundedReceiver<Reaction>,
+    worker_thread: std::thread::JoinHandle<Result<(), Error>>
 }
 
 impl LaunchpadBus {
     pub fn start() -> Result<Self, Error> {
         let (in_tx, in_rx) = mpsc::unbounded_channel();
         let (out_tx, out_rx) = mpsc::unbounded_channel();
-        std::thread::spawn(move || LaunchpadWorker::create_and_run(in_rx, out_tx));
+        let worker_thread = std::thread::spawn(move || LaunchpadWorker::create_and_run(in_rx, out_tx));
         Ok(Self {
             incoming: in_tx,
             outgoing: out_rx,
+            worker_thread
         })
     }
+
+    pub fn join(self) -> Result<(), Error> {
+        self.worker_thread.join().map_err(|e| anyhow!("Worker thread failed: {:?}", e))?
+    }
+
 }
+
+
 
 pub struct LaunchpadWorker {
     state: LaunchpadState,
@@ -109,13 +137,29 @@ impl LaunchpadWorker {
     }
 
     async fn entrypoint(mut self) {
-        self.load_configuration().await.ok();
+        match self.load_configuration().await {
+            Ok(_) => info!(target: LOG_TARGET, "Configuration loaded"),
+            Err(err) => {
+                dbg!(&err);
+                error!(target: LOG_TARGET, "Can't load the configuration: {}", err);
+
+                return;
+
+            },
+        }
         // TODO: Watch for the config file changes
         let config = self.state.config.clone();
-        self.scope.set_config(Some(config)).ok();
+        match self.scope.set_config(Some(config)) {
+            Ok(_) => info!(target: LOG_TARGET, "Configuration set"),
+            Err(err) => {
+                error!(target: LOG_TARGET, "Can't set the configuration: {}", err);
+                return;
+            },
+        }
         loop {
             if let Err(err) = self.step().await {
-                error!("Bus failed: {}", err);
+                error!(target: LOG_TARGET, "Bus failed: {}", err);
+                return;
             }
         }
     }
@@ -141,10 +185,21 @@ impl LaunchpadWorker {
         let mut configurator = Configurator::init()?;
         let data_directory = configurator.base_path().clone();
         configurator.init_configuration(false).await?;
-        let saved_settings = Self::load_settings(data_directory.clone()).await.unwrap_or_else(|| {
+        let mut saved_settings = Self::load_settings(data_directory.clone()).await.unwrap_or_else(|| {
             warn!("Can't parse the settings file. Reverting to defaults.");
             PersistentSettings::default()
         });
+        dbg!(&saved_settings);
+        if saved_settings.sha3_miner.is_none() || saved_settings.sha3_miner.as_ref().unwrap().wallet_payment_address.is_none()
+            || saved_settings.sha3_miner.as_ref().unwrap().wallet_payment_address.as_ref().unwrap().is_empty() {
+            warn!("No wallet payment address found in the settings. Generating a new one.");
+            let mut base = saved_settings.sha3_miner.as_ref().unwrap_or(&Default::default()).clone();
+
+            let addr = Self::generate_and_save_internal_wallet(data_directory.as_path()).await?;
+            base.wallet_payment_address = Some(addr.to_hex());
+            saved_settings.sha3_miner = Some(base);
+        }
+        dbg!("here2");
         let config = LaunchpadSettings {
             data_directory,
             with_monitoring: true,
@@ -154,6 +209,78 @@ impl LaunchpadWorker {
         };
         self.apply_delta(LaunchpadDelta::UpdateConfig(config));
         Ok(())
+    }
+
+    async fn generate_and_save_internal_wallet(data_dir: &Path) -> Result<TariAddress, Error>{
+        let entry = Entry::new("com.tari.launchpad", "internal_wallet")?;
+
+        dbg!("h1");
+        let passphrase  = match entry.get_password() {
+            Ok(pass) => SafePassword::from_str(&pass).expect("Can't create safe password"),
+            Err(_) => {
+                dbg!("h1.1");
+                // TODO: better generation
+                let mut random = rand::thread_rng();
+                let mut pass = "".to_string();
+                for _ in 0..100 {
+                    pass = pass + &random.gen_range(0..10).to_string();
+                }
+                entry.set_password(&pass)?;
+                let pass = SafePassword::from_str(&pass).expect("Can't create safe password");
+                pass
+            }
+        };
+        // let seed = CipherSeed::new();
+        dbg!("h2");
+        if !data_dir.exists() {
+            fs::create_dir_all(&data_dir).await?;
+        }
+        dbg!("h3");
+        let seed;
+        dbg!(data_dir.join("seed_data.encrypted"));
+        if fs::try_exists(data_dir.join("seed_data.encrypted")).await? {
+            let seed_file = fs::read(data_dir.join("seed_data.encrypted")).await?;
+            seed = CipherSeed::from_enciphered_bytes(&seed_file, Some(passphrase))?;
+            let seed_words = seed.to_mnemonic(MnemonicLanguage::English, None)?;
+            for i in 0..seed_words.len() {
+                println!("{}: {}", i + 1, seed_words.get_word(i)?);
+            }
+        }
+        else {
+            dbg!("h4");
+            seed = CipherSeed::new();
+            let seed_file = seed.encipher(Some(passphrase))?;
+            fs::write(data_dir.join("seed_data.encrypted"), seed_file).await?;
+            let seed_words = seed.to_mnemonic(MnemonicLanguage::English, None)?;
+            for i in 0..seed_words.len() {
+                println!("{}: {}", i + 1, seed_words.get_word(i)?);
+            }
+        }
+        dbg!("here");
+
+        //Err(anyhow!("Not implemented"))
+        // let seed_words = seed.to_mnemonic(MnemonicLanguage::English, None)?;
+        // for i in 0..seed_words.len() {
+        //     println!("{}: {}", i + 1, seed_words.get_word(i)?);
+        // }
+
+
+        let comms_key_manager = KeyManager::<PublicKey, KeyDigest>::from(
+            seed.clone(),
+            KEY_MANAGER_COMMS_SECRET_KEY_BRANCH_KEY.to_string(),
+            0,
+        );
+        let comms_key = comms_key_manager.derive_key(0).map_err(|e| anyhow!(e.to_string()))?.key;
+        let comms_pub_key = PublicKey::from_secret_key(&comms_key);
+        let network = Network::default();
+        dbg!("here2");
+
+        let tx_key_manager =create_memory_db_key_manager_from_seed(seed.clone(), 64);
+        let view_key = tx_key_manager.get_view_key_id().await?;
+        let view_key_pub = tx_key_manager.get_public_key_at_key_id(&view_key).await?;
+         let tari_address =
+             TariAddress::new_dual_address_with_default_features(view_key_pub.clone(), comms_pub_key.clone(), network);
+        Ok(tari_address)
     }
 
     async fn step(&mut self) -> Result<(), Error> {

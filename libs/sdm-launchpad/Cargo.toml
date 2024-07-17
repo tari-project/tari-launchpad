@@ -7,20 +7,26 @@ repository = "https://github.com/tari-project/tari-launchpad"
 edition = "2021"
 
 [dependencies]
-minotari_app_grpc = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
-minotari_node_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
-minotari_wallet_grpc_client = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
-tari_common_types = { git = "https://github.com/tari-project/tari", tag = "v1.0.0-rc.2" }
-tari_launchpad_protocol = { path = "../protocol" }
-tari_sdm = { path = "../sdm" }
-tari_sdm_assets = { path = "../sdm-assets" }
-tari_utilities = "0.7.0"
+minotari_app_grpc = {workspace = true }
+minotari_node_grpc_client ={workspace = true }
+minotari_wallet_grpc_client = {workspace = true }
+tari_common_types = {workspace = true }
+tari_common = {workspace = true }
+tari_core = {workspace = true }
+tari_crypto = { workspace = true }
+tari_key_manager ={workspace = true }
+tari_launchpad_protocol = {workspace = true }
+tari_sdm = {workspace = true }
+tari_sdm_assets = {workspace = true }
+tari_utilities = {workspace = true }
 
 anyhow = "1.0.72"
 async-trait = "0.1.72"
 chrono = "0.4.31"
+keyring = "2.3.3"
 log = "0.4.19"
 openssl-sys = { version = "0.9", features = ["vendored"] }
+rand = "0.8.4"
 regex = "1.9.1"
 serde = "=1.0.167"
 serde_json = "1.0.103"
