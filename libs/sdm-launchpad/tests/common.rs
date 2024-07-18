@@ -124,7 +124,7 @@ impl TestStateInner {
                     state.apply(delta);
                 }
             },
-            Reaction::Exit => {}
+            Reaction::Exit => {},
         }
         Ok(())
     }
