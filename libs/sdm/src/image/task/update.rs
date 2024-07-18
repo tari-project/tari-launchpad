@@ -47,7 +47,11 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
     }
 
     pub async fn reset(&mut self) -> Result<(), Error> {
-        self.do_drop_image().await
+        if self.image_exists().await {
+            let _ =self.do_drop_image().await;
+        }
+
+        self.try_remove_container().await
     }
 
     async fn do_initial_state(&mut self) -> Result<(), Error> {
@@ -314,6 +318,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
 
     async fn do_drop_image(&mut self) -> Result<(), Error> {
         log::trace!("[Update event: Image] `do_drop_image` {}", self.inner.image_name);
+        println!("try_remove_image {}", self.container_name);
         self.try_remove_image().await
     }
 }

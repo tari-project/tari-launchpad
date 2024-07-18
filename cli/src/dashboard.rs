@@ -210,7 +210,6 @@ impl Do<Reaction> for Dashboard {
                     state.state.apply(delta);
                 }
             },
-            Reaction::Exit => {},
         }
         // Reporting about the state has changed - this gets triggered for every event, so isn't very efficient.
         if let Some(state) = self.state.as_mut() {

@@ -22,7 +22,7 @@
 //
 
 use anyhow::Error;
-use tari_launchpad_protocol::{launchpad::Reaction, ACTIONS, REACTIONS};
+use tari_launchpad_protocol::{ACTIONS, REACTIONS};
 use tauri::{App, Manager, Wry};
 
 use crate::bus::LaunchpadBus;
@@ -53,10 +53,7 @@ pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
     let mut out_rx = bus.outgoing;
     tauri::async_runtime::spawn(async move {
         while let Some(event) = out_rx.recv().await {
-            match event {
-                Reaction::Exit => handle.exit(1),
-                _ => handle.emit_all(REACTIONS, event)?,
-            }
+            handle.emit_all(REACTIONS, event)?;
         }
         Ok::<(), Error>(())
     });

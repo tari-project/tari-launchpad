@@ -72,7 +72,6 @@ impl SdmWorker {
                 Reaction::Delta(delta) => {
                     state.apply(delta);
                 },
-                Reaction::Exit => {},
             }
         }
     }

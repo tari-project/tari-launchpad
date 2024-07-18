@@ -39,7 +39,7 @@ function ResetSettings({ handleReset }: { handleReset: VoidFunction }) {
                 {t.reset.settings.keepEditing}
               </Button>
               <Button variant="contained" onClick={handleReset}>
-                {t.reset.settings.resetAndExit}
+                {t.reset.settings.reset}
               </Button>
             </HorisontalButtons>
           )}
