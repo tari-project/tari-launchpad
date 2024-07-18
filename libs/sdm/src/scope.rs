@@ -70,7 +70,7 @@ pub enum ControlEvent<C: ManagedProtocol> {
         task_id: TaskId,
     },
     InnerEvent(C::Inner),
-    Reset
+    Reset,
 }
 
 impl<C: ManagedProtocol> Clone for ControlEvent<C> {
