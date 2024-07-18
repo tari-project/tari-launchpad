@@ -365,7 +365,7 @@ where
                 self.process_inner_event(inner);
             },
             ControlEvent::Reset => {
-                let _ = self.reset().await;
+                drop(self.reset().await);
             },
         }
     }

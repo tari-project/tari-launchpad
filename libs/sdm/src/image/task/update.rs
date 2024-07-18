@@ -48,7 +48,7 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
 
     pub async fn reset(&mut self) -> Result<(), Error> {
         if self.image_exists().await {
-            let _ = self.do_drop_image().await;
+            drop(self.do_drop_image().await);
         }
 
         self.try_remove_container().await
