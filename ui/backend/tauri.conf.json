@@ -18,6 +18,11 @@
           "name": "config-file",
           "description": "The path to the configuration file to use for the launcher",
           "takesValue": true
+        },
+        {
+          "name": "debug-mode",
+          "description": "Debug mode",
+          "takesValue": true
         }
       ],
       "subcommands": {}

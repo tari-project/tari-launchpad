@@ -48,12 +48,11 @@ fn main() -> Result<(), Error> {
     });
 
     let app = tauri::Builder::default()
-        .setup(|app| {
-            #[cfg(debug_assertions)] // only include this code on debug builds
-            {
+        .setup(move |app| {
+            let args: Vec<String> = env::args().collect();
+            if args.contains(&String::from("debug-mode")) {
                 let window = app.get_window("main").unwrap();
                 window.open_devtools();
-                //  window.close_devtools();
             }
 
             tari_sdm_launchpad::tauri::bus_setup(app)
