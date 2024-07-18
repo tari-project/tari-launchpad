@@ -48,7 +48,15 @@ fn main() -> Result<(), Error> {
     });
 
     let app = tauri::Builder::default()
-        .setup(tari_sdm_launchpad::tauri::bus_setup)
+        .setup(move |app| {
+            let args: Vec<String> = env::args().collect();
+            if args.contains(&String::from("debug-mode")) {
+                let window = app.get_window("main").unwrap();
+                window.open_devtools();
+            }
+
+            tari_sdm_launchpad::tauri::bus_setup(app)
+        })
         .build(tauri::generate_context!())?;
 
     app.run(|app_handle, event| {
