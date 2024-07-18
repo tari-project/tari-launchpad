@@ -55,7 +55,7 @@ pub fn bus_setup(app: &mut App<Wry>) -> Result<(), Box<dyn std::error::Error>> {
         while let Some(event) = out_rx.recv().await {
             match event {
                 Reaction::Exit => handle.exit(1),
-                _ => handle.emit_all(REACTIONS, event)?
+                _ => handle.emit_all(REACTIONS, event)?,
             }
         }
         Ok::<(), Error>(())
