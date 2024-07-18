@@ -197,7 +197,7 @@ impl LaunchpadWorker {
                 self.reset_settings().await?;
                 self.scope.reset_docker().await?;
                 self.send(Reaction::Exit);
-            }
+            },
         }
         Ok(())
     }
