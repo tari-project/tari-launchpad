@@ -84,7 +84,7 @@ impl Default for LaunchpadState {
 pub enum Reaction {
     State(LaunchpadState),
     Delta(LaunchpadDelta),
-    Exit
+    Exit,
 }
 
 impl LaunchpadState {
