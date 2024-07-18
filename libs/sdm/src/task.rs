@@ -403,7 +403,7 @@ where
     }
 
     pub async fn reset(&mut self) {
-        let _ = self.context.reset().await;
+        drop(self.context.reset().await);
     }
 
     pub fn process_inner_event(&mut self, event: <R::Protocol as ManagedProtocol>::Inner) {
