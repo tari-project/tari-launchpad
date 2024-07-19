@@ -91,10 +91,7 @@ impl<C: ManagedProtocol> RunnableContext<NetworkTask<C>> for TaskContext<Network
     }
 
     fn is_active(&mut self) -> bool {
-        match self.status.get() {
-            Status::Active { .. } => true,
-            _ => false,
-        }
+        matches!(self.status.get(), Status::Active { .. })
     }
 }
 
