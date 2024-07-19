@@ -90,6 +90,13 @@ impl<C: ManagedProtocol> RunnableContext<VolumeTask<C>> for TaskContext<VolumeTa
     async fn update(&mut self) -> Result<(), Error> {
         self.process_update_impl().await
     }
+
+    fn is_active(&mut self) -> bool {
+        match self.status.get() {
+            Status::Active {..} => true,
+            _ => false,
+        }
+    }
 }
 
 #[derive(Debug)]

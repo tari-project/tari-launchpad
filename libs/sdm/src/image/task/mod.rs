@@ -101,6 +101,13 @@ impl<C: ManagedProtocol> RunnableContext<ImageTask<C>> for TaskContext<ImageTask
     async fn update(&mut self) -> Result<(), Error> {
         self.process_update_impl().await
     }
+
+    fn is_active(&mut self) -> bool {
+        match self.status.get() {
+            Status::Active {..} => true,
+            _ => false,
+        }
+    }
 }
 
 impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {

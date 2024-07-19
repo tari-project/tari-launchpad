@@ -81,6 +81,7 @@ pub trait RunnableContext<T: RunnableTask> {
     fn process_inner_event(&mut self, event: <T::Protocol as ManagedProtocol>::Inner);
     fn process_event(&mut self, event: T::Event) -> Result<(), Error>;
     async fn update(&mut self) -> Result<(), Error>;
+    fn is_active(&mut self) -> bool;
 }
 
 pub struct TaskSender<E, P: ManagedProtocol> {
@@ -389,6 +390,13 @@ where
             debug!("[SdmTaskRunner::reconfigure] Task {} is queued to start", self.task_id)
         } else if !is_active && self.context.should_start != is_active {
             drop(self.context.update_task_status(TaskStatusValue::ShuttingDown));
+
+            if self.context.is_active() {
+                drop(self.context.update_task_status(TaskStatusValue::ShuttingDown));
+            } else {
+                drop(self.context.update_task_status(TaskStatusValue::Inactive));
+            }
+
         } else {
             debug!(
                 "[SdmTaskRunner::reconfigure] Task {} is NOT queued to start",
