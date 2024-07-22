@@ -318,7 +318,6 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
 
     async fn do_drop_image(&mut self) -> Result<(), Error> {
         log::trace!("[Update event: Image] `do_drop_image` {}", self.inner.image_name);
-        println!("try_remove_image {}", self.container_name);
         self.try_remove_image().await
     }
 }
