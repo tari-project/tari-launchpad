@@ -8,6 +8,6 @@ export default {
       'Clean all settings and start from scratch (requires restarting)',
     resetButton: 'Reset',
     keepEditing: 'Keep editing',
-    resetAndExit: 'Reset & Exit',
+    reset: 'Reset',
   },
 };

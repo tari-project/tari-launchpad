@@ -105,6 +105,12 @@ function SettingsDialog() {
     }));
   };
 
+  const handleResetSettings = () => {
+    emit('tari://actions', {
+      Action: { type: 'ResetSettings' },
+    });
+  }
+
   const menuItems = [
     {
       label: 'Tari Mining',
@@ -135,7 +141,7 @@ function SettingsDialog() {
     },
     {
       label: 'Reset',
-      component: <ResetSettings />,
+      component: <ResetSettings handleReset={handleResetSettings} />,
     },
   ];
 

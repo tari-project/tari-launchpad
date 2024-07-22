@@ -101,6 +101,10 @@ impl<C: ManagedProtocol> RunnableContext<ImageTask<C>> for TaskContext<ImageTask
     async fn update(&mut self) -> Result<(), Error> {
         self.process_update_impl().await
     }
+
+    async fn reset(&mut self) -> Result<(), Error> {
+        self.reset().await
+    }
 }
 
 impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {

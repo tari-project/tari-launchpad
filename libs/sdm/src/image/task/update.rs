@@ -46,6 +46,14 @@ impl<C: ManagedProtocol> TaskContext<ImageTask<C>> {
         }
     }
 
+    pub async fn reset(&mut self) -> Result<(), Error> {
+        if self.image_exists().await {
+            drop(self.do_drop_image().await);
+        }
+
+        self.try_remove_container().await
+    }
+
     async fn do_initial_state(&mut self) -> Result<(), Error> {
         log::trace!("[Update event: Image] `do_initial_state` {}", self.inner.image_name);
         self.update_task_status(TaskStatus::Inactive)?;

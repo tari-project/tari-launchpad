@@ -230,6 +230,11 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
       Action: { type: 'SaveSettings', payload: settings },
     });
   },
+  reset_settings: async () => {
+    emit('tari://actions', {
+      Action: { type: 'ResetSettings' },
+    })
+  }
 }));
 
 export default useAppStateStore;
