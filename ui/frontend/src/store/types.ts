@@ -172,6 +172,9 @@ export interface AppStateStore {
   // Settings tab
   settingsTab: number;
 
+  isZippingLogs: boolean;
+  setIsZippingLogs: (value: boolean) => void;
+
   // Functions
   openSettingsFunc: (settingsTab: string) => void;
   startMining: (type: MiningType) => void;
@@ -181,4 +184,5 @@ export interface AppStateStore {
   saveTariAddress: (tariAddress: string) => void;
   saveMoneroAddress: (moneroAddress: string) => void;
   saveSettings: (formData: any) => void;
+  exportLogs: () => void;
 }

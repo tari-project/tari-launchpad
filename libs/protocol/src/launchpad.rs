@@ -47,6 +47,7 @@ pub enum LaunchpadAction {
     Connect,
     ChangeSession(LaunchpadSession),
     SaveSettings(Box<PersistentSettings>),
+    ExportLogs,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -83,6 +84,7 @@ impl Default for LaunchpadState {
 pub enum Reaction {
     State(LaunchpadState),
     Delta(LaunchpadDelta),
+    LogsZipped,
 }
 
 impl LaunchpadState {

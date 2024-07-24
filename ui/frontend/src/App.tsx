@@ -45,6 +45,7 @@ function App() {
     openSchedule,
     startBaseNode,
     startMining,
+    setIsZippingLogs
   } = useAppStateStore(
     useShallow((state) => ({
       appState: state.appState,
@@ -67,6 +68,7 @@ function App() {
       openSchedule: state.openSchedule,
       startBaseNode: state.startBaseNode,
       startMining: state.startMining,
+      setIsZippingLogs: state.setIsZippingLogs,
     }))
   );
   const { startupConfig } = useConfigStore();
@@ -183,6 +185,9 @@ function App() {
               console.log('Unknown delta: ' + JSON.stringify(delta));
             }
           }
+        }
+        if (payload === "LogsZipped") {
+          setIsZippingLogs(false);
         }
       }))();
 

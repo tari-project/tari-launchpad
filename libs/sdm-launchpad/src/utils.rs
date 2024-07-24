@@ -21,13 +21,39 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#[cfg(feature = "tauri")]
-pub mod api;
-pub mod bus;
+use anyhow::Error;
+use std::fs::File;
+use std::io::Read;
+use std::io::Write;
+use tauri::api::path::download_dir;
+use walkdir::WalkDir;
+use zip::{write::FileOptions, ZipWriter};
 
-mod node_grpc;
-pub mod resources;
-#[cfg(feature = "tauri")]
-pub mod tauri;
-pub use bus::LaunchpadBus;
-pub mod utils;
+pub fn zip_and_export(in_path: String, zip_name: String, root_dir_name: Option<String>) -> Result<(), Error> {
+    let zip_path = download_dir().unwrap().join(zip_name);
+    let mut zip_writer = ZipWriter::new(File::create(zip_path)?);
+
+    for entry in WalkDir::new(in_path.clone()) {
+        let entry = entry?;
+        let path = entry.path();
+        let options = FileOptions::default();
+
+        if path.is_file() {
+            let file_path = match root_dir_name {
+                Some(ref dir) => format!("{}/{}", dir, path.file_name().unwrap().to_string_lossy().into_owned()),
+                None => path.strip_prefix(in_path.clone())?.to_string_lossy().into_owned(),
+            };
+            zip_writer.start_file(file_path, options)?;
+
+            let mut file = File::open(path)?;
+            let mut buffer: Vec<u8> = Vec::new();
+            file.read_to_end(&mut buffer)?;
+            zip_writer.write_all(&buffer)?;
+        } else {
+            let dir_path = path.strip_prefix(in_path.clone())?.to_str().unwrap();
+            zip_writer.add_directory(dir_path, options)?;
+        }
+    }
+
+    Ok(())
+}

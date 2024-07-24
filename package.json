@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "cd ui/frontend && npm run build && cargo run --bin tari_bus_tauri",
+    "start": "cd ui/frontend && npm run build && cargo run --bin tari_launchpad",
     "dev": "cd ui/frontend && npm run dev",
     "tauri": "tauri"
   },
