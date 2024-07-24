@@ -5,7 +5,7 @@ import ThemeSwitch from '../../components/ThemeSwitch';
 import MergedMiningSettings from './MergedMiningSettings/MergedMiningSettings';
 import BaseNodeSettings from './BaseNodeSettings/BaseNodeSettings';
 import ShaMiningSettings from './ShaMiningSettings/ShaMiningSettings';
-import ResetSettings from './ResetSettings/ResetSettings';
+import AdvancedSettings from './AdvancedSettings/AdvancedSettings';
 import { useTheme } from '@mui/material/styles';
 import { HorisontalButtons } from '../../components/StyledComponents';
 import {
@@ -44,13 +44,15 @@ function a11yProps(index: number) {
 }
 
 function SettingsDialog() {
-  const { openSettings, setOpenSettings, appState, settingsTab } =
+  const { openSettings, setOpenSettings, appState, settingsTab, isZippingLogs, exportLogs } =
     useAppStateStore(
       useShallow((state) => ({
         openSettings: state.openSettings,
         setOpenSettings: state.setOpenSettings,
         appState: state.appState,
         settingsTab: state.settingsTab,
+        isZippingLogs: state.isZippingLogs,
+        exportLogs: state.exportLogs,
       }))
     );
   const { startupConfig, setStartupConfig } = useConfigStore();
@@ -134,8 +136,8 @@ function SettingsDialog() {
       ),
     },
     {
-      label: 'Reset',
-      component: <ResetSettings />,
+      label: 'Advanced',
+      component: <AdvancedSettings isZippingLogs={isZippingLogs} handleExportLogs={exportLogs} />,
     },
   ];
 

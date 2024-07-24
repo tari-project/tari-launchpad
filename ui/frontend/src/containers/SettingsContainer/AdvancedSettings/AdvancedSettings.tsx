@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Typography, Button, Box, Chip } from '@mui/material';
+import { Typography, Button, Box, Chip, CircularProgress } from '@mui/material';
 import SubHeading from '../../../components/SubHeading';
 import typography from '../../../styles/styles/typography';
 import {
@@ -9,37 +9,57 @@ import {
 import { SettingsBox, SettingsContainer } from '../styles';
 import t from '../../../locales';
 
-function ResetSettings() {
+function AdvancedSettings({
+  isZippingLogs,
+  handleExportLogs,
+}: {
+  isZippingLogs: boolean,
+  handleExportLogs: VoidFunction;
+}) {
   const [confirmReset, setConfirmReset] = useState(false);
   return (
     <SettingsContainer>
       <Typography variant="h3" style={typography.subheader}>
-        {t.reset.settings.title}
+        {t.advancedSettings.settings.title}
       </Typography>
       <SettingsBox>
-        <SubHeading text={t.reset.settings.subtitle} />
+        <SubHeading text="Export logs" />
+
+        <Typography variant="body2" style={typography.smallMedium}>
+        {t.advancedSettings.settings.exportDescription}
+        </Typography>
+
+        <Box>
+          {isZippingLogs ? <CircularProgress /> : <Button variant="contained" onClick={handleExportLogs}>
+            {t.advancedSettings.settings.export}
+          </Button>}
+          
+        </Box>
+      </SettingsBox>
+      <SettingsBox>
+        <SubHeading text={t.advancedSettings.settings.subtitle} />
         <LabelWithChip>
           <Typography variant="body1" style={typography.defaultMedium}>
-            {t.reset.settings.label}
+            {t.advancedSettings.settings.label}
           </Typography>
-          <Chip label={t.reset.settings.warning} color="warning" />
+          <Chip label={t.advancedSettings.settings.warning} color="warning" />
         </LabelWithChip>
 
         <Typography variant="body2" style={typography.smallMedium}>
-          {t.reset.settings.description}
+          {t.advancedSettings.settings.description}
         </Typography>
         <Box>
           {!confirmReset ? (
             <Button variant="contained" onClick={() => setConfirmReset(true)}>
-              {t.reset.settings.resetButton}
+              {t.advancedSettings.settings.resetButton}
             </Button>
           ) : (
             <HorisontalButtons>
               <Button variant="outlined" onClick={() => setConfirmReset(false)}>
-                {t.reset.settings.keepEditing}
+                {t.advancedSettings.settings.keepEditing}
               </Button>
               <Button variant="contained" onClick={() => console.log('Reset')}>
-                {t.reset.settings.resetAndExit}
+                {t.advancedSettings.settings.resetAndExit}
               </Button>
             </HorisontalButtons>
           )}
@@ -49,4 +69,4 @@ function ResetSettings() {
   );
 }
 
-export default ResetSettings;
+export default AdvancedSettings;

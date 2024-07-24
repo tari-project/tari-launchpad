@@ -30,3 +30,5 @@ tokio = "1.29.1"
 toml = "0.8.8"
 tonic = { version = "0.8.3", features = ["tls"] }
 tor-hash-passwd = "1.0.1"
+walkdir = "2.3.2"
+zip = "0.5.13"

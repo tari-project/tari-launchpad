@@ -111,6 +111,9 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
 
   settingsTab: 0,
 
+  isZippingLogs: false,
+  setIsZippingLogs: (isZippingLogs) => set({ isZippingLogs }),
+
   openSettingsFunc: (tab) => {
     set({ openSettings: true });
     switch (tab) {
@@ -230,6 +233,12 @@ const useAppStateStore = create<AppStateStore>((set, get) => ({
       Action: { type: 'SaveSettings', payload: settings },
     });
   },
+  exportLogs: async () => {
+    set({ isZippingLogs: true });
+    emit('tari://actions', {
+      Action: { type: 'ExportLogs' },
+    })
+  }
 }));
 
 export default useAppStateStore;

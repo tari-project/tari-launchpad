@@ -21,10 +21,10 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-use std::path::PathBuf;
-
 use anyhow::Error;
 use log::*;
+use std::env;
+use std::path::PathBuf;
 use tari_launchpad_protocol::{
     container::{TaskDelta, TaskId, TaskProgress, TaskState, TaskStatus},
     launchpad::{Action, LaunchpadAction, LaunchpadDelta, LaunchpadState, Reaction},
@@ -40,6 +40,7 @@ use crate::{
         config::{LaunchpadProtocol, LaunchpadSettings},
         images, networks, volumes,
     },
+    utils::zip_and_export,
 };
 
 pub type BusTx = mpsc::UnboundedSender<Action>;
@@ -193,6 +194,10 @@ impl LaunchpadWorker {
             LaunchpadAction::SaveSettings(settings) => {
                 self.save_settings(*settings).await?;
             },
+            LaunchpadAction::ExportLogs => {
+                self.export_logs().await?;
+                self.send(Reaction::LogsZipped);
+            },
         }
         Ok(())
     }
@@ -241,6 +246,31 @@ impl LaunchpadWorker {
             // We just checked that this exists above
             settings.saved_settings = new_settings
         }
+        Ok(())
+    }
+
+    async fn export_logs(&mut self) -> Result<(), Error> {
+        let network = self
+            .state
+            .config
+            .settings
+            .as_ref()
+            .map(|s| s.saved_settings.clone().tari_network.lower_case());
+        let current_dir = env::current_dir().expect("Failed to get the current directory");
+        let logs_path = format!(
+            "{}/{}/log",
+            current_dir.display(),
+            network.expect("Network not defined")
+        );
+        let logs_path2 = format!("{}/log", current_dir.display());
+
+        zip_and_export(logs_path.to_string(), "launchpad_logs.zip".to_string(), None)?;
+        zip_and_export(
+            logs_path2.to_string(),
+            "launchpad_core_logs.zip".to_string(),
+            Some("core".to_string()),
+        )?;
+
         Ok(())
     }
 
