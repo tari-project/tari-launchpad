@@ -155,7 +155,7 @@ fi
 
 # Version refers to the node, wallet, etc.
 #  applications/tari_app_utilities/Cargo.toml
-TL_VERSION=${TL_VERSION:-$(awk -F ' = ' '$1 ~ /version/ \
+TL_VERSION=${TL_VERSION:-$(awk -F ' = ' '$1 ~ /^version/ \
   { gsub(/["]/, "", $2); printf("%s",$2) }' \
   "${TARI_SOURCE_ROOT}/applications/minotari_node/Cargo.toml")}
 
