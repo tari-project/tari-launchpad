@@ -5,7 +5,6 @@ import ThemeSwitch from '../../components/ThemeSwitch';
 import MergedMiningSettings from './MergedMiningSettings/MergedMiningSettings';
 import BaseNodeSettings from './BaseNodeSettings/BaseNodeSettings';
 import ShaMiningSettings from './ShaMiningSettings/ShaMiningSettings';
-import ResetSettings from './ResetSettings/ResetSettings';
 import { useTheme } from '@mui/material/styles';
 import { HorisontalButtons } from '../../components/StyledComponents';
 import {
@@ -132,10 +131,6 @@ function SettingsDialog() {
           formData={formData.baseNodeSettings}
         />
       ),
-    },
-    {
-      label: 'Reset',
-      component: <ResetSettings />,
     },
   ];
 

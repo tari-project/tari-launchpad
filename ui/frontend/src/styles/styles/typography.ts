@@ -10,18 +10,16 @@ export const font = {
 
 const typography = {
   header: {
-    fontSize: 32,
-    lineHeight: '44px',
-    fontFamily: 'DrukMedium',
+    fontSize: 26,
+    lineHeight: '38px',
+    fontFamily: 'PoppinsMedium',
     fontWeight: 500,
-    // textTransform: 'uppercase',
   },
   subheader: {
     fontSize: 24,
     lineHeight: '38px',
-    fontFamily: 'DrukMedium',
+    fontFamily: 'PoppinsMedium',
     fontWeight: 500,
-    // textTransform: 'uppercase',
   },
   defaultHeavy: {
     fontSize: 14,
