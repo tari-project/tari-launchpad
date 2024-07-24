@@ -124,6 +124,7 @@ impl TestStateInner {
                     state.apply(delta);
                 }
             },
+            _ => {},
         }
         Ok(())
     }
